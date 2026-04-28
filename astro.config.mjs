@@ -1,10 +1,9 @@
 // @ts-check
 
+import cloudflare from '@astrojs/cloudflare';
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
-
-import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 // 출력: 순수 정적 (PSI 100 우선). API 추가 시 @astrojs/cloudflare 어댑터 + 페이지별 prerender 사용.
