@@ -1,0 +1,521 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { formatWon } from '@/data/site-data';
+import { type GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+
+export const getStaticPaths = (async () => {
+  const subsidies = await getCollection('subsidies');
+  return subsidies.map((s) => ({ params: { id: s.data.id }, props: { subsidy: s } }));
+}) satisfies GetStaticPaths;
+
+const { subsidy } = Astro.props;
+const s = subsidy.data;
+
+const personas = await getCollection('personas');
+const matchedPersonas = s.targetPersonas
+  .map((pid) => personas.find((p) => p.data.id === pid)?.data)
+  .filter(Boolean);
+
+const allSubsidies = await getCollection('subsidies');
+const related = allSubsidies
+  .filter((x) => x.data.category === s.category && x.data.id !== s.id)
+  .slice(0, 3);
+
+const govSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'GovernmentService',
+  name: s.title,
+  serviceType: s.category,
+  provider: {
+    '@type': 'GovernmentOrganization',
+    name: s.agency,
+  },
+  audience: {
+    '@type': 'PeopleAudience',
+    audienceType: matchedPersonas.map((p) => p?.label).filter(Boolean).join(', '),
+  },
+  description: s.summary,
+  url: s.applyUrl,
+  termsOfService: s.eligibility.join(' / '),
+  availableChannel: {
+    '@type': 'ServiceChannel',
+    serviceUrl: s.applyUrl,
+    availableLanguage: 'ko',
+  },
+};
+---
+
+<BaseLayout
+  title={`${s.title} — ${s.agency} | 지원금가이드`}
+  description={s.summary}
+  activeNav="/subsidies"
+>
+  <section class="detail-hero">
+    <Container size="wide">
+      <a class="back-link" href="/subsidies/">← 둘러보기로</a>
+      <div class="hero-grid">
+        <div>
+          <div class="agency">{s.agency} · {s.category}</div>
+          <h1 class="title">{s.title}</h1>
+          <div class="amount-row">
+            <span class="amount">{formatWon(s.amount)}</span>
+            <span class="unit">{s.amountLabel}</span>
+          </div>
+          {s.monthly && <div class="monthly">{s.monthly}</div>}
+          <p class="summary">{s.summary}</p>
+          <div class="tags">
+            {s.tags.map((t) => <span class="tag">#{t}</span>)}
+          </div>
+        </div>
+
+        <aside class="apply-rail">
+          <div class="rail-row">
+            <span>적용 대상</span>
+          </div>
+          <div class="persona-mini-row">
+            {
+              matchedPersonas.slice(0, 4).map((p) =>
+                p ? (
+                  <span class="persona-mini">
+                    <Icon name={p.icon} size={13} strokeWidth={1.8} />
+                    {p.label}
+                  </span>
+                ) : null,
+              )
+            }
+          </div>
+          <div class="rail-row dl-row">
+            <span>마감</span>
+            <strong>{s.deadline}</strong>
+          </div>
+          <div class="rail-row dl-row">
+            <span>상태</span>
+            <strong class={s.status === '곧 마감' ? 'st-warn' : 'st-ok'}>{s.status}</strong>
+          </div>
+          <a class="btn-primary" href={s.applyUrl} target="_blank" rel="noopener noreferrer">
+            공식 신청처로 이동
+            <Icon name="arrow-up-right" size={16} />
+          </a>
+          <p class="disclaimer">
+            지원금가이드는 정보 안내 사이트로, 신청 대행은 하지 않습니다.
+            실제 신청은 정부24·복지로 등 공식 사이트에서 진행됩니다.
+          </p>
+        </aside>
+      </div>
+    </Container>
+  </section>
+
+  <section class="band alt">
+    <Container size="wide">
+      <div class="two-col">
+        <div>
+          <h2 class="utility">지원 대상</h2>
+          <ul class="checklist">
+            {
+              s.eligibility.map((e) => (
+                <li>
+                  <span class="check"><Icon name="check" size={14} strokeWidth={2.4} /></span>
+                  <span>{e}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        <div>
+          <h2 class="utility">혜택 내용</h2>
+          <ul class="checklist">
+            {
+              s.benefits.map((b) => (
+                <li>
+                  <span class="check check-success"><Icon name="check" size={14} strokeWidth={2.4} /></span>
+                  <span>{b}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  <section class="band">
+    <Container size="wide">
+      <div class="two-col">
+        <div>
+          <h2 class="utility">신청 방법 & 일정</h2>
+          <dl class="kv-grid">
+            <dt>주관 기관</dt><dd>{s.agency}</dd>
+            <dt>지원 기간</dt><dd>{s.period}</dd>
+            <dt>마감일</dt><dd>{s.deadline}</dd>
+            <dt>처리 기간</dt><dd>평균 14일</dd>
+            <dt>신청 방법</dt><dd>온라인 / 방문 접수</dd>
+          </dl>
+        </div>
+        <div>
+          <h2 class="utility">필요 서류</h2>
+          <ul class="doc-list">
+            {
+              s.documents.map((d) => (
+                <li>
+                  <Icon name="doc" size={18} />
+                  <span>{d}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  {
+    related.length > 0 && (
+      <section class="band alt">
+        <Container size="wide">
+          <h2 class="display">비슷한 지원금</h2>
+          <ul class="related-grid">
+            {related.map((r) => (
+              <li>
+                <a class="related-card" href={`/subsidies/${r.data.id}/`}>
+                  <Icon name={r.data.icon} size={28} strokeWidth={1.6} />
+                  <div>
+                    <div class="r-agency">{r.data.agency}</div>
+                    <div class="r-title">{r.data.title}</div>
+                    <div class="r-amount">{formatWon(r.data.amount)} {r.data.amountLabel}</div>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      </section>
+    )
+  }
+
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(govSchema)}
+  />
+</BaseLayout>
+
+<style>
+  .detail-hero {
+    padding: 56px 0 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .back-link:hover {
+    color: var(--text);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 48px;
+  }
+  @media (max-width: 880px) {
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+
+  .agency {
+    font-size: 13px;
+    color: var(--accent-link);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+
+  .title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+  }
+
+  .amount-row {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  .amount {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.025em;
+    line-height: 1;
+  }
+
+  .unit {
+    font-size: 14px;
+    color: var(--text-2);
+    font-weight: 500;
+  }
+
+  .monthly {
+    font-size: 16px;
+    color: var(--text-2);
+    margin-bottom: 16px;
+  }
+
+  .summary {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    max-width: 520px;
+    margin: 0 0 16px;
+  }
+
+  .tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .apply-rail {
+    background: var(--surface-2);
+    border-radius: var(--radius-xl);
+    padding: 24px;
+  }
+
+  .rail-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: var(--text-2);
+    margin-bottom: 8px;
+  }
+
+  .dl-row {
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    margin-bottom: 8px;
+  }
+
+  .dl-row strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .st-warn {
+    color: var(--color-warning);
+  }
+  .st-ok {
+    color: var(--color-success);
+  }
+
+  .persona-mini-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .persona-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background: var(--surface);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+  }
+
+  .btn-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: var(--accent);
+    color: var(--on-accent);
+    text-decoration: none;
+    border-radius: var(--radius-pill);
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+  .btn-primary:hover {
+    background: color-mix(in oklch, var(--accent), black 8%);
+    text-decoration: none;
+  }
+
+  .disclaimer {
+    font-size: 11px;
+    color: var(--text-3);
+    line-height: 1.5;
+    margin: 12px 0 0;
+    text-align: center;
+  }
+
+  .band {
+    padding: 56px 0;
+  }
+  .band.alt {
+    background: var(--bg-alt);
+  }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+  }
+  @media (max-width: 720px) {
+    .two-col {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+
+  .utility {
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 16px;
+  }
+
+  .checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .check {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .check-success {
+    background: var(--color-success);
+  }
+
+  .kv-grid {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    row-gap: 12px;
+  }
+
+  .kv-grid dt {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .kv-grid dd {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .doc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .doc-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .display {
+    font-size: clamp(22px, 2.6vw, 30px);
+    font-weight: 600;
+    margin: 0 0 24px;
+  }
+
+  .related-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .related-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .related-card:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+
+  .r-agency {
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .r-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 2px 0 4px;
+  }
+  .r-amount {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+</style>

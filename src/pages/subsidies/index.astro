@@ -1,0 +1,258 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { CATEGORIES, formatWon } from '@/data/site-data';
+import { getCollection } from 'astro:content';
+
+const subsidies = await getCollection('subsidies');
+const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.isHot ? 1 : 0));
+---
+
+<BaseLayout
+  title={`정부 지원금 ${subsidies.length}개 둘러보기 — 지원금가이드`}
+  description={`전 국민 대상 정부 지원금 ${subsidies.length}개를 분야·페르소나별로 정리. 청년 월세, 신혼 특공, 청년도약계좌, 소상공인 정책자금 등.`}
+  activeNav="/subsidies"
+>
+  <section class="band">
+    <Container size="wide">
+      <div class="head">
+        <h1 class="title">지원금 둘러보기</h1>
+        <p class="lead">
+          전 국민 대상 정부 지원금 <strong>{subsidies.length}개</strong>를 분야·페르소나별로 살펴보세요.
+        </p>
+      </div>
+
+      <div class="filter-rail" aria-label="분야 필터">
+        {
+          CATEGORIES.map((c) => (
+            <a class="chip" href={c.id === 'all' ? '/subsidies/' : `#cat-${c.id}`}>
+              <Icon name={c.icon} size={14} />
+              {c.name}
+              <span class="cnt">{c.count}</span>
+            </a>
+          ))
+        }
+      </div>
+
+      <ul class="subsidy-grid">
+        {
+          sorted.map((s) => (
+            <li>
+              <a class="subsidy-card" href={`/subsidies/${s.data.id}/`}>
+                <div class={`media tint-${s.data.category}`}>
+                  <Icon name={s.data.icon} size={48} strokeWidth={1.5} />
+                </div>
+                <div class="body">
+                  <div class="meta-row">
+                    <span class="badge neutral">{s.data.category}</span>
+                    {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
+                    {s.data.isHot && <span class="badge accent">HOT</span>}
+                  </div>
+                  <div class="agency">{s.data.agency}</div>
+                  <div class="t">{s.data.title}</div>
+                  <div class="sum">{s.data.summary.slice(0, 64)}{s.data.summary.length > 64 ? '…' : ''}</div>
+                  <div class="amt">
+                    {formatWon(s.data.amount)}
+                    <span class="unit">{s.data.amountLabel}</span>
+                  </div>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .band {
+    padding: 48px 0 80px;
+  }
+
+  .head {
+    margin-bottom: 28px;
+    max-width: 720px;
+  }
+
+  .title {
+    font-size: clamp(28px, 3.6vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .filter-rail {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--surface-2);
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    transition: background 0.15s;
+  }
+
+  .chip:hover {
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    text-decoration: none;
+    padding: 7px 13px;
+  }
+
+  .cnt {
+    background: var(--surface);
+    color: var(--text-2);
+    border-radius: var(--radius-pill);
+    padding: 1px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+
+  .subsidy-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .subsidy-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .subsidy-card:hover {
+    transform: translateY(-3px);
+    text-decoration: none;
+  }
+
+  .media {
+    aspect-ratio: 16 / 7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+  }
+
+  .tint-주거 {
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+  }
+  .tint-자산 {
+    background: rgb(8 145 178 / 0.12);
+    color: #0891b2;
+  }
+  .tint-교육 {
+    background: rgb(139 92 246 / 0.12);
+    color: #8b5cf6;
+  }
+  .tint-창업 {
+    background: rgb(234 88 12 / 0.12);
+    color: #ea580c;
+  }
+  .tint-복지 {
+    background: rgb(236 72 153 / 0.12);
+    color: #ec4899;
+  }
+  .tint-취업 {
+    background: rgb(16 185 129 / 0.12);
+    color: #10b981;
+  }
+
+  .body {
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .badge.neutral {
+    background: var(--surface-2);
+    color: var(--text-2);
+  }
+  .badge.warning {
+    background: rgb(247 195 96 / 0.18);
+    color: var(--color-warning);
+  }
+  .badge.accent {
+    background: rgb(220 38 38 / 0.16);
+    color: #dc2626;
+  }
+
+  .agency {
+    font-size: 13px;
+    color: var(--accent-link);
+    font-weight: 500;
+  }
+
+  .t {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .sum {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .amt {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 6px;
+    letter-spacing: -0.02em;
+  }
+
+  .amt .unit {
+    font-size: 12px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-left: 4px;
+  }
+</style>

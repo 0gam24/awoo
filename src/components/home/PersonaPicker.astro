@@ -1,0 +1,166 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import { getCollection } from 'astro:content';
+
+const personas = (await getCollection('personas')).sort((a, b) => {
+  const order = ['office-rookie', 'self-employed', 'newlywed-family', 'senior', 'low-income', 'farmer'];
+  return order.indexOf(a.data.id) - order.indexOf(b.data.id);
+});
+---
+
+<section class="band">
+  <Container size="wide">
+    <div class="section-head">
+      <div class="eyebrow">나 같은 사람은?</div>
+      <h2 class="display">본인과 가장 비슷한 상황을 골라보세요</h2>
+      <p class="lead">
+        입력 없이 카테고리만 선택하면 그 그룹이 받는 지원금을 모아서 보여드려요.
+        개인정보는 묻지 않습니다.
+      </p>
+    </div>
+
+    <div class="persona-grid">
+      {
+        personas.map((p) => (
+          <a class={`persona-card ${p.data.bg}`} href={`/personas/${p.data.id}/`}>
+            <div class="persona-glyph">
+              <Icon name={p.data.icon} size={32} strokeWidth={1.6} />
+            </div>
+            <div class="persona-label">{p.data.label}</div>
+            <div class="persona-sub">{p.data.sub}</div>
+            <div class="persona-meta">
+              <span>{p.data.age}</span>
+              <span aria-hidden="true">·</span>
+              <span>{p.data.income}</span>
+            </div>
+            <span class="persona-arrow" aria-hidden="true">
+              <Icon name="arrow-right" size={16} />
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </Container>
+</section>
+
+<style>
+  .band {
+    padding: 64px 0;
+  }
+
+  .section-head {
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .display {
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.018em;
+    margin: 0 0 12px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .persona-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .persona-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 28px 24px;
+    border-radius: var(--radius-lg);
+    color: #fff;
+    text-decoration: none;
+    overflow: hidden;
+    transition: transform 0.2s var(--ease-standard), box-shadow 0.2s var(--ease-standard);
+  }
+
+  .persona-card:hover {
+    transform: translateY(-4px);
+    text-decoration: none;
+  }
+
+  .persona-blue {
+    background: linear-gradient(135deg, #0066cc 0%, #2997ff 100%);
+  }
+  .persona-orange {
+    background: linear-gradient(135deg, #d97706 0%, #f97316 100%);
+  }
+  .persona-pink {
+    background: linear-gradient(135deg, #be185d 0%, #ec4899 100%);
+  }
+  .persona-green {
+    background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+  }
+  .persona-purple {
+    background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%);
+  }
+  .persona-amber {
+    background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%);
+  }
+
+  .persona-glyph {
+    width: 52px;
+    height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 0.15);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+  }
+
+  .persona-label {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  .persona-sub {
+    font-size: 14px;
+    color: rgb(255 255 255 / 0.85);
+    margin-bottom: 8px;
+  }
+
+  .persona-meta {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  .persona-arrow {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    color: rgb(255 255 255 / 0.85);
+    transition: transform 0.2s var(--ease-standard);
+  }
+
+  .persona-card:hover .persona-arrow {
+    transform: translateX(4px);
+  }
+</style>

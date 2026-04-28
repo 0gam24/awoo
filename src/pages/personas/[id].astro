@@ -1,0 +1,314 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { formatWon } from '@/data/site-data';
+import { type GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+
+export const getStaticPaths = (async () => {
+  const personas = await getCollection('personas');
+  return personas.map((p) => ({ params: { id: p.data.id }, props: { persona: p } }));
+}) satisfies GetStaticPaths;
+
+const { persona } = Astro.props;
+const p = persona.data;
+
+const allSubsidies = await getCollection('subsidies');
+const matched = allSubsidies.filter((s) => s.data.targetPersonas.includes(p.id));
+---
+
+<BaseLayout
+  title={`${p.label} — 지원금가이드`}
+  description={`${p.label}(${p.sub})에게 매칭되는 정부 지원금 ${matched.length}개. ${p.pains.join(', ')} 문제 해결을 위한 정보 안내.`}
+  activeNav="/subsidies"
+>
+  <section class="persona-hero" data-bg={p.bg}>
+    <Container size="wide">
+      <a class="back-link" href="/">← 홈</a>
+      <div class="hero-grid">
+        <div class="hero-glyph">
+          <Icon name={p.icon} size={56} strokeWidth={1.5} />
+        </div>
+        <div>
+          <h1 class="hero-title">{p.label}</h1>
+          <p class="hero-sub">{p.sub}</p>
+          <div class="hero-meta">
+            <span>{p.age}</span>
+            <span aria-hidden="true">·</span>
+            <span>{p.income}</span>
+            <span aria-hidden="true">·</span>
+            <span>{p.living}</span>
+          </div>
+        </div>
+      </div>
+      <div class="pains">
+        <span class="pains-label">주요 고민</span>
+        {p.pains.map((pain) => <span class="pain-chip">{pain}</span>)}
+      </div>
+    </Container>
+  </section>
+
+  <section class="band">
+    <Container size="wide">
+      <h2 class="display">{p.label}이 받을 수 있는 지원금 {matched.length}개</h2>
+      <ul class="subsidy-grid">
+        {
+          matched.map((s) => (
+            <li>
+              <a class="subsidy-card" href={`/subsidies/${s.data.id}/`}>
+                <div class={`media tint-${s.data.category}`}>
+                  <Icon name={s.data.icon} size={44} strokeWidth={1.5} />
+                </div>
+                <div class="body">
+                  <div class="meta-row">
+                    <span class="badge neutral">{s.data.category}</span>
+                    {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
+                  </div>
+                  <div class="agency">{s.data.agency}</div>
+                  <div class="title">{s.data.title}</div>
+                  <div class="summary">{s.data.summary.slice(0, 60)}{s.data.summary.length > 60 ? '…' : ''}</div>
+                  <div class="amount">
+                    {formatWon(s.data.amount)} <span class="unit">{s.data.amountLabel}</span>
+                  </div>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .persona-hero {
+    color: #fff;
+    padding: 56px 0 40px;
+    background: var(--accent);
+  }
+
+  [data-bg='persona-blue'] {
+    background: linear-gradient(135deg, #0066cc 0%, #2997ff 100%);
+  }
+  [data-bg='persona-orange'] {
+    background: linear-gradient(135deg, #d97706 0%, #f97316 100%);
+  }
+  [data-bg='persona-pink'] {
+    background: linear-gradient(135deg, #be185d 0%, #ec4899 100%);
+  }
+  [data-bg='persona-green'] {
+    background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+  }
+  [data-bg='persona-purple'] {
+    background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%);
+  }
+  [data-bg='persona-amber'] {
+    background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%);
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: rgb(255 255 255 / 0.85);
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .back-link:hover {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .hero-grid {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 20px;
+  }
+
+  .hero-glyph {
+    width: 88px;
+    height: 88px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+  }
+
+  .hero-title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-sub {
+    font-size: 17px;
+    color: rgb(255 255 255 / 0.9);
+    margin: 0 0 8px;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 13px;
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  .pains {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pains-label {
+    font-size: 12px;
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  .pain-chip {
+    padding: 4px 12px;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .band {
+    padding: 56px 0 80px;
+  }
+
+  .display {
+    font-size: clamp(22px, 2.6vw, 30px);
+    font-weight: 600;
+    margin: 0 0 24px;
+  }
+
+  .subsidy-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .subsidy-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .subsidy-card:hover {
+    transform: translateY(-3px);
+    text-decoration: none;
+  }
+
+  .media {
+    aspect-ratio: 16 / 7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+    color: var(--accent);
+  }
+
+  .tint-주거 {
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+  }
+  .tint-자산 {
+    background: rgb(8 145 178 / 0.12);
+    color: #0891b2;
+  }
+  .tint-교육 {
+    background: rgb(139 92 246 / 0.12);
+    color: #8b5cf6;
+  }
+  .tint-창업 {
+    background: rgb(234 88 12 / 0.12);
+    color: #ea580c;
+  }
+  .tint-복지 {
+    background: rgb(236 72 153 / 0.12);
+    color: #ec4899;
+  }
+  .tint-취업 {
+    background: rgb(16 185 129 / 0.12);
+    color: #10b981;
+  }
+
+  .body {
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .badge.neutral {
+    background: var(--surface-2);
+    color: var(--text-2);
+  }
+
+  .badge.warning {
+    background: rgb(247 195 96 / 0.18);
+    color: var(--color-warning);
+  }
+
+  .agency {
+    font-size: 13px;
+    color: var(--accent-link);
+    font-weight: 500;
+  }
+
+  .title {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .summary {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .amount {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-top: 6px;
+    letter-spacing: -0.02em;
+  }
+
+  .amount .unit {
+    font-size: 12px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-left: 4px;
+  }
+</style>

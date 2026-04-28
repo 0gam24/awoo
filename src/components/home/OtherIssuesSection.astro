@@ -1,0 +1,222 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import { getCollection } from 'astro:content';
+
+const issues = await getCollection('issues');
+const personas = await getCollection('personas');
+---
+
+<section class="band alt">
+  <Container size="wide">
+    <div class="section-head">
+      <div class="eyebrow">이번 주 이슈</div>
+      <h2 class="display">옆집은 300만 원 받았다는데, 설마 당신만 '자격 미달'인가요?</h2>
+    </div>
+
+    <ul class="issue-row-list">
+      {
+        issues.map((iss) => (
+          <li>
+            <a class={`issue-row issue-cat-${iss.data.badge}`} href={`/subsidies/${iss.data.related ?? ''}/`}>
+              <div class={`issue-row-glyph tint-${iss.data.badge}`}>
+                <Icon name={iss.data.icon} size={28} strokeWidth={1.7} />
+              </div>
+              <div class="issue-row-body">
+                <div class="issue-row-meta">
+                  <span class="badge neutral">{iss.data.badge}</span>
+                  <span class="meta-date">{iss.data.date}</span>
+                </div>
+                <div class="issue-row-headline">{iss.data.headline}</div>
+                <div class="issue-row-summary">{iss.data.summary}</div>
+                <div class="issue-row-personas">
+                  <span class="meta-label">해당 페르소나</span>
+                  {iss.data.affectedPersonas.map((pid) => {
+                    const p = personas.find((x) => x.data.id === pid);
+                    return p ? (
+                      <span class="persona-mini">
+                        <Icon name={p.data.icon} size={14} strokeWidth={1.8} />
+                        {p.data.label}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+              <span class="issue-row-arrow" aria-hidden="true">
+                <Icon name="arrow-right" size={18} />
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </Container>
+</section>
+
+<style>
+  .band {
+    padding: 64px 0;
+  }
+
+  .band.alt {
+    background: var(--bg-alt);
+  }
+
+  .section-head {
+    margin-bottom: 28px;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .display {
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.018em;
+    margin: 0;
+    max-width: 800px;
+  }
+
+  .issue-row-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .issue-row {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 20px;
+    align-items: center;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+
+  @media (max-width: 720px) {
+    .issue-row {
+      grid-template-columns: 48px 1fr;
+      padding: 16px;
+    }
+    .issue-row-arrow {
+      display: none;
+    }
+  }
+
+  .issue-row:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    text-decoration: none;
+  }
+
+  .issue-row-glyph {
+    width: 64px;
+    height: 64px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 720px) {
+    .issue-row-glyph {
+      width: 48px;
+      height: 48px;
+    }
+  }
+
+  .tint-복지 {
+    background: rgb(236 72 153 / 0.12);
+    color: #ec4899;
+  }
+  .tint-창업 {
+    background: rgb(234 88 12 / 0.12);
+    color: #ea580c;
+  }
+  .tint-취업 {
+    background: rgb(16 185 129 / 0.12);
+    color: #10b981;
+  }
+  .tint-농업 {
+    background: rgb(217 119 6 / 0.12);
+    color: #d97706;
+  }
+
+  .issue-row-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+
+  .badge.neutral {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .meta-date,
+  .meta-label {
+    font-size: 12px;
+    color: var(--text-3);
+  }
+
+  .issue-row-headline {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .issue-row-summary {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.55;
+    margin-bottom: 10px;
+  }
+
+  .issue-row-personas {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .persona-mini {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    background: var(--surface-2);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .issue-row-arrow {
+    color: var(--text-3);
+  }
+</style>

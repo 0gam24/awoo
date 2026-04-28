@@ -1,0 +1,299 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const steps = [
+  { n: 1, t: '내 페르소나 확인', d: '홈에서 본인과 가장 비슷한 그룹을 골라보세요. 입력 없이도 그 그룹이 받는 지원금을 한 번에 볼 수 있어요.' },
+  { n: 2, t: '필요 서류 미리 준비', d: '주민등록등본, 임대차계약서, 소득증빙(원천징수영수증·소득금액증명원), 통장 사본. 발급은 정부24에서 무료로 가능합니다.' },
+  { n: 3, t: '공식 사이트에서 신청', d: '주거는 복지로, 취업은 고용24, 창업은 K-스타트업. 본인인증(공동인증서·간편인증) 후 신청.' },
+  { n: 4, t: '결과 확인', d: '대부분 7~30일 안에 SMS로 결과 통보. 신청한 사이트에서도 진행 상황을 조회할 수 있어요.' },
+];
+
+const channels = [
+  { name: '복지로', url: 'https://www.bokjiro.go.kr', desc: '월세 지원·기초생활보장·부모급여·아동수당 등 복지 분야 통합 신청 창구.', cat: '주거·복지' },
+  { name: '고용24', url: 'https://www.work24.go.kr', desc: '국민내일배움카드·국민취업지원제도·실업급여·고용장려금 등.', cat: '취업·교육' },
+  { name: '마이홈포털', url: 'https://www.myhome.go.kr', desc: '신혼특공·행복주택·전세보증금 반환보증·주거급여 통합 안내.', cat: '주거' },
+  { name: 'K-스타트업', url: 'https://www.k-startup.go.kr', desc: '예비창업패키지·창업도약패키지 등 창업 지원 통합 창구.', cat: '창업' },
+  { name: '서민금융진흥원', url: 'https://www.kinfa.or.kr', desc: '청년도약계좌·햇살론·미소금융. 자산 형성과 저금리 대출 통합.', cat: '자산' },
+  { name: '정부24', url: 'https://www.gov.kr', desc: '주민등록등본·소득금액증명·재학증명 등 신청 서류 발급 (무료).', cat: '서류 발급' },
+];
+
+const faqs = [
+  { q: '부모님 소득이 높으면 지원금 못 받나요?', a: '청년 월세 특별지원은 본인 소득만 봅니다. 반면 국민취업지원제도 Ⅰ유형은 가구 합산 소득을 봐서 부모 소득이 높으면 어렵습니다. 지원금마다 다르니 상세 페이지 "지원 대상"을 확인하세요.' },
+  { q: '여러 지원금을 한 번에 받아도 되나요?', a: '대부분 가능합니다. 주거 지원 + 자산 형성 + 직업훈련은 동시 수급이 일반적으로 허용됩니다. 다만 동일 목적은 하나만 가능. 각 상세 페이지의 "중복 수급" 항목을 확인하세요.' },
+  { q: '지원금가이드에서 직접 신청할 수 있나요?', a: '아니요. 지원금가이드는 정보 안내 사이트로, 신청은 복지로·고용24·K-스타트업 등 공식 사이트에서 진행됩니다.' },
+  { q: '내 정보는 어디에 저장되나요?', a: '회원가입과 로그인이 없습니다. 페르소나 선택과 페이지 이동은 모두 화면 안에서만 처리되며, 서버로 전송되거나 저장되지 않습니다.' },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<BaseLayout
+  title="신청 가이드 — 지원금가이드"
+  description="정부 지원금 신청 흐름·공식 사이트·자주 묻는 질문. 처음 신청해도 안 헤매도록 단계별 안내."
+  activeNav="/guide"
+>
+  <Container size="wide">
+    <div class="page-head">
+      <div class="eyebrow">지원금 신청 가이드</div>
+      <h1>처음 신청해도 안 헤매도록.</h1>
+      <p class="lead">
+        정부 지원금 신청에서 자주 막히는 부분만 모았어요. 정보 안내 사이트라 직접 신청은 받지 않습니다.
+      </p>
+    </div>
+
+    <section class="section">
+      <h2>신청 흐름</h2>
+      <ol class="steps">
+        {
+          steps.map((s) => (
+            <li class="step">
+              <div class="step-num">{s.n}</div>
+              <div>
+                <h3>{s.t}</h3>
+                <p>{s.d}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="section">
+      <h2>공식 사이트</h2>
+      <ul class="channels">
+        {
+          channels.map((c) => (
+            <li>
+              <a class="channel" href={c.url} target="_blank" rel="noopener noreferrer">
+                <div>
+                  <div class="ch-name">
+                    {c.name}
+                    <span class="ch-cat">{c.cat}</span>
+                  </div>
+                  <div class="ch-desc">{c.desc}</div>
+                </div>
+                <span class="ch-arrow" aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>자주 묻는 질문</h2>
+      <div class="faqs">
+        {
+          faqs.map((f, i) => (
+            <details open={i === 0}>
+              <summary>{f.q}</summary>
+              <p>{f.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </section>
+  </Container>
+
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(faqSchema)}
+  />
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding: 48px 0 32px;
+    max-width: 720px;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .section {
+    padding: 32px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .section h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 24px;
+    letter-spacing: -0.015em;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .step {
+    display: flex;
+    gap: 16px;
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .step-num {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+
+  .step p {
+    margin: 0;
+    color: var(--text-2);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .channels {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  .channel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.18s, transform 0.18s var(--ease-standard);
+  }
+  .channel:hover {
+    border-color: var(--border-2);
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+
+  .ch-name {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .ch-cat {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 8px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .ch-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.55;
+  }
+
+  .ch-arrow {
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+
+  .faqs {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  summary {
+    cursor: pointer;
+    padding: 16px 20px;
+    font-weight: 600;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: '+';
+    float: right;
+    font-size: 20px;
+    color: var(--text-2);
+    line-height: 1;
+  }
+
+  details[open] summary::after {
+    content: '−';
+  }
+
+  details p {
+    margin: 0;
+    padding: 0 20px 18px;
+    color: var(--text-2);
+    line-height: 1.65;
+    font-size: 14px;
+  }
+</style>

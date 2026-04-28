@@ -1,58 +1,22 @@
 ---
-import Button from '@/components/Button.astro';
-import Container from '@/components/Container.astro';
+import CategoriesGrid from '@/components/home/CategoriesGrid.astro';
+import IncomeChecker from '@/components/home/IncomeChecker.astro';
+import NewsHero from '@/components/home/NewsHero.astro';
+import OtherIssuesSection from '@/components/home/OtherIssuesSection.astro';
+import PersonaPicker from '@/components/home/PersonaPicker.astro';
+import UrgencyHook from '@/components/home/UrgencyHook.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 ---
 
 <BaseLayout
   title="지원금가이드 — 나에게 맞는 정부 지원금 찾기"
-  description="청년 월세부터 신혼 특공, 청년도약계좌, 소상공인 정책자금까지. 정부 지원금을 페르소나별로 찾아보세요. 신청 대행 없는 정보 안내 사이트입니다."
+  description="청년 월세부터 신혼 특공, 청년도약계좌, 소상공인 정책자금까지. 페르소나별로 매칭하는 정부 지원금 정보 안내. 신청 대행 없이 정부 공식 사이트로 연결합니다."
   activeNav="home"
 >
-  <section class="hero-section">
-    <Container>
-      <div class="hero">
-        <h1>나에게 맞는 정부 지원금,<br />페르소나로 찾아보세요</h1>
-        <p>
-          청년 월세, 신혼 특공, 청년도약계좌, 소상공인 자금까지 —
-          페르소나(생애·상황) 단위로 매칭하는 정보 안내 사이트.
-          신청은 정부 공식 사이트로 연결됩니다.
-        </p>
-        <div class="actions">
-          <Button variant="primary" size="lg" href="/about">사이트 소개</Button>
-        </div>
-      </div>
-    </Container>
-  </section>
+  <UrgencyHook />
+  <NewsHero />
+  <IncomeChecker />
+  <OtherIssuesSection />
+  <PersonaPicker />
+  <CategoriesGrid />
 </BaseLayout>
-
-<style>
-  .hero-section {
-    padding: 64px 0 80px;
-  }
-
-  .hero {
-    max-width: 720px;
-  }
-
-  .hero h1 {
-    font-size: clamp(32px, 5.2vw, 56px);
-    font-weight: 700;
-    line-height: 1.12;
-    letter-spacing: -0.025em;
-    margin: 0 0 20px;
-  }
-
-  .hero p {
-    font-size: 17px;
-    color: var(--text-2);
-    margin: 0 0 28px;
-    line-height: 1.6;
-  }
-
-  .actions {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-</style>
