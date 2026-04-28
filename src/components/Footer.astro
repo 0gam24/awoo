@@ -1,0 +1,183 @@
+---
+const SITE = {
+  name: '지원금가이드',
+  legalName: '스마트데이터샵',
+  founder: '김준혁',
+  taxId: '406-06-34485',
+  address: '인천광역시 계양구 새벌로 88, 효성동',
+  email: 'contact@awoo.or.kr',
+};
+
+const links = [
+  [
+    { href: '/about', label: '사이트 소개' },
+    { href: '/editorial-policy', label: '편집 정책' },
+    { href: '/contact', label: '문의' },
+  ],
+  [
+    { href: '/privacy', label: '개인정보처리방침' },
+    { href: '/terms', label: '이용약관' },
+    { href: '/cookies', label: '쿠키 정책' },
+  ],
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-grid">
+      <div class="brand-block">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">지</span>
+          <span class="brand-name">{SITE.name}</span>
+        </div>
+        <p class="tagline">
+          정부 지원금을 페르소나별로 정리한 정보 안내 사이트.
+          신청 대행은 하지 않으며 정부 공식 사이트로 안내합니다.
+        </p>
+      </div>
+
+      {
+        links.map((group) => (
+          <ul class="link-col">
+            {group.map((l) => (
+              <li>
+                <a href={l.href}>{l.label}</a>
+              </li>
+            ))}
+          </ul>
+        ))
+      }
+    </div>
+
+    <div class="legal">
+      <div class="legal-row">
+        <span>{SITE.legalName}</span>
+        <span class="dot">·</span>
+        <span>대표 {SITE.founder}</span>
+        <span class="dot">·</span>
+        <span>사업자등록 {SITE.taxId}</span>
+      </div>
+      <div class="legal-row">
+        <span>{SITE.address}</span>
+        <span class="dot">·</span>
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+      </div>
+      <div class="copy">© {year} {SITE.name}. 정보 안내 사이트 · 신청 대행 없음.</div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    margin-top: 80px;
+    border-top: 1px solid var(--border);
+    background: var(--bg-alt);
+    /* 스크롤 진입 전까지 layout/paint 스킵 — 초기 LCP·Style&Layout 비용 절감 */
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 480px;
+  }
+
+  .footer-inner {
+    max-width: 1200px;
+    margin-inline: auto;
+    padding: 48px 24px 32px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+  }
+
+  @media (max-width: 720px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 32px 24px;
+    }
+    .brand-block {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .tagline {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.6;
+    max-width: 380px;
+    margin: 0;
+  }
+
+  .link-col {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .link-col a {
+    font-size: 14px;
+    color: var(--text-2);
+    text-decoration: none;
+  }
+
+  .link-col a:hover {
+    color: var(--text);
+    text-decoration: underline;
+  }
+
+  .legal {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.6;
+  }
+
+  .legal-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+
+  .legal-row a {
+    color: var(--text-2);
+  }
+
+  .dot {
+    color: var(--text-3);
+  }
+
+  .copy {
+    margin-top: 12px;
+    color: var(--text-3);
+  }
+</style>

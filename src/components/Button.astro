@@ -1,0 +1,112 @@
+---
+interface Props {
+  variant?: 'primary' | 'ghost' | 'dark';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  class?: string;
+  ariaLabel?: string;
+  external?: boolean;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  href,
+  type = 'button',
+  class: className = '',
+  ariaLabel,
+  external = false,
+} = Astro.props;
+
+const classes = ['btn', `btn-${variant}`, `btn-${size}`, className];
+const externalAttrs = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+{
+  href ? (
+    <a class:list={classes} href={href} aria-label={ariaLabel} {...externalAttrs}>
+      <slot />
+    </a>
+  ) : (
+    <button class:list={classes} type={type} aria-label={ariaLabel}>
+      <slot />
+    </button>
+  )
+}
+
+<style>
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
+    font-weight: 500;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: inherit;
+    transition:
+      transform 0.15s var(--ease-standard),
+      background 0.2s var(--ease-standard),
+      color 0.2s var(--ease-standard),
+      border-color 0.2s var(--ease-standard);
+    white-space: nowrap;
+    word-break: keep-all;
+    text-decoration: none;
+  }
+
+  .btn:active {
+    transform: scale(0.97);
+  }
+
+  /* Sizes */
+  .btn-sm {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+
+  .btn-md {
+    font-size: 17px;
+    padding: 12px 22px;
+  }
+
+  .btn-lg {
+    font-size: 18px;
+    padding: 14px 28px;
+  }
+
+  /* Variants */
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .btn-primary:hover {
+    text-decoration: none;
+    background: color-mix(in oklch, var(--accent), black 8%);
+  }
+
+  .btn-dark {
+    background: var(--color-ink);
+    color: #fff;
+  }
+  :global([data-theme='dark']) .btn-dark {
+    background: #f5f5f7;
+    color: #000;
+  }
+  .btn-dark:hover {
+    text-decoration: none;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-2);
+  }
+  .btn-ghost:hover {
+    text-decoration: none;
+    background: var(--surface-2);
+  }
+</style>

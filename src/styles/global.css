@@ -1,6 +1,33 @@
 @import 'tailwindcss';
 
 /* ============================================================
+   Pretendard Variable — 셀프호스팅 (KS X 1001 + Latin 서브셋)
+   ============================================================ */
+@font-face {
+  font-family: 'Pretendard Variable';
+  src: url('/fonts/PretendardVariable.subset.woff2') format('woff2-variations');
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fallback 메트릭을 Pretendard에 맞춰 CLS 0 달성 */
+@font-face {
+  font-family: 'Pretendard Adjusted';
+  src:
+    local('Apple SD Gothic Neo'),
+    local('AppleSDGothicNeo-Regular'),
+    local('Malgun Gothic'),
+    local('MalgunGothic'),
+    local('Helvetica Neue'),
+    local('Segoe UI');
+  size-adjust: 100.6%;
+  ascent-override: 92%;
+  descent-override: 23%;
+  line-gap-override: 0%;
+}
+
+/* ============================================================
    디자인 토큰 — Apple-inspired, Korean-friendly
    라이트모드 본문 secondary는 #6e6e73 사용 (WCAG AA 5.0:1 통과)
    #86868b는 큰 텍스트(18pt+)·hint 전용
@@ -32,7 +59,7 @@
 
   /* Typography */
   --font-sans:
-    'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+    'Pretendard Variable', 'Pretendard Adjusted', -apple-system, BlinkMacSystemFont,
     'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
 
   /* Radii */

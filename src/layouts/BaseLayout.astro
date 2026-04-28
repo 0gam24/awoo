@@ -1,5 +1,7 @@
 ---
 import '@/styles/global.css';
+import Footer from '@/components/Footer.astro';
+import TopBar from '@/components/TopBar.astro';
 
 interface Props {
   title: string;
@@ -7,6 +9,8 @@ interface Props {
   canonical?: string;
   ogImage?: string;
   noindex?: boolean;
+  /** 활성 nav 키: 'home' | '/subsidies' | '/guide' 등 */
+  activeNav?: string;
 }
 
 const {
@@ -15,6 +19,7 @@ const {
   canonical,
   ogImage = '/og-default.png',
   noindex = false,
+  activeNav = '',
 } = Astro.props;
 
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
@@ -34,6 +39,10 @@ const siteName = '지원금가이드';
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/png" href="/favicon.svg" />
+
+    {/* Pretendard 폰트는 preload 안 함 — Pretendard Adjusted(size-adjust) fallback이
+        먼저 그려지고 woff2 로드 후 CLS 없이 swap. preload하면 모바일 LCP가
+        font 다운로드를 기다리느라 지연됨 (300KB / Slow 4G = ~1.5s 페널티). */}
 
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
@@ -67,8 +76,10 @@ const siteName = '지원금가이드';
   </head>
   <body>
     <a href="#main" class="skip-link">본문으로 건너뛰기</a>
+    <TopBar active={activeNav} />
     <main id="main">
       <slot />
     </main>
+    <Footer />
   </body>
 </html>

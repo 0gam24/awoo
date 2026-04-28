@@ -1,0 +1,126 @@
+---
+import Badge from '@/components/Badge.astro';
+import Button from '@/components/Button.astro';
+import Chip from '@/components/Chip.astro';
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="컴포넌트 데모 — 지원금가이드"
+  description="Phase 2 디자인 시스템 검증 — Atom 컴포넌트(Button, Chip, Badge), Container, TopBar, Footer 통합 미리보기."
+  noindex
+>
+  <Container>
+    <div class="page-head">
+      <Badge tone="accent">Phase 2</Badge>
+      <h1>디자인 시스템 컴포넌트 데모</h1>
+      <p>
+        Atom (Button · Chip · Badge) + 레이아웃 (TopBar · Footer · Container) 통합 검증 페이지.
+        다크/라이트 모드 자동 적응을 확인할 수 있습니다.
+      </p>
+    </div>
+
+    <section class="demo-section">
+      <h2>Button</h2>
+      <div class="demo-card">
+        <div class="row">
+          <Button variant="primary" size="sm">Primary sm</Button>
+          <Button variant="primary">Primary</Button>
+          <Button variant="primary" size="lg">Primary lg</Button>
+        </div>
+        <div class="row">
+          <Button variant="ghost">Ghost</Button>
+          <Button variant="dark">Dark</Button>
+        </div>
+        <div class="row">
+          <Button variant="primary" href="/about">As link (a tag)</Button>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>Chip</h2>
+      <div class="demo-card">
+        <div class="row">
+          <Chip>전체</Chip>
+          <Chip variant="active">주거</Chip>
+          <Chip>취업·재취업</Chip>
+          <Chip>창업·소상공인</Chip>
+        </div>
+        <div class="row">
+          <Chip size="sm">월세</Chip>
+          <Chip size="sm">청년</Chip>
+          <Chip size="sm">자산</Chip>
+        </div>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <h2>Badge</h2>
+      <div class="demo-card">
+        <div class="row">
+          <Badge tone="neutral">중립</Badge>
+          <Badge tone="accent">핵심</Badge>
+          <Badge tone="success">신청 가능</Badge>
+          <Badge tone="warning">곧 마감</Badge>
+          <Badge tone="danger">마감</Badge>
+        </div>
+      </div>
+    </section>
+  </Container>
+</BaseLayout>
+
+<style>
+  .page-head {
+    padding: 64px 0 32px;
+  }
+
+  .page-head h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 12px 0 12px;
+  }
+
+  .page-head p {
+    font-size: 16px;
+    color: var(--text-2);
+    margin: 0;
+    max-width: 560px;
+    line-height: 1.6;
+  }
+
+  .demo-section {
+    margin-bottom: 32px;
+  }
+
+  .demo-section h2 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-2);
+    margin: 0 0 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .demo-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+  }
+
+  .row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .row:last-child {
+    margin-bottom: 0;
+  }
+</style>
