@@ -20,12 +20,45 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       </header>
 
       <section class="card">
-        <h2>이메일 문의</h2>
+        <h2>문의 폼</h2>
+        <form id="contact-form" class="contact-form" novalidate>
+          <div class="row">
+            <div class="field">
+              <label for="cf-name">이름</label>
+              <input id="cf-name" name="name" type="text" required minlength="1" maxlength="60" autocomplete="name" />
+            </div>
+            <div class="field">
+              <label for="cf-email">이메일</label>
+              <input id="cf-email" name="email" type="email" required maxlength="120" autocomplete="email" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="cf-subject">제목</label>
+            <input id="cf-subject" name="subject" type="text" required minlength="2" maxlength="120" />
+          </div>
+          <div class="field">
+            <label for="cf-message">내용</label>
+            <textarea id="cf-message" name="message" required minlength="10" maxlength="4000" rows="6" placeholder="구체적으로 알려주시면 더 정확히 답변드릴 수 있어요."></textarea>
+            <span class="hint" id="cf-counter" aria-live="polite">0 / 4000</span>
+          </div>
+          {/* honeypot */}
+          <input type="text" name="_hp" tabindex="-1" autocomplete="off" class="cf-hp" aria-hidden="true" />
+          <div class="form-actions">
+            <button type="submit" class="cf-submit" id="cf-submit">전송</button>
+            <p class="form-note">전송하시면 <a href="/privacy/">개인정보처리방침</a>에 동의하는 것으로 간주됩니다.</p>
+          </div>
+          <p class="cf-thanks" id="cf-thanks" hidden role="status">문의가 접수됐습니다. 24~48시간 내 답변드릴게요.</p>
+          <p class="cf-error" id="cf-error" hidden role="alert">전송 실패. 잠시 후 다시 시도하거나 직접 contact@awoo.or.kr 로 보내주세요.</p>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>이메일 직접 발송</h2>
         <a class="email" href="mailto:contact@awoo.or.kr">
           contact@awoo.or.kr
           <Icon name="arrow-up-right" size={16} />
         </a>
-        <p class="card-desc">평일 24~48시간 내 답변</p>
+        <p class="card-desc">위 폼이 안 되면 이메일로 직접 보내주세요.</p>
       </section>
 
       <section class="card">
@@ -59,6 +92,50 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       </section>
     </article>
   </Container>
+
+  <script>
+    const form = document.getElementById('contact-form') as HTMLFormElement | null;
+    const thanks = document.getElementById('cf-thanks');
+    const errorEl = document.getElementById('cf-error');
+    const submitBtn = document.getElementById('cf-submit') as HTMLButtonElement | null;
+    const counter = document.getElementById('cf-counter');
+    const message = document.getElementById('cf-message') as HTMLTextAreaElement | null;
+
+    message?.addEventListener('input', () => {
+      if (counter) counter.textContent = `${message.value.length} / 4000`;
+    });
+
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '전송 중...';
+      }
+      errorEl && (errorEl.hidden = true);
+
+      const data = Object.fromEntries(new FormData(form));
+      try {
+        const res = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        form.hidden = true;
+        thanks && (thanks.hidden = false);
+      } catch {
+        errorEl && (errorEl.hidden = false);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '전송';
+        }
+      }
+    });
+  </script>
 </BaseLayout>
 
 <style>
@@ -154,5 +231,119 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   .biz-card dd {
     margin: 0;
     color: var(--text);
+  }
+
+  /* Contact form */
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .contact-form .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 480px) {
+    .contact-form .row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-2);
+  }
+
+  .field input,
+  .field textarea {
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text);
+    min-height: 40px;
+  }
+
+  .field textarea {
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .field input:focus-visible,
+  .field textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+    border-color: var(--accent);
+  }
+
+  .hint {
+    font-size: 11px;
+    color: var(--text-3);
+    align-self: flex-end;
+  }
+
+  .form-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .cf-submit {
+    padding: 12px 28px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: 0;
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 44px;
+  }
+
+  .cf-submit:hover:not(:disabled) {
+    background: color-mix(in oklch, var(--accent), black 8%);
+  }
+
+  .cf-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .form-note {
+    font-size: 12px;
+    color: var(--text-3);
+    margin: 0;
+  }
+
+  .cf-thanks {
+    color: var(--color-success);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .cf-error {
+    color: var(--color-danger);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .cf-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
   }
 </style>

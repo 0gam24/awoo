@@ -9,5 +9,38 @@
   },
   "observability": {
     "enabled": true
-  }
+  },
+
+  // ============================================================
+  // Phase A 바인딩 — 사용자 셋업 후 활성화 (docs/api/SETUP.md 참조)
+  // ============================================================
+
+  // D1 — 피드백·문의 저장
+  // 1. wrangler d1 create awoo-db
+  // 2. database_id를 출력값으로 채움
+  // 3. 마이그레이션: wrangler d1 execute awoo-db --file=migrations/0001_initial.sql --remote
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "awoo-db",
+      "database_id": "REPLACE_AFTER_CREATE"
+    }
+  ],
+
+  // Analytics Engine — Web Vitals 시계열
+  // 1. 대시보드 → Workers → Analytics Engine → Add Dataset → "awoo_vitals"
+  // 2. 자동 활성 (별도 ID 불필요)
+  "analytics_engine_datasets": [
+    {
+      "binding": "ANALYTICS",
+      "dataset": "awoo_vitals"
+    }
+  ]
+
+  // 시크릿 (코드 커밋 X — wrangler secret put 사용):
+  // wrangler secret put RESEND_API_KEY
+  // wrangler secret put TURNSTILE_SECRET_KEY
+  // wrangler secret put ADMIN_EMAIL
+  //
+  // 또는 Cloudflare 대시보드 → Worker → Settings → Variables → Secrets
 }

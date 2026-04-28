@@ -1,4 +1,5 @@
 ---
+import FeedbackWidget from '@/components/FeedbackWidget.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
 const SITE = {
@@ -71,6 +72,8 @@ const orgSchema = {
         <dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd>
       </dl>
     </div>
+
+    <FeedbackWidget />
   </section>
 
   <script

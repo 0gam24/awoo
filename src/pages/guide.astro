@@ -1,5 +1,6 @@
 ---
 import Container from '@/components/Container.astro';
+import FeedbackWidget from '@/components/FeedbackWidget.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
 const steps = [
@@ -102,6 +103,8 @@ const faqSchema = {
         }
       </div>
     </section>
+
+    <FeedbackWidget />
   </Container>
 
   <script

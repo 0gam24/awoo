@@ -81,5 +81,10 @@ const siteName = '지원금가이드';
       <slot />
     </main>
     <Footer />
+
+    {/* Web Vitals beacon — 사용자 액션 후 sendBeacon 발송, PSI Lab 점수 무관 */}
+    <script>
+      import('@/lib/vitals').then((m) => m.initVitals()).catch(() => {});
+    </script>
   </body>
 </html>
