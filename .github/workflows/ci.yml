@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint · Typecheck · Build · Lighthouse 4×100
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Biome (lint + format)
+        run: npx biome check .
+
+      - name: Astro check (TS + Astro)
+        run: npx astro check
+
+      - name: Build
+        run: npm run build
+
+      - name: Performance budget — initial JS ≤ 100KB
+        run: |
+          set -e
+          BIG_JS=$(find dist/_astro -name "*.js" -size +100k -printf "%f %s bytes\n" 2>/dev/null || true)
+          if [ -n "$BIG_JS" ]; then
+            echo "::warning::Large JS bundles found (informational, not failing yet):"
+            echo "$BIG_JS"
+          fi
+
+      - name: Lighthouse CI (4×100 gate)
+        run: npx lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
