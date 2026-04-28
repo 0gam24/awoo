@@ -1,0 +1,8 @@
+- [Project overview](project_overview.md) — 정부 지원금 가이드 사이트 (awoo.or.kr)
+- [Operating entity](project_entity.md) — 스마트데이터샵 (김준혁, 개인사업자 간이과세) / 도메인 정합성 이슈 / 개인정보 노출 금지 항목
+- [Build standards](project_standards.md) — 사용자 자체 AGENTS.md 2026 표준을 §0→§23 순차 적용
+- [Deploy target](project_deploy.md) — GitHub → Cloudflare Pages, 로컬 개발 우선
+- [Working paths](project_paths.md) — 실제 개발은 C:\dev\awoo (Z: 경로 # 문자 + 네트워크 드라이브 제약), npm 사용
+- [Design source](project_design_source.md) — Claude Design 핸드오프 번들이 01_지원금가이드/project/에 있음
+- [Performance bar](project_performance.md) — PageSpeed Insights 100점 (모바일·데스크탑) 절대 목표
+- [API plan](project_api.md) — Cloudflare 단일 스택, Phase A(MVP)→D(GEO) 단계별 엔드포인트, PSI 100 호환 원칙

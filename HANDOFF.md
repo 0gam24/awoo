@@ -1,0 +1,339 @@
+# 🔁 awoo (지원금가이드) — 작업 인계 문서
+
+> 본 문서는 다른 PC 또는 미래의 작업 세션에서 본 프로젝트를 **컨텍스트 손실 없이** 이어 작업할 수 있도록 작성됐습니다.
+> 처음 보시는 분은 위에서 아래로 순서대로 읽으세요.
+
+---
+
+## 1. 한 줄 요약
+
+**지원금가이드** — 정부 지원금을 페르소나(생애·상황) 단위로 정리한 비영리 정보 안내 사이트. 도메인 [awoo.or.kr](https://awoo.or.kr) 라이브, 운영 주체 **스마트데이터샵 (대표 김준혁, 사업자등록 406-06-34485)**.
+
+- **GitHub**: https://github.com/0gam24/awoo
+- **배포 URL**: https://awoo.or.kr (커스텀 도메인) / https://awoo.kjh791213.workers.dev (Worker 기본)
+- **배포 방식**: GitHub push → Cloudflare Workers + Static Assets 자동 배포
+
+---
+
+## 2. 현재 상태 (2026-04-29 기준)
+
+### ✅ 완료한 단계
+
+| Phase | 내용 |
+|---|---|
+| **Phase 1** | Astro 6 + React 19 Islands + Tailwind 4 + TS strict 부트스트랩, Lighthouse 4×100 게이트 통과 |
+| **Phase 2** | 디자인 시스템 — Pretendard Variable 셀프호스팅 + Atom·Layout 컴포넌트 (Button, Chip, Badge, Container, TopBar, Footer) |
+| **Phase 3** | Astro Content Collections (페르소나 6개·지원금 10개·이슈 4개) + site-data(중위소득·카테고리·오늘의 이슈) |
+| **Phase 4** | 홈 페이지 — UrgencyHook + NewsHero + IncomeChecker(React Island) + OtherIssues + PersonaPicker + CategoriesGrid. `/personas/[id]/`, `/subsidies/`, `/subsidies/[id]/`, `/guide/` 페이지 |
+| **Phase 5** | `/issues/main/` 상세, 법적 페이지 5종(privacy/terms/cookies/editorial-policy/contact), `@astrojs/sitemap`, `/llms.txt`+`/llms-full.txt` 자동생성, OG PNG, UrgencyHook 단어 페이드인, A11y target-size 수정 |
+
+### 📊 라이브 PSI 측정값
+
+| 페이지 / 폼팩터 | Perf | A11y | BP | SEO | LCP | CLS | TBT |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `/` Mobile | 96 | 100 | 100 | 100 | 2.0~2.1s | 0 | 150ms |
+| `/` Desktop | 99 | 100 | 100 | 100 | 0.8s | 0 | 0ms |
+| `/issues/main/` Mobile | 99 | 100 | 100 | 100 | 1.9s | 0 | 30ms |
+| `/subsidies/` Mobile | 99 | 100 | 100 | 100 | 1.8s | 0 | 140ms |
+
+> 모바일 홈 96은 Lighthouse 시뮬레이터 4× CPU + 6 섹션 인라인 CSS 37KB 한계. 실제 디바이스에서는 더 좋게 나올 가능성 높음 — CrUX Field 데이터(2~4주 후)로 검증 예정.
+
+### ⏸️ 보류 / 다음 단계 후보
+
+| 항목 | 우선순위 | 비고 |
+|---|---|---|
+| Phase A — API (`/api/contact`, `/api/feedback`, `/api/vitals`) | 사용자 지정 후 | Cloudflare D1 + Resend + Turnstile |
+| 모바일 Perf 100 끝장내기 | 선택 | Critical CSS 분리(Critters/Beasties), JS 번들 추가 축소 |
+| 콘텐츠 확장 | 운영 단계 | 지원금 10개 → 30~50개, 페르소나별 가이드 글 |
+| Search Console 등록 | 즉시 가능 | sitemap-index.xml 제출 |
+| 공공데이터포털 API 연동 | 운영 단계 | 사용자 디코딩 키 보유 (`.env`로) — 자동 동기화 cron |
+| Phase D RAG (사이트 Q&A) | 보류 | Workers AI 또는 Anthropic SDK |
+
+---
+
+## 3. 새 PC에서 시작하기 (Setup)
+
+### 3-1. 필수 환경
+- **Node.js >= 22.12.0** (`.nvmrc`로 명시 — `nvm use` 또는 fnm 사용)
+- **npm** (pnpm 사용 안 함 — 본 프로젝트 경로 제약 때문)
+- **Git** + GitHub 인증 (HTTPS는 PAT, 또는 SSH 키)
+
+### 3-2. 클론·설치·실행
+
+```bash
+# 1. 어디든 clone (단, 경로에 # 문자 / 한글 / 공백은 피하기)
+git clone https://github.com/0gam24/awoo.git
+cd awoo
+
+# 2. Node 22+ 보장
+nvm use   # .nvmrc 자동 적용
+
+# 3. 의존성 설치
+npm install --no-audit --no-fund
+
+# 4. 환경변수 (선택, Phase A에서 필요)
+cp .env.example .env
+# .env 편집: DATA_GO_KR_KEY (디코딩 키), RESEND_API_KEY, TURNSTILE_SITE_KEY/SECRET_KEY, ADMIN_EMAIL
+
+# 5. 개발 서버
+npm run dev          # http://localhost:4321
+
+# 6. 빌드 + 미리보기
+npm run build
+npm run preview      # wrangler dev로 실제 Worker 환경 시뮬
+
+# 7. 검증 게이트
+npm run lint         # Biome
+npm run check        # astro check + tsc
+npm run lhci         # Lighthouse 4×100 desktop 게이트 (Chrome 필요)
+```
+
+### 3-3. ⚠️ 경로 제약 (중요)
+
+- **`#`, 한글, 공백 포함 경로 사용 금지** — Vite가 `null bytes` 에러로 빌드 실패
+- **네트워크 드라이브(Z: 등) 사용 시 pnpm 안 됨** — 심볼릭 링크 store가 작동 안 함, npm 사용 필수
+- **권장 경로**: `C:\dev\awoo`, `~/projects/awoo` 등 ASCII 깨끗한 위치
+- 이전 PC에서는 Z: 네트워크 드라이브의 한글·`#` 경로 문제로 `C:\dev\awoo`에서 작업 + Z: 위치에 `AWOO_PROJECT_LOCATION.md` 포인터 파일만 둠
+
+### 3-4. Git 신원
+
+```bash
+git config user.email "kjh791213@gmail.com"
+git config user.name "김준혁"
+```
+
+---
+
+## 4. 기술 스택 & 아키텍처 결정
+
+### 4-1. 핵심 스택
+- **프레임워크**: Astro 6.1.10 (`output: 'static'` + `@astrojs/cloudflare` 어댑터)
+- **UI**: React 19 Islands (현재 IncomeChecker만 `client:visible`)
+- **CSS**: Tailwind 4 (via `@tailwindcss/vite` 플러그인) + Astro scoped `<style>`
+- **타입**: TypeScript strict (extends `astro/tsconfigs/strictest`)
+- **린트/포맷**: Biome 2 (단일 도구, ESLint+Prettier 대체)
+- **콘텐츠**: Astro Content Collections (`src/data/personas.json`, `src/data/subsidies/*.json`, `src/data/issues.json`)
+- **폰트**: Pretendard Variable subset (KS X 1001 + Latin), 셀프호스팅 `public/fonts/`, fallback 메트릭 매칭(`size-adjust: 100.6%`)
+
+### 4-2. 빌드 설정 (`astro.config.mjs`)
+- `output: 'static'` — 모든 페이지 prerendered (Worker 함수 미사용, 속도 최우선)
+- `trailingSlash: 'always'` — URL 일관성
+- `inlineStylesheets: 'always'` — render-blocking CSS 0
+- `prefetch: { defaultStrategy: 'hover' }` — 호버 시 다음 페이지 프리페치
+- `@astrojs/sitemap` 통합 → `dist/client/sitemap-index.xml`
+
+### 4-3. 배포 (Cloudflare Workers + Static Assets)
+- 루트 `wrangler.jsonc` — Cloudflare 자동생성, 손대지 말 것
+- `public/.assetsignore` — `_worker.js`, `_routes.json` 무시
+- Cloudflare Pages가 아닌 **Workers + Static Assets** 모델 (신형)
+- 빌드 명령: `npm run build` / 출력: `dist`
+
+### 4-4. ⚠️ Cloudflare AI Bot 차단 설정 — 끄기
+
+도메인 추가 시 Cloudflare가 자동으로 "Block AI bots" 활성화 → robots.txt에 ClaudeBot/GPTBot/Google-Extended 등을 자동 Disallow 처리 → **AGENTS.md §12 GEO 정책 위반 + Lighthouse SEO 92 회귀**.
+
+대시보드 → 도메인 → **Security → Bots → AI Audit (또는 Block AI bots) → Off**
+
+본 프로젝트는 GEO 가시성 우선이므로 AI 크롤러 명시적 허용 (robots.txt에 코딩됨).
+
+---
+
+## 5. 디렉토리 구조
+
+```
+awoo/
+├── .github/workflows/ci.yml      # Lint+Typecheck+Build+Lighthouse 게이트
+├── .nvmrc                        # Node 22
+├── public/
+│   ├── _headers                  # Cloudflare HTTP 보안 헤더 (HSTS·CSP·Permissions)
+│   ├── favicon.svg
+│   ├── og-default.png            # 1200×630 OG 이미지 (sharp로 SVG → PNG 변환)
+│   ├── robots.txt                # AI 크롤러 명시 허용 (§11-3)
+│   └── fonts/
+│       └── PretendardVariable.subset.woff2   # KS X 1001 + Latin
+├── src/
+│   ├── content.config.ts         # Content Collections Zod 스키마
+│   ├── data/
+│   │   ├── personas.json         # 페르소나 6개
+│   │   ├── subsidies/*.json      # 지원금 10개 (각 JSON 1개씩)
+│   │   ├── issues.json           # 추가 이슈 4개
+│   │   └── site-data.ts          # 중위소득·카테고리·오늘의 이슈 (TODAY_NEWS) + formatWon
+│   ├── components/
+│   │   ├── Container.astro       # narrow/default/wide 3 사이즈
+│   │   ├── Button.astro          # primary/ghost/dark × sm/md/lg
+│   │   ├── Chip.astro            # default/active × sm/md
+│   │   ├── Badge.astro           # neutral/accent/success/warning/danger
+│   │   ├── Icon.astro            # Lucide 스타일 SVG 28종
+│   │   ├── TopBar.astro          # sticky+blur, 테마 토글, 모바일 메뉴
+│   │   ├── Footer.astro          # 3-col + 법적 정보 (content-visibility:auto)
+│   │   └── home/
+│   │       ├── UrgencyHook.astro       # 다크 임팩트 헤드 + CSS 단어 페이드인
+│   │       ├── NewsHero.astro          # 오늘의 이슈 헤드 + 트렌드 SVG + 실시간 인기
+│   │       ├── IncomeChecker.astro     # 셀(:global CSS)
+│   │       ├── IncomeChecker.tsx       # React Island (client:visible)
+│   │       ├── OtherIssuesSection.astro
+│   │       ├── PersonaPicker.astro     # 6 그라데이션 카드
+│   │       └── CategoriesGrid.astro    # 분야별 6개
+│   ├── layouts/BaseLayout.astro  # SEO/OG/Twitter/Theme/skip-link
+│   ├── lib/vitals.ts             # web-vitals beacon (Phase A에서 활성)
+│   ├── pages/
+│   │   ├── index.astro           # 홈 (6 섹션)
+│   │   ├── about.astro
+│   │   ├── contact.astro
+│   │   ├── editorial-policy.astro
+│   │   ├── privacy.astro
+│   │   ├── terms.astro
+│   │   ├── cookies.astro
+│   │   ├── demo.astro            # 컴포넌트 데모 (noindex)
+│   │   ├── guide.astro           # 신청 흐름 + 공식 사이트 + FAQ + FAQPage JSON-LD
+│   │   ├── issues/main.astro     # 오늘의 이슈 상세 (페르소나 적합도 + 신청 절차)
+│   │   ├── personas/[id].astro   # 6 페르소나 정적 prerender
+│   │   ├── subsidies/index.astro # 지원금 목록 + chip 필터
+│   │   ├── subsidies/[id].astro  # 지원금 상세 + GovernmentService JSON-LD
+│   │   ├── llms.txt.ts           # /llms.txt 동적 생성 (인덱스)
+│   │   └── llms-full.txt.ts      # /llms-full.txt 동적 생성 (전체 합본)
+│   └── styles/global.css         # Tailwind + 디자인 토큰 + 폰트 face
+├── astro.config.mjs              # Astro 설정 (output:static, sitemap, react)
+├── biome.json                    # Lint+포맷 설정
+├── lefthook.yml                  # pre-commit Biome+typecheck, pre-push build
+├── lighthouserc.json             # CI 4×100 데스크톱 게이트
+├── tsconfig.json                 # strictest + @/* 별칭
+├── wrangler.jsonc                # Cloudflare 자동생성 — 손대지 말기
+├── package.json
+├── package-lock.json
+├── HANDOFF.md                    # 본 문서
+├── AGENTS.md                     # 사용자 2026 표준 작업 지시서
+├── README.md
+└── docs/
+    └── memory/                   # 프로젝트 컨텍스트 (Claude memory 사본)
+```
+
+---
+
+## 6. 디자인 시스템 핵심 약속
+
+### 6-1. 디자인 토큰 (Apple-inspired)
+- 라이트모드 본문 secondary는 `--gray-2 #6e6e73` (WCAG AA 5.0:1) — `#86868b`(3.7:1)는 큰 텍스트(18pt+)에만
+- 다크모드 자동 추적: `[data-theme]` 속성 + `prefers-color-scheme` (BaseLayout 인라인 스크립트)
+- 폰트: `Pretendard Variable` → `Pretendard Adjusted`(size-adjust matched fallback) → 시스템
+
+### 6-2. 페르소나 6개 그라데이션
+- `persona-blue`(사회초년생) / `persona-orange`(자영업) / `persona-pink`(신혼육아) / `persona-green`(중장년) / `persona-purple`(저소득) / `persona-amber`(농업)
+
+### 6-3. 분야별 tint
+- `tint-주거`(blue) / `tint-자산`(cyan) / `tint-교육`(violet) / `tint-창업`(orange) / `tint-복지`(pink) / `tint-취업`(green) / `tint-농업`(amber)
+
+### 6-4. ⚠️ A11y 규칙 (WCAG 2.2)
+- 인접 터치 타겟 spacing **24px** 이상 (gap 24px가 기본) — 16px 이하 시 `target-size` 위반
+- 인라인 텍스트 링크는 `padding: 6px 0; min-height: 24px;` 필수
+- 본문 secondary 색상 `#6e6e73` 고정 (WCAG AA 통과)
+- 모든 인터랙티브 요소 `:focus-visible { outline: 2px solid var(--accent) }`
+- `prefers-reduced-motion: reduce` 시 모든 애니메이션 즉시 종료
+
+### 6-5. 성능 약속 (PSI 100 호환 원칙)
+- **첫 페이지 로드 시 API 호출 0건** — 모든 데이터는 빌드타임(SSG)
+- React Island는 `client:visible` 권장 (`client:load` 회피)
+- 이미지: SVG > AVIF > WebP > PNG/JPEG 우선순위, `width/height` 명시
+- Footer만 `content-visibility: auto` 허용 (페이지 본문 sections에는 사용 X — Lighthouse 측정 충돌)
+- 인라인 CSS 50KB 미만 유지 (현재 홈 ~37KB)
+
+---
+
+## 7. 운영 주체 정보 (코드/푸터에 노출)
+
+| 항목 | 값 |
+|---|---|
+| 상호 (legalName) | 스마트데이터샵 |
+| 대표자 | 김준혁 |
+| 사업자등록번호 | 406-06-34485 |
+| 소재지 | 인천광역시 계양구 새벌로 88, 효성동 |
+| 이메일 | contact@awoo.or.kr |
+| 사업자 유형 | 간이과세자 (개인사업자) |
+
+> 🔒 **절대 노출 금지**: 생년월일, 정확한 동/호수(302동 1007호) — 개인정보
+
+---
+
+## 8. AGENTS.md 2026 표준 (사용자 운영 지침)
+
+본 레포지토리 루트의 [AGENTS.md](./AGENTS.md) 참조. 핵심 강제 항목:
+
+- **§0 Discovery 미완료 시 코딩 금지** — 추측 대신 질문
+- **§4 통합 CWV**: LCP ≤ 2.5s, **INP ≤ 150ms**(2026 강화), CLS ≤ 0.1, TTFB ≤ 600ms
+- **§5 SSR/SSG 필수** — CSR 단독 금지
+- **§11-3** robots.txt에 GPTBot/ClaudeBot/PerplexityBot 명시 허용
+- **§12-7** llms.txt 필수 — 본 프로젝트는 `/llms.txt` + `/llms-full.txt` 자동 생성
+- **§17 성능 예산**: 초기 JS ≤ 100KB gzip, Lighthouse 4 카테고리 모두 90+
+- **§22-1 단계별 게이트**: lint/typecheck/test/build 통과 후 다음 단계 진행
+- **§22-2 보고 형식**: ✅완료 / ⚠️부분 / ❌차단 / 🔍확인필요 / 📊지표 / 🔗파일
+
+---
+
+## 9. 외부 서비스 / 자격 증명
+
+### 9-1. 보유 중
+- **공공데이터포털 인증키**: 사용자 보유 (디코딩 형태). `.env`의 `DATA_GO_KR_KEY`로 등록 — Phase A에서 사용
+- **Cloudflare 계정**: kjh791213@gmail.com — Workers + Static Assets 활성, AI Bot 차단 OFF 설정 완료
+- **awoo.or.kr 도메인**: Cloudflare Nameserver 위임 완료
+
+### 9-2. 미설정 (Phase A 진입 시 필요)
+- **Resend** (이메일 발송): `kjh791213@gmail.com`으로 가입 → `RESEND_API_KEY`
+- **Cloudflare Turnstile** (폼 봇 차단): 대시보드에서 사이트 키·시크릿 발급
+- **Cloudflare Email Routing**: `contact@awoo.or.kr` → `kjh791213@gmail.com` 포워딩
+- **Cloudflare Access**: 어드민 페이지 보호용 (50명 무료 티어)
+
+---
+
+## 10. 작업 재개 시 권장 순서
+
+1. **이 문서 + AGENTS.md** 정독 (10분)
+2. `git pull` 으로 최신 동기화
+3. `npm run dev` 으로 로컬 확인 → http://localhost:4321
+4. https://awoo.or.kr 라이브 상태 확인 (PSI 재측정 옵션)
+5. [docs/memory/](./docs/memory/) 의 Claude 메모리 파일 훑어보기 (프로젝트 컨텍스트)
+6. 다음 작업: 사용자가 우선순위 결정한 항목 (Phase A API / 콘텐츠 확장 / 모바일 100 등)
+
+---
+
+## 11. 자주 마주칠 트랩
+
+| 증상 | 원인 | 해결 |
+|---|---|---|
+| Vite `null bytes` 빌드 에러 | 경로에 `#`/한글/공백 | C:\dev\awoo 같은 ASCII 경로로 이동 |
+| `pnpm install` 심볼릭 링크 EPERM | 네트워크 드라이브 / 권한 | npm 사용 |
+| `astro check` Node v20 거절 | Astro 6은 Node ≥22.12 | `nvm use` 또는 Node 22+ 설치 |
+| Lighthouse Chrome 임시폴더 EPERM (Windows) | Chrome 정리 시점 권한 | 로그상 에러지만 결과는 정상 — `.lighthouseci/*.json` 확인 |
+| Cloudflare 빌드 후 deploy 실패 (`[assets] directory` 요구) | 루트 `wrangler.toml` 충돌 | `wrangler.jsonc`만 두고 `wrangler.toml` 제거 (이미 정리됨) |
+| robots.txt에 ClaudeBot Disallow 자동 삽입 | Cloudflare AI Bot 차단 ON | 대시보드 Security → Bots → Off |
+| Mobile Lighthouse target-size 오탐 | sections에 `content-visibility: auto` | 본문 sections 에서 cv 제거 (Footer만 허용) |
+| Lighthouse 캐시버스터 URL(`?v=...`) 사용 시 측정 왜곡 | Cloudflare CDN 응답 분기 | 정상 URL + `--disable-cache` 사용 |
+
+---
+
+## 12. 변경 이력
+
+| 날짜 | 커밋 | 내용 |
+|---|---|---|
+| 2026-04-28 | `2754286` | Phase 1 부트스트랩 (Astro 6 + React + Tailwind 4) |
+| 2026-04-28 | `b59acbc` | Phase 2 디자인 시스템 — Pretendard 셀프호스팅 + Atom 컴포넌트 |
+| 2026-04-28 | `a146420` | GitHub Actions CI Lighthouse 4×100 게이트 |
+| 2026-04-28 | `9822a3b` | Node 22 fix |
+| 2026-04-28 | `3bee52a` | wrangler.toml 제거 (Cloudflare 배포 충돌) |
+| 2026-04-28 | `ce69f01` | Cloudflare Workers 자동 설정 머지 |
+| 2026-04-28 | `9971c36` | Phase 3+4 프로토타입 디자인 본격 이식 |
+| 2026-04-28 | `23adaa9` | content-visibility 추가 (이후 부분 회귀로 제거됨) |
+| 2026-04-29 | `6f7a6a3` | Phase 5 — issues/main, 법적 페이지, sitemap, llms 자동 생성, OG PNG, UrgencyHook 애니 |
+| 2026-04-29 | `886c25d` | A11y target-size + content-visibility 측정 충돌 해소 |
+| 2026-04-29 | (이 커밋) | HANDOFF.md + AGENTS.md + memory 백업 |
+
+---
+
+## 13. 연락처
+
+- **운영자**: 김준혁 / kjh791213@gmail.com
+- **사이트**: https://awoo.or.kr
+- **레포**: https://github.com/0gam24/awoo
+
+---
+
+*다른 PC에서 막히면: 이 문서의 §3, §11을 먼저 확인.*
