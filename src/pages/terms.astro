@@ -1,0 +1,92 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="이용약관 — 지원금가이드"
+  description="지원금가이드 정보 안내 서비스 이용에 관한 약관."
+>
+  <Container size="narrow">
+    <article class="page">
+      <h1>이용약관</h1>
+      <p class="meta">시행일: 2026-04-29</p>
+
+      <section>
+        <h2>제1조 (서비스 성격)</h2>
+        <p>
+          지원금가이드(이하 "본 사이트")는 정부 지원금 정보를 페르소나별로 정리하여 안내하는
+          <strong>정보 안내 사이트</strong>입니다. 신청 대행은 일절 제공하지 않으며, 모든 신청은
+          복지로·고용24·K-스타트업 등 정부 공식 사이트에서 진행됩니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>제2조 (정보의 정확성)</h2>
+        <p>
+          본 사이트의 정보는 정부 부처 공식 발표를 기반으로 작성하며 주기적으로 갱신합니다.
+          다만 시행 시기·예산 소진 등에 따라 실제 신청 가능 여부는 달라질 수 있으며, 신청 직전
+          공식 사이트에서 최종 확인을 권장합니다.
+        </p>
+        <p>
+          본 사이트는 정보의 활용으로 발생한 어떠한 결과(신청 거절, 자격 미달 등)에 대해서도
+          법적 책임을 지지 않습니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>제3조 (외부 링크)</h2>
+        <p>
+          본 사이트는 정부 공식 사이트로 이동하는 링크를 제공합니다. 외부 사이트에서 발생하는
+          내용·서비스에 대해서는 해당 사이트가 책임을 부담합니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>제4조 (저작권)</h2>
+        <p>
+          본 사이트의 콘텐츠는 별도 표기가 없는 한 본 사이트가 작성한 것입니다.
+          정부 부처 보도자료·공식 발표는 출처를 명시하여 인용합니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>제5조 (개정)</h2>
+        <p>
+          본 약관은 필요 시 개정될 수 있으며, 개정 시 본 페이지에 변경 사항을 게시합니다.
+        </p>
+      </section>
+    </article>
+  </Container>
+</BaseLayout>
+
+<style>
+  .page {
+    padding: 64px 0 96px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  .meta {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 0 0 32px;
+  }
+  section {
+    margin-bottom: 32px;
+  }
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+  p {
+    color: var(--text-2);
+    line-height: 1.7;
+    margin: 0 0 12px;
+  }
+</style>

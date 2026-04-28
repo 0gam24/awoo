@@ -2,6 +2,7 @@
 
 import cloudflare from '@astrojs/cloudflare';
 import react from '@astrojs/react';
+import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
@@ -10,6 +11,7 @@ import { defineConfig } from 'astro/config';
 export default defineConfig({
   site: 'https://awoo.or.kr',
   output: 'static',
+  trailingSlash: 'always',
 
   prefetch: {
     prefetchAll: false,
@@ -20,7 +22,17 @@ export default defineConfig({
     inlineStylesheets: 'always',
   },
 
-  integrations: [react()],
+  integrations: [
+    react(),
+    sitemap({
+      changefreq: 'weekly',
+      priority: 0.7,
+      i18n: {
+        defaultLocale: 'ko',
+        locales: { ko: 'ko-KR' },
+      },
+    }),
+  ],
 
   vite: {
     plugins: [tailwindcss()],

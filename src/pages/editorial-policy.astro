@@ -1,0 +1,110 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="편집 정책 — 지원금가이드"
+  description="지원금가이드의 콘텐츠 작성·검수·정정 정책. 1차 자료 인용, 정확성 우선, AI 단독 생성 금지."
+>
+  <Container size="narrow">
+    <article class="page">
+      <h1>편집 정책</h1>
+      <p class="meta">시행일: 2026-04-29 · 편집책임자: 김준혁</p>
+
+      <section>
+        <h2>1. 콘텐츠 출처</h2>
+        <p>
+          본 사이트의 모든 지원금 정보는 다음 1차 자료에 근거합니다.
+        </p>
+        <ul>
+          <li>정부 부처 공식 발표 (보건복지부·국토교통부·고용노동부·중소벤처기업부 등)</li>
+          <li>복지로(bokjiro.go.kr)·고용24(work24.go.kr)·K-스타트업(k-startup.go.kr) 등 공식 신청 창구</li>
+          <li>기획재정부 예산서, 통계청 자료, 보건복지부 고시</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>2. 사실 확인 절차</h2>
+        <ul>
+          <li>모든 수치(지원 금액·소득 기준·마감일)는 발표 시점에 1차 자료와 대조 검증</li>
+          <li>정책 변경 발표 시 24~72시간 내 갱신</li>
+          <li>분기마다 전체 지원금 정보 일괄 재검토</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. AI 보조 활용 정책</h2>
+        <p>
+          본 사이트는 콘텐츠 작성·교정에 AI 도구를 보조적으로 사용할 수 있으나,
+          <strong>AI 단독 생성 후 무편집 발행은 금지</strong>합니다.
+        </p>
+        <ul>
+          <li>모든 사실 주장은 사람이 1차 자료로 검증</li>
+          <li>실제 신청 경험·사례는 사람의 직접 경험 또는 인터뷰에 근거</li>
+          <li>AI 보조 사실은 본 페이지에 투명하게 공개</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. 정정 정책</h2>
+        <p>
+          오류·누락·갱신 필요 사항을 발견하시면 <a href="mailto:contact@awoo.or.kr">contact@awoo.or.kr</a>
+          로 알려주십시오. 확인 후 24시간 이내에 수정하고, 중요 변경은 페이지 하단에 정정 이력을 남깁니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. 광고·후원·이해상충</h2>
+        <p>
+          본 사이트는 현재 광고·제휴 링크·후원을 운영하지 않습니다. 향후 광고·제휴를 도입할 경우
+          본 페이지에 명시하고, 콘텐츠와 광고를 시각적·구조적으로 분리합니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. 편집 책임자</h2>
+        <p>
+          김준혁 (편집장 · 대표)<br />
+          이메일: <a href="mailto:contact@awoo.or.kr">contact@awoo.or.kr</a>
+        </p>
+      </section>
+    </article>
+  </Container>
+</BaseLayout>
+
+<style>
+  .page {
+    padding: 64px 0 96px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+  .meta {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 0 0 32px;
+  }
+  section {
+    margin-bottom: 32px;
+  }
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+  p,
+  ul {
+    color: var(--text-2);
+    line-height: 1.7;
+    margin: 0 0 12px;
+  }
+  ul {
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 4px;
+  }
+</style>

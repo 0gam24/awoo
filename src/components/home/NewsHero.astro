@@ -45,6 +45,11 @@ const areaPath = `${linePath} L ${last[0]} ${h - pad} L ${first[0]} ${h - pad} Z
           <div class="news-delta-pill">{n.deltaPct} 인상</div>
         </div>
 
+        <div class="news-actions">
+          <a class="cta-primary" href="/issues/main/">이 이슈 자세히 →</a>
+          {n.related[0] && <a class="cta-ghost" href={`/subsidies/${n.related[0]}/`}>지원금 상세</a>}
+        </div>
+
         <div class="news-trend-graph">
           <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" width="100%" height={h} aria-hidden="true">
             <defs>
@@ -244,6 +249,49 @@ const areaPath = `${linePath} L ${last[0]} ${h - pad} L ${first[0]} ${h - pad} Z
     border-radius: var(--radius-pill);
     font-size: 13px;
     font-weight: 700;
+  }
+
+  .news-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 11px 20px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .cta-primary:hover {
+    text-decoration: none;
+    background: color-mix(in oklch, var(--accent), black 8%);
+  }
+
+  .cta-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .cta-ghost:hover {
+    text-decoration: none;
+    background: var(--surface-2);
   }
 
   .news-trend-graph {

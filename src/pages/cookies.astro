@@ -1,0 +1,109 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="쿠키 정책 — 지원금가이드"
+  description="지원금가이드의 쿠키 사용 현황. 현재 추적 쿠키를 사용하지 않습니다."
+>
+  <Container size="narrow">
+    <article class="page">
+      <h1>쿠키 정책</h1>
+      <p class="meta">시행일: 2026-04-29</p>
+
+      <section>
+        <h2>현재 사용하는 쿠키</h2>
+        <p>본 사이트는 추적·광고 쿠키를 사용하지 않습니다. 사용 중인 항목은 다음과 같습니다.</p>
+        <table>
+          <thead>
+            <tr><th>이름</th><th>용도</th><th>저장소</th><th>유효기간</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>theme</code></td>
+              <td>다크/라이트 모드 선택 기억</td>
+              <td>localStorage</td>
+              <td>영구 (사용자가 직접 삭제할 때까지)</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>분석 도구</h2>
+        <p>
+          Cloudflare Web Analytics(쿠키리스, 서버사이드)를 사용해 익명 페이지 통계를 집계합니다.
+          쿠키를 사용하지 않으므로 별도 동의가 필요 없습니다.
+        </p>
+        <p>
+          향후 Google Analytics 등 쿠키 기반 도구를 도입할 경우, 별도 동의 배너로 사용자 선택을
+          받을 예정이며 동의 전까지는 로드되지 않습니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>쿠키 삭제</h2>
+        <p>
+          브라우저 설정 → 사이트별 데이터에서 awoo.or.kr 항목을 삭제하면 모든 로컬 저장 항목이
+          제거됩니다.
+        </p>
+      </section>
+    </article>
+  </Container>
+</BaseLayout>
+
+<style>
+  .page {
+    padding: 64px 0 96px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+  .meta {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 0 0 32px;
+  }
+  section {
+    margin-bottom: 32px;
+  }
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+  p {
+    color: var(--text-2);
+    line-height: 1.7;
+    margin: 0 0 12px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin-top: 12px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface-2);
+    font-weight: 600;
+  }
+  td {
+    color: var(--text-2);
+  }
+  code {
+    font-family: 'SF Mono', Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    background: var(--surface-2);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+</style>

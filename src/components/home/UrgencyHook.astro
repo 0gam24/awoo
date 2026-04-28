@@ -12,9 +12,18 @@ import Container from '@/components/Container.astro';
 
     <div class="urgency-message">
       <div class="urgency-headline">
-        <span class="urgency-warn">국가 예산은 한정되어 있습니다.</span>
+        <span class="urgency-warn uh-fade">국가 예산은 한정되어 있습니다.</span>
         <span class="urgency-rest">
-          당신이 망설이는 지금 이 순간에도, 누군가의 통장에는 <em>지원금이</em> 꽂히고 있습니다.
+          <span class="uh-word" style="--i:0">당신이</span>
+          <span class="uh-word" style="--i:1">망설이는</span>
+          <span class="uh-word" style="--i:2">지금</span>
+          <span class="uh-word" style="--i:3">이</span>
+          <span class="uh-word" style="--i:4">순간에도,</span>
+          <span class="uh-word" style="--i:5">누군가의</span>
+          <span class="uh-word" style="--i:6">통장에는</span>
+          <em class="uh-word uh-pulse" style="--i:7">지원금이</em>
+          <span class="uh-word" style="--i:8">꽂히고</span>
+          <span class="uh-word" style="--i:9">있습니다.</span>
         </span>
       </div>
 
@@ -124,6 +133,60 @@ import Container from '@/components/Container.astro';
     font-style: normal;
     color: #ef4444;
     font-weight: 800;
+  }
+
+  /* 단어 페이드인 애니메이션 — CSS only, JS 없음 */
+  .uh-fade {
+    opacity: 0;
+    animation: uh-fade-in 0.5s ease-out 0.05s forwards;
+  }
+
+  .uh-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(8px);
+    animation: uh-word-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: calc(0.25s + var(--i, 0) * 0.07s);
+  }
+
+  .uh-pulse {
+    animation:
+      uh-word-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
+      uh-pulse-glow 1.6s ease-in-out 1.4s infinite;
+    animation-delay: calc(0.25s + var(--i, 0) * 0.07s), 1.4s;
+  }
+
+  @keyframes uh-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes uh-word-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes uh-pulse-glow {
+    0%, 100% {
+      text-shadow: none;
+    }
+    50% {
+      text-shadow: 0 0 24px rgb(239 68 68 / 0.5);
+    }
+  }
+
+  /* 모션 감소 선호 시 즉시 표시 */
+  @media (prefers-reduced-motion: reduce) {
+    .uh-fade,
+    .uh-word,
+    .uh-pulse {
+      opacity: 1;
+      transform: none;
+      animation: none;
+    }
   }
 
   .urgency-stats {

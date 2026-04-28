@@ -1,0 +1,591 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { TODAY_NEWS } from '@/data/site-data';
+import { getCollection } from 'astro:content';
+
+const personas = await getCollection('personas');
+const subsidies = await getCollection('subsidies');
+const n = TODAY_NEWS;
+const relatedSubsidy = subsidies.find((s) => s.data.id === n.related[0]);
+
+const newsSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: n.headline,
+  description: n.subhead,
+  datePublished: '2026-04-28',
+  dateModified: '2026-04-29',
+  publisher: {
+    '@type': 'Organization',
+    name: '지원금가이드',
+    url: 'https://awoo.or.kr',
+  },
+  about: relatedSubsidy
+    ? {
+        '@type': 'GovernmentService',
+        name: relatedSubsidy.data.title,
+        provider: { '@type': 'GovernmentOrganization', name: relatedSubsidy.data.agency },
+      }
+    : undefined,
+};
+
+const steps = [
+  { n: 1, t: '5월 1일 0시 신청 시작', d: '복지로(www.bokjiro.go.kr)에서 본인인증 후 신청. 모바일 앱도 가능.' },
+  { n: 2, t: '서류 제출', d: '주민등록등본·임대차계약서·월세 이체증빙·소득증빙. 모두 온라인 업로드.' },
+  { n: 3, t: '심사 (평균 14일)', d: '소득·재산 자동 조회. 추가 서류 요청 시 알림.' },
+  { n: 4, t: '본인 계좌로 입금', d: '월 30만원씩 12개월 동안. 누적 360만원.' },
+];
+---
+
+<BaseLayout title={`${n.headline} — 지원금가이드`} description={n.subhead}>
+  <section class="hero">
+    <Container size="wide">
+      <a class="back-link" href="/">← 홈</a>
+      <div class="hero-meta">
+        <span class="news-pulse"><span class="dot" aria-hidden="true"></span>{n.badge}</span>
+        <span class="meta-text">{n.date} · {n.source}</span>
+      </div>
+      <h1 class="title">{n.headline}</h1>
+      <p class="subhead">{n.subhead}</p>
+
+      <div class="num-strip">
+        {
+          n.publicStats.map((s) => (
+            <div class={`num-cell tone-${s.tone}`}>
+              <div class="label">{s.label}</div>
+              <div class="value">{s.value}</div>
+              <div class="sub">{s.sub}</div>
+            </div>
+          ))
+        }
+      </div>
+    </Container>
+  </section>
+
+  <section class="band">
+    <Container size="wide">
+      <div class="section-head">
+        <div class="eyebrow">나는 받을 수 있나?</div>
+        <h2 class="display">페르소나별 적합도</h2>
+        <p class="lead">
+          본인과 비슷한 사람들이 어떤 결과를 받는지 정리했어요. 정확한 자격은 신청 시 확인됩니다.
+        </p>
+      </div>
+
+      <ul class="impact-list">
+        {
+          n.personaImpact.map((pi) => {
+            const p = personas.find((x) => x.data.id === pi.personaId);
+            if (!p) return null;
+            return (
+              <li class={`impact-card verdict-${pi.verdict}`}>
+                <div class={`impact-icon ${p.data.bg}`}>
+                  <Icon name={p.data.icon} size={20} strokeWidth={1.8} />
+                </div>
+                <div class="impact-body">
+                  <div class="impact-head">
+                    <span class="persona-label">{p.data.label}</span>
+                    <span class={`verdict-pill v-${pi.verdict}`}>
+                      {pi.verdict === 'eligible' && (
+                        <Icon name="check" size={11} strokeWidth={2.6} />
+                      )}
+                      {pi.verdict === 'partial' && <span class="symbol">△</span>}
+                      {pi.verdict === 'ineligible' && <span class="symbol">×</span>}
+                      {pi.label}
+                    </span>
+                  </div>
+                  <div class="impact-detail">{pi.detail}</div>
+                </div>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </Container>
+  </section>
+
+  <section class="band alt">
+    <Container size="wide">
+      <h2 class="display">5월부터 어떻게 신청하나요?</h2>
+      <ol class="step-flow">
+        {
+          steps.map((s) => (
+            <li class="step-item">
+              <div class="step-num">{s.n}</div>
+              <div>
+                <div class="step-title">{s.t}</div>
+                <p class="step-desc">{s.d}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="cta-row">
+        <a class="btn-primary" href="https://www.bokjiro.go.kr" target="_blank" rel="noopener noreferrer">
+          복지로에서 신청하기 <Icon name="arrow-up-right" size={16} />
+        </a>
+        {
+          relatedSubsidy && (
+            <a class="btn-ghost" href={`/subsidies/${relatedSubsidy.data.id}/`}>
+              지원금 상세 보기
+            </a>
+          )
+        }
+      </div>
+    </Container>
+  </section>
+
+  <section class="band">
+    <Container size="wide">
+      <div class="why-grid">
+        <div>
+          <h3 class="utility">왜 지금 이슈인가요?</h3>
+          <p class="why">{n.why}</p>
+        </div>
+        <div>
+          <h3 class="utility">실시간 인기 검색</h3>
+          <ol class="trend-list">
+            {
+              n.trending.map((t) => (
+                <li>
+                  {t.related ? (
+                    <a href={`/subsidies/${t.related}/`}>
+                      <span class="rank">{t.rank}</span>
+                      <span class="t">{t.title}</span>
+                      <span class="delta">↑ {t.delta}</span>
+                    </a>
+                  ) : (
+                    <>
+                      <span class="rank">{t.rank}</span>
+                      <span class="t">{t.title}</span>
+                      <span class="delta">↑ {t.delta}</span>
+                    </>
+                  )}
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(newsSchema)}></script>
+</BaseLayout>
+
+<style>
+  .hero {
+    padding: 56px 0 48px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .back-link:hover {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .news-pulse {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    background: rgb(220 38 38 / 0.12);
+    color: #c11216;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  :global([data-theme='dark']) .news-pulse {
+    background: rgb(220 38 38 / 0.2);
+    color: #fca5a5;
+  }
+  .news-pulse .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .meta-text {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    max-width: 760px;
+  }
+
+  .subhead {
+    font-size: 17px;
+    color: var(--text-2);
+    line-height: 1.6;
+    max-width: 720px;
+    margin: 0 0 28px;
+  }
+
+  .num-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 720px) {
+    .num-strip {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .num-cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+  }
+
+  .num-cell .label {
+    font-size: 12px;
+    color: var(--text-2);
+    margin-bottom: 4px;
+  }
+  .num-cell .value {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.015em;
+  }
+  .num-cell .sub {
+    font-size: 11px;
+    color: var(--text-3);
+  }
+  .tone-accent .value {
+    color: var(--accent);
+  }
+  .tone-positive .value {
+    color: var(--color-success);
+  }
+  .tone-warning .value {
+    color: var(--color-warning);
+  }
+
+  .band {
+    padding: 56px 0;
+  }
+  .band.alt {
+    background: var(--bg-alt);
+  }
+
+  .section-head {
+    max-width: 720px;
+    margin-bottom: 24px;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+
+  .display {
+    font-size: clamp(22px, 2.6vw, 30px);
+    font-weight: 600;
+    line-height: 1.25;
+    margin: 0 0 8px;
+  }
+
+  .lead {
+    font-size: 15px;
+    color: var(--text-2);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .impact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .impact-card {
+    display: flex;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    align-items: flex-start;
+  }
+
+  .verdict-eligible {
+    border-left: 3px solid var(--color-success);
+  }
+  .verdict-partial {
+    border-left: 3px solid var(--color-warning);
+  }
+  .verdict-ineligible {
+    border-left: 3px solid var(--text-3);
+  }
+
+  .impact-icon {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  .persona-blue {
+    background: linear-gradient(135deg, #0066cc, #2997ff);
+  }
+  .persona-orange {
+    background: linear-gradient(135deg, #d97706, #f97316);
+  }
+  .persona-pink {
+    background: linear-gradient(135deg, #be185d, #ec4899);
+  }
+  .persona-green {
+    background: linear-gradient(135deg, #047857, #10b981);
+  }
+  .persona-purple {
+    background: linear-gradient(135deg, #6d28d9, #a855f7);
+  }
+  .persona-amber {
+    background: linear-gradient(135deg, #b45309, #f59e0b);
+  }
+
+  .impact-body {
+    flex: 1;
+  }
+
+  .impact-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+  }
+
+  .persona-label {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .verdict-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .v-eligible {
+    background: rgb(0 169 110 / 0.16);
+    color: var(--color-success);
+  }
+  .v-partial {
+    background: rgb(247 195 96 / 0.18);
+    color: var(--color-warning);
+  }
+  .v-ineligible {
+    background: var(--surface-2);
+    color: var(--text-2);
+  }
+
+  .symbol {
+    font-weight: 800;
+  }
+
+  .impact-detail {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+
+  .step-flow {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .step-item {
+    display: flex;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .step-num {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    margin: 0;
+    color: var(--text-2);
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .cta-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .btn-primary:hover {
+    text-decoration: none;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 24px;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-2);
+    border-radius: var(--radius-pill);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .why-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 32px;
+  }
+  @media (max-width: 720px) {
+    .why-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .utility {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+
+  .why {
+    margin: 0;
+    color: var(--text-2);
+    line-height: 1.7;
+  }
+
+  .trend-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .trend-list li a,
+  .trend-list li > .rank {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .trend-list li a:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .trend-list .rank {
+    width: 24px;
+    height: 24px;
+    background: var(--surface-2);
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    border: 0;
+    padding: 0;
+  }
+
+  .trend-list .t {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .trend-list .delta {
+    font-size: 12px;
+    color: var(--color-success);
+    font-weight: 600;
+  }
+</style>

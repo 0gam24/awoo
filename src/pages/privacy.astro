@@ -1,0 +1,116 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="개인정보처리방침 — 지원금가이드"
+  description="지원금가이드는 회원가입과 로그인이 없으며, 사용자의 개인정보를 수집·저장하지 않습니다."
+>
+  <Container size="narrow">
+    <article class="page">
+      <h1>개인정보처리방침</h1>
+      <p class="meta">시행일: 2026-04-29</p>
+
+      <section>
+        <h2>1. 개인정보 수집 항목 — 없음</h2>
+        <p>
+          본 사이트는 <strong>회원가입과 로그인이 없으며</strong>, 사용자의 이름·연락처·주민등록번호 등
+          어떠한 개인 식별 정보도 수집하지 않습니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. 자동 수집 정보</h2>
+        <p>다음 항목이 익명 통계 목적으로 자동 수집될 수 있습니다.</p>
+        <ul>
+          <li>접속 IP 주소 (해시 처리 후 7일 이내 폐기)</li>
+          <li>브라우저·기기 종류, 운영체제 버전</li>
+          <li>방문 페이지·체류 시간·이동 경로</li>
+          <li>Web Vitals 성능 지표 (LCP·INP·CLS 등)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. 분석 도구</h2>
+        <p>
+          Cloudflare Web Analytics(쿠키리스, 서버사이드)를 사용합니다. Google Analytics 등
+          쿠키 기반 추적 도구는 사용자 동의 후에만 활성화됩니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>4. 제3자 제공·국외 이전</h2>
+        <p>
+          지원금가이드는 사용자가 정부 공식 사이트(복지로·고용24·K-스타트업 등)로 이동하도록 링크만
+          제공하며, 사용자 정보를 제3자에게 제공하거나 국외로 이전하지 않습니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. 사용자 권리</h2>
+        <p>
+          본 사이트는 개인정보를 보유하지 않으므로 열람·정정·삭제를 요청할 항목이 없습니다.
+          궁금한 점은 <a href="mailto:contact@awoo.or.kr">contact@awoo.or.kr</a> 로 문의 바랍니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. 개인정보 보호책임자</h2>
+        <p>
+          상호: 스마트데이터샵 · 대표자: 김준혁 · 사업자등록번호: 406-06-34485
+          <br />
+          소재지: 인천광역시 계양구 새벌로 88, 효성동
+          <br />
+          이메일: <a href="mailto:contact@awoo.or.kr">contact@awoo.or.kr</a>
+        </p>
+      </section>
+    </article>
+  </Container>
+</BaseLayout>
+
+<style>
+  .page {
+    padding: 64px 0 96px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+
+  .meta {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 0 0 32px;
+  }
+
+  section {
+    margin-bottom: 32px;
+  }
+
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+
+  p {
+    color: var(--text-2);
+    line-height: 1.7;
+    margin: 0 0 12px;
+  }
+
+  ul {
+    color: var(--text-2);
+    line-height: 1.7;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+</style>

@@ -1,0 +1,158 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="문의 — 지원금가이드"
+  description="지원금가이드 문의처. 콘텐츠 정정·제보·제휴 문의 안내."
+>
+  <Container size="narrow">
+    <article class="page">
+      <header class="head">
+        <div class="eyebrow">문의</div>
+        <h1>도움이 필요하시면 언제든지 알려주세요</h1>
+        <p class="lead">
+          본 사이트는 정보 안내 사이트로, 지원금 신청은 받지 않습니다.
+          콘텐츠 정정·갱신 제보·제휴 문의 환영합니다.
+        </p>
+      </header>
+
+      <section class="card">
+        <h2>이메일 문의</h2>
+        <a class="email" href="mailto:contact@awoo.or.kr">
+          contact@awoo.or.kr
+          <Icon name="arrow-up-right" size={16} />
+        </a>
+        <p class="card-desc">평일 24~48시간 내 답변</p>
+      </section>
+
+      <section class="card">
+        <h2>이런 문의를 환영해요</h2>
+        <ul>
+          <li>오류·낡은 정보 제보 (지원 금액·자격 기준 변경 등)</li>
+          <li>새로운 정부 지원금 추가 요청</li>
+          <li>페르소나 분류 의견·실제 신청 경험 공유</li>
+          <li>접근성·사용성 피드백</li>
+          <li>언론 보도·인터뷰 요청</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>이런 문의는 처리할 수 없어요</h2>
+        <ul>
+          <li>지원금 신청 대행 — 본 사이트는 정보 안내만 합니다. 신청은 정부 공식 사이트에서.</li>
+          <li>개별 자격 판정 — 정확한 자격은 복지로(welfare.go.kr) 모의계산을 이용하세요.</li>
+          <li>심사 결과 문의·이의 신청 — 신청한 정부 부처에 직접 문의 바랍니다.</li>
+        </ul>
+      </section>
+
+      <section class="card biz-card">
+        <h2>운영 주체</h2>
+        <dl>
+          <dt>상호</dt><dd>스마트데이터샵</dd>
+          <dt>대표자</dt><dd>김준혁</dd>
+          <dt>사업자등록번호</dt><dd>406-06-34485</dd>
+          <dt>소재지</dt><dd>인천광역시 계양구 새벌로 88, 효성동</dd>
+        </dl>
+      </section>
+    </article>
+  </Container>
+</BaseLayout>
+
+<style>
+  .page {
+    padding: 64px 0 96px;
+  }
+
+  .head {
+    margin-bottom: 32px;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 12px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .card {
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+  }
+
+  .card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 12px;
+  }
+
+  .email {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+  }
+
+  .email:hover {
+    text-decoration: underline;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 8px 0 0;
+  }
+
+  ul {
+    color: var(--text-2);
+    line-height: 1.7;
+    margin: 0;
+    padding-left: 20px;
+  }
+
+  li {
+    margin-bottom: 4px;
+  }
+
+  .biz-card dl {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 8px 16px;
+    margin: 0;
+    font-size: 14px;
+  }
+
+  .biz-card dt {
+    color: var(--text-2);
+  }
+
+  .biz-card dd {
+    margin: 0;
+    color: var(--text);
+  }
+</style>
