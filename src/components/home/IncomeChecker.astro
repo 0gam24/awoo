@@ -16,7 +16,7 @@ import { IncomeChecker } from './IncomeChecker';
       </p>
     </div>
 
-    <IncomeChecker client:load />
+    <IncomeChecker client:visible />
   </Container>
 </section>
 
@@ -25,6 +25,8 @@ import { IncomeChecker } from './IncomeChecker';
   .income-checker {
     padding: 64px 0;
     background: var(--bg-alt);
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 720px;
   }
 
   .ic-head {
