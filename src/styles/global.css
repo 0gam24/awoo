@@ -1,0 +1,207 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   디자인 토큰 — Apple-inspired, Korean-friendly
+   라이트모드 본문 secondary는 #6e6e73 사용 (WCAG AA 5.0:1 통과)
+   #86868b는 큰 텍스트(18pt+)·hint 전용
+   ============================================================ */
+@theme {
+  /* Brand */
+  --color-ink: #1d1d1f;
+  --color-pale: #f5f5f7;
+  --color-blue: #0071e3;
+  --color-link-blue: #0066cc;
+  --color-bright-blue: #2997ff;
+  --color-graphite-a: #272729;
+  --color-graphite-b: #262629;
+  --color-graphite-c: #28282b;
+  --color-graphite-d: #2a2a2c;
+
+  /* Neutrals — WCAG AA 안전 */
+  --color-gray-2: #6e6e73; /* body secondary on white = 5.0:1 ✓ */
+  --color-gray-3: #86868b; /* large text only = 3.7:1 (AA Large) */
+  --color-gray-4: #424245;
+  --color-border-soft: #d2d2d7;
+  --color-border-strong: #86868b;
+
+  /* Semantic */
+  --color-success: #008559;
+  --color-warning: #c87000;
+  --color-danger: #d62c1a;
+  --color-info: #0071e3;
+
+  /* Typography */
+  --font-sans:
+    'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont,
+    'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
+
+  /* Radii */
+  --radius-xs: 5px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+  --radius-2xl: 36px;
+  --radius-pill: 980px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04), 0 2px 8px rgb(0 0 0 / 0.04);
+  --shadow-md: 0 6px 24px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 18px 48px rgb(0 0 0 / 0.14);
+
+  /* Motion */
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ============================================================
+   Theme-aware (light by default, dark via [data-theme="dark"])
+   ============================================================ */
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-alt: var(--color-pale);
+  --surface: #ffffff;
+  --surface-2: var(--color-pale);
+  --text: var(--color-ink);
+  --text-2: var(--color-gray-2); /* 본문 secondary — WCAG AA 통과 */
+  --text-3: var(--color-gray-3); /* hint·label·큰 텍스트 전용 */
+  --border: var(--color-border-soft);
+  --border-2: var(--color-border-strong);
+  --accent: var(--color-blue);
+  --accent-link: var(--color-link-blue);
+  --on-accent: #ffffff;
+  --shadow-soft: var(--shadow-sm);
+  --shadow-pop: var(--shadow-md);
+  --shadow-lift: var(--shadow-lg);
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #000000;
+  --bg-alt: #1a1a1c;
+  --surface: var(--color-graphite-a);
+  --surface-2: var(--color-graphite-d);
+  --text: #f5f5f7;
+  --text-2: #a1a1a6;
+  --text-3: #86868b;
+  --border: #3a3a3d;
+  --border-2: #515154;
+  --accent: var(--color-bright-blue);
+  --accent-link: var(--color-bright-blue);
+  --on-accent: #000000;
+}
+
+/* prefers-color-scheme 자동 추적 (사용자가 명시 선택 전) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #000000;
+    --bg-alt: #1a1a1c;
+    --surface: var(--color-graphite-a);
+    --surface-2: var(--color-graphite-d);
+    --text: #f5f5f7;
+    --text-2: #a1a1a6;
+    --text-3: #86868b;
+    --border: #3a3a3d;
+    --border-2: #515154;
+    --accent: var(--color-bright-blue);
+    --accent-link: var(--color-bright-blue);
+    --on-accent: #000000;
+  }
+}
+
+/* ============================================================
+   Reset & base
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'ss02';
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+a {
+  color: var(--accent-link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 포커스 인디케이터 (WCAG 2.2 AA) */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* 스킵 링크 */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--on-accent);
+  border-radius: var(--radius-sm);
+  z-index: 1000;
+  transition: top 0.15s var(--ease-standard);
+}
+
+.skip-link:focus {
+  top: 16px;
+}
+
+/* 이미지 CLS 방지 — 모든 img에 aspect-ratio 또는 width/height 권장 */
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}

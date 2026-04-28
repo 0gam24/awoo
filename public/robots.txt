@@ -1,0 +1,23 @@
+User-agent: *
+Allow: /
+
+# AI 크롤러 명시적 허용 (GEO 가시성)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://awoo.or.kr/sitemap-index.xml

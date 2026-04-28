@@ -1,0 +1,43 @@
+{
+  "name": "awoo",
+  "type": "module",
+  "version": "0.0.1",
+  "private": true,
+  "description": "지원금가이드 — 정부 지원금 안내 사이트 (운영: 스마트데이터샵)",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check && tsc --noEmit",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "lint:fix": "biome check --write .",
+    "lhci": "lhci autorun",
+    "lhci:mobile": "lhci autorun --collect.settings.preset=mobile",
+    "verify": "npm run lint && npm run check && npm run build && npm run lhci"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "13.2.2",
+    "@astrojs/react": "5.0.4",
+    "@tailwindcss/vite": "4.2.4",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "astro": "6.1.10",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "tailwindcss": "4.2.4",
+    "wrangler": "4.85.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.13",
+    "@lhci/cli": "0.15.1",
+    "lefthook": "2.1.6",
+    "typescript": "5.9.3",
+    "web-vitals": "5.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

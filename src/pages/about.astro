@@ -1,0 +1,167 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const SITE = {
+  name: '지원금가이드',
+  legalName: '스마트데이터샵',
+  founder: '김준혁',
+  taxId: '406-06-34485',
+  address: '인천광역시 계양구 새벌로 88, 효성동',
+  email: 'contact@awoo.or.kr',
+  url: 'https://awoo.or.kr',
+};
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: SITE.name,
+  legalName: SITE.legalName,
+  url: SITE.url,
+  email: SITE.email,
+  taxID: SITE.taxId,
+  founder: {
+    '@type': 'Person',
+    name: SITE.founder,
+  },
+  address: {
+    '@type': 'PostalAddress',
+    addressCountry: 'KR',
+    addressRegion: '인천광역시',
+    addressLocality: '계양구',
+    streetAddress: '새벌로 88',
+  },
+};
+---
+
+<BaseLayout
+  title="사이트 소개 — 지원금가이드"
+  description="지원금가이드는 정부 지원금을 페르소나별로 정리한 정보 안내 사이트입니다. 신청 대행은 하지 않으며 정부 공식 사이트로 안내합니다."
+>
+  <section class="container">
+    <header class="header">
+      <div class="eyebrow">사이트 소개</div>
+      <h1>정부 지원금, 정확한 안내가 먼저입니다</h1>
+      <p class="lead">
+        지원금가이드는 정부 지원금을 페르소나(생애·상황) 단위로 정리해 누구나 본인에게
+        맞는 제도를 찾을 수 있도록 돕는 정보 안내 사이트입니다.
+      </p>
+    </header>
+
+    <div class="content">
+      <h2>운영 원칙</h2>
+      <ul>
+        <li>본 사이트는 <strong>정보 안내</strong>만 제공하며, 신청을 대행하지 않습니다.</li>
+        <li>모든 신청은 복지로·고용24·K-스타트업 등 <strong>정부 공식 사이트</strong>에서 진행됩니다.</li>
+        <li>회원가입 없이 누구나 이용할 수 있으며, 개인정보를 수집하지 않습니다.</li>
+        <li>출처는 정부 부처 공식 발표를 기준으로 작성하고 주기적으로 갱신합니다.</li>
+      </ul>
+
+      <h2>운영 주체</h2>
+      <dl class="info-grid">
+        <dt>상호</dt>
+        <dd>{SITE.legalName}</dd>
+        <dt>대표자</dt>
+        <dd>{SITE.founder}</dd>
+        <dt>사업자등록번호</dt>
+        <dd>{SITE.taxId}</dd>
+        <dt>소재지</dt>
+        <dd>{SITE.address}</dd>
+        <dt>이메일</dt>
+        <dd><a href={`mailto:${SITE.email}`}>{SITE.email}</a></dd>
+      </dl>
+    </div>
+  </section>
+
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(orgSchema)}
+  />
+</BaseLayout>
+
+<style>
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 64px 24px 96px;
+  }
+
+  .header {
+    margin-bottom: 48px;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: clamp(32px, 4.4vw, 48px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+  }
+
+  .lead {
+    font-size: 19px;
+    line-height: 1.6;
+    color: var(--text-2);
+    margin: 0;
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    margin: 40px 0 16px;
+  }
+
+  ul {
+    padding-left: 1.25em;
+    margin: 0 0 24px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  li {
+    margin-bottom: 8px;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px 24px;
+    padding: 24px;
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+    margin: 0;
+  }
+
+  dt {
+    font-weight: 600;
+    color: var(--text-2);
+    font-size: 15px;
+  }
+
+  dd {
+    margin: 0;
+    color: var(--text);
+    font-size: 15px;
+  }
+
+  @media (max-width: 480px) {
+    .info-grid {
+      grid-template-columns: 1fr;
+      gap: 4px 0;
+    }
+    dt {
+      margin-top: 8px;
+    }
+  }
+</style>

@@ -1,0 +1,19 @@
+# Cloudflare Pages — HTTP Security Headers (§14)
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+
+# 정적 자산 — 1년 immutable 캐시
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML — 엣지 캐시 + stale-while-revalidate
+/*.html
+  Cache-Control: public, max-age=0, s-maxage=86400, stale-while-revalidate=604800

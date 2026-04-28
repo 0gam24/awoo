@@ -1,0 +1,17 @@
+name = "awoo"
+compatibility_date = "2026-04-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
+
+# 환경변수는 Cloudflare Pages 대시보드에서 등록 권장 (시크릿)
+# 로컬 개발용은 .dev.vars 파일에 (gitignore 됨)
+
+# D1 / KV / R2 / Queues 바인딩은 Phase A에서 추가 예정
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "awoo-db"
+# database_id = "<set-after-create>"
+
+# [[kv_namespaces]]
+# binding = "KV"
+# id = "<set-after-create>"
