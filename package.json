@@ -8,7 +8,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "npm run build && wrangler dev",
     "astro": "astro",
     "check": "astro check && tsc --noEmit",
     "format": "biome format --write .",
@@ -16,7 +16,9 @@
     "lint:fix": "biome check --write .",
     "lhci": "lhci autorun",
     "lhci:mobile": "lhci autorun --collect.settings.preset=mobile",
-    "verify": "npm run lint && npm run check && npm run build && npm run lhci"
+    "verify": "npm run lint && npm run check && npm run build && npm run lhci",
+    "generate-types": "wrangler types",
+    "deploy": "npm run build && wrangler deploy"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",
@@ -27,8 +29,7 @@
     "astro": "6.1.10",
     "react": "19.2.5",
     "react-dom": "19.2.5",
-    "tailwindcss": "4.2.4",
-    "wrangler": "4.85.0"
+    "tailwindcss": "4.2.4"
   },
   "devDependencies": {
     "@astrojs/check": "0.9.9",
@@ -36,9 +37,13 @@
     "@lhci/cli": "0.15.1",
     "lefthook": "2.1.6",
     "typescript": "5.9.3",
-    "web-vitals": "5.2.0"
+    "web-vitals": "5.2.0",
+    "wrangler": "4.86.0"
   },
   "engines": {
     "node": ">=22.12.0"
+  },
+  "overrides": {
+    "vite": "^7"
   }
 }
