@@ -182,6 +182,18 @@ const areaPath = `${linePath} L ${last[0]} ${h - pad} L ${first[0]} ${h - pad} Z
     border: 1px solid var(--border);
     border-radius: var(--radius-xl);
     padding: 36px;
+    transition: border-color 0.18s var(--ease-standard), box-shadow 0.18s var(--ease-standard);
+  }
+
+  .news-big-card:hover {
+    border-color: var(--border-2);
+    box-shadow: var(--shadow-pop);
+  }
+
+  @media (max-width: 600px) {
+    .news-big-card {
+      padding: 24px;
+    }
   }
 
   .news-headline {
@@ -429,6 +441,12 @@ const areaPath = `${linePath} L ${last[0]} ${h - pad} L ${first[0]} ${h - pad} Z
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 16px 18px;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+
+  .news-stat-cell:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
   }
 
   .news-stat-cell .label {
