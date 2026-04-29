@@ -1,0 +1,124 @@
+---
+import Container from '@/components/Container.astro';
+---
+
+<section class="band">
+  <Container size="wide">
+    <a class="cta-card" href="/quick/">
+      <div class="cta-text">
+        <span class="cta-eyebrow"><span class="dot" aria-hidden="true" />5분 진단</span>
+        <div class="cta-title">받을 수 있는 지원금<br />5분이면 알 수 있어요</div>
+        <div class="cta-sub">
+          페르소나·소득·관심분야 4단계 → 본인 상황에 맞는 지원금 자동 추천
+          <br />
+          개인정보 저장 0 · 브라우저에서만 계산
+        </div>
+      </div>
+      <div class="cta-action">
+        <span class="cta-btn">진단 시작하기 →</span>
+      </div>
+    </a>
+  </Container>
+</section>
+
+<style>
+  .band {
+    padding: 16px 0 8px;
+  }
+
+  .cta-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 36px;
+    background: linear-gradient(135deg, var(--accent) 0%, #003875 100%);
+    color: #fff;
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .cta-card::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgb(255 255 255 / 0.18) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .cta-card:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+
+  @media (max-width: 720px) {
+    .cta-card {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 24px;
+    }
+  }
+
+  .cta-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgb(255 255 255 / 0.16);
+    color: #fff;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #fff;
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(1.3); }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+
+  .cta-title {
+    font-size: clamp(22px, 2.8vw, 32px);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin-bottom: 10px;
+  }
+
+  .cta-sub {
+    font-size: 14px;
+    color: rgb(255 255 255 / 0.86);
+    line-height: 1.6;
+  }
+
+  .cta-action { flex-shrink: 0; }
+
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 14px 24px;
+    background: #fff;
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 700;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .cta-card:hover .cta-btn {
+    transform: translateX(4px);
+  }
+</style>

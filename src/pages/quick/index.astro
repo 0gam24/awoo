@@ -1,0 +1,773 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { MEDIAN_INCOME, INCOME_THRESHOLDS } from '@/data/site-data';
+import { getCollection } from 'astro:content';
+
+const subsidies = await getCollection('subsidies');
+const personas = await getCollection('personas');
+
+// 클라이언트 필터링용 압축 데이터 — 필수 필드만
+const compactSubsidies = subsidies.map((s) => ({
+  id: s.data.id,
+  title: s.data.title,
+  agency: s.data.agency,
+  category: s.data.category,
+  amount: s.data.amount,
+  amountLabel: s.data.amountLabel,
+  status: s.data.status,
+  summary: s.data.summary,
+  targetPersonas: s.data.targetPersonas ?? [],
+  tags: s.data.tags ?? [],
+  isHot: !!s.data.isHot,
+}));
+
+const compactPersonas = personas.map((p) => ({
+  id: p.data.id,
+  label: p.data.label,
+  sub: p.data.sub,
+  icon: p.data.icon,
+  bg: p.data.bg,
+}));
+
+const CATEGORIES = ['주거', '취업', '창업', '교육', '복지', '자산', '농업'];
+const EVENTS = [
+  { key: '출산', tags: ['출산', '육아', '아동', '부모', '맘'] },
+  { key: '결혼', tags: ['신혼', '결혼', '부부'] },
+  { key: '이사', tags: ['주거', '월세', '전세', '임대', '주택'] },
+  { key: '실직', tags: ['실업', '구직', '취업', '재취업'] },
+  { key: '창업', tags: ['창업', '소상공인', '사업'] },
+  { key: '은퇴', tags: ['노후', '은퇴', '중장년', '시니어'] },
+  { key: '입학', tags: ['학자금', '교육', '장학', '학비', '입학'] },
+];
+---
+
+<BaseLayout
+  title="5분 만에 받을 수 있는 지원금 찾기 | 지원금가이드"
+  description="간단한 4단계 진단으로 본인 상황에 맞는 정부 지원금을 즉시 매칭. 페르소나·소득·관심분야·라이프이벤트 기반 자동 추천."
+  activeNav="/quick/"
+>
+  <section class="hero">
+    <Container size="wide">
+      <div class="head">
+        <span class="badge"><span class="dot" aria-hidden="true" />5분 진단</span>
+        <h1 class="title">받을 수 있는 지원금을<br />5분 안에 찾아드려요</h1>
+        <p class="lead">
+          4가지 질문에 답하면, 본인 상황에 맞는 정부 지원금 <strong>{subsidies.length}건</strong> 중 가장 적합한 것들을 자동으로 추천합니다.<br />
+          개인정보 저장 0 — 모든 결과는 브라우저에서만 계산됩니다.
+        </p>
+      </div>
+
+      <div class="quick-app" data-quick-app>
+        <!-- 진행 표시 -->
+        <div class="progress" aria-hidden="true">
+          <div class="progress-bar" data-progress-bar></div>
+        </div>
+        <div class="step-indicator">
+          <span class="step-num" data-step-num>1</span>
+          <span class="step-total">/ 4 단계</span>
+        </div>
+
+        <!-- Step 1: 페르소나 -->
+        <div class="step active" data-step="1">
+          <h2 class="q">현재 상황과 가장 가까운 것은?</h2>
+          <p class="q-sub">하나만 선택하세요</p>
+          <div class="persona-grid">
+            {
+              compactPersonas.map((p) => (
+                <label class="persona-card">
+                  <input type="radio" name="persona" value={p.id} />
+                  <div class={`p-icon bg-${p.bg}`}>
+                    <Icon name={p.icon} size={32} strokeWidth={1.5} />
+                  </div>
+                  <div class="p-text">
+                    <div class="p-label">{p.label}</div>
+                    <div class="p-sub">{p.sub}</div>
+                  </div>
+                </label>
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- Step 2: 가구·소득 -->
+        <div class="step" data-step="2">
+          <h2 class="q">가구원 수와 월 소득을 알려주세요</h2>
+          <p class="q-sub">정확한 소득 진단을 위한 정보입니다 (저장되지 않음)</p>
+
+          <div class="field">
+            <label class="field-label">가구원 수</label>
+            <div class="size-row">
+              {[1, 2, 3, 4, 5, 6].map((n) => (
+                <label class="size-btn">
+                  <input type="radio" name="hh-size" value={n} checked={n === 1} />
+                  <span>{n}인</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label">
+              월 소득 (세전)
+              <span class="income-display" data-income-display>250만원</span>
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="1000"
+              step="10"
+              value="250"
+              class="income-slider"
+              data-income-slider
+              aria-label="월 소득"
+            />
+            <div class="income-hint" data-income-hint>중위소득 약 100% (4인 기준)</div>
+          </div>
+        </div>
+
+        <!-- Step 3: 관심 분야 -->
+        <div class="step" data-step="3">
+          <h2 class="q">관심 있는 분야를 모두 선택하세요</h2>
+          <p class="q-sub">여러 개 선택 가능</p>
+          <div class="cat-grid">
+            {
+              CATEGORIES.map((c) => (
+                <label class="cat-chip">
+                  <input type="checkbox" name="category" value={c} />
+                  <span>{c}</span>
+                </label>
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- Step 4: 이벤트 (선택) -->
+        <div class="step" data-step="4">
+          <h2 class="q">최근 또는 곧 있을 일이 있나요?</h2>
+          <p class="q-sub">선택사항 — 해당 없으면 비워둬도 됩니다</p>
+          <div class="cat-grid">
+            {
+              EVENTS.map((e) => (
+                <label class="cat-chip">
+                  <input type="checkbox" name="event" value={e.key} data-tags={e.tags.join(',')} />
+                  <span>{e.key}</span>
+                </label>
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- 결과 -->
+        <div class="step result" data-step="result">
+          <h2 class="q result-title">당신에게 추천하는 지원금</h2>
+          <p class="q-sub" data-result-summary></p>
+          <ul class="result-list" data-result-list></ul>
+          <div class="result-personas" data-result-personas></div>
+          <div class="result-actions">
+            <button type="button" class="btn-ghost" data-btn-restart>다시 진단</button>
+            <a class="btn-link" href="/subsidies/">전체 지원금 보기 →</a>
+          </div>
+        </div>
+
+        <!-- 하단 네비 -->
+        <div class="nav-row">
+          <button type="button" class="btn-ghost" data-btn-prev hidden>← 이전</button>
+          <button type="button" class="btn-primary" data-btn-next>다음 →</button>
+          <button type="button" class="btn-primary" data-btn-submit hidden>결과 보기</button>
+        </div>
+      </div>
+    </Container>
+  </section>
+</BaseLayout>
+
+<script is:inline define:vars={{ compactSubsidies, compactPersonas, EVENTS, MEDIAN_INCOME }}>
+  // ============================================================
+  // 5분 진단 — 클라이언트 사이드 폼 + 매칭
+  // ============================================================
+
+  const TOTAL_STEPS = 4;
+  let current = 1;
+
+  const $ = (sel) => document.querySelector(sel);
+  const root = document.querySelector('[data-quick-app]');
+  if (!root) throw new Error('quick app root missing');
+
+  const stepEls = root.querySelectorAll('[data-step]');
+  const progressBar = root.querySelector('[data-progress-bar]');
+  const stepNum = root.querySelector('[data-step-num]');
+  const btnPrev = root.querySelector('[data-btn-prev]');
+  const btnNext = root.querySelector('[data-btn-next]');
+  const btnSubmit = root.querySelector('[data-btn-submit]');
+  const btnRestart = root.querySelector('[data-btn-restart]');
+
+  // 슬라이더 라이브 업데이트
+  const slider = root.querySelector('[data-income-slider]');
+  const display = root.querySelector('[data-income-display]');
+  const hint = root.querySelector('[data-income-hint]');
+
+  function updateIncome() {
+    const income = parseInt(slider.value, 10);
+    display.textContent = income.toLocaleString('ko-KR') + '만원';
+    const sizeInput = root.querySelector('input[name="hh-size"]:checked');
+    const size = sizeInput ? parseInt(sizeInput.value, 10) : 1;
+    const median = MEDIAN_INCOME[size] || 239;
+    const pct = Math.round((income / median) * 100);
+    hint.textContent = '중위소득 약 ' + pct + '% (' + size + '인 기준)';
+  }
+  slider?.addEventListener('input', updateIncome);
+  root.querySelectorAll('input[name="hh-size"]').forEach((el) => {
+    el.addEventListener('change', updateIncome);
+  });
+  updateIncome();
+
+  function showStep(n) {
+    stepEls.forEach((el) => {
+      const s = el.getAttribute('data-step');
+      el.classList.toggle('active', s === String(n) || (n === 'result' && s === 'result'));
+    });
+    if (n === 'result') {
+      btnPrev.hidden = true;
+      btnNext.hidden = true;
+      btnSubmit.hidden = true;
+      progressBar.style.width = '100%';
+      stepNum.textContent = '✓';
+    } else {
+      btnPrev.hidden = n === 1;
+      btnNext.hidden = n === TOTAL_STEPS;
+      btnSubmit.hidden = n !== TOTAL_STEPS;
+      progressBar.style.width = (n / TOTAL_STEPS) * 100 + '%';
+      stepNum.textContent = String(n);
+    }
+    window.scrollTo({ top: root.offsetTop - 80, behavior: 'smooth' });
+  }
+
+  btnNext?.addEventListener('click', () => {
+    if (current < TOTAL_STEPS) {
+      current++;
+      showStep(current);
+    }
+  });
+  btnPrev?.addEventListener('click', () => {
+    if (current > 1) {
+      current--;
+      showStep(current);
+    }
+  });
+
+  btnSubmit?.addEventListener('click', () => {
+    runMatch();
+    showStep('result');
+  });
+
+  btnRestart?.addEventListener('click', () => {
+    current = 1;
+    root.querySelectorAll('input').forEach((i) => {
+      if (i.type === 'radio' || i.type === 'checkbox') i.checked = false;
+    });
+    const firstSize = root.querySelector('input[name="hh-size"][value="1"]');
+    if (firstSize) firstSize.checked = true;
+    if (slider) slider.value = '250';
+    updateIncome();
+    showStep(1);
+  });
+
+  // ============================================================
+  // 매칭 로직
+  // ============================================================
+  function runMatch() {
+    const personaInput = root.querySelector('input[name="persona"]:checked');
+    const persona = personaInput?.value;
+    const sizeInput = root.querySelector('input[name="hh-size"]:checked');
+    const size = sizeInput ? parseInt(sizeInput.value, 10) : 1;
+    const income = slider ? parseInt(slider.value, 10) : 250;
+    const cats = Array.from(root.querySelectorAll('input[name="category"]:checked')).map((i) => i.value);
+    const events = Array.from(root.querySelectorAll('input[name="event"]:checked'));
+    const eventTags = new Set();
+    for (const ev of events) {
+      const tags = ev.getAttribute('data-tags');
+      if (tags) tags.split(',').forEach((t) => eventTags.add(t.trim()));
+    }
+
+    const median = MEDIAN_INCOME[size] || 239;
+    const pct = (income / median) * 100;
+
+    // 스코어링
+    const scored = compactSubsidies.map((s) => {
+      let score = 0;
+      // 페르소나 매칭
+      if (persona && s.targetPersonas.includes(persona)) score += 30;
+      // 카테고리 매칭
+      if (cats.includes(s.category)) score += 20;
+      // 이벤트 태그 매칭
+      for (const t of s.tags) {
+        if (eventTags.has(t)) score += 8;
+        for (const et of eventTags) {
+          if (t.includes(et) || et.includes(t)) score += 4;
+        }
+      }
+      // 신청 가능
+      if (s.status === '신청 가능') score += 5;
+      else if (s.status === '곧 마감') score += 3;
+      // HOT
+      if (s.isHot) score += 5;
+      return { s, score };
+    });
+
+    const top = scored
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10);
+
+    renderResult(top, { persona, cats, eventTags: [...eventTags], pct: Math.round(pct) });
+  }
+
+  function renderResult(items, ctx) {
+    const list = root.querySelector('[data-result-list]');
+    const summary = root.querySelector('[data-result-summary]');
+    const personasEl = root.querySelector('[data-result-personas]');
+
+    if (items.length === 0) {
+      summary.textContent = '조건에 맞는 지원금을 찾지 못했어요. 전체 지원금에서 직접 둘러보세요.';
+      list.innerHTML = '';
+      personasEl.innerHTML = '';
+      return;
+    }
+
+    summary.textContent =
+      '총 ' + items.length + '건 추천 · 중위소득 ' + ctx.pct + '% 기준';
+
+    list.innerHTML = items
+      .map(({ s, score }, i) => {
+        const amtText =
+          s.amount > 0
+            ? formatWon(s.amount) + ' <span class="ru">' + escapeHtml(s.amountLabel) + '</span>'
+            : '<span class="amt-na">내용 확인</span>';
+        return (
+          '<li class="result-item">' +
+          '<a class="result-card" href="/subsidies/' +
+          encodeURIComponent(s.id) +
+          '/">' +
+          '<div class="rc-rank">' + (i + 1) + '</div>' +
+          '<div class="rc-body">' +
+          '<div class="rc-meta">' +
+          '<span class="rc-cat">' + escapeHtml(s.category) + '</span>' +
+          (s.status === '곧 마감' ? '<span class="rc-warn">곧 마감</span>' : '') +
+          (s.isHot ? '<span class="rc-hot">HOT</span>' : '') +
+          '</div>' +
+          '<div class="rc-agency">' + escapeHtml(s.agency) + '</div>' +
+          '<div class="rc-title">' + escapeHtml(s.title) + '</div>' +
+          '<div class="rc-sum">' + escapeHtml(s.summary.slice(0, 80)) + '</div>' +
+          '<div class="rc-amt">' + amtText + '</div>' +
+          '</div>' +
+          '<span class="rc-arrow">→</span>' +
+          '</a>' +
+          '</li>'
+        );
+      })
+      .join('');
+
+    if (ctx.persona) {
+      const p = compactPersonas.find((x) => x.id === ctx.persona);
+      if (p) {
+        personasEl.innerHTML =
+          '<a class="persona-link" href="/personas/' +
+          encodeURIComponent(p.id) +
+          '/">' +
+          '★ <strong>' + escapeHtml(p.label) + '</strong> 페르소나 페이지에서 더 자세히 보기 →' +
+          '</a>';
+      }
+    } else {
+      personasEl.innerHTML = '';
+    }
+  }
+
+  function formatWon(n) {
+    if (n >= 100_000_000) {
+      const eok = n / 100_000_000;
+      return (eok % 1 === 0 ? eok : eok.toFixed(1)) + '억원';
+    }
+    if (n >= 10_000) {
+      const man = Math.round(n / 10_000);
+      return man.toLocaleString('ko-KR') + '만원';
+    }
+    return n.toLocaleString('ko-KR') + '원';
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+</script>
+
+<style>
+  .hero {
+    padding: 32px 0 80px;
+  }
+
+  .head {
+    max-width: 720px;
+    margin-bottom: 32px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 14px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+
+  .title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  /* ─── 진단 앱 ─────────────────────────────────────────── */
+  .quick-app {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 28px 32px 24px;
+    max-width: 760px;
+  }
+  @media (max-width: 600px) { .quick-app { padding: 20px; } }
+
+  .progress {
+    height: 4px;
+    background: var(--surface-2);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--accent);
+    width: 25%;
+    transition: width 0.3s var(--ease-standard);
+  }
+
+  .step-indicator {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-bottom: 24px;
+  }
+  .step-num { font-weight: 700; color: var(--accent); }
+  .step-total { color: var(--text-3); }
+
+  .step {
+    display: none;
+  }
+  .step.active { display: block; }
+
+  .q {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+  }
+  .q-sub {
+    font-size: 14px;
+    color: var(--text-2);
+    margin: 0 0 20px;
+  }
+
+  /* 페르소나 그리드 */
+  .persona-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .persona-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.15s var(--ease-standard);
+  }
+  .persona-card:hover { background: var(--surface); border-color: var(--border-2); }
+  .persona-card:has(input:checked) {
+    background: rgb(0 113 227 / 0.08);
+    border-color: var(--accent);
+  }
+  .persona-card input { position: absolute; opacity: 0; pointer-events: none; }
+
+  .p-icon {
+    width: 48px; height: 48px;
+    border-radius: var(--radius-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .bg-persona-blue   { background: rgb(0 113 227 / 0.16); color: var(--accent); }
+  .bg-persona-orange { background: rgb(234 88 12 / 0.16); color: #ea580c; }
+  .bg-persona-pink   { background: rgb(236 72 153 / 0.16); color: #ec4899; }
+  .bg-persona-green  { background: rgb(16 185 129 / 0.16); color: #10b981; }
+  .bg-persona-purple { background: rgb(139 92 246 / 0.16); color: #8b5cf6; }
+  .bg-persona-amber  { background: rgb(217 119 6 / 0.16); color: #d97706; }
+
+  .p-text { flex: 1; min-width: 0; }
+  .p-label { font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .p-sub { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+
+  /* 가구·소득 */
+  .field { margin-bottom: 24px; }
+  .field-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .income-display {
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .size-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+  }
+  .size-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 0;
+    background: var(--surface-2);
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s var(--ease-standard);
+  }
+  .size-btn:hover { border-color: var(--border-2); }
+  .size-btn:has(input:checked) {
+    background: var(--color-ink);
+    color: #fff;
+    border-color: var(--color-ink);
+  }
+  .size-btn input { position: absolute; opacity: 0; pointer-events: none; }
+
+  .income-slider {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+
+  .income-hint {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-top: 8px;
+  }
+
+  /* 카테고리 칩 */
+  .cat-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cat-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 18px;
+    background: var(--surface-2);
+    border: 2px solid transparent;
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s var(--ease-standard);
+  }
+  .cat-chip:hover { border-color: var(--border-2); }
+  .cat-chip:has(input:checked) {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .cat-chip input { position: absolute; opacity: 0; pointer-events: none; }
+
+  /* 네비 버튼 */
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-primary, .btn-ghost {
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+    margin-left: auto;
+  }
+  .btn-primary:hover { background: color-mix(in oklch, var(--accent), black 8%); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border-2);
+  }
+  .btn-ghost:hover { background: var(--surface-2); }
+
+  /* 결과 */
+  .result {
+    padding-top: 8px;
+  }
+  .result-title { color: var(--accent); }
+
+  .result-list {
+    list-style: none;
+    margin: 16px 0 24px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .result-item {
+    border-radius: var(--radius-md);
+  }
+  .result-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s;
+  }
+  .result-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    text-decoration: none;
+  }
+  .rc-rank {
+    width: 32px; height: 32px;
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .rc-body { flex: 1; min-width: 0; }
+  .rc-meta { display: flex; gap: 6px; margin-bottom: 4px; }
+  .rc-cat, .rc-warn, .rc-hot {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .rc-cat { background: var(--surface-2); color: var(--text-2); }
+  .rc-warn { background: rgb(247 195 96 / 0.18); color: var(--color-warning); }
+  .rc-hot { background: rgb(220 38 38 / 0.16); color: #dc2626; }
+  .rc-agency { font-size: 13px; color: var(--accent-link); font-weight: 500; }
+  .rc-title { font-size: 16px; font-weight: 600; line-height: 1.35; margin: 2px 0; }
+  .rc-sum { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+  .rc-amt { font-size: 18px; font-weight: 700; color: var(--accent); margin-top: 6px; }
+  .rc-amt .ru { font-size: 12px; color: var(--text-2); font-weight: 500; margin-left: 4px; }
+  .rc-amt .amt-na {
+    font-size: 14px;
+    color: var(--text-2);
+    background: var(--surface-2);
+    padding: 3px 10px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+  }
+  .rc-arrow {
+    color: var(--text-3);
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: transform 0.18s var(--ease-standard), color 0.18s;
+  }
+  .result-card:hover .rc-arrow {
+    transform: translateX(3px);
+    color: var(--accent);
+  }
+
+  .result-personas { margin-bottom: 20px; }
+  .persona-link {
+    display: inline-block;
+    padding: 10px 16px;
+    background: var(--surface-2);
+    color: var(--text);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .persona-link:hover {
+    background: rgb(0 113 227 / 0.1);
+    text-decoration: none;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .btn-link {
+    color: var(--accent-link);
+    font-size: 14px;
+    padding: 12px 16px;
+    text-decoration: none;
+  }
+  .btn-link:hover { text-decoration: underline; }
+</style>
