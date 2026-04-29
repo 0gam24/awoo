@@ -1,0 +1,327 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { formatWon } from '@/data/site-data';
+import {
+  isNew,
+  recentlyAddedSlugs,
+  lastBatchSlugs,
+  lastBatchAtISO,
+  formatDateKR,
+  NEW_WINDOW_DAYS,
+} from '@/lib/subsidies-meta';
+import { getCollection } from 'astro:content';
+
+const subsidies = await getCollection('subsidies');
+const bySlug = new Map(subsidies.map((s) => [s.data.id, s.data]));
+
+// 최근 동기화 배치 + 최근 등록순 합집합 (중복 제거)
+const batchEntries = lastBatchSlugs
+  .map((slug) => bySlug.get(slug))
+  .filter(Boolean);
+const recentEntries = recentlyAddedSlugs(50)
+  .map(({ slug }) => bySlug.get(slug))
+  .filter(Boolean);
+
+const seen = new Set<string>();
+const all = [...batchEntries, ...recentEntries].filter((s) => {
+  if (!s) return false;
+  if (seen.has(s.id)) return false;
+  seen.add(s.id);
+  return true;
+});
+
+const dateLabel = formatDateKR(lastBatchAtISO);
+---
+
+<BaseLayout
+  title={`신규 등록 정부 지원금 ${all.length}건 — 지원금가이드`}
+  description={`최근 ${NEW_WINDOW_DAYS}일 이내 등록된 정부 지원금 ${all.length}건을 한눈에 모아 봅니다. 매주 자동 동기화 (마지막: ${dateLabel}).`}
+  activeNav="/subsidies"
+>
+  <section class="band">
+    <Container size="wide">
+      <div class="head">
+        <div class="head-meta">
+          <span class="badge"><span class="dot" aria-hidden="true" />신규 등록</span>
+          {dateLabel && <span class="meta">최근 동기화: {dateLabel}</span>}
+        </div>
+        <h1 class="title">새로 추가된 지원금</h1>
+        <p class="lead">
+          정부24·보조금24 API에서 최근 {NEW_WINDOW_DAYS}일 이내 등록된 지원금 <strong>{all.length}건</strong>입니다.
+          매주 월요일 03:00에 자동 갱신됩니다.
+        </p>
+        <div class="actions">
+          <a class="btn-ghost" href="/subsidies/">전체 지원금</a>
+        </div>
+      </div>
+
+      {all.length === 0 && (
+        <p class="empty">최근 등록된 신규 지원금이 없습니다. 다음 동기화를 기다려 주세요.</p>
+      )}
+
+      <ul class="grid">
+        {
+          all.map((s) => (
+            <li>
+              <a class="card" href={`/subsidies/${s.id}/`}>
+                <div class={`media tint-${s.category}`}>
+                  <Icon name={s.icon} size={26} strokeWidth={1.6} />
+                </div>
+                <div class="body">
+                  <div class="meta-row">
+                    <span class="b neutral">{s.category}</span>
+                    {isNew(s.id) && <span class="b new">NEW</span>}
+                    {s.status === '곧 마감' && <span class="b warning">곧 마감</span>}
+                  </div>
+                  <div class="agency">{s.agency}</div>
+                  <div class="t">{s.title}</div>
+                  <div class="sum">{s.summary.slice(0, 80)}{s.summary.length > 80 ? '…' : ''}</div>
+                  <div class="amt-row">
+                    {s.amount > 0 ? (
+                      <div class="amt">
+                        {formatWon(s.amount)}
+                        <span class="unit">{s.amountLabel}</span>
+                      </div>
+                    ) : (
+                      <span class="amt-na">내용 확인</span>
+                    )}
+                    <span class="arrow" aria-hidden="true">→</span>
+                  </div>
+                </div>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .band {
+    padding: 48px 0 80px;
+  }
+
+  .head {
+    margin-bottom: 28px;
+    max-width: 720px;
+  }
+
+  .head-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(1.3); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot { animation: none; }
+  }
+
+  .meta {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .title {
+    font-size: clamp(28px, 3.6vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin: 0 0 18px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: var(--surface-2);
+    color: var(--text);
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .btn-ghost:hover {
+    text-decoration: none;
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    padding: 7px 15px;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 64px 16px;
+    color: var(--text-2);
+  }
+
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    text-decoration: none;
+  }
+
+  .media {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+  }
+
+  .tint-주거 { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .tint-자산 { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  .tint-교육 { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .tint-창업 { background: rgb(234 88 12 / 0.12); color: #ea580c; }
+  .tint-복지 { background: rgb(236 72 153 / 0.12); color: #ec4899; }
+  .tint-취업 { background: rgb(16 185 129 / 0.12); color: #10b981; }
+  .tint-농업 { background: rgb(217 119 6 / 0.12); color: #d97706; }
+
+  .body {
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .b {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .b.neutral { background: var(--surface-2); color: var(--text-2); }
+  .b.warning { background: rgb(247 195 96 / 0.18); color: var(--color-warning); }
+  .b.new {
+    background: rgb(0 113 227 / 0.14);
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .agency {
+    font-size: 13px;
+    color: var(--accent-link);
+    font-weight: 500;
+  }
+  .t {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+  .sum {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .amt-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-top: 6px;
+    gap: 12px;
+  }
+
+  .amt {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .amt .unit {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-left: 4px;
+  }
+  .amt-na {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-2);
+    background: var(--surface-2);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+  }
+
+  .arrow {
+    font-size: 18px;
+    color: var(--text-3);
+    font-weight: 600;
+    transition: transform 0.18s var(--ease-standard), color 0.18s var(--ease-standard);
+  }
+  .card:hover .arrow {
+    transform: translateX(4px);
+    color: var(--accent);
+  }
+</style>

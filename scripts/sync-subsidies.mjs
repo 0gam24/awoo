@@ -402,6 +402,10 @@ async function runBootstrap(items) {
     lastSync: new Date().toISOString(),
     mode: 'bootstrap',
     items: manifestItems,
+    lastBatch: {
+      runAt: new Date().toISOString(),
+      slugs: [],
+    },
   });
 
   console.log(`✅ ${written}개 시드 (스킵 ${skipped}) — manifest ${Object.keys(manifestItems).length}건`);
@@ -426,12 +430,18 @@ async function runNew(items) {
 
   console.log(`🔍 후보: 신규 ${candidates.length}건 (총 ${items.length} 중)`);
 
+  const runAt = new Date().toISOString();
+
   if (candidates.length === 0) {
     console.log('✨ 추가할 신규 지원금 없음');
     await writeManifest({
       ...manifest,
-      lastSync: new Date().toISOString(),
+      lastSync: runAt,
       mode: 'new',
+      lastBatch: {
+        runAt,
+        slugs: [],
+      },
     });
     return;
   }
@@ -442,6 +452,7 @@ async function runNew(items) {
   const used = new Set(Object.values(manifest.items || {}).map((v) => v.slug));
 
   const updatedItems = { ...(manifest.items || {}) };
+  const batchSlugs = [];
   let written = 0;
   let skipped = 0;
 
@@ -456,6 +467,7 @@ async function runNew(items) {
         regDate: item['등록일시'] || '',
         modDate: item['수정일시'] || '',
       };
+      batchSlugs.push(slug);
       written++;
     } catch (e) {
       skipped++;
@@ -464,9 +476,13 @@ async function runNew(items) {
   }
 
   await writeManifest({
-    lastSync: new Date().toISOString(),
+    lastSync: runAt,
     mode: 'new',
     items: updatedItems,
+    lastBatch: {
+      runAt,
+      slugs: batchSlugs,
+    },
   });
 
   console.log(`✅ +${written}건 추가 (스킵 ${skipped}) — manifest ${Object.keys(updatedItems).length}건`);

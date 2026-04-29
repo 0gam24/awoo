@@ -3,10 +3,16 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CATEGORIES, formatWon } from '@/data/site-data';
+import { isNew } from '@/lib/subsidies-meta';
 import { getCollection } from 'astro:content';
 
 const subsidies = await getCollection('subsidies');
-const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.isHot ? 1 : 0));
+// 정렬: NEW > HOT > 나머지
+const sorted = [...subsidies].sort((a, b) => {
+  const an = isNew(a.data.id) ? 2 : a.data.isHot ? 1 : 0;
+  const bn = isNew(b.data.id) ? 2 : b.data.isHot ? 1 : 0;
+  return bn - an;
+});
 
 const NA_LABEL: Record<string, string> = {
   주거: '주택·임대 우선공급',
@@ -73,9 +79,10 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
                 <div class="body">
                   <div class="meta-row">
                     <span class="badge neutral">{s.data.category}</span>
+                    {isNew(s.data.id) && <span class="badge new">NEW</span>}
                     {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
-                    {s.data.isHot && <span class="badge accent">HOT</span>}
-                    {s.data.status === '신청 가능' && !s.data.isHot && (
+                    {s.data.isHot && !isNew(s.data.id) && <span class="badge accent">HOT</span>}
+                    {s.data.status === '신청 가능' && !s.data.isHot && !isNew(s.data.id) && (
                       <span class="badge open"><span class="open-dot" aria-hidden="true" />신청 가능</span>
                     )}
                   </div>
@@ -324,6 +331,13 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
   .badge.accent {
     background: rgb(220 38 38 / 0.16);
     color: #dc2626;
+  }
+
+  .badge.new {
+    background: rgb(0 113 227 / 0.14);
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.04em;
   }
 
   .badge.open {

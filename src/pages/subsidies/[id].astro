@@ -3,6 +3,7 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
+import { isNew, getRegDateISO } from '@/lib/subsidies-meta';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -23,6 +24,9 @@ const allSubsidies = await getCollection('subsidies');
 const related = allSubsidies
   .filter((x) => x.data.category === s.category && x.data.id !== s.id)
   .slice(0, 3);
+
+const regDateISO = getRegDateISO(s.id);
+const isNewItem = isNew(s.id);
 
 const govSchema = {
   '@context': 'https://schema.org',
@@ -45,6 +49,7 @@ const govSchema = {
     serviceUrl: s.applyUrl,
     availableLanguage: 'ko',
   },
+  ...(regDateISO ? { dateCreated: regDateISO } : {}),
 };
 ---
 
@@ -58,7 +63,7 @@ const govSchema = {
       <a class="back-link" href="/subsidies/">← 둘러보기로</a>
       <div class="hero-grid">
         <div>
-          <div class="agency">{s.agency} · {s.category}</div>
+          <div class="agency">{s.agency} · {s.category}{isNewItem && <span class="new-pill"><span class="new-dot" aria-hidden="true" />NEW</span>}</div>
           <h1 class="title">{s.title}</h1>
           <div class="amount-row">
             <span class="amount">{formatWon(s.amount)}</span>
@@ -236,6 +241,37 @@ const govSchema = {
     color: var(--accent-link);
     font-weight: 500;
     margin-bottom: 6px;
+  }
+
+  .new-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 8px;
+    padding: 2px 9px;
+    background: rgb(0 113 227 / 0.14);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .new-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: new-pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes new-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(1.3); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .new-dot { animation: none; }
   }
 
   .title {

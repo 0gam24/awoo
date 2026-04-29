@@ -1,11 +1,21 @@
 import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
+import {
+  recentlyAddedSlugs,
+  lastBatchAtISO,
+  formatDateKR,
+  NEW_WINDOW_DAYS,
+} from '@/lib/subsidies-meta';
 
 export const prerender = true;
 
 export const GET: APIRoute = async () => {
   const personas = await getCollection('personas');
   const subsidies = await getCollection('subsidies');
+  const bySlug = new Map(subsidies.map((s) => [s.data.id, s.data]));
+  const recent = recentlyAddedSlugs(15)
+    .map(({ slug }) => bySlug.get(slug))
+    .filter(Boolean);
 
   const lines: string[] = [];
   lines.push('# 지원금가이드');
@@ -27,6 +37,20 @@ export const GET: APIRoute = async () => {
     lines.push(`- [${p.data.label}](https://awoo.or.kr/personas/${p.data.id}/): ${p.data.sub}`);
   }
   lines.push('');
+  // 최근 등록 (NEW_WINDOW_DAYS 일 이내) — AI agent / 크롤러 신선도 신호
+  if (recent.length > 0) {
+    const dateLabel = formatDateKR(lastBatchAtISO);
+    lines.push(`## 신규 등록 (최근 ${NEW_WINDOW_DAYS}일${dateLabel ? `, 마지막 동기화 ${dateLabel}` : ''})`);
+    lines.push('');
+    for (const s of recent) {
+      if (!s) continue;
+      lines.push(
+        `- [${s.title}](https://awoo.or.kr/subsidies/${s.id}/): ${s.agency} · ${s.summary.slice(0, 60)}`,
+      );
+    }
+    lines.push('');
+  }
+
   lines.push('## 지원금');
   lines.push('');
   for (const s of subsidies) {
