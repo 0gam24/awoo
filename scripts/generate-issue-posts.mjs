@@ -39,7 +39,7 @@ const ISSUES_OUT_DIR = join(ROOT, 'src', 'data', 'issues');
 const HISTORY_PATH = join(ROOT, 'src', 'data', 'issues', '_history.json');
 
 const TOP_N = 3; // 매일 상위 3개 트렌딩에 대해 포스트 생성
-const MODEL = 'claude-haiku-4-5'; // 비용·속도 균형
+const MODEL = 'claude-sonnet-4-6'; // 한국어 정책 글의 자연스러움·뉘앙스 우선
 const MAX_TOKENS = 4096;
 
 // ─────────────────────────────────────────────────────────────
