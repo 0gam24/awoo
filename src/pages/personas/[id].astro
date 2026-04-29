@@ -16,6 +16,17 @@ const p = persona.data;
 
 const allSubsidies = await getCollection('subsidies');
 const matched = allSubsidies.filter((s) => s.data.targetPersonas.includes(p.id));
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '홈', item: 'https://awoo.or.kr/' },
+    { '@type': 'ListItem', position: 2, name: '지원금', item: 'https://awoo.or.kr/subsidies/' },
+    { '@type': 'ListItem', position: 3, name: '페르소나', item: 'https://awoo.or.kr/personas/' },
+    { '@type': 'ListItem', position: 4, name: p.label, item: `https://awoo.or.kr/personas/${p.id}/` },
+  ],
+};
 ---
 
 <BaseLayout
@@ -79,6 +90,12 @@ const matched = allSubsidies.filter((s) => s.data.targetPersonas.includes(p.id))
       </ul>
     </Container>
   </section>
+
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(breadcrumbSchema)}
+  />
 </BaseLayout>
 
 <style>

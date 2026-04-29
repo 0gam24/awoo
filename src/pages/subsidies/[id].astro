@@ -51,6 +51,17 @@ const govSchema = {
   },
   ...(regDateISO ? { dateCreated: regDateISO } : {}),
 };
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '홈', item: 'https://awoo.or.kr/' },
+    { '@type': 'ListItem', position: 2, name: '지원금', item: 'https://awoo.or.kr/subsidies/' },
+    { '@type': 'ListItem', position: 3, name: s.category, item: `https://awoo.or.kr/subsidies/?category=${encodeURIComponent(s.category)}` },
+    { '@type': 'ListItem', position: 4, name: s.title, item: `https://awoo.or.kr/subsidies/${s.id}/` },
+  ],
+};
 ---
 
 <BaseLayout
@@ -204,6 +215,11 @@ const govSchema = {
     is:inline
     type="application/ld+json"
     set:html={JSON.stringify(govSchema)}
+  />
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(breadcrumbSchema)}
   />
 </BaseLayout>
 

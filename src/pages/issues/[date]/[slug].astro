@@ -113,6 +113,16 @@ const faqSchema = post.faq.length > 0 ? {
     },
   })),
 } : null;
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '홈', item: 'https://awoo.or.kr/' },
+    { '@type': 'ListItem', position: 2, name: '오늘의 이슈', item: 'https://awoo.or.kr/issues/' },
+    { '@type': 'ListItem', position: 3, name: post.title, item: `https://awoo.or.kr/issues/${date}/${slug}/` },
+  ],
+};
 ---
 
 <BaseLayout
@@ -122,6 +132,7 @@ const faqSchema = post.faq.length > 0 ? {
 >
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <article class="band">
     <Container size="wide">
@@ -164,7 +175,9 @@ const faqSchema = post.faq.length > 0 ? {
             <section class="post-section">
               <h2>{s.heading}</h2>
               <p class="lead">{s.lead}</p>
-              <div class="prose" set:html={s.body.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>')} />
+              <div class="prose">
+                {s.body.split(/\n\n+/).map((para) => <p>{para}</p>)}
+              </div>
             </section>
           ))}
 
