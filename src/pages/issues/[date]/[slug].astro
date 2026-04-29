@@ -257,6 +257,57 @@ const faqSchema = post.faq.length > 0 ? {
               </ul>
             </section>
           )}
+
+          <section class="next-actions">
+            <div class="na-eyebrow">다음 단계</div>
+            <h2>이 이슈를 보셨다면</h2>
+            <ul class="na-grid">
+              <li>
+                <a class="na-card na-primary" href="/quick/">
+                  <div class="na-step">1</div>
+                  <div class="na-body">
+                    <div class="na-title">5분 진단으로 정확히 매칭</div>
+                    <div class="na-desc">페르소나·소득·관심 분야 4단계 — 입력은 익명, 저장 X.</div>
+                  </div>
+                  <span class="na-arrow" aria-hidden="true">→</span>
+                </a>
+              </li>
+              {relatedSubsidies.length > 0 && (
+                <li>
+                  <a class="na-card" href={`/subsidies/${relatedSubsidies[0].id}/`}>
+                    <div class="na-step">2</div>
+                    <div class="na-body">
+                      <div class="na-title">관련 지원금 바로 보기</div>
+                      <div class="na-desc">{relatedSubsidies[0].title} · {relatedSubsidies[0].agency}</div>
+                    </div>
+                    <span class="na-arrow" aria-hidden="true">→</span>
+                  </a>
+                </li>
+              )}
+              {relatedPersonas.length > 0 && (
+                <li>
+                  <a class="na-card" href={`/personas/${relatedPersonas[0].id}/`}>
+                    <div class="na-step">3</div>
+                    <div class="na-body">
+                      <div class="na-title">{relatedPersonas[0].label} 전체 지원금</div>
+                      <div class="na-desc">같은 상황의 사람들이 받는 지원금 모아보기.</div>
+                    </div>
+                    <span class="na-arrow" aria-hidden="true">→</span>
+                  </a>
+                </li>
+              )}
+              <li>
+                <a class="na-card" href="/guide/">
+                  <div class="na-step">+</div>
+                  <div class="na-body">
+                    <div class="na-title">신청 가이드</div>
+                    <div class="na-desc">서류 준비 · 공식 사이트 · 처리 기간까지 한 번에.</div>
+                  </div>
+                  <span class="na-arrow" aria-hidden="true">→</span>
+                </a>
+              </li>
+            </ul>
+          </section>
         </main>
 
         <aside class="rail">
@@ -556,4 +607,109 @@ const faqSchema = post.faq.length > 0 ? {
     text-decoration: none;
   }
   .rail-cta:hover { text-decoration: underline; }
+
+  /* Next actions */
+  .next-actions {
+    margin-top: 48px;
+    padding: 28px 24px;
+    background: var(--bg-alt);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+  }
+  .na-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .next-actions h2 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    margin: 0 0 18px;
+    letter-spacing: -0.01em;
+  }
+  .na-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+  .na-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+  .na-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    text-decoration: none;
+  }
+  .na-card.na-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
+  .na-card.na-primary:hover {
+    background: color-mix(in oklch, var(--accent), black 8%);
+    border-color: color-mix(in oklch, var(--accent), black 8%);
+  }
+  .na-step {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .na-card.na-primary .na-step {
+    background: rgb(255 255 255 / 0.22);
+    color: #fff;
+  }
+  .na-body { flex: 1; min-width: 0; }
+  .na-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 3px;
+  }
+  .na-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.45;
+  }
+  .na-card.na-primary .na-desc {
+    color: rgb(255 255 255 / 0.85);
+  }
+  .na-arrow {
+    color: var(--text-3);
+    font-size: 18px;
+    transition: transform 0.18s var(--ease-standard), color 0.18s;
+    flex-shrink: 0;
+  }
+  .na-card:hover .na-arrow {
+    transform: translateX(3px);
+    color: var(--accent);
+  }
+  .na-card.na-primary .na-arrow {
+    color: rgb(255 255 255 / 0.85);
+  }
+  .na-card.na-primary:hover .na-arrow {
+    color: #fff;
+  }
 </style>

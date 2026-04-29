@@ -14,6 +14,32 @@ const sorted = [...subsidies].sort((a, b) => {
   return bn - an;
 });
 
+// 정렬용 키 — 클라이언트 JS 정렬에 사용
+function deadlineRank(s: { deadline?: string; status?: string }): number {
+  // 작을수록 임박. '곧 마감' 최우선 → 0
+  if (s.status === '곧 마감') return 0;
+  const d = (s.deadline ?? '').trim();
+  // 'D-N일' 패턴
+  const dMatch = d.match(/D[-−]\s*(\d+)/);
+  if (dMatch) return 1 + parseInt(dMatch[1], 10);
+  // 'M.D' 또는 '~M.D' 패턴 → 1xxxx
+  const mdMatch = d.match(/(\d{1,2})[.\/](\d{1,2})/);
+  if (mdMatch) {
+    const m = parseInt(mdMatch[1], 10);
+    const day = parseInt(mdMatch[2], 10);
+    return 1000 + m * 31 + day;
+  }
+  // '상시' '연중' 등 → 가장 뒤
+  return 99999;
+}
+
+function popularityRank(s: { id: string; isHot?: boolean }): number {
+  // 큰 값일수록 상위
+  if (isNew(s.id)) return 2;
+  if (s.isHot) return 1;
+  return 0;
+}
+
 const NA_LABEL: Record<string, string> = {
   주거: '주택·임대 우선공급',
   복지: '맞춤 복지 혜택',
@@ -66,12 +92,24 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
         }
       </div>
 
+      <div class="sort-rail" aria-label="정렬">
+        <span class="sort-label">정렬</span>
+        <button class="sort-btn active" type="button" data-sort="popular">인기순</button>
+        <button class="sort-btn" type="button" data-sort="amount">금액 큰순</button>
+        <button class="sort-btn" type="button" data-sort="deadline">마감 임박순</button>
+      </div>
+
       <p class="empty-msg" id="empty-msg" hidden>해당 분야의 지원금이 없습니다.</p>
 
-      <ul class="subsidy-grid">
+      <ul class="subsidy-grid" id="subsidy-grid">
         {
           sorted.map((s) => (
-            <li data-cat={s.data.category}>
+            <li
+              data-cat={s.data.category}
+              data-amount={s.data.amount ?? 0}
+              data-deadline-rank={deadlineRank(s.data)}
+              data-popularity-rank={popularityRank(s.data)}
+            >
               <a class="subsidy-card" href={`/subsidies/${s.data.id}/`}>
                 <div class={`media tint-${s.data.category}`}>
                   <Icon name={s.data.icon} size={26} strokeWidth={1.6} />
@@ -121,6 +159,26 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
 </BaseLayout>
 
 <script>
+  type SortKey = 'popular' | 'amount' | 'deadline';
+  let currentSort: SortKey = 'popular';
+
+  const sortItems = () => {
+    const grid = document.getElementById('subsidy-grid');
+    if (!grid) return;
+    const items = Array.from(grid.querySelectorAll<HTMLLIElement>(':scope > li'));
+    items.sort((a, b) => {
+      if (currentSort === 'amount') {
+        return (Number(b.dataset.amount) || 0) - (Number(a.dataset.amount) || 0);
+      }
+      if (currentSort === 'deadline') {
+        return (Number(a.dataset.deadlineRank) || 0) - (Number(b.dataset.deadlineRank) || 0);
+      }
+      // popular
+      return (Number(b.dataset.popularityRank) || 0) - (Number(a.dataset.popularityRank) || 0);
+    });
+    items.forEach((li) => grid.appendChild(li));
+  };
+
   const apply = () => {
     const params = new URLSearchParams(window.location.search);
     const active = params.get('category') || 'all';
@@ -148,6 +206,19 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
       history.pushState({ cat }, '', url);
       apply();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  // Sort button clicks
+  document.querySelectorAll<HTMLButtonElement>('.sort-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const sort = btn.dataset.sort as SortKey | undefined;
+      if (!sort || sort === currentSort) return;
+      currentSort = sort;
+      document.querySelectorAll<HTMLButtonElement>('.sort-btn').forEach((b) => {
+        b.classList.toggle('active', b.dataset.sort === sort);
+      });
+      sortItems();
     });
   });
 
@@ -183,8 +254,46 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
   .filter-rail {
     display: flex;
     gap: 8px;
-    margin-bottom: 28px;
+    margin-bottom: 14px;
     flex-wrap: wrap;
+  }
+
+  .sort-rail {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+
+  .sort-label {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-right: 4px;
+  }
+
+  .sort-btn {
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-2);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  .sort-btn:hover {
+    background: var(--surface-2);
+    color: var(--text);
+    border-color: var(--border-2);
+  }
+
+  .sort-btn.active {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
   }
 
   .chip {

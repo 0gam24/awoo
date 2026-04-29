@@ -2,14 +2,36 @@
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { formatWon } from '@/data/site-data';
 import { getCollection } from 'astro:content';
 
 const personas = await getCollection('personas');
 const subsidies = await getCollection('subsidies');
 
-// 페르소나별 매칭 지원금 수
-const countByPersona = personas.reduce<Record<string, number>>((acc, p) => {
-  acc[p.data.id] = subsidies.filter((s) => (s.data.targetPersonas ?? []).includes(p.data.id)).length;
+// 페르소나별 매칭 + 대표 지원금 (HOT > 금액 큰 순)
+const ctxByPersona = personas.reduce<
+  Record<string, { count: number; flagship?: { id: string; title: string; agency: string; amount: number; amountLabel: string } }>
+>((acc, p) => {
+  const matched = subsidies.filter((s) => (s.data.targetPersonas ?? []).includes(p.data.id));
+  const sorted = [...matched].sort((a, b) => {
+    const ah = a.data.isHot ? 1 : 0;
+    const bh = b.data.isHot ? 1 : 0;
+    if (ah !== bh) return bh - ah;
+    return (b.data.amount ?? 0) - (a.data.amount ?? 0);
+  });
+  const top = sorted[0]?.data;
+  acc[p.data.id] = {
+    count: matched.length,
+    flagship: top
+      ? {
+          id: top.id,
+          title: top.title,
+          agency: top.agency,
+          amount: top.amount,
+          amountLabel: top.amountLabel,
+        }
+      : undefined,
+  };
   return acc;
 }, {});
 ---
@@ -31,35 +53,57 @@ const countByPersona = personas.reduce<Record<string, number>>((acc, p) => {
 
       <ul class="grid">
         {
-          personas.map((p) => (
-            <li>
-              <a class="tile" href={`/personas/${p.data.id}/`}>
-                <div class={`p-icon bg-${p.data.bg}`}>
-                  <Icon name={p.data.icon} size={32} strokeWidth={1.5} />
-                </div>
-                <div class="p-body">
-                  <div class="p-label">{p.data.label}</div>
-                  <div class="p-sub">{p.data.sub}</div>
-                  <ul class="p-meta">
-                    <li>연령: {p.data.age}</li>
-                    <li>소득: {p.data.income}</li>
-                    <li>주거: {p.data.living}</li>
-                  </ul>
-                  {p.data.pains && p.data.pains.length > 0 && (
-                    <div class="p-pains">
-                      {p.data.pains.slice(0, 3).map((pp) => (
-                        <span class="pain">{pp}</span>
-                      ))}
+          personas.map((p) => {
+            const ctx = ctxByPersona[p.data.id];
+            return (
+              <li>
+                <a class="tile" href={`/personas/${p.data.id}/`}>
+                  <div class="tile-top">
+                    <div class={`p-icon bg-${p.data.bg}`}>
+                      <Icon name={p.data.icon} size={32} strokeWidth={1.5} />
+                    </div>
+                    <div class="p-body">
+                      <div class="p-label">{p.data.label}</div>
+                      <div class="p-sub">{p.data.sub}</div>
+                      <ul class="p-meta">
+                        <li>연령: {p.data.age}</li>
+                        <li>소득: {p.data.income}</li>
+                        <li>주거: {p.data.living}</li>
+                      </ul>
+                      {p.data.pains && p.data.pains.length > 0 && (
+                        <div class="p-pains">
+                          {p.data.pains.slice(0, 3).map((pp) => (
+                            <span class="pain">{pp}</span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div class="p-meta-right">
+                      <span class="cnt">{ctx?.count ?? 0}건</span>
+                      <span class="arrow" aria-hidden="true">→</span>
+                    </div>
+                  </div>
+                  {ctx?.flagship && (
+                    <div class="flagship">
+                      <span class="flag-label">대표</span>
+                      <div class="flag-body">
+                        <div class="flag-title">{ctx.flagship.title}</div>
+                        <div class="flag-meta">
+                          <span class="flag-agency">{ctx.flagship.agency}</span>
+                          {ctx.flagship.amount > 0 && (
+                            <span class="flag-amount">
+                              {formatWon(ctx.flagship.amount)}
+                              <span class="flag-unit">{ctx.flagship.amountLabel}</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
-                </div>
-                <div class="p-meta-right">
-                  <span class="cnt">{countByPersona[p.data.id] ?? 0}건</span>
-                  <span class="arrow" aria-hidden="true">→</span>
-                </div>
-              </a>
-            </li>
-          ))
+                </a>
+              </li>
+            );
+          })
         }
       </ul>
     </Container>
@@ -102,8 +146,8 @@ const countByPersona = personas.reduce<Record<string, number>>((acc, p) => {
 
   .tile {
     display: flex;
-    align-items: flex-start;
-    gap: 16px;
+    flex-direction: column;
+    gap: 14px;
     padding: 22px 24px;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -116,6 +160,76 @@ const countByPersona = personas.reduce<Record<string, number>>((acc, p) => {
     transform: translateY(-3px);
     border-color: var(--border-2);
     text-decoration: none;
+  }
+
+  .tile-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .flagship {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+  }
+
+  .flag-label {
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    background: rgb(0 113 227 / 0.12);
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+    line-height: 1.3;
+  }
+
+  .flag-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .flag-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text);
+    margin-bottom: 4px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+
+  .flag-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .flag-agency {
+    font-size: 12px;
+    color: var(--text-2);
+  }
+
+  .flag-amount {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+
+  .flag-unit {
+    font-size: 11px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-left: 2px;
   }
 
   .p-icon {
