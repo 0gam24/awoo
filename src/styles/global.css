@@ -96,6 +96,7 @@
   --border-2: var(--color-border-strong);
   --accent: var(--color-blue);
   --accent-link: var(--color-link-blue);
+  --accent-dark: #003875;
   --on-accent: #ffffff;
   --shadow-soft: var(--shadow-sm);
   --shadow-pop: var(--shadow-md);
@@ -115,6 +116,7 @@
   --border-2: #515154;
   --accent: var(--color-bright-blue);
   --accent-link: var(--color-bright-blue);
+  --accent-dark: #001a3d;
   --on-accent: #000000;
 }
 
@@ -201,11 +203,18 @@ a:hover {
   text-decoration: underline;
 }
 
-/* 포커스 인디케이터 (WCAG 2.2 AA) */
+/* 포커스 인디케이터 (WCAG 2.2 AA) — 모든 인터랙티브 요소 글로벌 적용 */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   border-radius: 3px;
+}
+
+/* 카드 형태 a·button 포커스 시 더 큰 보더 — Discover/iOS 친화 */
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }
 
 /* 버튼은 기본적으로 motion-safe + 키보드 친화 */

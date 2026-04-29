@@ -25,6 +25,18 @@ interface PostMeta {
   freshness?: { trendingTerm: string; daysActive: number; totalCount: number };
   date: string;
   publishedAt: string;
+  sections?: unknown[];
+  faq?: unknown[];
+  tldr?: unknown[];
+}
+
+// 한국어 분당 500자 기준 — sections·faq·tldr 평균 길이로 추정 (server-side, 빌드타임)
+function readingTimeMin(post: PostMeta): number {
+  const sectionsLen = (post.sections?.length ?? 0) * 250; // 섹션당 평균
+  const faqLen = (post.faq?.length ?? 0) * 100;
+  const tldrLen = (post.tldr?.length ?? 0) * 80;
+  const chars = sectionsLen + faqLen + tldrLen + (post.metaDescription?.length ?? 0);
+  return Math.max(2, Math.round(chars / 500));
 }
 
 // 빌드타임 — 모든 영구 포스트 로드
@@ -45,31 +57,50 @@ for (const [path, mod] of Object.entries(issueModules)) {
 // 날짜 desc 정렬
 posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
-// today-issue 의 1위 토픽 → 그 토픽에 매칭되는 영구 포스트가 있으면 hero 카드로 노출
+// today-issue 의 트렌딩 → 매칭 포스트로 다층 hero 구성
 type TodayIssue = {
-  trending?: Array<{ term: string; count: number; topArticle?: { title: string } }>;
+  trending?: Array<{
+    term: string;
+    count: number;
+    topArticle?: { title: string; link?: string; category?: string };
+  }>;
   trendingTopic?: string;
   summary?: { headline: string; subhead: string };
   daysActive?: number;
   totalCount?: number;
+  matchedSubsidies?: Array<{ id: string; title: string; agency: string; category: string }>;
 };
 const today = todayIssue as TodayIssue;
 const trending = today.trending ?? [];
 
-// 1위 토픽의 매칭 포스트 찾기 (제목·태그에 트렌딩 키워드 포함)
-let heroPost: { date: string; slug: string; data: PostMeta } | null = null;
-if (today.trendingTopic && posts.length > 0) {
-  heroPost =
-    posts.find((p) => {
-      const t = today.trendingTopic ?? '';
-      return p.data.tags?.some((tag) => tag.includes(t)) || p.data.title?.includes(t);
-    }) ?? null;
+function findPost(term: string) {
+  return posts.find((p) => p.data.tags?.some((tag) => tag.includes(term)) || p.data.title?.includes(term)) ?? null;
 }
 
-// 월별 그루핑 (아카이브) — hero에 사용된 포스트는 제외
-const archivePosts = heroPost
-  ? posts.filter((p) => !(p.date === heroPost!.date && p.slug === heroPost!.slug))
-  : posts;
+// Top 3 트렌딩 → hero 후보. 1위는 lg, 2·3위는 sm
+type HeroCard = {
+  rank: number;
+  term: string;
+  count: number;
+  post: { date: string; slug: string; data: PostMeta } | null;
+  topicHref: string | null;
+};
+const heroCards: HeroCard[] = trending.slice(0, 3).map((t, i) => ({
+  rank: i + 1,
+  term: t.term,
+  count: t.count,
+  post: findPost(t.term),
+  topicHref: topicHref(t.term),
+}));
+const heroPost = heroCards[0]?.post ?? null;
+
+// hero 영역 사용된 포스트 슬러그 set — 아카이브에서 중복 제거
+const heroPostKeys = new Set(
+  heroCards
+    .map((c) => (c.post ? `${c.post.date}/${c.post.slug}` : null))
+    .filter((x): x is string => x !== null),
+);
+const archivePosts = posts.filter((p) => !heroPostKeys.has(`${p.date}/${p.slug}`));
 const byMonth = archivePosts.reduce<Record<string, typeof posts>>((acc, p) => {
   const ym = p.date.slice(0, 7);
   acc[ym] = acc[ym] ?? [];
@@ -94,30 +125,93 @@ const months = Object.keys(byMonth).sort().reverse();
         </p>
       </div>
 
-      {heroPost && today.summary && (
-        <a class="hero-card" href={`/issues/${heroPost.date}/${heroPost.slug}/`}>
-          <div class="hero-meta">
-            <span class="hero-rank">1위 트렌딩</span>
-            {today.daysActive && today.daysActive >= 3 && (
-              <span class="hero-badge">
-                <span class="dot" aria-hidden="true" />
-                {today.daysActive}일 연속
-              </span>
-            )}
-            <span class="hero-cat">{heroPost.data.category}</span>
-            <span class="hero-date">{heroPost.date}</span>
-          </div>
-          <h2 class="hero-title">{heroPost.data.title}</h2>
-          <p class="hero-desc">{heroPost.data.metaDescription}</p>
-          <div class="hero-cta">자세히 보기 →</div>
-        </a>
+      {heroCards.length > 0 && (
+        <section class="hero-section" aria-label="이번 주 화제 Top 3">
+          {heroCards[0] && (
+            heroCards[0].post ? (
+              <a class={`hero-lg cat-${heroCards[0].post.data.category}`} href={`/issues/${heroCards[0].post.date}/${heroCards[0].post.slug}/`}>
+                <div class="hero-meta">
+                  <span class="hero-rank">1위 화제</span>
+                  {today.daysActive && today.daysActive >= 3 && (
+                    <span class="hero-badge">
+                      <span class="dot" aria-hidden="true" />
+                      {today.daysActive}일 연속
+                    </span>
+                  )}
+                  <span class="hero-cat">{heroCards[0].post.data.category}</span>
+                  <span class="hero-count">{heroCards[0].count}건 보도</span>
+                </div>
+                <h2 class="hero-title">{heroCards[0].post.data.title}</h2>
+                <p class="hero-desc">{heroCards[0].post.data.metaDescription}</p>
+                <div class="hero-cta">자세히 보기 →</div>
+              </a>
+            ) : (
+              <a
+                class={`hero-lg topic ${heroCards[0].topicHref ? '' : 'static'}`}
+                href={heroCards[0].topicHref ?? '/subsidies/'}
+              >
+                <div class="hero-meta">
+                  <span class="hero-rank">1위 화제</span>
+                  <span class="hero-count">{heroCards[0].count}건 보도</span>
+                </div>
+                <h2 class="hero-title">{heroCards[0].term}</h2>
+                <p class="hero-desc">관련 지원금과 정책 내용을 한 페이지에서 확인하세요.</p>
+                <div class="hero-cta">{heroCards[0].topicHref ? '관련 지원금 보기 →' : '지원금 둘러보기 →'}</div>
+              </a>
+            )
+          )}
+
+          {heroCards.length > 1 && (
+            <div class="hero-sub-grid">
+              {heroCards.slice(1, 3).map((c) =>
+                c.post ? (
+                  <a class={`hero-sm cat-${c.post.data.category}`} href={`/issues/${c.post.date}/${c.post.slug}/`}>
+                    <div class="hero-sm-meta">
+                      <span class="hero-rank-sm">{c.rank}위</span>
+                      <span class="hero-cat-sm">{c.post.data.category}</span>
+                    </div>
+                    <div class="hero-sm-title">{c.post.data.title}</div>
+                    <div class="hero-sm-count">{c.count}건 보도</div>
+                  </a>
+                ) : (
+                  <a class="hero-sm topic" href={c.topicHref ?? `/subsidies/?q=${encodeURIComponent(c.term)}`}>
+                    <div class="hero-sm-meta">
+                      <span class="hero-rank-sm">{c.rank}위</span>
+                      <span class="hero-cat-sm">트렌딩</span>
+                    </div>
+                    <div class="hero-sm-title">{c.term}</div>
+                    <div class="hero-sm-count">{c.count}건 보도 · 관련 지원금 보기 →</div>
+                  </a>
+                ),
+              )}
+            </div>
+          )}
+        </section>
       )}
 
       <div class="body-grid">
         <main class="body">
+          {posts.length < 3 && today.matchedSubsidies && today.matchedSubsidies.length > 0 && (
+            <section class="matched-section">
+              <h2 class="section-title">이번 주 화제 — 관련 지원금 {today.matchedSubsidies.length}건</h2>
+              <p class="section-sub">바로 확인할 수 있는 매칭 지원금을 모았습니다.</p>
+              <ul class="matched-list">
+                {today.matchedSubsidies.slice(0, 6).map((s) => (
+                  <li>
+                    <a class={`matched-card cat-${s.category}`} href={`/subsidies/${s.id}/`}>
+                      <div class="m-cat">{s.category}</div>
+                      <div class="m-title">{s.title}</div>
+                      <div class="m-agency">{s.agency}</div>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {posts.length === 0 ? (
             <div class="empty">
-              <p>이번 주 화제 이슈를 준비하고 있습니다. 그 동안 새로 등록된 지원금을 먼저 확인해 보세요.</p>
+              <p>이번 주 화제 이슈가 곧 올라옵니다. 그 동안 새로 등록된 지원금을 먼저 확인해 보세요.</p>
               <a class="empty-link" href="/subsidies/new/">신규 지원금 둘러보기 →</a>
             </div>
           ) : (
@@ -127,7 +221,7 @@ const months = Object.keys(byMonth).sort().reverse();
                 <ul class="post-list">
                   {byMonth[ym].map((p) => (
                     <li>
-                      <a class="post-card" href={`/issues/${p.date}/${p.slug}/`}>
+                      <a class={`post-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
                         <div class="pc-meta">
                           {p.data.freshness && p.data.freshness.daysActive >= 3 && (
                             <span class="freshness">
@@ -137,9 +231,15 @@ const months = Object.keys(byMonth).sort().reverse();
                           )}
                           <span class="cat">{p.data.category}</span>
                           <span class="date">{p.date}</span>
+                          <span class="read-time">📖 {readingTimeMin(p.data)}분</span>
                         </div>
                         <div class="pc-title">{p.data.title}</div>
                         <div class="pc-desc">{p.data.metaDescription}</div>
+                        {p.data.tags && p.data.tags.length > 0 && (
+                          <div class="pc-tags">
+                            {p.data.tags.slice(0, 2).map((tag) => <span class="pc-tag">#{tag}</span>)}
+                          </div>
+                        )}
                         <span class="pc-arrow" aria-hidden="true">→</span>
                       </a>
                     </li>
@@ -224,21 +324,35 @@ const months = Object.keys(byMonth).sort().reverse();
     margin: 0;
   }
 
-  /* 1위 토픽 hero */
-  .hero-card {
+  /* 카테고리 컬러 토큰 — 카드 좌측 4px 바 */
+  .cat-주거   { --cat-color: var(--accent); }
+  .cat-자산   { --cat-color: #0891b2; }
+  .cat-교육   { --cat-color: #8b5cf6; }
+  .cat-창업   { --cat-color: #ea580c; }
+  .cat-복지   { --cat-color: #ec4899; }
+  .cat-취업   { --cat-color: #10b981; }
+  .cat-농업   { --cat-color: #d97706; }
+
+  /* 다층 hero — 1위 lg + 2·3위 sm grid */
+  .hero-section {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 36px;
+  }
+
+  .hero-lg {
     display: block;
     padding: 28px 32px;
-    background: linear-gradient(135deg, var(--accent) 0%, #003875 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark, #003875) 100%);
     color: #fff;
     border-radius: var(--radius-xl);
     text-decoration: none;
-    margin-bottom: 32px;
     position: relative;
     overflow: hidden;
     isolation: isolate;
     transition: transform 0.18s var(--ease-standard);
   }
-  .hero-card::before {
+  .hero-lg::before {
     content: '';
     position: absolute;
     top: -50px; right: -50px;
@@ -247,11 +361,14 @@ const months = Object.keys(byMonth).sort().reverse();
     pointer-events: none;
     z-index: -1;
   }
-  .hero-card:hover {
+  .hero-lg:hover {
     transform: translateY(-2px);
     text-decoration: none;
   }
-  @media (max-width: 600px) { .hero-card { padding: 24px; } }
+  .hero-lg.topic.static {
+    background: linear-gradient(135deg, var(--text-2) 0%, var(--text-3) 100%);
+  }
+  @media (max-width: 600px) { .hero-lg { padding: 24px; } }
 
   .hero-meta {
     display: flex;
@@ -292,10 +409,11 @@ const months = Object.keys(byMonth).sort().reverse();
     font-size: 12px;
     font-weight: 600;
   }
-  .hero-date {
+  .hero-count {
     font-size: 12px;
-    color: rgb(255 255 255 / 0.7);
+    color: rgb(255 255 255 / 0.86);
     margin-left: auto;
+    font-weight: 600;
   }
 
   .hero-title {
@@ -323,7 +441,64 @@ const months = Object.keys(byMonth).sort().reverse();
     font-weight: 700;
     transition: transform 0.18s var(--ease-standard);
   }
-  .hero-card:hover .hero-cta { transform: translateX(3px); }
+  .hero-lg:hover .hero-cta { transform: translateX(3px); }
+
+  /* 2·3위 sm hero */
+  .hero-sub-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .hero-sm {
+    display: block;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--cat-color, var(--accent));
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .hero-sm:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    border-left-color: var(--cat-color, var(--accent));
+    text-decoration: none;
+  }
+  .hero-sm.topic { --cat-color: var(--text-3); }
+
+  .hero-sm-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .hero-rank-sm {
+    padding: 2px 8px;
+    background: var(--surface-2);
+    color: var(--text);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .hero-cat-sm {
+    font-size: 11px;
+    color: var(--cat-color, var(--text-2));
+    font-weight: 600;
+  }
+  .hero-sm-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .hero-sm-count {
+    font-size: 12px;
+    color: var(--text-2);
+  }
 
   .body-grid {
     display: grid;
@@ -333,6 +508,74 @@ const months = Object.keys(byMonth).sort().reverse();
   @media (max-width: 880px) { .body-grid { grid-template-columns: 1fr; } }
 
   .body { min-width: 0; }
+
+  /* 소량 상태 풍성화 — 매칭 지원금 카드 */
+  .matched-section {
+    margin-bottom: 36px;
+    padding: 24px 28px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .section-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .section-sub {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 0 0 16px;
+  }
+
+  .matched-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .matched-card {
+    display: block;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--cat-color, var(--accent));
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .matched-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-2);
+    border-left-color: var(--cat-color, var(--accent));
+    text-decoration: none;
+  }
+
+  .m-cat {
+    font-size: 11px;
+    color: var(--cat-color, var(--text-2));
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .m-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+
+  .m-agency {
+    font-size: 12px;
+    color: var(--text-2);
+  }
 
   .empty {
     text-align: center;
@@ -375,6 +618,7 @@ const months = Object.keys(byMonth).sort().reverse();
     padding: 18px 22px;
     background: var(--surface);
     border: 1px solid var(--border);
+    border-left: 4px solid var(--cat-color, var(--border-2));
     border-radius: var(--radius-md);
     text-decoration: none;
     color: inherit;
@@ -383,6 +627,7 @@ const months = Object.keys(byMonth).sort().reverse();
   .post-card:hover {
     transform: translateY(-2px);
     border-color: var(--border-2);
+    border-left-color: var(--cat-color, var(--accent));
     text-decoration: none;
   }
 
@@ -426,6 +671,10 @@ const months = Object.keys(byMonth).sort().reverse();
   }
   .date { color: var(--text-3); font-size: 12px; }
 
+  .read-time {
+    font-size: 12px;
+    color: var(--text-2);
+  }
   .pc-title {
     font-size: 17px;
     font-weight: 600;
@@ -436,6 +685,19 @@ const months = Object.keys(byMonth).sort().reverse();
     font-size: 14px;
     color: var(--text-2);
     line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .pc-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pc-tag {
+    font-size: 11px;
+    color: var(--text-2);
+    padding: 2px 8px;
+    background: var(--surface-2);
+    border-radius: var(--radius-pill);
   }
   .pc-arrow {
     position: absolute;
