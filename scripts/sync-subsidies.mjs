@@ -273,7 +273,13 @@ async function fetchAllServices(key) {
     const url = `${API_BASE}?page=${page}&perPage=${PER_PAGE}&serviceKey=${encodeURIComponent(key)}`;
     process.stdout.write(`\rFetching page ${page}...`);
     const res = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!res.ok) throw new Error(`API ${res.status}`);
+    if (!res.ok) {
+      // 응답 본문에서 키가 echo 되지 않도록 키 마스킹
+      let body = await res.text().catch(() => '');
+      body = body.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '***');
+      body = body.replace(new RegExp(encodeURIComponent(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '***');
+      throw new Error(`API ${res.status} (page=${page}, keyLen=${key.length}): ${body.slice(0, 300)}`);
+    }
     const json = await res.json();
     if (!Array.isArray(json.data)) throw new Error('Unexpected response shape');
     all.push(...json.data);
