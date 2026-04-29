@@ -17,7 +17,8 @@ const personas = defineCollection({
 });
 
 const subsidies = defineCollection({
-  loader: glob({ pattern: '**/*.json', base: 'src/data/subsidies' }),
+  // _manifest.json 등 underscore-prefixed 메타 파일 제외
+  loader: glob({ pattern: ['**/*.json', '!**/_*.json'], base: 'src/data/subsidies' }),
   schema: z.object({
     id: z.string(),
     applyUrl: z.string().url(),
