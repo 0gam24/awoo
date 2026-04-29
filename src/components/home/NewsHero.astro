@@ -3,23 +3,8 @@ import Container from '@/components/Container.astro';
 import { TODAY_NEWS } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
 
-// _history.json — 빌드타임 import (없으면 빈 객체 fallback)
-type HistoryEntry = { firstSeen: string; postSlug: string };
-type HistoryFile = { byTerm?: Record<string, HistoryEntry> };
-const historyModules = import.meta.glob<{ default: HistoryFile }>(
-  '/src/data/issues/_history.json',
-  { eager: true },
-);
-const history: HistoryFile =
-  Object.values(historyModules)[0]?.default ?? { byTerm: {} };
-
-// 트렌딩 토픽 → 영구 포스트 URL 맵핑
-function findInternalPostUrl(term: string | undefined): string | null {
-  if (!term) return null;
-  const entry = history.byTerm?.[term];
-  if (!entry?.postSlug || !entry?.firstSeen) return null;
-  return `/issues/${entry.firstSeen}/${entry.postSlug}/`;
-}
+// 메인 NewsHero는 포스트와 분리 운영 — 모든 CTA는 /issues/ 또는 /quick/ 으로 고정.
+// 영구 포스트는 /issues/ 인덱스에서 진입.
 
 // 자동 큐레이션 데이터 우선, hardcode TODAY_NEWS는 publicStats 등 보조용
 interface AutoTrendItem {
@@ -61,15 +46,9 @@ const auto = todayIssue as {
 } | null;
 
 // 트렌딩 사이드바 — 자동 데이터 우선 (N-gram 빈도 + 대표 기사)
-// 각 항목에 내부 포스트 URL 우선 매핑
-const autoTrendingRaw: AutoTrendItem[] | null =
+// 클릭은 외부 기사로 (사이드바 = 빠른 트렌드 일별, 메인 운영과 분리)
+const autoTrending: AutoTrendItem[] | null =
   auto?.trending && auto.trending.length > 0 ? auto.trending.slice(0, 5) : null;
-const autoTrending = autoTrendingRaw
-  ? autoTrendingRaw.map((t) => ({
-      ...t,
-      internalPostUrl: findInternalPostUrl(t.term),
-    }))
-  : null;
 
 // 하단 stat strip — 자동 데이터 있으면 트렌딩 관련 stat 4건 동적 생성
 type StatTone = 'accent' | 'positive' | 'default' | 'warning';
@@ -163,11 +142,6 @@ function extractSource(link: string | undefined): string {
 
 const sourceLabel = isAuto ? extractSource(externalLink) : n.source;
 const showTrendChart = !isAuto; // 자동 모드는 trend 데이터 없음 → 차트 숨김
-
-// 헤드라인 클릭 → 내부 포스트 URL 우선 (_history.json), 없으면 외부 링크 (이탈)
-const internalPostUrl = isAuto ? findInternalPostUrl(auto?.trendingTopic) : null;
-const headlineLink = internalPostUrl ?? externalLink;
-const headlineLinkIsInternal = !!internalPostUrl;
 ---
 
 <section class="news-band">
@@ -221,15 +195,11 @@ const headlineLinkIsInternal = !!internalPostUrl;
         )}
 
         <div class="news-actions">
-          {headlineLinkIsInternal ? (
-            <a class="cta-primary" href={headlineLink}>이 이슈 자세히 보기 →</a>
-          ) : (
-            <a class="cta-primary" href="/issues/">트렌딩 이슈 모두 보기 →</a>
-          )}
+          <a class="cta-primary" href="/issues/">정책 이슈 모두 보기 →</a>
           <a class="cta-ghost" href="/quick/">5분 진단 →</a>
           {isAuto && externalLink && (
             <a class="cta-mini" href={externalLink} target="_blank" rel="noopener noreferrer">
-              원문 출처: {sourceLabel}
+              원문: {sourceLabel}
             </a>
           )}
         </div>
@@ -265,12 +235,10 @@ const headlineLinkIsInternal = !!internalPostUrl;
         {autoTrending ? (
           <ol class="news-trend-list auto">
             {autoTrending.map((t, i) => {
-              const useInternal = !!t.internalPostUrl;
-              const href = t.internalPostUrl ?? t.topArticle?.link ?? '#';
-              const linkProps = useInternal ? {} : { target: '_blank', rel: 'noopener noreferrer' };
+              const href = t.topArticle?.link ?? '#';
               return (
               <li class:list={['news-trend-item-auto', i === 0 && 'hot']}>
-                <a href={href} class="trend-link-auto" {...linkProps}>
+                <a href={href} class="trend-link-auto" target="_blank" rel="noopener noreferrer">
                   <div class="trend-row-1">
                     <span class="rank">{i + 1}</span>
                     <span class="trend-pill">

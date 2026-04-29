@@ -140,35 +140,117 @@ async function loadHistory() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// summary 자동 생성 — LLM 없이 결정론적 요약
+// 매체명 추출 (URL 도메인 → 한국 매체)
 // ─────────────────────────────────────────────────────────────
-function generateSummary({ term, count, daysActive, totalCount, topArticle, matchedCount }) {
+const PUBLISHER_MAP = {
+  'yna.co.kr': '연합뉴스', 'newsis.com': '뉴시스',
+  'kbs.co.kr': 'KBS', 'imnews.imbc.com': 'MBC', 'sbs.co.kr': 'SBS', 'ytn.co.kr': 'YTN',
+  'joongang.co.kr': '중앙일보', 'chosun.com': '조선일보', 'donga.com': '동아일보',
+  'hani.co.kr': '한겨레', 'khan.co.kr': '경향신문',
+  'hankyung.com': '한국경제', 'mk.co.kr': '매일경제', 'sedaily.com': '서울경제',
+  'jtbc.co.kr': 'JTBC', 'mbn.co.kr': 'MBN',
+  'mt.co.kr': '머니투데이', 'asiae.co.kr': '아시아경제', 'edaily.co.kr': '이데일리',
+  'newspim.com': '뉴스핌', 'kukinews.com': '쿠키뉴스',
+};
+function extractPublisher(link) {
+  if (!link) return null;
+  try {
+    const host = new URL(link).hostname.replace(/^www\./, '');
+    for (const [k, v] of Object.entries(PUBLISHER_MAP)) {
+      if (host.endsWith(k)) return v;
+    }
+    return host;
+  } catch {
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// 다중 기사 집계 — 지자체/매체/최신 발표 추출
+// ─────────────────────────────────────────────────────────────
+// 시·군·구 추출 노이즈 필터 — 일반 한국어 단어 중 시/군/구로 끝나는 것
+const CITY_NOISE_PREFIX = [
+  '공백에', '홍보', '제공', '진행', '서비스', '실현', '예고', '자료',
+  '향후', '다음', '실시', '주거', '가능', '대상', '시행', '관계',
+  '제출', '선정', '경우', '발표', '이용', '신청', '검토', '준비',
+];
+function isNoiseCity(city) {
+  for (const noise of CITY_NOISE_PREFIX) {
+    if (city.startsWith(noise)) return true;
+  }
+  return false;
+}
+
+function aggregateArticles(articles) {
+  // 행정구역: 한글 2~4자 + 시/군/구, 뒤에 조사·구두점·공백이 와야 함 (조사 뒤따라야 정식 지명일 가능성↑)
+  const cityRe = /([가-힣]{2,4}(?:시|군|구))(?=[은는이가에의을를도과와로\s,\.\)\]·]|$)/g;
+  const cities = new Map(); // 출현 빈도
+  const publishers = new Set();
+  let newestTs = 0;
+  let newestArticle = null;
+
+  for (const a of articles) {
+    const text = `${a.title} ${a.description ?? ''}`;
+    const seenInArticle = new Set();
+    let m;
+    cityRe.lastIndex = 0;
+    while ((m = cityRe.exec(text)) !== null) {
+      const city = m[1];
+      if (city.length < 2 || city.length > 5) continue;
+      if (isNoiseCity(city)) continue;
+      if (seenInArticle.has(city)) continue;
+      seenInArticle.add(city);
+      cities.set(city, (cities.get(city) ?? 0) + 1);
+    }
+    const pub = extractPublisher(a.link);
+    if (pub) publishers.add(pub);
+    const ts = a.pubDate ? new Date(a.pubDate).getTime() : 0;
+    if (!Number.isNaN(ts) && ts > newestTs) {
+      newestTs = ts;
+      newestArticle = a;
+    }
+  }
+
+  const topCities = [...cities.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([c]) => c);
+
+  return {
+    cities: topCities,
+    publisherCount: publishers.size,
+    publishers: [...publishers].slice(0, 8),
+    newestArticle,
+    newestPubDate: newestArticle?.pubDate ?? null,
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// summary 자동 생성 — 다중 기사 집계 시그널 활용
+// ─────────────────────────────────────────────────────────────
+function generateSummary({ term, count, daysActive, totalCount, allArticles, matchedCount }) {
+  const agg = aggregateArticles(allArticles);
+
   // 헤드라인
   let headline;
   if (daysActive >= 5) headline = `${term} — ${daysActive}일 연속 화제`;
   else if (daysActive >= 3) headline = `${term} — ${daysActive}일째 매체 주목`;
   else headline = `${term} — 이번 주 화제`;
 
-  // 부제 — 대표 기사 첫 문장 + 누적 시그널
-  let leadFact = '';
-  if (topArticle?.description) {
-    const firstSentence = topArticle.description.split(/[.!?。]/)[0]?.trim();
-    if (firstSentence && firstSentence.length > 10 && firstSentence.length < 120) {
-      leadFact = firstSentence;
-      if (!leadFact.endsWith('.') && !leadFact.endsWith('다')) {
-        leadFact += '.';
-      }
-    }
+  // 부제 — 집계 시그널
+  const parts = [];
+  if (agg.cities.length >= 2) {
+    parts.push(`${agg.cities.slice(0, 4).join('·')} 등 ${agg.cities.length}곳 시행`);
+  } else if (agg.cities.length === 1) {
+    parts.push(`${agg.cities[0]} 시행`);
   }
-
   const totalText = totalCount > count ? `누적 ${totalCount}회` : `${count}회`;
-  const matchedText = matchedCount > 0 ? ` · 관련 지원금 ${matchedCount}건 매칭` : '';
+  parts.push(`매체 ${totalText} 언급 (${agg.publisherCount}곳)`);
+  if (matchedCount > 0) parts.push(`관련 지원금 ${matchedCount}건 매칭`);
 
-  const subhead = leadFact
-    ? `${leadFact} 매체 ${totalText} 언급${matchedText}`
-    : `매체 ${totalText} 언급 · 정책 신규 등장${matchedText}`;
+  const subhead = parts.join(' · ');
 
-  return { headline, subhead };
+  return { headline, subhead, aggregate: agg };
 }
 
 // 제목 필수 키워드 — 제목에 하나라도 없으면 정책성 뉴스로 보지 않음
@@ -465,7 +547,7 @@ async function main() {
     process.exit(1);
   }
 
-  // 3. 트렌딩 토픽별 대표 기사 선정 (Top 5 트렌딩 각각 best 1건)
+  // 3. 트렌딩 토픽별 매칭 기사 전체 수집 + 대표 기사 선정
   const trendingWithArticles = [];
   for (const [term, count] of ranked) {
     const matching = articles.filter((a) => a.title.includes(term));
@@ -479,6 +561,7 @@ async function main() {
         term,
         count,
         topArticle: scored[0],
+        allArticles: scored, // 다중 소스 종합용 (sync 결과에는 압축, post 생성엔 전체 전달)
       });
     }
   }
@@ -494,7 +577,7 @@ async function main() {
   const topTrendCount = trendingWithArticles[0].count;
 
   // ─────────────────────────────────────────────────────────────
-  // 매칭 지원금 추출 (Top 4) + 누적 히스토리 + summary 자동 생성
+  // 매칭 지원금 추출 (Top 4) + 누적 히스토리 + 다중 기사 집계 summary
   // ─────────────────────────────────────────────────────────────
   const allSubsidies = await loadAllSubsidies();
   const history = await loadHistory();
@@ -505,17 +588,22 @@ async function main() {
   const daysActive = (histEntry?.daysActive ?? 0) + 1;
   const totalCount = (histEntry?.totalCount ?? 0) + topTrendCount;
 
+  // 1위 토픽의 전체 매칭 기사
+  const topAllArticles = trendingWithArticles[0].allArticles ?? [top];
+
   const summary = generateSummary({
     term: topTrendTerm,
     count: topTrendCount,
     daysActive,
     totalCount,
-    topArticle: top,
+    allArticles: topAllArticles,
     matchedCount: matched.length,
   });
 
   console.log(`📝 summary: "${summary.headline}"`);
   console.log(`           ${summary.subhead}`);
+  console.log(`🌍 지자체: ${summary.aggregate.cities.join(', ') || '(없음)'}`);
+  console.log(`📰 매체: ${summary.aggregate.publisherCount}곳`);
   console.log(`🎯 매칭 지원금 ${matched.length}건`);
 
   // 출력
@@ -532,15 +620,17 @@ async function main() {
     score: top.score,
     trendingTopic: topTrendTerm,
     trendingTopicCount: topTrendCount,
-    // 누적 시그널 + 자동 요약 (LLM 없이 결정론적 — 포스트가 생기면 NewsHero가 포스트 우선 사용)
-    summary,
+    // 누적 시그널 + 다중 기사 집계 요약 (LLM 없이 결정론적)
+    summary: { headline: summary.headline, subhead: summary.subhead },
+    aggregate: summary.aggregate, // cities, publisherCount, publishers, newestPubDate
     daysActive,
     totalCount,
     matchedSubsidies: matched,
-    // 사이드바용 — Top 5 트렌딩 + 각각 대표 기사
+    // 사이드바용 — Top 5 트렌딩 + 각각 대표 기사 + 매칭 기사 수
     trending: trendingWithArticles.slice(0, 5).map((t) => ({
       term: t.term,
       count: t.count,
+      articleCount: t.allArticles?.length ?? 1,
       topArticle: {
         title: t.topArticle.title,
         link: t.topArticle.link,
@@ -548,6 +638,16 @@ async function main() {
         pubDateKR: formatDateKR(t.topArticle.pubDate),
         category: t.topArticle.category,
       },
+    })),
+    // 1위 토픽의 전체 기사 메타 (post 생성에서 다중 소스 종합 시 활용)
+    topTrendingArticles: topAllArticles.map((a) => ({
+      title: a.title,
+      description: (a.description ?? '').slice(0, 240),
+      pubDate: a.pubDate,
+      pubDateKR: formatDateKR(a.pubDate),
+      link: a.link,
+      publisher: extractPublisher(a.link) ?? '',
+      category: a.category,
     })),
     // 디버그용 — 모든 트렌딩 N-gram 빈도 (Top 10)
     trendingAll: ranked.slice(0, 10).map(([term, count]) => ({ term, count })),

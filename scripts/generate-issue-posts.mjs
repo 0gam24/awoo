@@ -288,11 +288,15 @@ async function main() {
     const daysActive = (histEntry?.daysActive ?? 0) + (histEntry?.dailyCounts?.[date] === undefined ? 1 : 0);
     const totalCount = (histEntry?.totalCount ?? 0) + count;
 
-    // candidate articles — today-issue.json 의 candidates 중 같은 카테고리 우선 + topArticle 포함
-    const candidates = [topArticle, ...(todayIssue.candidates ?? [])]
-      .filter(Boolean)
-      .filter((a) => a && a.title)
-      .slice(0, 5);
+    // 다중 소스 종합 — Top 1 토픽이면 topTrendingArticles 전체 (10+건),
+    // Top 2,3 토픽이면 topArticle + candidates 중 매칭 키워드 포함된 것
+    let articlesForTopic;
+    if (idx === 0 && Array.isArray(todayIssue.topTrendingArticles) && todayIssue.topTrendingArticles.length > 0) {
+      articlesForTopic = todayIssue.topTrendingArticles;
+    } else {
+      const fromCandidates = (todayIssue.candidates ?? []).filter((c) => c.title?.includes(term));
+      articlesForTopic = [topArticle, ...fromCandidates].filter(Boolean).slice(0, 8);
+    }
 
     // 3. user prompt 빌드
     const userInput = {
@@ -303,7 +307,9 @@ async function main() {
         totalCount,
         rankToday: idx + 1,
       },
-      candidateArticles: candidates,
+      // ★ 1건이 아닌 N건 전체 — Claude가 다중 소스 종합 분석
+      sourceArticles: articlesForTopic,
+      sourceCount: articlesForTopic.length,
       matchedSubsidies,
       matchedPersonas,
       todayDate: date,
