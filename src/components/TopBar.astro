@@ -11,14 +11,21 @@ interface Props {
 const { active = '' } = Astro.props;
 
 const items: NavItem[] = [
-  { href: '/', label: '오늘의 이슈' },
+  { href: '/', label: '홈' },
+  { href: '/issues/', label: '오늘의 이슈' },
   { href: '/subsidies/', label: '지원금' },
   { href: '/guide/', label: '가이드' },
 ];
 
 const isActive = (href: string) => {
-  if (href === '/') return active === 'home' || active === '/';
-  return active === href || Astro.url.pathname.startsWith(href);
+  if (href === '/') {
+    // 홈은 정확히 / 또는 명시적 'home' active 시에만
+    return active === 'home' || active === '/' || Astro.url.pathname === '/';
+  }
+  // 명시 active 우선
+  if (active === href) return true;
+  // 경로 기반: /issues/ 와 /issues/[date]/[slug]/ 등 모두 매칭
+  return Astro.url.pathname.startsWith(href);
 };
 ---
 

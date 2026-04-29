@@ -9,11 +9,20 @@ const SITE = {
 };
 
 const links = [
+  // 카테고리 4종 (TopBar 와 일관)
+  [
+    { href: '/', label: '홈' },
+    { href: '/issues/', label: '오늘의 이슈' },
+    { href: '/subsidies/', label: '지원금' },
+    { href: '/guide/', label: '가이드' },
+  ],
+  // 사이트 정보
   [
     { href: '/about/', label: '사이트 소개' },
     { href: '/editorial-policy/', label: '편집 정책' },
     { href: '/contact/', label: '문의' },
   ],
+  // 법적 고지
   [
     { href: '/privacy/', label: '개인정보처리방침' },
     { href: '/terms/', label: '이용약관' },

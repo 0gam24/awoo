@@ -32,11 +32,32 @@ for (const [path, mod] of Object.entries(issueModules)) {
 // 날짜 desc 정렬
 posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
-// 트렌딩 (오늘 자)
-const trending = (todayIssue as { trending?: Array<{ term: string; count: number }> }).trending ?? [];
+// today-issue 의 1위 토픽 → 그 토픽에 매칭되는 영구 포스트가 있으면 hero 카드로 노출
+type TodayIssue = {
+  trending?: Array<{ term: string; count: number; topArticle?: { title: string } }>;
+  trendingTopic?: string;
+  summary?: { headline: string; subhead: string };
+  daysActive?: number;
+  totalCount?: number;
+};
+const today = todayIssue as TodayIssue;
+const trending = today.trending ?? [];
 
-// 월별 그루핑 (아카이브)
-const byMonth = posts.reduce<Record<string, typeof posts>>((acc, p) => {
+// 1위 토픽의 매칭 포스트 찾기 (제목·태그에 트렌딩 키워드 포함)
+let heroPost: { date: string; slug: string; data: PostMeta } | null = null;
+if (today.trendingTopic && posts.length > 0) {
+  heroPost =
+    posts.find((p) => {
+      const t = today.trendingTopic ?? '';
+      return p.data.tags?.some((tag) => tag.includes(t)) || p.data.title?.includes(t);
+    }) ?? null;
+}
+
+// 월별 그루핑 (아카이브) — hero에 사용된 포스트는 제외
+const archivePosts = heroPost
+  ? posts.filter((p) => !(p.date === heroPost!.date && p.slug === heroPost!.slug))
+  : posts;
+const byMonth = archivePosts.reduce<Record<string, typeof posts>>((acc, p) => {
   const ym = p.date.slice(0, 7);
   acc[ym] = acc[ym] ?? [];
   acc[ym].push(p);
@@ -53,12 +74,31 @@ const months = Object.keys(byMonth).sort().reverse();
   <section class="band">
     <Container size="wide">
       <div class="head">
-        <h1 class="title">정책 이슈</h1>
+        <h1 class="title">오늘의 이슈</h1>
         <p class="lead">
-          매일 06:00 한국어 정책·지원금 뉴스에서 가장 화제인 토픽 1건을 자동 큐레이션해 영구 포스트로 보관합니다.<br />
+          매일 06:00 한국어 정책·지원금 뉴스에서 가장 화제인 토픽을 자동 큐레이션해 영구 포스트로 보관합니다.<br />
           AI가 SEO/GEO 표준에 맞춰 작성하고, 우리 DB의 매칭 지원금까지 연결합니다.
         </p>
       </div>
+
+      {heroPost && today.summary && (
+        <a class="hero-card" href={`/issues/${heroPost.date}/${heroPost.slug}/`}>
+          <div class="hero-meta">
+            <span class="hero-rank">1위 트렌딩</span>
+            {today.daysActive && today.daysActive >= 3 && (
+              <span class="hero-badge">
+                <span class="dot" aria-hidden="true" />
+                {today.daysActive}일 연속
+              </span>
+            )}
+            <span class="hero-cat">{heroPost.data.category}</span>
+            <span class="hero-date">{heroPost.date}</span>
+          </div>
+          <h2 class="hero-title">{heroPost.data.title}</h2>
+          <p class="hero-desc">{heroPost.data.metaDescription}</p>
+          <div class="hero-cta">자세히 보기 →</div>
+        </a>
+      )}
 
       <div class="body-grid">
         <main class="body">
@@ -157,6 +197,107 @@ const months = Object.keys(byMonth).sort().reverse();
     line-height: 1.65;
     margin: 0;
   }
+
+  /* 1위 토픽 hero */
+  .hero-card {
+    display: block;
+    padding: 28px 32px;
+    background: linear-gradient(135deg, var(--accent) 0%, #003875 100%);
+    color: #fff;
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 240px; height: 240px;
+    background: radial-gradient(circle, rgb(255 255 255 / 0.16) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .hero-card:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+  @media (max-width: 600px) { .hero-card { padding: 24px; } }
+
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .hero-rank {
+    padding: 4px 12px;
+    background: rgb(255 255 255 / 0.95);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .hero-badge .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #fff;
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+  .hero-cat {
+    padding: 3px 10px;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .hero-date {
+    font-size: 12px;
+    color: rgb(255 255 255 / 0.7);
+    margin-left: auto;
+  }
+
+  .hero-title {
+    font-size: clamp(22px, 2.8vw, 32px);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
+    color: #fff;
+  }
+  .hero-desc {
+    font-size: 15px;
+    color: rgb(255 255 255 / 0.86);
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 18px;
+    background: #fff;
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 700;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .hero-card:hover .hero-cta { transform: translateX(3px); }
 
   .body-grid {
     display: grid;

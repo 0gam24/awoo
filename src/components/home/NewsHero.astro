@@ -164,10 +164,8 @@ function extractSource(link: string | undefined): string {
 const sourceLabel = isAuto ? extractSource(externalLink) : n.source;
 const showTrendChart = !isAuto; // 자동 모드는 trend 데이터 없음 → 차트 숨김
 
-// CTA 1차 — 포스트 직진 우선, 없으면 /issues/ 인덱스
+// CTA — 1위 토픽 포스트 + /issues/ 인덱스 둘 다 노출 (시청자 선택권)
 const topicPostUrl = isAuto ? findTopicPostUrl(auto?.trendingTopic) : null;
-const primaryCtaHref = topicPostUrl ?? '/issues/';
-const primaryCtaLabel = topicPostUrl ? '이 이슈 자세히 보기 →' : '정책 이슈 모두 보기 →';
 
 // 핵심 사실 4박스 + 훅 카피
 const coreFacts = auto?.summary?.coreFacts ?? [];
@@ -244,7 +242,14 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
         )}
 
         <div class="news-actions">
-          <a class="cta-primary" href={primaryCtaHref}>{primaryCtaLabel}</a>
+          {topicPostUrl ? (
+            <>
+              <a class="cta-primary" href={topicPostUrl}>이 이슈 자세히 보기 →</a>
+              <a class="cta-ghost" href="/issues/">오늘의 이슈 모두 보기</a>
+            </>
+          ) : (
+            <a class="cta-primary" href="/issues/">오늘의 이슈 모두 보기 →</a>
+          )}
           <a class="cta-ghost" href="/quick/">5분 진단 →</a>
           {isAuto && externalLink && (
             <a class="cta-mini" href={externalLink} target="_blank" rel="noopener noreferrer">
