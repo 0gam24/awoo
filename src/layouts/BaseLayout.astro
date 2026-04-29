@@ -1,6 +1,7 @@
 ---
 import '@/styles/global.css';
 import Footer from '@/components/Footer.astro';
+import HotkeyNav from '@/components/HotkeyNav.astro';
 import TopBar from '@/components/TopBar.astro';
 
 interface Props {
@@ -90,6 +91,7 @@ const siteName = '지원금가이드';
       <slot />
     </main>
     <Footer />
+    <HotkeyNav />
 
     {/* Web Vitals beacon — 사용자 액션 후 sendBeacon 발송, PSI Lab 점수 무관 */}
     <script>

@@ -139,6 +139,19 @@ const breadcrumbSchema = {
     { '@type': 'ListItem', position: 3, name: post.title, item: `https://awoo.or.kr/issues/${date}/${slug}/` },
   ],
 };
+
+// 읽기 시간 — 한국어 분당 평균 500자 기준
+function readingTimeMinutes(): number {
+  const all =
+    (post.tldr ?? []).join(' ') +
+    ' ' +
+    post.sections.map((s) => `${s.heading} ${s.lead} ${s.body}`).join(' ') +
+    ' ' +
+    post.faq.map((f) => `${f.q} ${f.a}`).join(' ');
+  const chars = all.replace(/\s+/g, '').length;
+  return Math.max(1, Math.round(chars / 500));
+}
+const readMin = readingTimeMinutes();
 ---
 
 <BaseLayout
@@ -149,6 +162,32 @@ const breadcrumbSchema = {
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <script>
+    // 공유 — Web Share API 우선, 없으면 clipboard, 모두 실패 시 prompt
+    const btn = document.querySelector<HTMLButtonElement>('[data-share-btn]');
+    if (btn) {
+      const url = btn.dataset.shareUrl ?? window.location.href;
+      const title = btn.dataset.shareTitle ?? document.title;
+      const original = btn.textContent;
+      btn.addEventListener('click', async () => {
+        try {
+          if (typeof navigator.share === 'function') {
+            await navigator.share({ title, url });
+            return;
+          }
+          await navigator.clipboard.writeText(url);
+          btn.textContent = '✓ 링크 복사됨';
+        } catch {
+          window.prompt('복사할 링크', url);
+        } finally {
+          setTimeout(() => {
+            if (btn.textContent !== original) btn.textContent = original;
+          }, 2000);
+        }
+      });
+    }
+  </script>
 
   <article class="band">
     <Container size="wide">
@@ -164,6 +203,15 @@ const breadcrumbSchema = {
           )}
           <span class="cat-pill">{post.category}</span>
           <span class="date">{post.date}</span>
+          <span class="read-time" aria-label={`${readMin}분 분량`}>📖 {readMin}분</span>
+          <button
+            type="button"
+            class="share-btn"
+            data-share-btn
+            data-share-url={`https://awoo.or.kr/issues/${date}/${slug}/`}
+            data-share-title={post.title}
+            aria-live="polite"
+          >🔗 공유</button>
         </div>
 
         <h1 class="title">{post.title}</h1>
@@ -426,6 +474,33 @@ const breadcrumbSchema = {
   .date {
     color: var(--text-3);
     font-size: 13px;
+  }
+
+  .read-time {
+    color: var(--text-2);
+    font-size: 13px;
+    padding: 3px 10px;
+    background: var(--surface-2);
+    border-radius: var(--radius-pill);
+  }
+
+  .share-btn {
+    padding: 4px 12px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: none;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    min-height: 28px;
+    transition: background 0.15s;
+  }
+
+  .share-btn:hover {
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    padding: 3px 11px;
   }
 
   .title {

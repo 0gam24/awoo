@@ -151,6 +151,9 @@ const REQUIRED_POST_FIELDS = [
   'date',
 ];
 
+// JSON-LD shape 검증용 — 본 사이트가 출력하는 schema의 필수 필드 체크
+const ALLOWED_CATEGORIES = ['주거', '취업', '창업', '교육', '자산', '복지', '농업'];
+
 for (const { date, slug, file } of issueFiles) {
   let post;
   try {
@@ -207,13 +210,45 @@ for (const { date, slug, file } of issueFiles) {
 
   // sources XSS 의심 검사 — 본문에 <script 또는 javascript: URL
   const bodyAll = (post.sections ?? []).map((s) => s.body ?? '').join('\n');
-  if (/<script|javascript:/i.test(bodyAll)) {
-    err(`이슈 본문에 script/javascript: 패턴 감지: ${date}/${slug}`);
+  if (/<script|javascript:|data:text\/html/i.test(bodyAll)) {
+    err(`이슈 본문에 script/javascript:/data: 패턴 감지: ${date}/${slug}`);
   }
+  // 본문 또는 lead/heading에 HTML 태그가 들어있으면 경고 — 인라인 markdown은 허용
+  for (const s of post.sections ?? []) {
+    for (const field of ['heading', 'lead']) {
+      const v = s[field];
+      if (typeof v === 'string' && /<[a-z][^>]*>/i.test(v)) {
+        warn(`이슈 sections.${field}에 HTML 태그 감지: ${date}/${slug}`);
+      }
+    }
+  }
+
+  // sources url + publisher 형식 검증
   for (const src of post.sources ?? []) {
     if (src.url && !/^https?:\/\//.test(src.url)) {
       err(`이슈 sources url 형식 오류 (${src.url}): ${date}/${slug}`);
     }
+    if (src.publisher && typeof src.publisher !== 'string') {
+      err(`이슈 sources.publisher 타입 오류: ${date}/${slug}`);
+    }
+  }
+
+  // category 화이트리스트
+  if (post.category && !ALLOWED_CATEGORIES.includes(post.category)) {
+    warn(`이슈 category 화이트리스트 외 (${post.category}): ${date}/${slug}`);
+  }
+
+  // publishedAt ISO 형식
+  if (post.publishedAt && Number.isNaN(Date.parse(post.publishedAt))) {
+    err(`이슈 publishedAt ISO 파싱 실패 (${post.publishedAt}): ${date}/${slug}`);
+  }
+
+  // date YYYY-MM-DD 형식 + 디렉토리와 일치
+  if (post.date && !/^\d{4}-\d{2}-\d{2}$/.test(post.date)) {
+    err(`이슈 date 형식 오류 (${post.date}): ${date}/${slug}`);
+  }
+  if (post.date && post.date !== date) {
+    err(`이슈 date 디렉토리 불일치 (필드: ${post.date} / 디렉토리: ${date}): ${date}/${slug}`);
   }
 }
 
