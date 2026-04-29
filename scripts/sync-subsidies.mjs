@@ -2,35 +2,50 @@
 /**
  * 정부 지원금 동기화 — data.go.kr 보조금24 (gov24/v3/serviceList)
  *
- * 사용:
- *   npm run sync:subsidies
+ * 두 가지 모드:
  *
- * 동작:
- *   1. .env / .env.local 의 DATA_GO_KR_KEY 로 API 인증
- *   2. 전체 서비스 목록 페이지네이션 fetch (perPage 500, ~22회)
- *   3. 조회수 desc 정렬 → 상위 100건 선별
- *   4. Zod 스키마(content.config.ts subsidies)에 맞게 매핑
- *   5. src/data/subsidies/api-{서비스ID}.json 으로 저장
+ *   1) bootstrap (1회 시드)
+ *      npm run sync:subsidies bootstrap
+ *      - 전체 fetch → 조회수 desc 상위 100건 선별
+ *      - _gov24/ 와이프 후 재생성 + manifest 생성
+ *      - 처음 1회 또는 전체 리셋이 필요할 때만 사용
  *
- * 큐레이션 10개(housing-monthly.json 등)는 건드리지 않음 — 파일명 prefix로 분리.
+ *   2) new (주기 cron)
+ *      npm run sync:subsidies          (default)
+ *      npm run sync:subsidies new
+ *      - 전체 fetch → manifest 와 비교
+ *      - "새로 등록된" 항목만 추가 (등록일시 ≤ 30일 + manifest에 없음)
+ *      - 기존 파일은 절대 건드리지 않음
+ *      - manifest 갱신
+ *
+ * Manifest: src/data/subsidies/_gov24/_manifest.json
+ *      { "lastSync": ISO, "items": { "<서비스ID>": { slug, regDate, modDate } } }
+ *
+ * 큐레이션은 src/data/subsidies/_curated/ 에 보존 — 본 스크립트가 건드리지 않음.
  *
  * PSI 100 호환: 빌드타임 fetch만 사용. 런타임 API 호출 없음.
+ *
+ * 보안: API 키는 .env / .env.local 의 DATA_GO_KR_KEY 또는 환경변수로만 받음.
+ *      스크립트는 키 값을 절대 출력하지 않음.
  */
 
 import { readFile, writeFile, mkdir, readdir, unlink } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const OUT_DIR = join(ROOT, 'src', 'data', 'subsidies');
+const OUT_DIR = join(ROOT, 'src', 'data', 'subsidies', '_gov24');
+const MANIFEST_PATH = join(OUT_DIR, '_manifest.json');
 
 const TOP_N = 100;
 const PER_PAGE = 500;
+const NEW_WINDOW_DAYS = 30;
 const API_BASE = 'https://api.odcloud.kr/api/gov24/v3/serviceList';
 
 // ─────────────────────────────────────────────────────────────
-// .env / .env.local 파싱 (dotenv 의존성 없이)
+// .env / .env.local 파싱 (dotenv 의존성 없이, 키 값은 출력 안 함)
 // ─────────────────────────────────────────────────────────────
 async function loadEnv() {
   const env = { ...process.env };
@@ -49,7 +64,7 @@ async function loadEnv() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 카테고리 매핑: API 서비스분야 → 사이트 카테고리(주거/자산/창업/교육/복지/취업/농업)
+// 카테고리 매핑
 // ─────────────────────────────────────────────────────────────
 const CATEGORY_MAP = {
   '주거': '주거', '주거·자립': '주거',
@@ -82,7 +97,67 @@ function mapCategory(field) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 텍스트 정리: \r\n으로 분리된 라인을 배열로 변환
+// SEO 슬러그 — 한국어 정부 용어 → 영문 키워드
+// ─────────────────────────────────────────────────────────────
+const TERM_MAP = {
+  '청년': 'youth', '신혼부부': 'newlywed-couple', '신혼': 'newlywed', '부부': 'couple',
+  '아동': 'child', '영유아': 'infant', '유아': 'preschool', '영아': 'infant',
+  '청소년': 'teen', '학생': 'student', '대학생': 'undergrad',
+  '노인': 'senior', '고령자': 'elderly', '중장년': 'midlife',
+  '장애인': 'disability', '장애아동': 'disabled-child',
+  '한부모': 'single-parent', '다문화': 'multicultural', '여성': 'women',
+  '저소득': 'low-income', '기초': 'basic', '차상위': 'near-poor',
+  '소상공인': 'smb', '자영업': 'self-employed', '기업': 'enterprise',
+  '근로자': 'worker', '농어민': 'farmer-fisher', '농민': 'farmer', '어민': 'fisher',
+  '국민': 'national',
+  '주거': 'housing', '주택': 'housing', '임대': 'rental', '월세': 'rent',
+  '전세': 'jeonse', '분양': 'sale', '특별공급': 'special-supply', '특공': 'special-supply',
+  '보육': 'childcare', '양육': 'parenting', '육아': 'parenting', '출산': 'maternity',
+  '교육': 'education', '학비': 'tuition', '장학': 'scholarship', '훈련': 'training',
+  '직업': 'vocational', '내일배움': 'work-training',
+  '취업': 'employment', '고용': 'employment', '구직': 'job-seeker', '근로': 'work',
+  '창업': 'startup', '사업': 'business', '예비창업': 'pre-startup',
+  '대출': 'loan', '융자': 'loan', '자금': 'funds',
+  '저축': 'savings', '계좌': 'account', '자산': 'assets', '도약': 'leap',
+  '복지': 'welfare', '돌봄': 'care', '보건': 'health', '의료': 'medical', '건강': 'health',
+  '연금': 'pension', '생계': 'livelihood',
+  '농업': 'agriculture', '농어촌': 'rural', '귀농': 'returning-farm', '영농': 'farming',
+  '에너지': 'energy', '난방': 'heating', '환경': 'environment',
+  '문화': 'culture', '관광': 'tourism', '체육': 'sports',
+  '안전': 'safety', '재난': 'disaster',
+  '지원금': 'grant', '보조금': 'subsidy', '장려금': 'incentive', '위문금': 'comfort-payment',
+  '급여': 'allowance', '수당': 'allowance', '바우처': 'voucher', '이용권': 'voucher',
+  '감면': 'reduction', '면제': 'exemption', '할인': 'discount',
+  '정착': 'settlement', '특별': 'special', '맞춤': 'customized', '통합': 'integrated',
+  '특별지원': 'special-support', '확대': 'expansion', '인상': 'increase',
+  '지원': 'support',
+  '국가': 'national', '정부': 'gov', '지방': 'local', '지역': 'regional',
+  '도시': 'urban', '시도': 'province', '시군구': 'city',
+};
+
+const TERM_KEYS = Object.keys(TERM_MAP).sort((a, b) => b.length - a.length);
+
+function makeSlug(title, srcId) {
+  const seen = new Set();
+  const matches = [];
+  let remaining = title;
+  for (const ko of TERM_KEYS) {
+    if (remaining.includes(ko)) {
+      const en = TERM_MAP[ko];
+      if (!seen.has(en)) {
+        seen.add(en);
+        matches.push(en);
+      }
+      remaining = remaining.split(ko).join(' ');
+    }
+  }
+  const idShort = String(srcId).toLowerCase().replace(/[^a-z0-9]/g, '').slice(-6) || 'unknown';
+  if (matches.length === 0) return `subsidy-${idShort}`;
+  return `${matches.slice(0, 6).join('-')}-${idShort}`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 텍스트·금액·상태·태그 도출 (기존과 동일)
 // ─────────────────────────────────────────────────────────────
 function splitLines(text) {
   if (!text || typeof text !== 'string') return [];
@@ -92,84 +167,46 @@ function splitLines(text) {
     .filter((l) => l.length > 0 && l.length < 240);
 }
 
-// ─────────────────────────────────────────────────────────────
-// 금액 추출: 지원내용 텍스트에서 모든 금액 패턴 추출 후 최대값 선택
-// 지원: "N억원", "N억 N천만원", "N백만원", "N만원", "N,NNN원"
-// ─────────────────────────────────────────────────────────────
 function extractAmount(text) {
   if (!text) return { amount: 0, label: '지원금' };
-
   const candidates = [];
-
-  // "N억원" / "N.N억원" — 1억 = 100,000,000
   for (const m of text.matchAll(/([0-9,]+(?:\.[0-9]+)?)\s*억\s*원?/g)) {
     const n = parseFloat(m[1].replace(/,/g, ''));
-    if (!Number.isNaN(n) && n > 0 && n < 10000) {
-      candidates.push(Math.round(n * 100_000_000));
-    }
+    if (!Number.isNaN(n) && n > 0 && n < 10000) candidates.push(Math.round(n * 100_000_000));
   }
-
-  // "N백만원" — 1백만 = 1,000,000
   for (const m of text.matchAll(/([0-9,]+)\s*백\s*만\s*원/g)) {
     const n = parseInt(m[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n) && n > 0 && n < 10000) {
-      candidates.push(n * 1_000_000);
-    }
+    if (!Number.isNaN(n) && n > 0 && n < 10000) candidates.push(n * 1_000_000);
   }
-
-  // "N천만원" — 1천만 = 10,000,000
   for (const m of text.matchAll(/([0-9,]+)\s*천\s*만\s*원/g)) {
     const n = parseInt(m[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n) && n > 0 && n < 1000) {
-      candidates.push(n * 10_000_000);
-    }
+    if (!Number.isNaN(n) && n > 0 && n < 1000) candidates.push(n * 10_000_000);
   }
-
-  // "N만원" — 1만 = 10,000 (단, 백만/천만 패턴은 위에서 이미 처리)
   for (const m of text.matchAll(/(?<![백천])\s*([0-9,]+)\s*만\s*원/g)) {
     const n = parseInt(m[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n) && n >= 1 && n < 100_000) {
-      candidates.push(n * 10_000);
-    }
+    if (!Number.isNaN(n) && n >= 1 && n < 100_000) candidates.push(n * 10_000);
   }
-
-  // "N,NNN원" — 직접 원 단위 (만/억 컨텍스트 제외)
   for (const m of text.matchAll(/(?<![만억백천])\s*([0-9]{1,3}(?:,[0-9]{3})+)\s*원/g)) {
     const n = parseInt(m[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n) && n >= 10_000) {
-      candidates.push(n);
-    }
+    if (!Number.isNaN(n) && n >= 10_000) candidates.push(n);
   }
-
-  if (candidates.length === 0) {
-    return { amount: 0, label: '지원금' };
-  }
-
-  // 최대값 선택 (보통 "최대 N", "한도 N" 같은 표현이 가장 큰 숫자)
+  if (candidates.length === 0) return { amount: 0, label: '지원금' };
   const max = Math.max(...candidates);
-
-  // 라벨 추론: 텍스트에 "월" 포함되면 월 지원, 아니면 일반
   let label = '지원금';
   if (/월\s*[0-9]/.test(text) || /월\s*최대/.test(text)) label = '월 지원';
   else if (/연\s*[0-9]/.test(text) || /연\s*최대/.test(text)) label = '연 지원';
   else if (/최대/.test(text)) label = '최대';
   else if (/한도/.test(text)) label = '한도';
-
   return { amount: max, label };
 }
 
-// ─────────────────────────────────────────────────────────────
-// 신청 상태 도출
-// ─────────────────────────────────────────────────────────────
 function deriveStatus(deadline) {
   if (!deadline || typeof deadline !== 'string') return '신청 가능';
   if (deadline.includes('상시')) return '신청 가능';
-  // "2026.05.31 까지" 같은 패턴
   const m = deadline.match(/(\d{4})[.\-/](\d{1,2})[.\-/](\d{1,2})/);
   if (m) {
     const target = new Date(+m[1], +m[2] - 1, +m[3]).getTime();
-    const now = Date.now();
-    const diffDays = (target - now) / (1000 * 60 * 60 * 24);
+    const diffDays = (target - Date.now()) / (1000 * 60 * 60 * 24);
     if (diffDays < 0) return '마감';
     if (diffDays < 30) return '곧 마감';
     return '신청 가능';
@@ -177,9 +214,6 @@ function deriveStatus(deadline) {
   return '신청 가능';
 }
 
-// ─────────────────────────────────────────────────────────────
-// 태그 도출
-// ─────────────────────────────────────────────────────────────
 function deriveTags(item, category) {
   const tags = new Set([category]);
   if (item['사용자구분']) {
@@ -199,20 +233,15 @@ function deriveTags(item, category) {
   return Array.from(tags).slice(0, 6);
 }
 
-// ─────────────────────────────────────────────────────────────
-// API 항목 → Zod 스키마 매핑
-// ─────────────────────────────────────────────────────────────
-function mapToSchema(item) {
-  const id = `api-${item['서비스ID']}`;
+function mapToSchema(item, slug) {
   const category = mapCategory(item['서비스분야']);
   const eligibility = splitLines(item['지원대상']).slice(0, 6);
   const benefits = splitLines(item['지원내용']).slice(0, 6);
   const { amount, label: amountLabel } = extractAmount(item['지원내용']);
   const status = deriveStatus(item['신청기한']);
   const tags = deriveTags(item, category);
-
   return {
-    id,
+    id: slug,
     applyUrl: item['상세조회URL'] || 'https://www.gov.kr',
     title: (item['서비스명'] || '제목 미정').slice(0, 80),
     agency: item['소관기관명'] || '미상',
@@ -244,9 +273,7 @@ async function fetchAllServices(key) {
     const url = `${API_BASE}?page=${page}&perPage=${PER_PAGE}&serviceKey=${encodeURIComponent(key)}`;
     process.stdout.write(`\rFetching page ${page}...`);
     const res = await fetch(url, { headers: { Accept: 'application/json' } });
-    if (!res.ok) {
-      throw new Error(`API ${res.status}: ${await res.text()}`);
-    }
+    if (!res.ok) throw new Error(`API ${res.status}`);
     const json = await res.json();
     if (!Array.isArray(json.data)) throw new Error('Unexpected response shape');
     all.push(...json.data);
@@ -259,22 +286,184 @@ async function fetchAllServices(key) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 기존 api-*.json 정리 (재실행 시 stale 제거)
+// Manifest I/O
 // ─────────────────────────────────────────────────────────────
-async function cleanOldApiFiles() {
+async function readManifest() {
+  try {
+    const text = await readFile(MANIFEST_PATH, 'utf8');
+    return JSON.parse(text);
+  } catch {
+    return { lastSync: null, items: {} };
+  }
+}
+
+async function writeManifest(manifest) {
+  await writeFile(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+}
+
+// 등록일시 / 수정일시 ('YYYYMMDDHHmmss') → ms timestamp
+function parseGovDate(s) {
+  if (!s || typeof s !== 'string') return 0;
+  const m = s.match(/^(\d{4})(\d{2})(\d{2})/);
+  if (!m) return 0;
+  return new Date(+m[1], +m[2] - 1, +m[3]).getTime();
+}
+
+// ─────────────────────────────────────────────────────────────
+// _gov24/ wipe (bootstrap 모드용)
+// ─────────────────────────────────────────────────────────────
+async function wipeGov24Dir() {
   let removed = 0;
   try {
     const files = await readdir(OUT_DIR);
     for (const f of files) {
-      if (f.startsWith('api-') && f.endsWith('.json')) {
+      if (f.endsWith('.json')) {
         await unlink(join(OUT_DIR, f));
         removed++;
       }
     }
-  } catch {
-    // ignore
-  }
+  } catch {}
   return removed;
+}
+
+// 구버전 호환: 루트의 api-*.json 정리
+async function cleanLegacyApiFiles() {
+  const root = join(ROOT, 'src', 'data', 'subsidies');
+  let removed = 0;
+  try {
+    const files = await readdir(root);
+    for (const f of files) {
+      if (f.startsWith('api-') && f.endsWith('.json')) {
+        await unlink(join(root, f));
+        removed++;
+      }
+    }
+  } catch {}
+  return removed;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 슬러그 충돌 회피
+// ─────────────────────────────────────────────────────────────
+function uniqueSlug(title, srcId, used) {
+  let slug = makeSlug(title, srcId);
+  if (used.has(slug)) {
+    slug = `subsidy-${String(srcId).toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+  }
+  used.add(slug);
+  return slug;
+}
+
+// ─────────────────────────────────────────────────────────────
+// Bootstrap 모드: 상위 100건 시드 + manifest 생성
+// ─────────────────────────────────────────────────────────────
+async function runBootstrap(items) {
+  console.log(`🚀 Bootstrap 모드 — 상위 ${TOP_N}건 시드`);
+
+  await mkdir(OUT_DIR, { recursive: true });
+  const removed = await wipeGov24Dir();
+  if (removed > 0) console.log(`🧹 _gov24/ 기존 ${removed}개 정리`);
+  const legacy = await cleanLegacyApiFiles();
+  if (legacy > 0) console.log(`🧹 (legacy) api-*.json ${legacy}개 정리`);
+
+  const sorted = [...items].sort((a, b) => (b['조회수'] || 0) - (a['조회수'] || 0));
+  const top = sorted.slice(0, TOP_N);
+
+  const used = new Set();
+  const manifestItems = {};
+  let written = 0;
+  let skipped = 0;
+
+  for (const item of top) {
+    try {
+      const srcId = item['서비스ID'];
+      const slug = uniqueSlug(item['서비스명'] || '', srcId, used);
+      const mapped = mapToSchema(item, slug);
+      await writeFile(join(OUT_DIR, `${slug}.json`), JSON.stringify(mapped, null, 2) + '\n', 'utf8');
+      manifestItems[srcId] = {
+        slug,
+        regDate: item['등록일시'] || '',
+        modDate: item['수정일시'] || '',
+      };
+      written++;
+    } catch (e) {
+      skipped++;
+      console.warn(`⚠️ skip: ${e.message}`);
+    }
+  }
+
+  await writeManifest({
+    lastSync: new Date().toISOString(),
+    mode: 'bootstrap',
+    items: manifestItems,
+  });
+
+  console.log(`✅ ${written}개 시드 (스킵 ${skipped}) — manifest ${Object.keys(manifestItems).length}건`);
+}
+
+// ─────────────────────────────────────────────────────────────
+// New 모드: 신규 등록만 추가 (등록일시 ≤ 30일 + manifest 미존재)
+// ─────────────────────────────────────────────────────────────
+async function runNew(items) {
+  console.log(`📥 New 모드 — 최근 ${NEW_WINDOW_DAYS}일 내 신규 등록만 추가`);
+
+  const manifest = await readManifest();
+  const seenIds = new Set(Object.keys(manifest.items || {}));
+  const cutoff = Date.now() - NEW_WINDOW_DAYS * 24 * 3600 * 1000;
+
+  const candidates = items.filter((item) => {
+    const id = item['서비스ID'];
+    if (!id || seenIds.has(id)) return false;
+    const regTs = parseGovDate(item['등록일시']);
+    return regTs && regTs >= cutoff;
+  });
+
+  console.log(`🔍 후보: 신규 ${candidates.length}건 (총 ${items.length} 중)`);
+
+  if (candidates.length === 0) {
+    console.log('✨ 추가할 신규 지원금 없음');
+    await writeManifest({
+      ...manifest,
+      lastSync: new Date().toISOString(),
+      mode: 'new',
+    });
+    return;
+  }
+
+  await mkdir(OUT_DIR, { recursive: true });
+
+  // 기존 슬러그 모음 (충돌 방지)
+  const used = new Set(Object.values(manifest.items || {}).map((v) => v.slug));
+
+  const updatedItems = { ...(manifest.items || {}) };
+  let written = 0;
+  let skipped = 0;
+
+  for (const item of candidates) {
+    try {
+      const srcId = item['서비스ID'];
+      const slug = uniqueSlug(item['서비스명'] || '', srcId, used);
+      const mapped = mapToSchema(item, slug);
+      await writeFile(join(OUT_DIR, `${slug}.json`), JSON.stringify(mapped, null, 2) + '\n', 'utf8');
+      updatedItems[srcId] = {
+        slug,
+        regDate: item['등록일시'] || '',
+        modDate: item['수정일시'] || '',
+      };
+      written++;
+    } catch (e) {
+      skipped++;
+      console.warn(`⚠️ skip: ${e.message}`);
+    }
+  }
+
+  await writeManifest({
+    lastSync: new Date().toISOString(),
+    mode: 'new',
+    items: updatedItems,
+  });
+
+  console.log(`✅ +${written}건 추가 (스킵 ${skipped}) — manifest ${Object.keys(updatedItems).length}건`);
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -284,43 +473,30 @@ async function main() {
   const env = await loadEnv();
   const key = env.DATA_GO_KR_KEY;
   if (!key) {
-    console.error('❌ DATA_GO_KR_KEY 가 .env / .env.local 에 없습니다.');
+    console.error('❌ DATA_GO_KR_KEY 미설정 (.env / .env.local 또는 환경변수)');
     process.exit(1);
   }
+  console.log('🔑 API 키 로드 완료');
 
-  console.log(`🔑 API 키 로드 (length=${key.length})`);
+  // 모드 선택
+  const arg = (process.argv[2] || '').toLowerCase();
+  const manifestExists = existsSync(MANIFEST_PATH);
+  const mode = arg === 'bootstrap' ? 'bootstrap' : arg === 'new' ? 'new' : manifestExists ? 'new' : 'bootstrap';
+  console.log(`▶ 모드: ${mode}${arg ? '' : ' (자동 감지)'}`);
 
   const { items, total } = await fetchAllServices(key);
   console.log(`📦 전체 ${total}건 / 수신 ${items.length}건`);
 
-  // 조회수 desc 정렬
-  const sorted = [...items].sort((a, b) => (b['조회수'] || 0) - (a['조회수'] || 0));
-  const top = sorted.slice(0, TOP_N);
-  console.log(`🏆 상위 ${TOP_N}건 선별 (조회수 desc)`);
-
-  await mkdir(OUT_DIR, { recursive: true });
-  const removed = await cleanOldApiFiles();
-  if (removed > 0) console.log(`🧹 기존 api-*.json ${removed}개 정리`);
-
-  let written = 0;
-  let skipped = 0;
-  for (const item of top) {
-    try {
-      const mapped = mapToSchema(item);
-      const filename = `${mapped.id}.json`;
-      await writeFile(join(OUT_DIR, filename), JSON.stringify(mapped, null, 2) + '\n', 'utf8');
-      written++;
-    } catch (e) {
-      skipped++;
-      console.warn(`⚠️ skip ${item['서비스ID']}: ${e.message}`);
-    }
+  if (mode === 'bootstrap') {
+    await runBootstrap(items);
+  } else {
+    await runNew(items);
   }
 
-  console.log(`✅ ${written}개 파일 생성 (스킵 ${skipped})`);
   console.log(`📂 ${OUT_DIR}`);
 }
 
 main().catch((e) => {
-  console.error('💥', e);
+  console.error('💥', e?.message ?? e);
   process.exit(1);
 });

@@ -1,0 +1,47 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(git add *)",
+      "Bash(git add)",
+      "Bash(git commit *)",
+      "Bash(git commit)",
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff)",
+      "Bash(git diff *)",
+      "Bash(git log)",
+      "Bash(git log *)",
+      "Bash(git config user.email *)",
+      "Bash(git config user.name *)"
+    ],
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(.env.local)",
+      "Read(.env.production)",
+      "Read(.env.development)",
+      "Read(.dev.vars)",
+      "Read(.dev.vars.*)",
+      "Read(**/secrets/**)",
+      "Read(**/credentials*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/id_rsa*)",
+      "Bash(cat .env*)",
+      "Bash(cat *.env*)",
+      "Bash(cat .dev.vars*)",
+      "Bash(head .env*)",
+      "Bash(tail .env*)",
+      "Bash(less .env*)",
+      "Bash(more .env*)",
+      "Bash(grep * .env*)",
+      "Bash(env)",
+      "Bash(printenv*)",
+      "Bash(echo $*KEY*)",
+      "Bash(echo $*SECRET*)",
+      "Bash(echo $*TOKEN*)",
+      "Bash(echo $*PASSWORD*)"
+    ]
+  }
+}

@@ -1,0 +1,68 @@
+name: Sync subsidies (gov24)
+
+# 매주 월요일 03:00 KST (= 일요일 18:00 UTC) 자동 실행
+# + 수동 실행 (Actions 탭 → Run workflow)
+on:
+  schedule:
+    - cron: '0 18 * * 0'
+  workflow_dispatch:
+
+# 동시 실행 1개로 제한 (중복 PR 방지)
+concurrency:
+  group: sync-subsidies
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    name: Fetch + diff + auto-commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Run sync script (new mode — incremental)
+        env:
+          DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
+        run: npm run sync:subsidies:new
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain src/data/subsidies/_gov24/)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Changes detected:"
+            git status --short src/data/subsidies/_gov24/ | head -20
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes — skipping commit"
+          fi
+
+      - name: Commit changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          git add src/data/subsidies/_gov24/
+          DATE=$(date -u +"%Y-%m-%d")
+          ADDED=$(git diff --cached --diff-filter=A --name-only -- src/data/subsidies/_gov24/ | wc -l | tr -d ' ')
+          MODIFIED=$(git diff --cached --diff-filter=M --name-only -- src/data/subsidies/_gov24/ | wc -l | tr -d ' ')
+          DELETED=$(git diff --cached --diff-filter=D --name-only -- src/data/subsidies/_gov24/ | wc -l | tr -d ' ')
+          git commit -m "chore(data): 보조금24 주간 동기화 — ${DATE}
+
+          + ${ADDED}건 추가 / ~ ${MODIFIED}건 갱신 / - ${DELETED}건 제거
+
+          [skip ci]"
+          git push origin main
