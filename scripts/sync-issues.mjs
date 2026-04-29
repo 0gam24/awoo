@@ -45,16 +45,39 @@ async function loadEnv() {
 
 // ─────────────────────────────────────────────────────────────
 // 카테고리별 검색 키워드 (네이버 뉴스 검색 query)
+//   - "광역" 그룹: catch-all (시기성 핫토픽 흡수)
+//   - "시사" 그룹: 시기성/긴급 (민생, 고유가, 재난 등)
+//   - 나머지: 고정 카테고리
 // ─────────────────────────────────────────────────────────────
+// 모든 쿼리는 "구체 정책명" — catch-all/모호 단어 사용 X (노이즈 방지)
 const KEYWORD_GROUPS = [
-  { cat: '주거', queries: ['청년 월세 지원', '신혼부부 특별공급', '주택 임대 지원금'] },
+  // 시기성·긴급 (트렌드 키워드)
+  { cat: '복지', queries: ['민생지원금', '에너지바우처', '재난지원금', '긴급생계지원'] },
+  { cat: '자산', queries: ['고유가 지원금', '유류세 인하', '난방비 지원'] },
+
+  // 카테고리 고정
+  { cat: '주거', queries: ['청년 월세 지원', '신혼부부 특별공급', '주택 임대 지원금', '전세 지원'] },
   { cat: '취업', queries: ['청년 취업 지원금', '국민취업지원제도', '구직자 지원금'] },
   { cat: '창업', queries: ['청년 창업 지원금', '소상공인 정책자금', '예비창업패키지'] },
   { cat: '교육', queries: ['국가장학금', '내일배움카드', '평생교육 바우처'] },
-  { cat: '복지', queries: ['부모급여', '아동수당', '기초생활보장 급여'] },
+  { cat: '복지', queries: ['부모급여', '아동수당', '기초생활보장 급여', '한부모 지원'] },
   { cat: '자산', queries: ['청년도약계좌', '청년내일저축계좌', '자산형성 지원'] },
   { cat: '농업', queries: ['청년 농업인 지원금', '귀농 정착지원', '영농 정착지원금'] },
 ];
+
+// 제목 필수 키워드 — 제목에 하나라도 없으면 정책성 뉴스로 보지 않음
+const TITLE_REQUIRED = [
+  '지원금', '보조금', '장려금', '수당', '급여', '바우처', '이용권',
+  '특별공급', '정책자금', '장학', '취업', '창업', '월세', '전세',
+  '신청', '공모', '모집', '발표', '시행', '확대', '인상', '신설',
+  '도약계좌', '저축계좌', '내일배움', '농업인', '귀농', '영농',
+  '민생', '재난', '에너지', '고유가', '유류세', '난방비',
+  '부모급여', '아동수당', '기초생활', '한부모',
+];
+
+function titleHasPolicyTerm(title) {
+  return TITLE_REQUIRED.some((kw) => title.includes(kw));
+}
 
 // ─────────────────────────────────────────────────────────────
 // HTML 엔티티 / <b> 태그 제거
@@ -126,6 +149,9 @@ const IMPACT_KEYWORDS = {
   '개편': 10, '확산': 8, '강화': 8, '추가': 8,
   '특별': 10, '첫': 10, '최대': 8, '역대': 12,
   '발표': 8, '결정': 8, '확정': 10,
+  // 시기성/긴급
+  '민생': 14, '긴급': 12, '재난': 10, '비상': 10,
+  '지급': 8, '출시': 10, '시작': 8, '개시': 8,
 };
 
 function keywordScore(text) {
@@ -153,6 +179,54 @@ function recencyScore(pubDate) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// 정부 컨텍스트 — 정책/공공 뉴스 여부 판정
+// (기업 제품 출시·일반 산업 뉴스를 후보에서 제외)
+// 단독 모호한 한자(청/서/시 등) 제외 — 멀티자 키워드만
+// ─────────────────────────────────────────────────────────────
+const GOV_CONTEXT_KEYWORDS = [
+  '정부', '부처', '지자체', '광역', '시청', '구청', '도청', '군청',
+  '보건복지부', '국토교통부', '고용노동부', '기획재정부', '교육부', '여성가족부',
+  '농림축산식품부', '중소벤처기업부', '산업통상자원부', '환경부', '문화체육관광부',
+  '청년정책', '복지로', '정부24', '보조금24',
+  '시도', '시군구', '국정',
+  '대통령실', '국회', '여당', '야당',
+  '시행', '공모', '모집', '신청', '접수',
+  '지원금', '지원사업', '보조금', '장려금', '수당', '급여', '바우처', '이용권',
+  '특별공급', '정책자금', '국가장학금', '국민취업', '국민연금', '기초생활',
+  '특별재난', '재난지원', '민생', '긴급생계',
+  '국세청', '통계청', '경찰청', '병무청', '검찰청',
+];
+
+function govContextScore(text) {
+  let count = 0;
+  for (const kw of GOV_CONTEXT_KEYWORDS) {
+    if (text.includes(kw)) count++;
+    if (count >= 4) break; // cap
+  }
+  return count;
+}
+
+// 상업/기업 뉴스 페널티 — 키워드 매칭 시 큰 음수
+const COMMERCIAL_KEYWORDS = [
+  '삼성', 'LG', '현대차', '기아', 'SK', '롯데', 'CJ', '한화', '신세계', 'GS',
+  '포스코', '두산', 'OCI', '대한항공', '아시아나',
+  '주가', '코스피', '코스닥', '주식', '증권', '시가총액', '실적', '영업이익', '매출액',
+  '브랜드 출시', '신차', '신모델', '신제품',
+  '광고', '마케팅', '프로모션',
+  '인수합병', 'M&A', 'IPO',
+  '특허', '히트펌프', '반도체',
+];
+
+function commercialPenalty(text) {
+  let hits = 0;
+  for (const kw of COMMERCIAL_KEYWORDS) {
+    if (text.includes(kw)) hits++;
+    if (hits >= 3) break;
+  }
+  return hits * -25; // 3 hits = -75
+}
+
+// ─────────────────────────────────────────────────────────────
 // 후보 점수화
 // ─────────────────────────────────────────────────────────────
 function scoreItem(item, cat) {
@@ -160,10 +234,29 @@ function scoreItem(item, cat) {
   const desc = clean(item.description);
   const text = `${title} ${desc}`;
 
+  // 1차 필터: 제목에 정책성 키워드 필수
+  if (!titleHasPolicyTerm(title)) {
+    return null;
+  }
+
+  const govCount = govContextScore(text);
+  // 2차 필터: 정부 컨텍스트 2개 미만 → 제외
+  if (govCount < 2) {
+    return null;
+  }
+
+  const commercial = commercialPenalty(text);
+  // 3차 필터: 상업 키워드 ≥ 2 → 제외
+  if (commercial <= -50) {
+    return null;
+  }
+
   const score =
     recencyScore(item.pubDate) +
     publisherScore(item.originallink || item.link) +
-    keywordScore(text);
+    keywordScore(text) +
+    govCount * 8 + // 정부 컨텍스트 가중치 (최대 +32)
+    commercial; // 상업 페널티 (음수)
 
   return {
     title,
@@ -173,6 +266,7 @@ function scoreItem(item, cat) {
     naverLink: item.link,
     category: cat,
     score,
+    govCount,
   };
 }
 
@@ -191,13 +285,16 @@ async function main() {
 
   // 카테고리별 검색
   const allCandidates = [];
+  let rawCount = 0;
   for (const group of KEYWORD_GROUPS) {
     for (const q of group.queries) {
       try {
         process.stdout.write(`\r🔍 ${group.cat}: ${q.padEnd(20)}`);
         const items = await searchNaver(q, clientId, clientSecret);
         for (const it of items) {
-          allCandidates.push(scoreItem(it, group.cat));
+          rawCount++;
+          const scored = scoreItem(it, group.cat);
+          if (scored) allCandidates.push(scored);
         }
         // rate limit 대비 간단 delay
         await new Promise((r) => setTimeout(r, 100));
@@ -207,7 +304,7 @@ async function main() {
     }
   }
   process.stdout.write('\n');
-  console.log(`📦 후보 ${allCandidates.length}건 수집`);
+  console.log(`📦 raw ${rawCount}건 → 정부 컨텍스트 필터 통과 ${allCandidates.length}건`);
 
   if (allCandidates.length === 0) {
     console.error('❌ 후보 0건 — 검색 실패 또는 키 권한 문제');
