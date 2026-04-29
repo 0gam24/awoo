@@ -1,0 +1,398 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { CATEGORIES, formatWon } from '@/data/site-data';
+import { isNew } from '@/lib/subsidies-meta';
+import { type GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+
+// 4축 cross-reference hub: 카테고리 × 페르소나 (sparse — ≥3건일 때만 생성)
+// 예: /subsidies/category/주거/persona/office-rookie/
+// SEO: 롱테일 키워드 ("청년 주거 지원금", "신혼 자산형성" 등)
+// IA: 카테고리·페르소나 두 hub 모두에서 진입 가능
+
+export const getStaticPaths = (async () => {
+  // 호이스팅 회피 — Cloudflare prerender server에서 module-scope 변수 접근 실패하므로 함수 내부 정의
+  // 임계: 2건 (현 데이터 기준; sync 페르소나 태깅 강화 시 3건으로 상향 가능)
+  const MIN_RESULTS = 2;
+  const subsidies = await getCollection('subsidies');
+  const personas = await getCollection('personas');
+  const validCategories = CATEGORIES.filter((c) => c.id !== 'all').map((c) => c.id);
+
+  const paths = [];
+  for (const category of validCategories) {
+    for (const persona of personas) {
+      const matched = subsidies.filter(
+        (s) =>
+          s.data.category === category &&
+          (s.data.targetPersonas ?? []).includes(persona.data.id),
+      );
+      if (matched.length < MIN_RESULTS) continue;
+      paths.push({
+        params: { category, persona: persona.data.id },
+        props: { category, persona: persona.data, matched },
+      });
+    }
+  }
+  return paths;
+}) satisfies GetStaticPaths;
+
+const { category, persona, matched } = Astro.props as {
+  category: string;
+  persona: {
+    id: string;
+    label: string;
+    sub: string;
+    icon: string;
+    age: string;
+    income: string;
+    living: string;
+    bg: string;
+    pains: string[];
+  };
+  matched: Awaited<ReturnType<typeof getCollection<'subsidies'>>>;
+};
+
+const categoryMeta = CATEGORIES.find((c) => c.id === category);
+const sortedMatched = [...matched].sort((a, b) => (b.data.amount ?? 0) - (a.data.amount ?? 0));
+
+const pageTitle = `${persona.label}의 ${category} 지원금 ${matched.length}건`;
+const pageDesc = `${persona.label}(${persona.sub})에게 매칭되는 ${category} 분야 정부 지원금 ${matched.length}건. ${categoryMeta?.description ?? ''}`.slice(0, 160);
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '홈', item: 'https://awoo.or.kr/' },
+    { '@type': 'ListItem', position: 2, name: '지원금', item: 'https://awoo.or.kr/subsidies/' },
+    { '@type': 'ListItem', position: 3, name: category, item: `https://awoo.or.kr/subsidies/?category=${encodeURIComponent(category)}` },
+    { '@type': 'ListItem', position: 4, name: persona.label, item: `https://awoo.or.kr/personas/${persona.id}/` },
+    { '@type': 'ListItem', position: 5, name: pageTitle, item: `https://awoo.or.kr/subsidies/category/${encodeURIComponent(category)}/persona/${persona.id}/` },
+  ],
+};
+---
+
+<BaseLayout title={`${pageTitle} — 지원금가이드`} description={pageDesc} activeNav="/subsidies/">
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <section class={`hero bg-${persona.bg}`}>
+    <Container size="wide">
+      <div class="crumb">
+        <a href="/subsidies/">지원금</a>
+        <span aria-hidden="true">›</span>
+        <a href={`/subsidies/?category=${encodeURIComponent(category)}`}>{category}</a>
+        <span aria-hidden="true">›</span>
+        <a href={`/personas/${persona.id}/`}>{persona.label}</a>
+      </div>
+
+      <div class="hero-row">
+        <div class="hero-glyph">
+          <Icon name={persona.icon} size={44} strokeWidth={1.5} />
+        </div>
+        <div>
+          <h1 class="hero-title">{pageTitle}</h1>
+          <p class="hero-sub">{persona.sub} · {category}</p>
+        </div>
+      </div>
+
+      {persona.pains?.length > 0 && (
+        <div class="pains">
+          <span class="pains-label">주요 고민</span>
+          {persona.pains.slice(0, 4).map((p) => <span class="pain-chip">{p}</span>)}
+        </div>
+      )}
+    </Container>
+  </section>
+
+  <section class="band">
+    <Container size="wide">
+      <h2 class="display">매칭 지원금 {matched.length}건</h2>
+      <ul class="grid">
+        {sortedMatched.map((s) => (
+          <li>
+            <a class="card" href={`/subsidies/${s.data.id}/`}>
+              <div class={`media tint-${s.data.category}`}>
+                <Icon name={s.data.icon} size={26} strokeWidth={1.6} />
+              </div>
+              <div class="body">
+                <div class="meta-row">
+                  <span class="badge neutral">{s.data.category}</span>
+                  {isNew(s.data.id) && <span class="badge new">NEW</span>}
+                  {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
+                  {s.data.isHot && !isNew(s.data.id) && <span class="badge accent">HOT</span>}
+                </div>
+                <div class="agency">{s.data.agency}</div>
+                <div class="t">{s.data.title}</div>
+                <div class="sum">{s.data.summary.slice(0, 70)}{s.data.summary.length > 70 ? '…' : ''}</div>
+                {s.data.amount > 0 ? (
+                  <div class="amt">
+                    {formatWon(s.data.amount)} <span class="unit">{s.data.amountLabel}</span>
+                  </div>
+                ) : (
+                  <div class="amt-na">내용 확인</div>
+                )}
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <nav class="cross-nav">
+        <div class="cn-eyebrow">다른 시점에서 보기</div>
+        <ul class="cn-list">
+          <li><a href={`/personas/${persona.id}/`}>{persona.label} 전체 지원금 →</a></li>
+          <li><a href={`/subsidies/?category=${encodeURIComponent(category)}`}>{category} 분야 전체 →</a></li>
+          <li><a href="/subsidies/">전체 지원금 둘러보기 →</a></li>
+          <li><a href="/quick/">5분 진단으로 정확 매칭 →</a></li>
+        </ul>
+      </nav>
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .hero {
+    color: #fff;
+    padding: 48px 0 36px;
+  }
+  .bg-persona-blue   { background: linear-gradient(135deg, #0066cc 0%, #2997ff 100%); }
+  .bg-persona-orange { background: linear-gradient(135deg, #d97706 0%, #f97316 100%); }
+  .bg-persona-pink   { background: linear-gradient(135deg, #be185d 0%, #ec4899 100%); }
+  .bg-persona-green  { background: linear-gradient(135deg, #047857 0%, #10b981 100%); }
+  .bg-persona-purple { background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%); }
+  .bg-persona-amber  { background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); }
+
+  .crumb {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: rgb(255 255 255 / 0.85);
+  }
+  .crumb a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .crumb a:hover { text-decoration: underline; }
+
+  .hero-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 14px;
+  }
+
+  .hero-glyph {
+    width: 72px;
+    height: 72px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+  }
+
+  .hero-title {
+    font-size: clamp(24px, 3.4vw, 36px);
+    font-weight: 700;
+    margin: 0 0 6px;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: rgb(255 255 255 / 0.9);
+    margin: 0;
+  }
+
+  .pains {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pains-label {
+    font-size: 13px;
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  .pain-chip {
+    padding: 4px 12px;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .band {
+    padding: 48px 0 80px;
+  }
+
+  .display {
+    font-size: clamp(22px, 2.6vw, 30px);
+    font-weight: 600;
+    margin: 0 0 24px;
+  }
+
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    text-decoration: none;
+  }
+
+  .media {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+  }
+
+  .tint-주거 { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .tint-자산 { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  .tint-교육 { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .tint-창업 { background: rgb(234 88 12 / 0.12); color: #ea580c; }
+  .tint-복지 { background: rgb(236 72 153 / 0.12); color: #ec4899; }
+  .tint-취업 { background: rgb(16 185 129 / 0.12); color: #10b981; }
+  .tint-농업 { background: rgb(217 119 6 / 0.12); color: #d97706; }
+
+  .body {
+    padding: 16px 18px 18px;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .badge.neutral { background: var(--surface-2); color: var(--text-2); }
+  .badge.warning { background: rgb(247 195 96 / 0.18); color: var(--color-warning); }
+  .badge.accent  { background: rgb(220 38 38 / 0.16); color: #dc2626; }
+  .badge.new {
+    background: rgb(0 113 227 / 0.14);
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .agency {
+    font-size: 13px;
+    color: var(--accent-link);
+    font-weight: 500;
+  }
+
+  .t {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 4px 0 6px;
+  }
+
+  .sum {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .amt {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.015em;
+  }
+
+  .amt .unit {
+    font-size: 12px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-left: 3px;
+  }
+
+  .amt-na {
+    display: inline-block;
+    font-size: 13px;
+    color: var(--text-2);
+    background: var(--surface-2);
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+  }
+
+  .cross-nav {
+    margin-top: 40px;
+    padding: 24px 28px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .cn-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .cn-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 8px;
+  }
+
+  .cn-list a {
+    display: block;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+
+  .cn-list a:hover {
+    border-color: var(--border-2);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+</style>

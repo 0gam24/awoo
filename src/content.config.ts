@@ -18,7 +18,14 @@ const personas = defineCollection({
 
 const subsidies = defineCollection({
   // _manifest.json 등 underscore-prefixed 메타 파일 제외
-  loader: glob({ pattern: ['**/*.json', '!**/_*.json'], base: 'src/data/subsidies' }),
+  loader: glob({
+    pattern: [
+      '**/*.json',
+      '!**/_*.json', // _manifest, _history 등 메타 파일 제외
+      '!_archived/**', // 마감 후 sweep 된 항목은 collection에서 제외 (410 처리)
+    ],
+    base: 'src/data/subsidies',
+  }),
   schema: z.object({
     id: z.string(),
     applyUrl: z.string().url(),

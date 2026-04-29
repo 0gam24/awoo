@@ -1,0 +1,81 @@
+name: Sweep stale subsidies
+
+# 매주 화요일 03:00 KST (= 월요일 18:00 UTC) 자동 실행
+# 보조금 sync(월요일 03:00) 다음 날 — sync 결과 반영 후 sweep
+on:
+  schedule:
+    - cron: '0 18 * * 1'
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: '실제 이동 (false면 dry-run)'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+concurrency:
+  group: sweep-stale
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sweep:
+    name: Archive expired subsidies
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Run sweep (dry-run preview)
+        run: npm run sweep:stale
+
+      - name: Apply sweep
+        if: github.event_name == 'schedule' || inputs.apply == 'true'
+        run: npm run sweep:stale:apply
+
+      - name: Verify content (lint + build)
+        if: github.event_name == 'schedule' || inputs.apply == 'true'
+        run: |
+          npm run lint:content
+          npm run build
+
+      - name: Check for changes
+        if: github.event_name == 'schedule' || inputs.apply == 'true'
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain src/data/subsidies/)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git status --short src/data/subsidies/ | head -20
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          git add src/data/subsidies/
+          DATE=$(date -u +"%Y-%m-%d")
+          MOVED=$(git diff --cached --diff-filter=R --name-only -- src/data/subsidies/ | wc -l | tr -d ' ')
+          git commit -m "chore(data): 마감 지원금 sweep — ${DATE}
+
+          ${MOVED}건 _archived/ 이동 (마감 + 30일 경과)
+
+          [skip ci]"
+          git push origin main

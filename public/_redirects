@@ -4,3 +4,7 @@
 # 레거시 정적 시드 페이지 → 이슈 인덱스 (자동 큐레이션 today-issue.json 기반)
 /issues/main /issues/ 301
 /issues/main/ /issues/ 301
+
+# 마감된 지원금 — 외부 인바운드 링크는 archived 가이드 페이지로
+# (활성 지원금 라우트 /subsidies/<slug>/ 가 우선 매칭, 없을 때만 fallback)
+# Cloudflare Pages는 가장 구체적인 매치 우선 → 활성 정적 페이지가 우선됨

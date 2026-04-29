@@ -3,6 +3,19 @@ import Container from '@/components/Container.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import todayIssue from '@/data/today-issue.json';
 
+interface HistoryEntry { totalCount: number; daysActive: number; firstSeen: string }
+const histModules = import.meta.glob<{ default: { byTerm?: Record<string, HistoryEntry> } }>(
+  '/src/data/issues/_history.json',
+  { eager: true },
+);
+const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
+// totalCount ≥ 3 인 term만 토픽 페이지가 생성됨 — 일치 여부로 링크 활성화 결정
+function topicHref(term: string): string | null {
+  const entry = historyByTerm[term];
+  if (!entry || entry.totalCount < 3) return null;
+  return `/issues/topics/${encodeURIComponent(term)}/`;
+}
+
 interface PostMeta {
   title: string;
   slug: string;
@@ -143,13 +156,21 @@ const months = Object.keys(byMonth).sort().reverse();
             <div class="rail-title">오늘 매체 언급 Top {Math.min(trending.length, 5)}</div>
             {trending.length > 0 ? (
               <ol class="trend-list">
-                {trending.slice(0, 5).map((t, i) => (
-                  <li class={i === 0 ? 'hot' : ''}>
-                    <span class="rk">{i + 1}</span>
-                    <span class="trm">{t.term}</span>
-                    <span class="cnt">{t.count}회</span>
-                  </li>
-                ))}
+                {trending.slice(0, 5).map((t, i) => {
+                  const href = topicHref(t.term);
+                  const inner = (
+                    <>
+                      <span class="rk">{i + 1}</span>
+                      <span class="trm">{t.term}</span>
+                      <span class="cnt">{t.count}회</span>
+                    </>
+                  );
+                  return (
+                    <li class={i === 0 ? 'hot' : ''}>
+                      {href ? <a class="trend-link" href={href}>{inner}</a> : inner}
+                    </li>
+                  );
+                })}
               </ol>
             ) : (
               <p class="trend-empty">데이터 없음</p>
@@ -467,11 +488,25 @@ const months = Object.keys(byMonth).sort().reverse();
     gap: 6px;
   }
   .trend-list li {
+    padding: 6px 0;
+    font-size: 13px;
+  }
+  .trend-list li,
+  .trend-list .trend-link {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 6px 0;
-    font-size: 13px;
+  }
+  .trend-list .trend-link {
+    text-decoration: none;
+    color: inherit;
+    padding: 2px 0;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .trend-list .trend-link:hover {
+    background: var(--surface-2);
+    text-decoration: none;
   }
   .rk {
     width: 22px; height: 22px;

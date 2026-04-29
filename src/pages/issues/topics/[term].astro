@@ -1,0 +1,549 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { formatWon } from '@/data/site-data';
+import { type GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+
+interface HistoryEntry {
+  firstSeen: string;
+  lastSeen: string;
+  totalCount: number;
+  daysActive: number;
+  dailyCounts: Record<string, number>;
+  postSlug?: string;
+}
+
+interface PostData {
+  title: string;
+  slug: string;
+  metaDescription: string;
+  category: string;
+  date: string;
+  publishedAt: string;
+  tldr?: string[];
+  freshness?: { trendingTerm: string; daysActive: number; totalCount: number; rankToday: number };
+}
+
+export const getStaticPaths = (() => {
+  const histModules = import.meta.glob<{ default: { byTerm?: Record<string, HistoryEntry> } }>(
+    '/src/data/issues/_history.json',
+    { eager: true },
+  );
+  const history = Object.values(histModules)[0]?.default ?? { byTerm: {} };
+  const byTerm = history.byTerm ?? {};
+
+  // 포스트 데이터 미리 로드 → term 페이지에서 빠른 매칭
+  const postModules = import.meta.glob<{ default: PostData }>(
+    '/src/data/issues/*/*.json',
+    { eager: true },
+  );
+  const postsByDate: Record<string, PostData[]> = {};
+  for (const [path, mod] of Object.entries(postModules)) {
+    const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
+    if (!m) continue;
+    const slug = m[2];
+    if (slug.startsWith('_')) continue;
+    const date = m[1];
+    if (!postsByDate[date]) postsByDate[date] = [];
+    postsByDate[date].push(mod.default);
+  }
+
+  // term 별 페이지 생성 (totalCount ≥ 3 인 term만 — thinness 방지)
+  const paths = [];
+  for (const [term, entry] of Object.entries(byTerm)) {
+    if (entry.totalCount < 3) continue;
+    // 매칭 포스트 찾기 (postSlug 우선)
+    let post: PostData | undefined;
+    if (entry.postSlug) {
+      const dayPosts = postsByDate[entry.firstSeen] ?? [];
+      post = dayPosts.find((p) => p.slug === entry.postSlug);
+    }
+    paths.push({
+      params: { term },
+      props: { term, entry, post: post ?? null },
+    });
+  }
+  return paths;
+}) satisfies GetStaticPaths;
+
+const { term, entry, post } = Astro.props as {
+  term: string;
+  entry: HistoryEntry;
+  post: PostData | null;
+};
+
+// term이 포함된 지원금 매칭 (제목 / 태그 / 요약)
+const allSubsidies = await getCollection('subsidies');
+const matchedSubsidies = allSubsidies
+  .filter((s) => {
+    const text = `${s.data.title} ${s.data.summary} ${(s.data.tags ?? []).join(' ')}`;
+    return text.includes(term);
+  })
+  .sort((a, b) => (b.data.amount ?? 0) - (a.data.amount ?? 0))
+  .slice(0, 9);
+
+// dailyCounts → 정렬된 일별 트렌드
+const dailyEntries = Object.entries(entry.dailyCounts ?? {})
+  .sort((a, b) => a[0].localeCompare(b[0]));
+const peakDay = dailyEntries.reduce(
+  (max, [d, c]) => (c > max.count ? { date: d, count: c } : max),
+  { date: '', count: 0 },
+);
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '홈', item: 'https://awoo.or.kr/' },
+    { '@type': 'ListItem', position: 2, name: '오늘의 이슈', item: 'https://awoo.or.kr/issues/' },
+    { '@type': 'ListItem', position: 3, name: '트렌딩 토픽', item: 'https://awoo.or.kr/issues/' },
+    { '@type': 'ListItem', position: 4, name: term, item: `https://awoo.or.kr/issues/topics/${encodeURIComponent(term)}/` },
+  ],
+};
+---
+
+<BaseLayout
+  title={`${term} — 트렌딩 토픽 | 지원금가이드`}
+  description={`정부 지원금 트렌딩 토픽 "${term}". ${entry.daysActive}일 활성 · 누적 ${entry.totalCount}회 매체 언급. 관련 지원금 ${matchedSubsidies.length}건.`}
+  activeNav="/issues/"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <section class="band">
+    <Container size="wide">
+      <a class="back-link" href="/issues/">← 오늘의 이슈로</a>
+
+      <div class="head">
+        <div class="eyebrow">
+          <span class="dot" aria-hidden="true" />
+          트렌딩 토픽
+        </div>
+        <h1 class="title">{term}</h1>
+        <p class="lead">
+          매체에서 <strong>{entry.totalCount}회</strong> 언급된 정부 지원금 키워드입니다.
+          {entry.daysActive >= 3 && <> {entry.daysActive}일 연속 화제.</>}
+          관련 지원금 <strong>{matchedSubsidies.length}건</strong>을 정리했습니다.
+        </p>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="lbl">최초 등장</div>
+          <div class="val">{entry.firstSeen}</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">최근 언급</div>
+          <div class="val">{entry.lastSeen}</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">활성 일수</div>
+          <div class="val">{entry.daysActive}일</div>
+        </div>
+        <div class="stat accent">
+          <div class="lbl">누적 매체 언급</div>
+          <div class="val">{entry.totalCount}회</div>
+        </div>
+        {peakDay.count > 0 && (
+          <div class="stat">
+            <div class="lbl">피크</div>
+            <div class="val">{peakDay.count}회</div>
+            <div class="sub">{peakDay.date}</div>
+          </div>
+        )}
+      </div>
+
+      {post && (
+        <section class="post-link-card">
+          <div class="plc-eyebrow">관련 포스트</div>
+          <a class="plc-link" href={`/issues/${entry.firstSeen}/${post.slug}/`}>
+            <div class="plc-title">{post.title}</div>
+            <div class="plc-meta">
+              {post.category} · {post.date}
+            </div>
+            {post.tldr && post.tldr.length > 0 && (
+              <ul class="plc-tldr">
+                {post.tldr.slice(0, 3).map((t) => <li>{t}</li>)}
+              </ul>
+            )}
+            <span class="plc-cta">자세히 보기 →</span>
+          </a>
+        </section>
+      )}
+
+      {matchedSubsidies.length > 0 && (
+        <section class="matched">
+          <h2>관련 지원금 {matchedSubsidies.length}건</h2>
+          <ul class="grid">
+            {matchedSubsidies.map((s) => (
+              <li>
+                <a class="card" href={`/subsidies/${s.data.id}/`}>
+                  <div class={`media tint-${s.data.category}`}>
+                    <Icon name={s.data.icon} size={26} strokeWidth={1.6} />
+                  </div>
+                  <div class="body">
+                    <div class="meta-row">
+                      <span class="badge neutral">{s.data.category}</span>
+                      {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
+                    </div>
+                    <div class="agency">{s.data.agency}</div>
+                    <div class="t">{s.data.title}</div>
+                    {s.data.amount > 0 && (
+                      <div class="amt">
+                        {formatWon(s.data.amount)} <span class="unit">{s.data.amountLabel}</span>
+                      </div>
+                    )}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {dailyEntries.length > 0 && (
+        <section class="timeline">
+          <h2>일별 매체 언급</h2>
+          <ul class="timeline-list">
+            {dailyEntries.map(([d, c]) => (
+              <li>
+                <span class="timeline-date">{d}</span>
+                <div class="timeline-bar-row">
+                  <div
+                    class="timeline-bar"
+                    style={`width: ${Math.max(8, (c / (peakDay.count || 1)) * 100)}%`}
+                  />
+                  <span class="timeline-count">{c}회</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .band {
+    padding: 32px 0 80px;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: var(--text-2);
+    font-size: 14px;
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .head {
+    margin-bottom: 28px;
+    max-width: 780px;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot { animation: none; }
+  }
+
+  .title {
+    font-size: clamp(32px, 4.5vw, 48px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+  }
+
+  .stat.accent {
+    background: rgb(0 113 227 / 0.06);
+    border-color: rgb(0 113 227 / 0.18);
+  }
+
+  .stat .lbl {
+    font-size: 12px;
+    color: var(--text-2);
+    margin-bottom: 4px;
+  }
+
+  .stat .val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.015em;
+  }
+
+  .stat.accent .val {
+    color: var(--accent);
+  }
+
+  .stat .sub {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 2px;
+  }
+
+  .post-link-card {
+    background: var(--surface-2);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+
+  .plc-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .plc-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .plc-title {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+
+  .plc-meta {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-bottom: 12px;
+  }
+
+  .plc-tldr {
+    list-style: disc inside;
+    margin: 0 0 12px;
+    padding: 0;
+  }
+
+  .plc-tldr li {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.55;
+    margin: 4px 0;
+  }
+
+  .plc-cta {
+    display: inline-block;
+    color: var(--accent-link);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .plc-link:hover .plc-cta {
+    text-decoration: underline;
+  }
+
+  .matched {
+    margin-bottom: 40px;
+  }
+
+  .matched h2,
+  .timeline h2 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    margin: 0 0 16px;
+    letter-spacing: -0.01em;
+  }
+
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+    transition: transform 0.18s var(--ease-standard);
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    text-decoration: none;
+  }
+
+  .media {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-2);
+  }
+
+  .tint-주거 { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .tint-자산 { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  .tint-교육 { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .tint-창업 { background: rgb(234 88 12 / 0.12); color: #ea580c; }
+  .tint-복지 { background: rgb(236 72 153 / 0.12); color: #ec4899; }
+  .tint-취업 { background: rgb(16 185 129 / 0.12); color: #10b981; }
+  .tint-농업 { background: rgb(217 119 6 / 0.12); color: #d97706; }
+
+  .body {
+    padding: 16px 18px 18px;
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .badge.neutral {
+    background: var(--surface-2);
+    color: var(--text-2);
+  }
+
+  .badge.warning {
+    background: rgb(247 195 96 / 0.18);
+    color: var(--color-warning);
+  }
+
+  .agency {
+    font-size: 13px;
+    color: var(--accent-link);
+    font-weight: 500;
+  }
+
+  .t {
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin: 4px 0 8px;
+  }
+
+  .amt {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+
+  .amt .unit {
+    font-size: 12px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-left: 3px;
+  }
+
+  .timeline-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .timeline-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .timeline-date {
+    width: 96px;
+    flex-shrink: 0;
+    font-size: 13px;
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .timeline-bar-row {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .timeline-bar {
+    height: 14px;
+    background: var(--accent);
+    border-radius: 4px;
+    min-width: 8px;
+  }
+
+  .timeline-count {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

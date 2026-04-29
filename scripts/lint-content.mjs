@@ -32,6 +32,8 @@ function walkSubsidies(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
+      // _archived/ 등 underscore-prefix 디렉토리는 lint 제외 (collection에서도 제외됨)
+      if (entry.name.startsWith('_archived')) continue;
       out.push(...walkSubsidies(full));
     } else if (entry.isFile() && entry.name.endsWith('.json') && !entry.name.startsWith('_')) {
       out.push(full);
