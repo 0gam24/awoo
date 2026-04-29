@@ -45,14 +45,12 @@ interface PostData {
   date: string;
 }
 
-// 빌드타임 — Vite glob 으로 모든 issue post JSON 자동 로드
-// 패턴: /src/data/issues/YYYY-MM-DD/slug.json (단, _ 로 시작하는 파일 제외)
-const issueModules = import.meta.glob<{ default: PostData }>(
-  '/src/data/issues/*/*.json',
-  { eager: true },
-);
-
 export const getStaticPaths = (() => {
+  // 빌드타임 — Vite glob (getStaticPaths 호이스팅 호환 위해 함수 내부 정의)
+  const issueModules = import.meta.glob<{ default: PostData }>(
+    '/src/data/issues/*/*.json',
+    { eager: true },
+  );
   const paths: { params: { date: string; slug: string }; props: { post: PostData } }[] = [];
   for (const [path, mod] of Object.entries(issueModules)) {
     // path 예: /src/data/issues/2026-04-29/some-slug.json
