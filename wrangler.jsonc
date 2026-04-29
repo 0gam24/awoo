@@ -15,17 +15,18 @@
   // Phase A 바인딩 — 사용자 셋업 후 활성화 (docs/api/SETUP.md 참조)
   // ============================================================
 
-  // D1 — 피드백·문의 저장
-  // 1. wrangler d1 create awoo-db
-  // 2. database_id를 출력값으로 채움
-  // 3. 마이그레이션: wrangler d1 execute awoo-db --file=migrations/0001_initial.sql --remote
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "awoo-db",
-      "database_id": "REPLACE_AFTER_CREATE"
-    }
-  ],
+  // D1 — 피드백·문의 저장 (임시 비활성, DB 생성 후 복원)
+  // 활성화 절차:
+  //   1. npx wrangler d1 create awoo-db
+  //   2. 출력된 database_id를 아래 REPLACE_AFTER_CREATE에 채우고 주석 해제
+  //   3. 마이그레이션: npx wrangler d1 execute awoo-db --file=migrations/0001_initial.sql --remote
+  // "d1_databases": [
+  //   {
+  //     "binding": "DB",
+  //     "database_name": "awoo-db",
+  //     "database_id": "REPLACE_AFTER_CREATE"
+  //   }
+  // ],
 
   // Analytics Engine — Web Vitals 시계열
   // 1. 대시보드 → Workers → Analytics Engine → Add Dataset → "awoo_vitals"
