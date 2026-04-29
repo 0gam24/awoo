@@ -38,14 +38,44 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Performance budget — initial JS ≤ 100KB
+      - name: Performance budget — JS bundle gate
         run: |
           set -e
-          BIG_JS=$(find dist/_astro -name "*.js" -size +100k -printf "%f %s bytes\n" 2>/dev/null || true)
+          # 단일 JS 파일 한도 (uncompressed, gzip 후 ≈ 1/3)
+          # React 19 runtime ≈ 182KB uncompressed (고정 비용) — 이 위로 가면 회귀
+          MAX_SINGLE_KB=200
+          # 누적 JS 한도 — React + 모든 islands + 유틸 합산
+          MAX_TOTAL_KB=350
+
+          BIG_JS=$(find dist -path '*/_astro/*.js' -size +${MAX_SINGLE_KB}k -printf "%f %s bytes\n" 2>/dev/null || true)
           if [ -n "$BIG_JS" ]; then
-            echo "::warning::Large JS bundles found (informational, not failing yet):"
+            echo "::error title=JS budget violation::Single JS bundle > ${MAX_SINGLE_KB}KB (uncompressed)"
             echo "$BIG_JS"
+            exit 1
           fi
+
+          # 누적 JS 크기
+          TOTAL_BYTES=$(find dist -path '*/_astro/*.js' -printf "%s\n" 2>/dev/null | awk '{s+=$1} END {print s+0}')
+          TOTAL_KB=$((TOTAL_BYTES / 1024))
+          echo "JS 누적: ${TOTAL_KB}KB (한도 ${MAX_TOTAL_KB}KB)"
+
+          # 누적 한도 초과 시 strict 실패
+          if [ "$TOTAL_KB" -gt "$MAX_TOTAL_KB" ]; then
+            echo "::error title=JS budget violation::누적 ${TOTAL_KB}KB > ${MAX_TOTAL_KB}KB"
+            exit 1
+          fi
+
+          {
+            echo "## 📦 JS 번들 예산"
+            echo ""
+            echo "- 단일 파일 한도: ${MAX_SINGLE_KB}KB · 위반: 0건"
+            echo "- 누적 크기: ${TOTAL_KB}KB / ${MAX_TOTAL_KB}KB"
+            echo ""
+            echo "### 큰 파일 Top 10"
+            echo '```'
+            find dist -path '*/_astro/*.js' -printf "%s %f\n" 2>/dev/null | sort -rn | head -10 | awk '{printf "%6.1f KB  %s\n", $1/1024, $2}'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Lighthouse CI (4×100 gate)
         run: npx lhci autorun

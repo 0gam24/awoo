@@ -79,26 +79,41 @@ const relatedPersonas = post.relatedPersonas
   .map((id) => personaById.get(id))
   .filter((x): x is NonNullable<ReturnType<typeof personaById.get>> => x !== undefined);
 
-// JSON-LD
+// JSON-LD — NewsArticle 강화 (mainEntityOfPage·articleSection·inLanguage 등)
+const canonicalUrl = `https://awoo.or.kr/issues/${date}/${slug}/`;
 const articleSchema = {
   '@context': 'https://schema.org',
-  '@type': 'Article',
+  '@type': 'NewsArticle',
+  '@id': canonicalUrl,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
   headline: post.title,
   description: post.metaDescription,
+  url: canonicalUrl,
+  inLanguage: 'ko-KR',
   datePublished: post.publishedAt,
   dateModified: post.publishedAt,
+  articleSection: post.category,
+  keywords: post.tags.join(', '),
+  about: post.freshness?.trendingTerm ?? post.tags[0],
+  // 본 사이트는 AI 보조 + 사람 편집 정책 (editorial-policy 페이지 명시)
   author: {
     '@type': 'Organization',
-    name: '지원금가이드',
-    url: 'https://awoo.or.kr',
+    name: '지원금가이드 편집팀',
+    url: 'https://awoo.or.kr/editorial-policy/',
   },
   publisher: {
     '@type': 'Organization',
     name: '스마트데이터샵',
     url: 'https://awoo.or.kr',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://awoo.or.kr/og-default.png',
+      width: 1200,
+      height: 630,
+    },
   },
-  about: post.freshness?.trendingTerm ?? post.tags[0],
-  keywords: post.tags.join(', '),
+  image: ['https://awoo.or.kr/og-default.png'],
+  isAccessibleForFree: true,
 };
 
 const faqSchema = post.faq.length > 0 ? {

@@ -11,6 +11,8 @@ interface ManifestEntry {
   slug: string;
   regDate: string;
   modDate: string;
+  lastVerifiedAt?: string;
+  archivedAt?: string;
 }
 
 interface Manifest {
@@ -66,6 +68,40 @@ export function recentlyAddedSlugs(limit = 12): Array<{ slug: string; regDate: n
 export function getRegDateISO(slug: string): string | undefined {
   const ts = slugToReg.get(slug);
   return ts ? new Date(ts).toISOString() : undefined;
+}
+
+/** slug → lastVerifiedAt(ms) 맵 (sync 회차에서 갱신됨) */
+const slugToVerified = new Map<string, number>();
+for (const entry of Object.values(m.items ?? {})) {
+  if (entry.lastVerifiedAt) {
+    const ts = Date.parse(entry.lastVerifiedAt);
+    if (!Number.isNaN(ts)) slugToVerified.set(entry.slug, ts);
+  }
+}
+
+export const STALE_THRESHOLD_DAYS = 90;
+const STALE_CUTOFF = Date.now() - STALE_THRESHOLD_DAYS * 24 * 3600 * 1000;
+
+/** 마지막 검증이 N일 이상 지난 항목인지 */
+export function isStale(slug: string): boolean {
+  const ts = slugToVerified.get(slug);
+  // verifiedAt 필드 자체가 없는 항목은 큐레이션·구버전 → stale 판정 X
+  if (ts === undefined) return false;
+  return ts < STALE_CUTOFF;
+}
+
+/** 마지막 검증일 ISO (없으면 undefined — 큐레이션 항목) */
+export function getLastVerifiedISO(slug: string): string | undefined {
+  const ts = slugToVerified.get(slug);
+  return ts ? new Date(ts).toISOString() : undefined;
+}
+
+/** 한국어 짧은 형식 (YYYY.MM.DD) — 마지막 검증일 표시용 */
+export function getLastVerifiedKR(slug: string): string | undefined {
+  const ts = slugToVerified.get(slug);
+  if (!ts) return undefined;
+  const d = new Date(ts);
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
 /** 가장 최근 sync 회차에서 추가된 slug 목록 */

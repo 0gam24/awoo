@@ -8,6 +8,56 @@ import QuickCheckCTA from '@/components/home/QuickCheckCTA.astro';
 import RecentlyAdded from '@/components/home/RecentlyAdded.astro';
 import UrgencyHook from '@/components/home/UrgencyHook.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+
+// WebSite + SearchAction — Google Sitelinks Search Box
+// 사이트 자체 검색 페이지 미보유 → /subsidies/?category= 패턴이 검색 결과 역할
+// (단순 카테고리 필터지만 정성스러운 알림은 가능)
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': 'https://awoo.or.kr/#website',
+  url: 'https://awoo.or.kr/',
+  name: '지원금가이드',
+  alternateName: ['awoo.or.kr', '지원금 안내', '정부 지원금 가이드'],
+  inLanguage: 'ko-KR',
+  description: '정부 지원금을 페르소나(생애·상황) 단위로 정리한 정보 안내 사이트.',
+  publisher: {
+    '@type': 'Organization',
+    name: '스마트데이터샵',
+    url: 'https://awoo.or.kr',
+  },
+};
+
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': 'https://awoo.or.kr/#organization',
+  name: '스마트데이터샵',
+  alternateName: '지원금가이드',
+  url: 'https://awoo.or.kr/',
+  logo: 'https://awoo.or.kr/og-default.png',
+  description: '정부 지원금 정보 안내 사이트 운영. 신청 대행 X.',
+  founder: {
+    '@type': 'Person',
+    name: '김준혁',
+  },
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'contact@awoo.or.kr',
+      availableLanguage: ['ko'],
+    },
+  ],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '새벌로 88',
+    addressLocality: '계양구',
+    addressRegion: '인천광역시',
+    addressCountry: 'KR',
+  },
+  taxID: '406-06-34485',
+};
 ---
 
 <BaseLayout
@@ -23,4 +73,15 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   <OtherIssuesSection />
   <PersonaPicker />
   <CategoriesGrid />
+
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(websiteSchema)}
+  />
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(orgSchema)}
+  />
 </BaseLayout>
