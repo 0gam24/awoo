@@ -44,6 +44,11 @@ const siteName = '지원금가이드';
     <link rel="alternate" type="application/rss+xml" title="신규 정부 지원금" href="/feed.xml" />
     <link rel="alternate" type="application/rss+xml" title="오늘의 이슈 포스트" href="/feed-issues.xml" />
 
+    {/* 검색엔진 사이트 인증 — 등록 시 docs/ops/SEARCH-CONSOLE.md / NAVER-SEARCH-ADVISOR.md 참조
+        DNS TXT 권장 (이중 인증 시 메타 태그도 함께)
+        Google: <meta name="google-site-verification" content="..." />
+        Naver:  <meta name="naver-site-verification" content="..." />  */}
+
     {/* Pretendard 폰트는 preload 안 함 — Pretendard Adjusted(size-adjust) fallback이
         먼저 그려지고 woff2 로드 후 CLS 없이 swap. preload하면 모바일 LCP가
         font 다운로드를 기다리느라 지연됨 (300KB / Slow 4G = ~1.5s 페널티). */}

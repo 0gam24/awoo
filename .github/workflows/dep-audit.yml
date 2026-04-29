@@ -1,0 +1,107 @@
+name: Dependency audit
+
+# 매주 목요일 04:00 KST (= 수요일 19:00 UTC)
+# - npm audit + outdated 보고서를 GITHUB_STEP_SUMMARY에 출력
+# - high/critical 발견 시 alert (issue 자동 생성은 추가 PAT 필요 — 현재는 step summary만)
+on:
+  schedule:
+    - cron: '0 19 * * 3'
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+
+concurrency:
+  group: dep-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  audit:
+    name: npm audit + outdated
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: npm audit (high/critical 게이트)
+        id: audit
+        run: |
+          set +e
+          npm audit --audit-level=high --json > audit.json
+          AUDIT_EXIT=$?
+          set -e
+
+          # 요약 추출
+          HIGH=$(jq '.metadata.vulnerabilities.high // 0' audit.json)
+          CRITICAL=$(jq '.metadata.vulnerabilities.critical // 0' audit.json)
+          MODERATE=$(jq '.metadata.vulnerabilities.moderate // 0' audit.json)
+          LOW=$(jq '.metadata.vulnerabilities.low // 0' audit.json)
+
+          echo "high=$HIGH" >> "$GITHUB_OUTPUT"
+          echo "critical=$CRITICAL" >> "$GITHUB_OUTPUT"
+          echo "moderate=$MODERATE" >> "$GITHUB_OUTPUT"
+          echo "low=$LOW" >> "$GITHUB_OUTPUT"
+          echo "exit=$AUDIT_EXIT" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## 🔒 npm audit 보고서 ($(date -u +%Y-%m-%d))"
+            echo ""
+            echo "| 심각도 | 건수 |"
+            echo "|---|---:|"
+            echo "| 🔴 Critical | $CRITICAL |"
+            echo "| 🟠 High | $HIGH |"
+            echo "| 🟡 Moderate | $MODERATE |"
+            echo "| 🟢 Low | $LOW |"
+            echo ""
+            if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
+              echo "### 상세"
+              echo '```'
+              npm audit --audit-level=high 2>&1 | head -60 || true
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: npm outdated
+        if: success() || failure()
+        run: |
+          set +e
+          OUTDATED_OUTPUT=$(npm outdated --json || true)
+          OUTDATED_COUNT=$(echo "$OUTDATED_OUTPUT" | jq 'length // 0')
+          set -e
+
+          {
+            echo ""
+            echo "## 📦 outdated 패키지 ($OUTDATED_COUNT 건)"
+            echo ""
+            if [ "$OUTDATED_COUNT" -gt 0 ]; then
+              echo "| 패키지 | 현재 | 원함 | 최신 |"
+              echo "|---|---|---|---|"
+              echo "$OUTDATED_OUTPUT" | jq -r '
+                to_entries[] |
+                "| `\(.key)` | \(.value.current) | \(.value.wanted) | \(.value.latest) |"
+              ' | head -30
+              if [ "$OUTDATED_COUNT" -gt 30 ]; then
+                echo ""
+                echo "_… 외 $((OUTDATED_COUNT - 30))건_"
+              fi
+            else
+              echo "최신 상태 ✓"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail on high/critical
+        if: steps.audit.outputs.critical != '0' || steps.audit.outputs.high != '0'
+        run: |
+          echo "::error title=Dependency vulnerability::high=${{ steps.audit.outputs.high }} critical=${{ steps.audit.outputs.critical }} 발견 — 즉시 패치 필요"
+          exit 1

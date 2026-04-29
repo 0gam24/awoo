@@ -1,0 +1,441 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+// 시청자 친화 404 — 단순 사과 X, 다음 행동 명확.
+// SSG라 동적 추천 불가 → 빌드타임 인기·신규 + 클라이언트 path 매칭으로 대체
+
+const personas = await getCollection('personas');
+const subsidies = await getCollection('subsidies');
+
+// HOT 또는 신청 가능한 지원금 6건 추천
+const hotSubsidies = subsidies
+  .filter((s) => s.data.isHot || s.data.status === '신청 가능')
+  .sort((a, b) => {
+    if (a.data.isHot && !b.data.isHot) return -1;
+    if (!a.data.isHot && b.data.isHot) return 1;
+    return (b.data.amount ?? 0) - (a.data.amount ?? 0);
+  })
+  .slice(0, 6);
+---
+
+<BaseLayout
+  title="페이지를 찾을 수 없습니다 (404) — 지원금가이드"
+  description="요청하신 페이지를 찾을 수 없습니다. 페르소나·지원금·5분 진단 등 다른 경로를 안내합니다."
+  noindex={true}
+>
+  <section class="band">
+    <Container size="narrow">
+      <div class="status">
+        <span class="dot" aria-hidden="true" />
+        404 Not Found
+      </div>
+
+      <h1 class="title">찾으시는 페이지가 없어요</h1>
+      <p class="lead">
+        URL이 변경됐거나, 마감되어 정리된 지원금일 수 있습니다.<br />
+        본 사이트의 핵심 동선을 안내합니다.
+      </p>
+
+      <div class="quick-actions">
+        <a class="qa-card primary" href="/quick/">
+          <div class="qa-icon"><Icon name="sparkles" size={28} strokeWidth={1.5} /></div>
+          <div class="qa-body">
+            <div class="qa-title">5분 진단으로 매칭</div>
+            <div class="qa-desc">페르소나·소득·관심분야 4단계 입력 후 받을 수 있는 지원금 즉시 추천</div>
+          </div>
+          <span class="qa-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="qa-card" href="/subsidies/">
+          <div class="qa-icon"><Icon name="cat-welfare" size={26} strokeWidth={1.6} /></div>
+          <div class="qa-body">
+            <div class="qa-title">전체 지원금 둘러보기</div>
+            <div class="qa-desc">{subsidies.length}건 — 카테고리·금액·마감 정렬</div>
+          </div>
+          <span class="qa-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="qa-card" href="/issues/">
+          <div class="qa-icon"><Icon name="news" size={26} strokeWidth={1.6} /></div>
+          <div class="qa-body">
+            <div class="qa-title">오늘의 이슈</div>
+            <div class="qa-desc">트렌딩 정책 토픽 일간 자동 큐레이션</div>
+          </div>
+          <span class="qa-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <section class="suggested" data-suggested>
+        <h2 class="sec-title">혹시 이 페이지를 찾으셨나요?</h2>
+        <ul class="sug-list" data-sug-list></ul>
+      </section>
+
+      <section class="personas-row">
+        <h2 class="sec-title">페르소나로 시작하기</h2>
+        <ul class="p-grid">
+          {personas.map((p) => (
+            <li>
+              <a class={`p-chip bg-${p.data.bg}`} href={`/personas/${p.data.id}/`}>
+                <Icon name={p.data.icon} size={20} strokeWidth={1.6} />
+                <span>{p.data.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {hotSubsidies.length > 0 && (
+        <section class="hot-row">
+          <h2 class="sec-title">지금 신청 가능한 지원금</h2>
+          <ul class="hot-list">
+            {hotSubsidies.map((s) => (
+              <li>
+                <a class="hot-card" href={`/subsidies/${s.data.id}/`}>
+                  <div class={`hot-tint tint-${s.data.category}`}>
+                    <Icon name={s.data.icon} size={20} strokeWidth={1.6} />
+                  </div>
+                  <div class="hot-body">
+                    <div class="hot-meta">{s.data.category} · {s.data.agency}</div>
+                    <div class="hot-title">{s.data.title}</div>
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </Container>
+  </section>
+</BaseLayout>
+
+<script>
+  // 클라이언트 경로 휴리스틱 — URL의 키워드로 비슷한 활성 페이지 추천
+  const path = window.location.pathname;
+
+  // 알려진 동적 라우트 패턴 → 인덱스 페이지로 안내
+  const PATTERNS: Array<[RegExp, { url: string; label: string; reason: string }]> = [
+    [/^\/subsidies\/[^/]+\//, { url: '/subsidies/', label: '전체 지원금', reason: '요청한 지원금이 마감되어 정리됐을 수 있어요' }],
+    [/^\/personas\/[^/]+\//, { url: '/personas/', label: '페르소나 인덱스', reason: '페르소나 ID가 변경됐을 수 있어요' }],
+    [/^\/issues\/[^/]+\//, { url: '/issues/', label: '오늘의 이슈', reason: '이슈 포스트 슬러그가 변경됐을 수 있어요' }],
+    [/^\/situations\/[^/]+\//, { url: '/situations/', label: '라이프 이벤트', reason: '상황 ID가 변경됐을 수 있어요' }],
+    [/^\/categories\/[^/]+\//, { url: '/categories/', label: '분야별 가이드', reason: '카테고리가 통합됐을 수 있어요' }],
+  ];
+
+  const list = document.querySelector('[data-sug-list]');
+  const section = document.querySelector('[data-suggested]') as HTMLElement | null;
+  if (list && section) {
+    const matches = PATTERNS.filter(([re]) => re.test(path));
+    if (matches.length === 0) {
+      section.hidden = true;
+    } else {
+      list.innerHTML = matches
+        .map(([, info]) => `
+          <li>
+            <a class="sug-card" href="${info.url}">
+              <div class="sug-body">
+                <div class="sug-reason">${info.reason}</div>
+                <div class="sug-title">${info.label} →</div>
+              </div>
+            </a>
+          </li>
+        `)
+        .join('');
+    }
+  }
+</script>
+
+<style>
+  .band {
+    padding: 80px 0;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 12px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-3);
+  }
+
+  .title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 16px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0 0 32px;
+    padding: 16px 20px;
+    background: var(--bg-alt);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-md);
+  }
+
+  .quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+
+  .qa-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+
+  .qa-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    text-decoration: none;
+  }
+
+  .qa-card.primary {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
+
+  .qa-card.primary:hover {
+    background: color-mix(in oklch, var(--accent), black 8%);
+    border-color: color-mix(in oklch, var(--accent), black 8%);
+  }
+
+  .qa-icon {
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+  }
+
+  .qa-card.primary .qa-icon {
+    background: rgb(255 255 255 / 0.18);
+    color: #fff;
+  }
+
+  .qa-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .qa-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .qa-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+
+  .qa-card.primary .qa-desc {
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  .qa-arrow {
+    color: var(--text-3);
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: transform 0.15s, color 0.15s;
+  }
+
+  .qa-card:hover .qa-arrow {
+    transform: translateX(3px);
+    color: var(--accent);
+  }
+
+  .qa-card.primary .qa-arrow {
+    color: rgb(255 255 255 / 0.85);
+  }
+
+  .qa-card.primary:hover .qa-arrow {
+    color: #fff;
+  }
+
+  .sec-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .suggested,
+  .personas-row,
+  .hot-row {
+    margin-top: 32px;
+  }
+
+  .sug-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .sug-card {
+    display: block;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: background 0.15s;
+  }
+
+  .sug-card:hover {
+    background: var(--surface);
+    border: 1px solid var(--border-2);
+    padding: 11px 15px;
+    text-decoration: none;
+  }
+
+  .sug-reason {
+    font-size: 12px;
+    color: var(--text-2);
+    margin-bottom: 4px;
+  }
+
+  .sug-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent-link);
+  }
+
+  .p-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .p-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: var(--radius-pill);
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    min-height: 44px;
+    transition: transform 0.15s;
+  }
+
+  .p-chip:hover {
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  .bg-persona-blue   { background: linear-gradient(135deg, #0066cc 0%, #2997ff 100%); }
+  .bg-persona-orange { background: linear-gradient(135deg, #d97706 0%, #f97316 100%); }
+  .bg-persona-pink   { background: linear-gradient(135deg, #be185d 0%, #ec4899 100%); }
+  .bg-persona-green  { background: linear-gradient(135deg, #047857 0%, #10b981 100%); }
+  .bg-persona-purple { background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%); }
+  .bg-persona-amber  { background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); }
+
+  .hot-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+  }
+
+  .hot-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+
+  .hot-card:hover {
+    border-color: var(--border-2);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  .hot-tint {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+
+  .tint-주거 { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .tint-자산 { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  .tint-교육 { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .tint-창업 { background: rgb(234 88 12 / 0.12); color: #ea580c; }
+  .tint-복지 { background: rgb(236 72 153 / 0.12); color: #ec4899; }
+  .tint-취업 { background: rgb(16 185 129 / 0.12); color: #10b981; }
+  .tint-농업 { background: rgb(217 119 6 / 0.12); color: #d97706; }
+
+  .hot-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .hot-meta {
+    font-size: 12px;
+    color: var(--text-2);
+  }
+
+  .hot-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-top: 2px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+</style>
