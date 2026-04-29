@@ -206,6 +206,74 @@ async function callClaude(systemPrompt, userPrompt, apiKey) {
   return content;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Fact-check 2단계 — sources 매칭 검증
+//
+// 생성된 포스트의 핵심 주장 (금액·날짜·기관·자격기준)이 입력 sourceArticles 텍스트
+// 안에 등장하는지 검증. 환각 (출처 없는 주장) 차단.
+//
+// 검증 방식:
+//   - 정수 금액 (만원·억원·% 등) 추출 → sources에 같은 숫자가 있는지
+//   - YYYY·MM월 날짜 추출 → sources에 같은 패턴이 있는지
+//   - 기관명 (~부·청·공단 등) → sources에 등장하는지
+//   - 5개 미만 매칭이면 fail (Claude가 만든 숫자·날짜를 정당화할 출처 없음)
+//
+// 한계: 간접 표현·동의어는 매칭 못함. 보수적 판정 — false positive 허용.
+// ─────────────────────────────────────────────────────────────
+function extractClaims(post) {
+  const text = [
+    post.title ?? '',
+    post.metaDescription ?? '',
+    ...(post.tldr ?? []),
+    ...(post.sections ?? []).map((s) => `${s.heading} ${s.lead} ${s.body}`),
+    ...(post.faq ?? []).map((f) => `${f.q} ${f.a}`),
+  ].join(' ');
+
+  const claims = new Set();
+  // 금액 (10만원, 1.5억원, 30%)
+  const moneyMatches = text.matchAll(/\d[\d,.]*\s*(?:만원|억원|만|천|백|%|배)/g);
+  for (const m of moneyMatches) claims.add(m[0].replace(/\s+/g, ''));
+  // 날짜 (2026년, 5월, 5월 1일)
+  const dateMatches = text.matchAll(/\d{4}년|\d{1,2}월\s*\d{1,2}일|\d{1,2}월/g);
+  for (const m of dateMatches) claims.add(m[0].replace(/\s+/g, ''));
+  // 기관 (~부·청·공단·공사)
+  const orgMatches = text.matchAll(/[가-힣]{2,8}(?:부|청|공단|공사|진흥원)/g);
+  for (const m of orgMatches) claims.add(m[0]);
+
+  return [...claims];
+}
+
+function factCheck(post, sourceArticles) {
+  const claims = extractClaims(post);
+  if (claims.length === 0) return { passed: true, score: 1, unmatched: [] };
+
+  const sourceText = sourceArticles
+    .map((a) => `${a.title ?? ''} ${a.description ?? ''}`)
+    .join(' ');
+
+  const unmatched = [];
+  let matched = 0;
+  for (const claim of claims) {
+    // 정확 일치 또는 핵심 숫자 일치
+    if (sourceText.includes(claim)) {
+      matched++;
+    } else {
+      // 숫자만 추출해 부분 매칭 시도
+      const num = claim.match(/[\d,.]+/)?.[0];
+      if (num && num.length >= 2 && sourceText.includes(num)) {
+        matched++;
+      } else {
+        unmatched.push(claim);
+      }
+    }
+  }
+
+  const score = matched / claims.length;
+  // 70% 이상 매칭이면 pass — 30%는 동의어·간접 표현 허용
+  const passed = score >= 0.7;
+  return { passed, score: Number(score.toFixed(2)), unmatched: unmatched.slice(0, 10), totalClaims: claims.length, matched };
+}
+
 function parseJsonFromResponse(text) {
   // 코드블록 fence 제거
   let cleaned = text.trim();
@@ -349,19 +417,47 @@ ${JSON.stringify(userInput, null, 2)}
       continue;
     }
 
-    // 5. 슬러그 충돌 해결
+    // 5. Fact-check — 환각 차단
+    const fc = factCheck(post, articlesForTopic);
+    if (!fc.passed) {
+      console.warn(
+        `⚠️ Fact-check 실패 (${term}): ${fc.matched}/${fc.totalClaims} 매칭 (score ${fc.score})`,
+      );
+      console.warn(`   미매칭 주장: ${fc.unmatched.slice(0, 5).join(', ')}`);
+      if (isCI) {
+        console.log(
+          `::warning title=Fact-check 실패::${term} score=${fc.score} (matched ${fc.matched}/${fc.totalClaims})`,
+        );
+      }
+      failures.push({
+        rank: idx + 1,
+        term,
+        count,
+        category,
+        reason: `fact-check fail: ${fc.matched}/${fc.totalClaims} matched (score ${fc.score})`,
+        unmatched: fc.unmatched,
+        at: new Date().toISOString(),
+      });
+      failed++;
+      continue;
+    }
+    console.log(`  ✓ Fact-check: ${fc.matched}/${fc.totalClaims} (${fc.score})`);
+
+    // 6. 슬러그 충돌 해결
     if (!post.slug) post.slug = `issue-${idx + 1}`;
     const finalSlug = await resolveSlug(date, post.slug);
     post.slug = finalSlug;
     post.publishedAt = new Date().toISOString();
     post.date = date;
+    // factCheck 점수도 메타에 저장 — 운영자 모니터링용
+    post.factCheckScore = fc.score;
 
-    // 6. 저장
+    // 7. 저장
     const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
     await writeFile(outPath, JSON.stringify(post, null, 2) + '\n', 'utf8');
     console.log(`✅ ${outPath}`);
 
-    // 7. 히스토리 갱신
+    // 8. 히스토리 갱신
     updateHistory(history, term, count, finalSlug);
 
     success++;

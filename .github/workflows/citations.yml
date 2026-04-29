@@ -1,0 +1,67 @@
+name: AI Citation tracking
+
+# 매주 월요일 08:00 KST (= Sunday 23:00 UTC)
+# - sync-subsidies(월 03시)·sweep(화)·apply-urls(수)·dep-audit(목) 다음날 (실제로는 이전)
+# - 50개 정부 지원금 쿼리에 대한 Perplexity 답변에서 본 사이트 인용 여부 측정
+# - PERPLEXITY_API_KEY secret 미설정 시 graceful skip
+on:
+  schedule:
+    - cron: '0 23 * * 0'
+  workflow_dispatch:
+
+concurrency:
+  group: citations
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  track:
+    name: Perplexity 50쿼리 인용 측정
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Skip if PERPLEXITY_API_KEY missing
+        id: gate
+        env:
+          KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::warning title=Citation tracking::PERPLEXITY_API_KEY secret 미설정 — skip (docs/ops/AI-CITATION.md 참조)"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install
+        if: steps.gate.outputs.skip == 'false'
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Track citations
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+        run: npm run citations:track
+
+      - name: Commit results
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          if [ -n "$(git status --porcelain src/data/citations/)" ]; then
+            git config user.name "awoo-bot"
+            git config user.email "noreply@awoo.or.kr"
+            git add src/data/citations/
+            DATE=$(date -u +"%Y-%m-%d")
+            git commit -m "chore(citations): AI 인용률 측정 — ${DATE}
+
+            [skip ci]"
+            git push origin main
+          fi

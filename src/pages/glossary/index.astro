@@ -1,0 +1,160 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const items = (await getCollection('glossary')).sort((a, b) =>
+  a.data.term.localeCompare(b.data.term, 'ko'),
+);
+
+// 카테고리별 그루핑
+const byCategory = items.reduce<Record<string, typeof items>>((acc, item) => {
+  acc[item.data.category] = acc[item.data.category] ?? [];
+  acc[item.data.category].push(item);
+  return acc;
+}, {});
+
+const categories = Object.keys(byCategory).sort((a, b) => a.localeCompare(b, 'ko'));
+
+// DefinedTermSet schema
+const definedTermSetSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'DefinedTermSet',
+  '@id': 'https://awoo.or.kr/glossary/#dts',
+  name: '지원금 용어 사전',
+  url: 'https://awoo.or.kr/glossary/',
+  inLanguage: 'ko-KR',
+  hasDefinedTerm: items.map((i) => ({
+    '@type': 'DefinedTerm',
+    '@id': `https://awoo.or.kr/glossary/${i.data.id}/#term`,
+    name: i.data.term,
+    description: i.data.shortDef,
+    url: `https://awoo.or.kr/glossary/${i.data.id}/`,
+  })),
+};
+---
+
+<BaseLayout
+  title={`정부 지원금 용어 사전 ${items.length}개 — 지원금가이드`}
+  description="중위소득·기초생활보장·청약가점·EITC 등 정부 지원금 신청 시 자주 쓰이는 용어 30+개 1문단 정의."
+  activeNav="/guide/"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(definedTermSetSchema)} />
+
+  <section class="band">
+    <Container size="wide">
+      <div class="head">
+        <div class="eyebrow">용어 사전</div>
+        <h1 class="title">정부 지원금 용어 {items.length}개</h1>
+        <p class="lead">
+          기준 중위소득·기초생활보장·청약가점·EITC ··· 정부 지원금을 검색하다 만나는 핵심 용어를 1문단으로 정리했습니다.<br />
+          각 항목에서 관련 지원금까지 바로 이동.
+        </p>
+      </div>
+
+      {categories.map((cat) => (
+        <section class="cat-block">
+          <h2 class="cat-title">{cat}</h2>
+          <ul class="grid">
+            {byCategory[cat].map((item) => (
+              <li>
+                <a class="card" href={`/glossary/${item.data.id}/`}>
+                  <div class="card-term">{item.data.term}</div>
+                  <div class="card-def">{item.data.shortDef}</div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .band { padding: 48px 0 80px; }
+
+  .head {
+    margin-bottom: 32px;
+    max-width: 720px;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .title {
+    font-size: clamp(28px, 3.6vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .cat-block {
+    margin-bottom: 36px;
+  }
+
+  .cat-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  .card {
+    display: block;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    text-decoration: none;
+  }
+
+  .card-term {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .card-def {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.55;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+</style>

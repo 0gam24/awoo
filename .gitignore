@@ -41,3 +41,11 @@ coverage/
 .dev.vars*
 !.dev.vars.example
 !.env.example
+
+# 운영 결과물 — 민감 정보 보호 + diff 노이즈 방지
+# Claude API 호출 실패 사유 (오류 메시지에 prompt 단편 포함 가능)
+src/data/issues/_fail-*.json
+# IndexNow 상태 (자동 갱신, diff 노이즈)
+.indexnow-state.json
+# Link health 결과 (자동 갱신, 외부 URL 평가 결과)
+src/data/subsidies/_link-health.json

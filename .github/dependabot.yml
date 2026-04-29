@@ -1,0 +1,53 @@
+version: 2
+
+# Dependabot — 의존성 자동 업데이트 PR
+# - npm: 매주 보안 패치 수동 검수 부담 감소
+# - github-actions: third-party 액션 핀(현재 @v4 rolling tag) 정기 업데이트
+# - 기본 group ed PR로 노이즈 최소화
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'thursday'
+      time: '04:00'
+      timezone: 'Asia/Seoul'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+    groups:
+      astro:
+        patterns:
+          - '@astrojs/*'
+          - 'astro'
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react*'
+      tooling:
+        patterns:
+          - '@biomejs/*'
+          - 'typescript'
+          - 'vite'
+          - 'wrangler'
+          - 'lefthook'
+      lighthouse:
+        patterns:
+          - '@lhci/*'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'thursday'
+      time: '04:00'
+      timezone: 'Asia/Seoul'
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: 'chore(ci)'
+    labels:
+      - 'github-actions'

@@ -31,7 +31,8 @@
     "tag:personas:apply": "node scripts/tag-personas.mjs --apply",
     "check:apply-urls": "node scripts/check-apply-urls.mjs",
     "check:apply-urls:all": "node scripts/check-apply-urls.mjs --all",
-    "indexnow:ping": "node scripts/indexnow-ping.mjs"
+    "indexnow:ping": "node scripts/indexnow-ping.mjs",
+    "citations:track": "node scripts/citation-tracker.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",

@@ -65,4 +65,17 @@ const issues = defineCollection({
   }),
 });
 
-export const collections = { personas, subsidies, issues };
+const glossary = defineCollection({
+  loader: file('src/data/glossary.json'),
+  schema: z.object({
+    id: z.string(),
+    term: z.string(),
+    shortDef: z.string(),
+    longDef: z.string(),
+    category: z.string(),
+    related: z.array(z.string()).optional(),
+    synonyms: z.array(z.string()).optional(),
+  }),
+});
+
+export const collections = { personas, subsidies, issues, glossary };

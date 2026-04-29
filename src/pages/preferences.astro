@@ -1,0 +1,250 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="내 설정 — 지원금가이드"
+  description="브라우저에 저장된 익명 설정 보기·삭제. 회원가입·로그인 없이 페이지 추천 다양화에만 사용됩니다."
+  noindex={true}
+>
+  <section class="band">
+    <Container size="narrow">
+      <h1 class="title">내 설정 (익명)</h1>
+
+      <div class="policy">
+        <h2>저장되는 정보</h2>
+        <ul>
+          <li>선택한 페르소나 (예: 사회초년생)</li>
+          <li>관심 분야 (예: 주거·자산)</li>
+          <li>마지막 사용 시각 (자동 만료용)</li>
+        </ul>
+
+        <h2>저장되지 않는 것</h2>
+        <ul>
+          <li><strong>이름·이메일·전화·주민번호 등 개인정보</strong></li>
+          <li>방문 페이지 이력</li>
+          <li>실제 소득 입력값 (5분 진단 결과는 URL 해시에만)</li>
+        </ul>
+
+        <h2>저장 위치</h2>
+        <p>
+          본인 브라우저의 <code>localStorage</code>. <strong>서버로 전송되지 않습니다.</strong>
+          365일 미사용 시 자동 삭제. 언제든 수동 삭제 가능.
+        </p>
+      </div>
+
+      <div class="status-card" data-pref-status>
+        <div class="status-empty" data-pref-empty>
+          <h2>저장된 설정이 없습니다</h2>
+          <p>5분 진단을 마치거나 페르소나 카드를 클릭하면 다음 방문에 더 빠르게 안내됩니다.</p>
+          <a class="btn-primary" href="/quick/">5분 진단 시작 →</a>
+        </div>
+
+        <div class="status-saved" data-pref-saved hidden>
+          <h2>저장된 설정</h2>
+          <dl class="kv">
+            <dt>페르소나</dt><dd data-pref-persona>—</dd>
+            <dt>관심 분야</dt><dd data-pref-interests>—</dd>
+            <dt>최초 저장</dt><dd data-pref-created>—</dd>
+            <dt>마지막 사용</dt><dd data-pref-last>—</dd>
+            <dt>자동 삭제까지</dt><dd data-pref-expiry>—</dd>
+          </dl>
+          <button type="button" class="btn-danger" data-pref-clear>모든 설정 삭제</button>
+          <p class="confirm" data-pref-confirm hidden>✓ 삭제됨</p>
+        </div>
+      </div>
+    </Container>
+  </section>
+
+  <script>
+    import { readPrefs, clearPrefs, daysUntilExpiry } from '@/lib/anon-prefs';
+
+    const empty = document.querySelector<HTMLElement>('[data-pref-empty]');
+    const saved = document.querySelector<HTMLElement>('[data-pref-saved]');
+    const personaEl = document.querySelector('[data-pref-persona]');
+    const interestsEl = document.querySelector('[data-pref-interests]');
+    const createdEl = document.querySelector('[data-pref-created]');
+    const lastEl = document.querySelector('[data-pref-last]');
+    const expiryEl = document.querySelector('[data-pref-expiry]');
+    const clearBtn = document.querySelector<HTMLButtonElement>('[data-pref-clear]');
+    const confirmEl = document.querySelector<HTMLElement>('[data-pref-confirm]');
+
+    const PERSONA_LABEL: Record<string, string> = {
+      'office-rookie': '사회초년생',
+      'self-employed': '자영업·소상공인',
+      'newlywed-family': '신혼·육아',
+      'senior': '중장년·시니어',
+      'low-income': '저소득·차상위',
+      'farmer': '농어업인',
+    };
+
+    function fmt(ms: number): string {
+      const d = new Date(ms);
+      return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function render() {
+      const prefs = readPrefs();
+      if (!prefs) {
+        if (empty) empty.hidden = false;
+        if (saved) saved.hidden = true;
+        return;
+      }
+      if (empty) empty.hidden = true;
+      if (saved) saved.hidden = false;
+      if (personaEl) {
+        personaEl.textContent = prefs.persona ? (PERSONA_LABEL[prefs.persona] ?? prefs.persona) : '미설정';
+      }
+      if (interestsEl) {
+        interestsEl.textContent = prefs.interests?.length ? prefs.interests.join(', ') : '미설정';
+      }
+      if (createdEl) createdEl.textContent = fmt(prefs.createdAt);
+      if (lastEl) lastEl.textContent = fmt(prefs.lastUsedAt);
+      if (expiryEl) expiryEl.textContent = `${daysUntilExpiry(prefs)}일`;
+    }
+
+    clearBtn?.addEventListener('click', () => {
+      if (!confirm('모든 익명 설정을 삭제할까요? 되돌릴 수 없습니다.')) return;
+      clearPrefs();
+      if (confirmEl) {
+        confirmEl.hidden = false;
+        setTimeout(() => render(), 300);
+      } else {
+        render();
+      }
+    });
+
+    render();
+  </script>
+</BaseLayout>
+
+<style>
+  .band {
+    padding: 64px 0 80px;
+  }
+
+  .title {
+    font-size: clamp(28px, 3.6vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px;
+  }
+
+  .policy {
+    background: var(--bg-alt);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+
+  .policy h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 8px;
+  }
+  .policy h2:not(:first-child) { margin-top: 18px; }
+
+  .policy ul {
+    margin: 0;
+    padding-left: 22px;
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.7;
+  }
+
+  .policy p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.7;
+  }
+
+  .policy code {
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 0.9em;
+    background: var(--surface-2);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  .status-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px 32px;
+  }
+
+  .status-card h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 12px;
+  }
+
+  .status-card p {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+
+  .kv {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    row-gap: 8px;
+    column-gap: 16px;
+    margin: 0 0 20px;
+  }
+
+  .kv dt {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .kv dd {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .btn-primary,
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    min-height: 44px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .btn-primary:hover {
+    background: color-mix(in oklch, var(--accent), black 8%);
+    text-decoration: none;
+  }
+
+  .btn-danger {
+    background: var(--surface-2);
+    color: var(--color-warning);
+  }
+  .btn-danger:hover {
+    background: var(--surface);
+    border: 1px solid var(--color-warning);
+    padding: 9px 19px;
+  }
+
+  .confirm {
+    margin-top: 12px;
+    color: var(--color-success);
+    font-size: 13px;
+    font-weight: 600;
+  }
+</style>

@@ -60,6 +60,10 @@ const sortedMatched = [...matched].sort((a, b) => (b.data.amount ?? 0) - (a.data
 const pageTitle = `${persona.label}의 ${category} 지원금 ${matched.length}건`;
 const pageDesc = `${persona.label}(${persona.sub})에게 매칭되는 ${category} 분야 정부 지원금 ${matched.length}건. ${categoryMeta?.description ?? ''}`.slice(0, 160);
 
+// thin content 보호 — 5건 미만이면 색인 X (페르소나 hub·카테고리 hub로 안내)
+const NOINDEX_THRESHOLD = 5;
+const isThin = matched.length < NOINDEX_THRESHOLD;
+
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
@@ -73,7 +77,12 @@ const breadcrumbSchema = {
 };
 ---
 
-<BaseLayout title={`${pageTitle} — 지원금가이드`} description={pageDesc} activeNav="/subsidies/">
+<BaseLayout
+  title={`${pageTitle} — 지원금가이드`}
+  description={pageDesc}
+  activeNav="/subsidies/"
+  noindex={isThin}
+>
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <section class={`hero bg-${persona.bg}`}>
