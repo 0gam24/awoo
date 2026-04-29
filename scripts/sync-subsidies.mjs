@@ -233,6 +233,47 @@ function deriveTags(item, category) {
   return Array.from(tags).slice(0, 6);
 }
 
+// ─────────────────────────────────────────────────────────────
+// 페르소나 자동 추론 (휴리스틱)
+// 신규 동기화 시점에 targetPersonas 채워 cross-ref hub 자동 활성화.
+// 백필 스크립트(scripts/tag-personas.mjs)와 동일 사전 — 동기화 필요 시 함께 수정.
+// ─────────────────────────────────────────────────────────────
+const PERSONA_KEYWORDS = {
+  'office-rookie': ['청년', '만 19', '만19', '만 24', '만24', '만 34', '만34', '19~34', '19∼34', '대학생', '취업준비', '구직', '신입', '직장인', '근로자', '신규채용'],
+  'self-employed': ['소상공인', '자영업', '예비창업', '창업기업', '창업자', '사업자', '중소기업', '벤처', '스타트업', '1인 사업', '사업장'],
+  'newlywed-family': ['신혼', '결혼 7년', '결혼7년', '예비부부', '출산', '임산부', '임신', '난임', '산모', '육아', '영유아', '아동', '아이', '자녀', '다자녀', '미성년', '키움', '꿈 수당'],
+  'senior': ['65세', '70세', '60세', '노인', '어르신', '고령', '기초연금', '장년', '경로', '시니어', '중장년'],
+  'low-income': ['기초생활', '수급자', '차상위', '저소득', '중위소득 50', '중위소득50', '중위소득 60', '중위소득60', '생계급여', '의료급여', '주거급여', '교육급여', '취약계층', '한부모'],
+  'farmer': ['농업인', '농어민', '귀농', '귀촌', '영농', '농촌', '어민', '어업', '청년농', '귀농귀촌', '농지', '축산', '임업'],
+};
+const CATEGORY_PERSONA_FALLBACK = {
+  '창업': ['self-employed'],
+  '농업': ['farmer'],
+  '취업': ['office-rookie'],
+  '주거': ['office-rookie', 'newlywed-family'],
+  '교육': ['office-rookie', 'newlywed-family'],
+  '자산': ['office-rookie', 'self-employed'],
+  '복지': [],
+};
+
+function inferPersonas(category, corpus) {
+  const lower = corpus.toLowerCase();
+  const matched = new Set();
+  for (const [pid, kws] of Object.entries(PERSONA_KEYWORDS)) {
+    for (const kw of kws) {
+      if (lower.includes(kw.toLowerCase())) {
+        matched.add(pid);
+        break;
+      }
+    }
+  }
+  if (matched.size === 0) {
+    const fb = CATEGORY_PERSONA_FALLBACK[category];
+    if (fb) for (const p of fb) matched.add(p);
+  }
+  return [...matched];
+}
+
 function mapToSchema(item, slug) {
   const category = mapCategory(item['서비스분야']);
   const eligibility = splitLines(item['지원대상']).slice(0, 6);
@@ -240,10 +281,20 @@ function mapToSchema(item, slug) {
   const { amount, label: amountLabel } = extractAmount(item['지원내용']);
   const status = deriveStatus(item['신청기한']);
   const tags = deriveTags(item, category);
+  const title = (item['서비스명'] || '제목 미정').slice(0, 80);
+  const summary = (item['서비스목적요약'] || item['서비스명'] || '').slice(0, 280);
+  const corpus = [
+    title,
+    summary,
+    item['지원대상'] ?? '',
+    item['지원내용'] ?? '',
+    ...tags,
+  ].join(' ');
+  const targetPersonas = inferPersonas(category, corpus);
   return {
     id: slug,
     applyUrl: item['상세조회URL'] || 'https://www.gov.kr',
-    title: (item['서비스명'] || '제목 미정').slice(0, 80),
+    title,
     agency: item['소관기관명'] || '미상',
     category,
     icon: CATEGORY_ICON[category] || 'cat-welfare',
@@ -252,13 +303,13 @@ function mapToSchema(item, slug) {
     amountLabel,
     period: '',
     deadline: (item['신청기한'] || '상시신청').slice(0, 40),
-    summary: (item['서비스목적요약'] || item['서비스명'] || '').slice(0, 280),
+    summary,
     eligibility: eligibility.length > 0 ? eligibility : [item['지원대상']?.slice(0, 200) || '대상 확인 필요'],
     benefits: benefits.length > 0 ? benefits : [item['지원내용']?.slice(0, 200) || '내용 확인 필요'],
     documents: [],
     status,
     tags,
-    targetPersonas: [],
+    targetPersonas,
   };
 }
 

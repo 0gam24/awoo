@@ -243,6 +243,7 @@ const EVENTS = [
             <div class="result-personas" data-result-personas></div>
             <div class="result-actions">
               <button type="button" class="btn-ghost" data-btn-restart>← 다시 진단</button>
+              <button type="button" class="btn-ghost" data-btn-share aria-live="polite">🔗 결과 링크 복사</button>
               <a class="btn-link" href="/situations/">상황별 보기 →</a>
               <a class="btn-link" href="/categories/">분야별 보기 →</a>
             </div>
@@ -279,6 +280,7 @@ const EVENTS = [
   const btnSubmit = root.querySelector('[data-btn-submit]');
   const btnRestart = root.querySelector('[data-btn-restart]');
   const btnRelax = root.querySelector('[data-btn-relax]');
+  const btnShare = root.querySelector('[data-btn-share]');
   const errorMsg = root.querySelector('[data-error-msg]');
   const navRow = root.querySelector('[data-nav-row]');
 
@@ -398,6 +400,7 @@ const EVENTS = [
       return;
     }
     runMatch();
+    writeHashState(true);
     showStep('result');
   });
 
@@ -412,6 +415,7 @@ const EVENTS = [
     if (incomeInput) incomeInput.value = '250';
     if (errorMsg) errorMsg.hidden = true;
     updateIncome();
+    history.replaceState(null, '', window.location.pathname);
     showStep(1);
   });
 
@@ -421,7 +425,94 @@ const EVENTS = [
       i.checked = false;
     });
     runMatch();
+    writeHashState(true);
   });
+
+  // 결과 링크 복사 — clipboard API
+  btnShare?.addEventListener('click', async () => {
+    writeHashState(true);
+    const url = window.location.href;
+    const original = btnShare.textContent;
+    try {
+      await navigator.clipboard.writeText(url);
+      btnShare.textContent = '✓ 링크 복사됨';
+    } catch {
+      // clipboard 실패 fallback — prompt
+      window.prompt('복사할 링크', url);
+    }
+    setTimeout(() => {
+      btnShare.textContent = original;
+    }, 2000);
+  });
+
+  // ============================================================
+  // URL hash 직렬화 — 결과 공유·딥링크 (개인정보 저장 X — URL 자체에만)
+  // ============================================================
+  function readHashState() {
+    const hash = window.location.hash.replace(/^#/, '');
+    if (!hash) return null;
+    const params = new URLSearchParams(hash);
+    return {
+      persona: params.get('persona') || '',
+      size: params.get('size') || '1',
+      income: params.get('income') || '250',
+      cats: (params.get('cats') || '').split(',').filter(Boolean),
+      events: (params.get('events') || '').split(',').filter(Boolean),
+      result: params.get('result') === '1',
+    };
+  }
+
+  function writeHashState(showResult) {
+    const personaInput = root.querySelector('input[name="persona"]:checked');
+    const persona = personaInput?.value || '';
+    if (!persona) {
+      // 페르소나 없으면 hash 비움
+      history.replaceState(null, '', window.location.pathname);
+      return;
+    }
+    const cats = Array.from(root.querySelectorAll('input[name="category"]:checked')).map((i) => i.value);
+    const events = Array.from(root.querySelectorAll('input[name="event"]:checked')).map((i) => i.value);
+    const params = new URLSearchParams();
+    params.set('persona', persona);
+    params.set('size', String(getSize()));
+    params.set('income', String(getIncome()));
+    if (cats.length > 0) params.set('cats', cats.join(','));
+    if (events.length > 0) params.set('events', events.join(','));
+    if (showResult) params.set('result', '1');
+    history.replaceState(null, '', `${window.location.pathname}#${params.toString()}`);
+  }
+
+  function applyHashState() {
+    const st = readHashState();
+    if (!st) return;
+    if (st.persona) {
+      const el = root.querySelector(`input[name="persona"][value="${CSS.escape(st.persona)}"]`);
+      if (el) el.checked = true;
+    }
+    if (st.size) {
+      const el = root.querySelector(`input[name="hh-size"][value="${st.size}"]`);
+      if (el) el.checked = true;
+    }
+    if (st.income && incomeInput) {
+      incomeInput.value = st.income;
+    }
+    for (const c of st.cats) {
+      const el = root.querySelector(`input[name="category"][value="${CSS.escape(c)}"]`);
+      if (el) el.checked = true;
+    }
+    for (const e of st.events) {
+      const el = root.querySelector(`input[name="event"][value="${CSS.escape(e)}"]`);
+      if (el) el.checked = true;
+    }
+    updateIncome();
+    if (st.result && st.persona) {
+      runMatch();
+      showStep('result');
+    }
+  }
+
+  // 페이지 로드 시 hash 적용
+  applyHashState();
 
   // ============================================================
   // 매칭 로직
