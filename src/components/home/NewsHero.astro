@@ -5,7 +5,7 @@ import todayIssue from '@/data/today-issue.json';
 // 메인 NewsHero — 자동 큐레이션 today-issue.json 기반.
 // 데이터 없으면 graceful empty (CTA 만 노출), 트렌딩 차트·하드코드 fallback 제거.
 // CTA 1순위: 1위 토픽의 영구 포스트 (있으면 직진), 없으면 /issues/ 인덱스.
-type HistoryEntry = { firstSeen: string; postSlug: string };
+type HistoryEntry = { firstSeen: string; postSlug: string; totalCount: number };
 type HistoryFile = { byTerm?: Record<string, HistoryEntry> };
 const historyModules = import.meta.glob<{ default: HistoryFile }>(
   '/src/data/issues/_history.json',
@@ -19,6 +19,14 @@ function findTopicPostUrl(term: string | undefined): string | null {
   const entry = history.byTerm?.[term];
   if (!entry?.postSlug || !entry?.firstSeen) return null;
   return `/issues/${entry.firstSeen}/${entry.postSlug}/`;
+}
+
+// 트렌딩 term → /issues/topics/[term]/ (totalCount ≥ 3 일 때만 활성 페이지 존재)
+function findTopicHubUrl(term: string | undefined): string | null {
+  if (!term) return null;
+  const entry = history.byTerm?.[term];
+  if (!entry || entry.totalCount < 3) return null;
+  return `/issues/topics/${encodeURIComponent(term)}/`;
 }
 
 // 자동 큐레이션 데이터 — today-issue.json (단일 소스)
@@ -239,10 +247,18 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
 
           <ol class="news-trend-list auto">
             {autoTrending.map((t, i) => {
-              const href = t.topArticle?.link ?? '#';
+              // 우선순위: 토픽 hub → 외부 기사 → 폴백 (사이트 내 검색)
+              const hubUrl = findTopicHubUrl(t.term);
+              const isInternal = !!hubUrl;
+              const href = hubUrl ?? t.topArticle?.link ?? `/issues/`;
               return (
                 <li class:list={['news-trend-item-auto', i === 0 && 'hot']}>
-                  <a href={href} class="trend-link-auto" target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={href}
+                    class="trend-link-auto"
+                    target={isInternal ? undefined : '_blank'}
+                    rel={isInternal ? undefined : 'noopener noreferrer'}
+                  >
                     <div class="trend-row-1">
                       <span class="rank">{i + 1}</span>
                       <span class="trend-pill">
@@ -251,8 +267,10 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
                       </span>
                     </div>
                     <div class="trend-row-2">
-                      <span class="trend-news-title">{t.topArticle?.title ?? t.term}</span>
-                      {t.topArticle?.link && <span class="trend-arrow" aria-hidden="true">→</span>}
+                      <span class="trend-news-title">
+                        {isInternal ? `관련 지원금 모아보기` : (t.topArticle?.title ?? t.term)}
+                      </span>
+                      <span class="trend-arrow" aria-hidden="true">→</span>
                     </div>
                   </a>
                 </li>

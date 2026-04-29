@@ -1,5 +1,6 @@
 ---
 import Container from '@/components/Container.astro';
+import CrossRefRail from '@/components/CrossRefRail.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
@@ -56,6 +57,31 @@ const matchedPersonaData = personas.filter((p) => situation.matchedPersonas.incl
 
 // 다른 라이프 이벤트 (네비게이션)
 const otherSituations = (situations as Situation[]).filter((s) => s.id !== situation.id).slice(0, 8);
+
+// 4축 cross-ref — 매칭 페르소나·카테고리·토픽
+const allTopics = await getCollection('topics');
+const matchedTopics = allTopics
+  .filter((t) => (t.data.mainSituations ?? []).includes(situation.id))
+  .slice(0, 2);
+
+const crossRefItems = [
+  ...matchedPersonaData.slice(0, 2).map((p) => ({
+    href: `/personas/${p.data.id}/`,
+    label: p.data.label,
+    sub: p.data.sub,
+  })),
+  ...matchedTopics.map((t) => ({
+    href: `/topics/${t.data.id}/`,
+    label: t.data.title,
+    sub: '주제별 종합 가이드',
+  })),
+  ...situation.primaryCategories.slice(0, 2).map((cat) => ({
+    href: `/categories/${encodeURIComponent(cat)}/`,
+    label: `${cat} 분야`,
+    sub: '분야별 전체 지원금',
+  })),
+  { href: '/quick/', label: '5분 진단으로 정확 매칭', sub: '내 상황에 맞춰 자동 추천' },
+];
 ---
 
 <BaseLayout
@@ -124,6 +150,8 @@ const otherSituations = (situations as Situation[]).filter((s) => s.id !== situa
               }
             </ul>
           </section>
+
+          <CrossRefRail title="함께 보면 좋은 다른 관점" items={crossRefItems} />
 
           <section class="post-section">
             <h2>다른 라이프 이벤트도 보기</h2>

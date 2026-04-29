@@ -1,8 +1,10 @@
 ---
 import Container from '@/components/Container.astro';
+import CrossRefRail from '@/components/CrossRefRail.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
+import situationsData from '@/data/situations.json';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -83,6 +85,31 @@ const breadcrumbs = [
   { name: '지원금', href: '/subsidies/' },
   { name: '페르소나', href: '/personas/' },
   { name: p.label, href: `/personas/${p.id}/` },
+];
+
+// 4축 cross-ref — 본 페르소나 매칭 상황·토픽 추출
+interface Situation { id: string; label: string; sub: string; matchedPersonas: string[] }
+const matchedSituations = (situationsData as Situation[])
+  .filter((s) => s.matchedPersonas.includes(p.id))
+  .slice(0, 3);
+
+const allTopics = await getCollection('topics');
+const matchedTopics = allTopics
+  .filter((t) => (t.data.mainPersonas ?? []).includes(p.id))
+  .slice(0, 2);
+
+const crossRefItems = [
+  ...matchedSituations.map((s) => ({
+    href: `/situations/${s.id}/`,
+    label: s.label,
+    sub: `상황별 안내 — ${s.sub}`,
+  })),
+  ...matchedTopics.map((t) => ({
+    href: `/topics/${t.data.id}/`,
+    label: t.data.title,
+    sub: '주제별 종합 가이드',
+  })),
+  { href: '/quick/', label: '5분 진단으로 정확 매칭', sub: '내 상황에 맞춰 자동 추천' },
 ];
 ---
 
@@ -171,6 +198,8 @@ const breadcrumbs = [
           </ul>
         </section>
       )}
+
+      <CrossRefRail title="함께 보면 좋은 다른 관점" items={crossRefItems} />
 
       <nav class="persona-nav" aria-label="다른 페르소나">
         <div class="pn-eyebrow">다른 페르소나로 보기</div>

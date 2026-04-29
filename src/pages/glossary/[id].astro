@@ -1,5 +1,6 @@
 ---
 import Container from '@/components/Container.astro';
+import CrossRefRail from '@/components/CrossRefRail.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -48,6 +49,22 @@ const breadcrumbs = [
   { name: '신청 가이드', href: '/guide/' },
   { name: '용어 사전', href: '/glossary/' },
   { name: term.term, href: `/glossary/${term.id}/` },
+];
+
+// 4축 cross-ref — 본 용어 카테고리 매칭 토픽
+const allTopics = await getCollection('topics');
+const matchedTopics = allTopics
+  .filter((t) => (t.data.relatedGlossary ?? []).includes(term.id))
+  .slice(0, 3);
+
+const crossRefItems = [
+  ...matchedTopics.map((t) => ({
+    href: `/topics/${t.data.id}/`,
+    label: t.data.title,
+    sub: '주제별 종합 가이드',
+  })),
+  { href: `/categories/${encodeURIComponent(term.category)}/`, label: `${term.category} 분야 전체`, sub: '관련 분야 지원금 모아보기' },
+  { href: '/glossary/', label: '용어 사전 전체', sub: '다른 용어 찾기' },
 ];
 ---
 
@@ -116,6 +133,8 @@ const breadcrumbs = [
           </ul>
         </section>
       )}
+
+      <CrossRefRail title="함께 보면 좋은 다른 관점" items={crossRefItems} />
     </Container>
   </article>
 </BaseLayout>
