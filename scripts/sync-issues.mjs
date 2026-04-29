@@ -16,13 +16,16 @@
  * 보안: 키 값은 절대 출력 안 함.
  */
 
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const OUT_PATH = join(ROOT, 'src', 'data', 'today-issue.json');
+const HISTORY_PATH = join(ROOT, 'src', 'data', 'issues', '_history.json');
+const CURATED_DIR = join(ROOT, 'src', 'data', 'subsidies', '_curated');
+const GOV24_DIR = join(ROOT, 'src', 'data', 'subsidies', '_gov24');
 
 const NAVER_API = 'https://openapi.naver.com/v1/search/news.json';
 
@@ -70,6 +73,102 @@ function deriveCategory(text) {
     if (re.test(text)) return cat;
   }
   return '복지'; // 기본값
+}
+
+// ─────────────────────────────────────────────────────────────
+// 매칭 지원금 추출 — 헤드라인/토픽 → _gov24 + _curated 제목 매칭
+// ─────────────────────────────────────────────────────────────
+async function loadAllSubsidies() {
+  const all = [];
+  for (const dir of [CURATED_DIR, GOV24_DIR]) {
+    try {
+      const files = await readdir(dir);
+      for (const f of files) {
+        if (!f.endsWith('.json') || f.startsWith('_')) continue;
+        try {
+          const data = JSON.parse(await readFile(join(dir, f), 'utf8'));
+          all.push(data);
+        } catch {}
+      }
+    } catch {}
+  }
+  return all;
+}
+
+function matchSubsidies(headline, term, category, allSubsidies, limit = 4) {
+  const scored = allSubsidies.map((s) => {
+    let score = 0;
+    if (s.title && term && s.title.includes(term)) score += 20;
+    if (s.title && headline) {
+      const tokens = headline.match(/[가-힣]{3,}/g) || [];
+      for (const t of tokens) {
+        if (s.title.includes(t)) score += 5;
+      }
+    }
+    if (Array.isArray(s.tags) && term) {
+      for (const tag of s.tags) {
+        if (tag.includes(term) || term.includes(tag)) score += 8;
+      }
+    }
+    if (s.category === category) score += 3;
+    return { s, score };
+  });
+  return scored
+    .filter((x) => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((x) => ({
+      id: x.s.id,
+      title: x.s.title,
+      agency: x.s.agency,
+      category: x.s.category,
+      icon: x.s.icon,
+      amount: x.s.amount,
+      amountLabel: x.s.amountLabel,
+    }));
+}
+
+// ─────────────────────────────────────────────────────────────
+// _history.json 로드 (누적 시그널 — 있으면 활용)
+// ─────────────────────────────────────────────────────────────
+async function loadHistory() {
+  try {
+    return JSON.parse(await readFile(HISTORY_PATH, 'utf8'));
+  } catch {
+    return { byTerm: {} };
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// summary 자동 생성 — LLM 없이 결정론적 요약
+// ─────────────────────────────────────────────────────────────
+function generateSummary({ term, count, daysActive, totalCount, topArticle, matchedCount }) {
+  // 헤드라인
+  let headline;
+  if (daysActive >= 5) headline = `${term} — ${daysActive}일 연속 화제`;
+  else if (daysActive >= 3) headline = `${term} — ${daysActive}일째 매체 주목`;
+  else headline = `${term} — 이번 주 화제`;
+
+  // 부제 — 대표 기사 첫 문장 + 누적 시그널
+  let leadFact = '';
+  if (topArticle?.description) {
+    const firstSentence = topArticle.description.split(/[.!?。]/)[0]?.trim();
+    if (firstSentence && firstSentence.length > 10 && firstSentence.length < 120) {
+      leadFact = firstSentence;
+      if (!leadFact.endsWith('.') && !leadFact.endsWith('다')) {
+        leadFact += '.';
+      }
+    }
+  }
+
+  const totalText = totalCount > count ? `누적 ${totalCount}회` : `${count}회`;
+  const matchedText = matchedCount > 0 ? ` · 관련 지원금 ${matchedCount}건 매칭` : '';
+
+  const subhead = leadFact
+    ? `${leadFact} 매체 ${totalText} 언급${matchedText}`
+    : `매체 ${totalText} 언급 · 정책 신규 등장${matchedText}`;
+
+  return { headline, subhead };
 }
 
 // 제목 필수 키워드 — 제목에 하나라도 없으면 정책성 뉴스로 보지 않음
@@ -394,6 +493,31 @@ async function main() {
   const topTrendTerm = trendingWithArticles[0].term;
   const topTrendCount = trendingWithArticles[0].count;
 
+  // ─────────────────────────────────────────────────────────────
+  // 매칭 지원금 추출 (Top 4) + 누적 히스토리 + summary 자동 생성
+  // ─────────────────────────────────────────────────────────────
+  const allSubsidies = await loadAllSubsidies();
+  const history = await loadHistory();
+
+  const matched = matchSubsidies(top.title, topTrendTerm, top.category, allSubsidies, 4);
+
+  const histEntry = history.byTerm?.[topTrendTerm];
+  const daysActive = (histEntry?.daysActive ?? 0) + 1;
+  const totalCount = (histEntry?.totalCount ?? 0) + topTrendCount;
+
+  const summary = generateSummary({
+    term: topTrendTerm,
+    count: topTrendCount,
+    daysActive,
+    totalCount,
+    topArticle: top,
+    matchedCount: matched.length,
+  });
+
+  console.log(`📝 summary: "${summary.headline}"`);
+  console.log(`           ${summary.subhead}`);
+  console.log(`🎯 매칭 지원금 ${matched.length}건`);
+
   // 출력
   const output = {
     syncedAt: new Date().toISOString(),
@@ -408,6 +532,11 @@ async function main() {
     score: top.score,
     trendingTopic: topTrendTerm,
     trendingTopicCount: topTrendCount,
+    // 누적 시그널 + 자동 요약 (LLM 없이 결정론적 — 포스트가 생기면 NewsHero가 포스트 우선 사용)
+    summary,
+    daysActive,
+    totalCount,
+    matchedSubsidies: matched,
     // 사이드바용 — Top 5 트렌딩 + 각각 대표 기사
     trending: trendingWithArticles.slice(0, 5).map((t) => ({
       term: t.term,

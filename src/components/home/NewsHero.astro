@@ -33,6 +33,15 @@ interface AutoTrendItem {
     category?: string;
   };
 }
+interface MatchedSubsidy {
+  id: string;
+  title: string;
+  agency: string;
+  category: string;
+  icon: string;
+  amount: number;
+  amountLabel: string;
+}
 const auto = todayIssue as {
   syncedAt: string;
   headline: string;
@@ -45,6 +54,10 @@ const auto = todayIssue as {
   trendingTopic?: string;
   trendingTopicCount?: number;
   trending?: AutoTrendItem[];
+  summary?: { headline: string; subhead: string };
+  daysActive?: number;
+  totalCount?: number;
+  matchedSubsidies?: MatchedSubsidy[];
 } | null;
 
 // 트렌딩 사이드바 — 자동 데이터 우선 (N-gram 빈도 + 대표 기사)
@@ -113,13 +126,17 @@ const last = pts[pts.length - 1] ?? [0, 0];
 const first = pts[0] ?? [0, 0];
 const areaPath = `${linePath} L ${last[0]} ${h - pad} L ${first[0]} ${h - pad} Z`;
 
-// 표시 데이터 — 자동 데이터 있으면 우선, 없으면 hardcode
-const displayHeadline = auto?.headline ?? n.headline;
-const displaySubhead = auto?.description ?? n.subhead;
+// 표시 데이터 — summary 우선 → 외부 기사 → hardcode 순
+const displayHeadline = auto?.summary?.headline ?? auto?.headline ?? n.headline;
+const displaySubhead = auto?.summary?.subhead ?? auto?.description ?? n.subhead;
 const displayDate = auto?.pubDateKR ?? n.date;
 const displayCategory = auto?.category ?? '';
 const externalLink = auto?.link;
 const isAuto = !!auto;
+const hasSummary = !!auto?.summary;
+const matchedSubsidies = auto?.matchedSubsidies ?? [];
+const daysActive = auto?.daysActive ?? 0;
+const totalCount = auto?.totalCount ?? 0;
 
 // 매체명 추출 (URL 도메인 → 사람 친화)
 function extractSource(link: string | undefined): string {
@@ -157,14 +174,14 @@ const headlineLinkIsInternal = !!internalPostUrl;
   <Container size="wide">
     <div class="news-meta">
       <span class="news-pulse"><span class="dot" aria-hidden="true"></span>{n.badge}</span>
-      <span class="news-meta-text">{displayDate}</span>
-      <span class="news-meta-dot">·</span>
-      <span class="news-meta-text">{sourceLabel}</span>
+      {hasSummary && daysActive >= 3 && (
+        <span class="news-trending-pill">
+          <span class="dot-tr" aria-hidden="true" />
+          {daysActive}일 연속 화제 · 누적 {totalCount}회
+        </span>
+      )}
       {isAuto && displayCategory && (
-        <>
-          <span class="news-meta-dot">·</span>
-          <span class="news-cat-pill">{displayCategory}</span>
-        </>
+        <span class="news-cat-pill">{displayCategory}</span>
       )}
     </div>
 
@@ -187,16 +204,34 @@ const headlineLinkIsInternal = !!internalPostUrl;
           </div>
         )}
 
+        {matchedSubsidies.length > 0 && (
+          <div class="matched-row">
+            <div class="matched-label">관련 지원금 {matchedSubsidies.length}건</div>
+            <ul class="matched-list">
+              {matchedSubsidies.map((s) => (
+                <li>
+                  <a class={`matched-card tint-${s.category}`} href={`/subsidies/${s.id}/`}>
+                    <div class="m-cat">{s.category} · {s.agency}</div>
+                    <div class="m-title">{s.title}</div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         <div class="news-actions">
           {headlineLinkIsInternal ? (
             <a class="cta-primary" href={headlineLink}>이 이슈 자세히 보기 →</a>
-          ) : isAuto && externalLink ? (
-            <a class="cta-primary" href={externalLink} target="_blank" rel="noopener noreferrer">원문 기사 보기 →</a>
           ) : (
-            <a class="cta-primary" href="/issues/main/">이 이슈 자세히 →</a>
+            <a class="cta-primary" href="/issues/">트렌딩 이슈 모두 보기 →</a>
           )}
-          {!isAuto && n.related[0] && <a class="cta-ghost" href={`/subsidies/${n.related[0]}/`}>지원금 상세</a>}
-          <a class="cta-ghost" href="/subsidies/new/">신규 지원금 모음 →</a>
+          <a class="cta-ghost" href="/quick/">5분 진단 →</a>
+          {isAuto && externalLink && (
+            <a class="cta-mini" href={externalLink} target="_blank" rel="noopener noreferrer">
+              원문 출처: {sourceLabel}
+            </a>
+          )}
         </div>
 
         {showTrendChart && (
@@ -353,6 +388,108 @@ const headlineLinkIsInternal = !!internalPostUrl;
     border-radius: var(--radius-pill);
     font-size: 13px;
     font-weight: 600;
+  }
+
+  .news-trending-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .dot-tr {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: tr-pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes tr-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  @media (prefers-reduced-motion: reduce) { .dot-tr { animation: none; } }
+
+  /* 매칭 지원금 미니카드 */
+  .matched-row {
+    margin: 24px 0 4px;
+  }
+
+  .matched-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-2);
+    margin-bottom: 10px;
+    letter-spacing: 0.02em;
+  }
+
+  .matched-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+  }
+
+  .matched-card {
+    display: block;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text);
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s, background 0.18s;
+  }
+  .matched-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    background: var(--surface);
+    text-decoration: none;
+  }
+
+  .m-cat {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent-link);
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .m-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .cta-mini {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    padding: 8px 12px;
+    color: var(--text-3);
+    font-size: 12px;
+    text-decoration: none;
+  }
+  .cta-mini:hover {
+    color: var(--accent-link);
+    text-decoration: underline;
   }
 
   .news-grid {
