@@ -93,22 +93,69 @@ function splitLines(text) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 금액 추출: 지원내용 텍스트에서 첫 "N원" 패턴 추출
+// 금액 추출: 지원내용 텍스트에서 모든 금액 패턴 추출 후 최대값 선택
+// 지원: "N억원", "N억 N천만원", "N백만원", "N만원", "N,NNN원"
 // ─────────────────────────────────────────────────────────────
 function extractAmount(text) {
   if (!text) return { amount: 0, label: '지원금' };
-  // "30만원", "100만원", "1,000,000원" 등
-  const manMatch = text.match(/([0-9,]+)\s*만\s*원/);
-  if (manMatch) {
-    const n = parseInt(manMatch[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n)) return { amount: n * 10000, label: '월 지원' };
+
+  const candidates = [];
+
+  // "N억원" / "N.N억원" — 1억 = 100,000,000
+  for (const m of text.matchAll(/([0-9,]+(?:\.[0-9]+)?)\s*억\s*원?/g)) {
+    const n = parseFloat(m[1].replace(/,/g, ''));
+    if (!Number.isNaN(n) && n > 0 && n < 10000) {
+      candidates.push(Math.round(n * 100_000_000));
+    }
   }
-  const wonMatch = text.match(/([0-9,]+)\s*원/);
-  if (wonMatch) {
-    const n = parseInt(wonMatch[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n) && n >= 1000) return { amount: n, label: '지원금' };
+
+  // "N백만원" — 1백만 = 1,000,000
+  for (const m of text.matchAll(/([0-9,]+)\s*백\s*만\s*원/g)) {
+    const n = parseInt(m[1].replace(/,/g, ''), 10);
+    if (!Number.isNaN(n) && n > 0 && n < 10000) {
+      candidates.push(n * 1_000_000);
+    }
   }
-  return { amount: 0, label: '지원금' };
+
+  // "N천만원" — 1천만 = 10,000,000
+  for (const m of text.matchAll(/([0-9,]+)\s*천\s*만\s*원/g)) {
+    const n = parseInt(m[1].replace(/,/g, ''), 10);
+    if (!Number.isNaN(n) && n > 0 && n < 1000) {
+      candidates.push(n * 10_000_000);
+    }
+  }
+
+  // "N만원" — 1만 = 10,000 (단, 백만/천만 패턴은 위에서 이미 처리)
+  for (const m of text.matchAll(/(?<![백천])\s*([0-9,]+)\s*만\s*원/g)) {
+    const n = parseInt(m[1].replace(/,/g, ''), 10);
+    if (!Number.isNaN(n) && n >= 1 && n < 100_000) {
+      candidates.push(n * 10_000);
+    }
+  }
+
+  // "N,NNN원" — 직접 원 단위 (만/억 컨텍스트 제외)
+  for (const m of text.matchAll(/(?<![만억백천])\s*([0-9]{1,3}(?:,[0-9]{3})+)\s*원/g)) {
+    const n = parseInt(m[1].replace(/,/g, ''), 10);
+    if (!Number.isNaN(n) && n >= 10_000) {
+      candidates.push(n);
+    }
+  }
+
+  if (candidates.length === 0) {
+    return { amount: 0, label: '지원금' };
+  }
+
+  // 최대값 선택 (보통 "최대 N", "한도 N" 같은 표현이 가장 큰 숫자)
+  const max = Math.max(...candidates);
+
+  // 라벨 추론: 텍스트에 "월" 포함되면 월 지원, 아니면 일반
+  let label = '지원금';
+  if (/월\s*[0-9]/.test(text) || /월\s*최대/.test(text)) label = '월 지원';
+  else if (/연\s*[0-9]/.test(text) || /연\s*최대/.test(text)) label = '연 지원';
+  else if (/최대/.test(text)) label = '최대';
+  else if (/한도/.test(text)) label = '한도';
+
+  return { amount: max, label };
 }
 
 // ─────────────────────────────────────────────────────────────

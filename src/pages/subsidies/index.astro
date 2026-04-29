@@ -8,6 +8,17 @@ import { getCollection } from 'astro:content';
 const subsidies = await getCollection('subsidies');
 const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.isHot ? 1 : 0));
 
+const NA_LABEL: Record<string, string> = {
+  주거: '주택·임대 우선공급',
+  복지: '맞춤 복지 혜택',
+  교육: '학비·장학 지원',
+  창업: '사업·자금 지원',
+  취업: '취업·고용 혜택',
+  자산: '자산 형성 혜택',
+  농업: '영농 정착 지원',
+};
+const naLabel = (cat: string) => NA_LABEL[cat] ?? '맞춤 혜택';
+
 const categoryCounts = subsidies.reduce<Record<string, number>>((acc, s) => {
   acc[s.data.category] = (acc[s.data.category] ?? 0) + 1;
   return acc;
@@ -57,20 +68,40 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
             <li data-cat={s.data.category}>
               <a class="subsidy-card" href={`/subsidies/${s.data.id}/`}>
                 <div class={`media tint-${s.data.category}`}>
-                  <Icon name={s.data.icon} size={48} strokeWidth={1.5} />
+                  <Icon name={s.data.icon} size={26} strokeWidth={1.6} />
                 </div>
                 <div class="body">
                   <div class="meta-row">
                     <span class="badge neutral">{s.data.category}</span>
                     {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
                     {s.data.isHot && <span class="badge accent">HOT</span>}
+                    {s.data.status === '신청 가능' && !s.data.isHot && (
+                      <span class="badge open"><span class="open-dot" aria-hidden="true" />신청 가능</span>
+                    )}
                   </div>
                   <div class="agency">{s.data.agency}</div>
                   <div class="t">{s.data.title}</div>
                   <div class="sum">{s.data.summary.slice(0, 64)}{s.data.summary.length > 64 ? '…' : ''}</div>
-                  <div class="amt">
-                    {formatWon(s.data.amount)}
-                    <span class="unit">{s.data.amountLabel}</span>
+                  {s.data.tags && s.data.tags.length > 0 && (
+                    <div class="tag-row">
+                      {s.data.tags.slice(0, 3).map((t) => (
+                        <span class="tag-chip">#{t}</span>
+                      ))}
+                    </div>
+                  )}
+                  <div class="amt-row">
+                    {s.data.amount > 0 ? (
+                      <div class="amt">
+                        {formatWon(s.data.amount)}
+                        <span class="unit">{s.data.amountLabel}</span>
+                      </div>
+                    ) : (
+                      <div class={`amt-hook tone-${s.data.category}`}>
+                        <span class="amt-hook-dot" aria-hidden="true" />
+                        <span class="amt-hook-label">{naLabel(s.data.category)}</span>
+                      </div>
+                    )}
+                    <span class="arrow-cta" aria-hidden="true">→</span>
                   </div>
                 </div>
               </a>
@@ -194,7 +225,7 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
     color: var(--text-2);
     border-radius: var(--radius-pill);
     padding: 1px 8px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     margin-left: 4px;
   }
@@ -225,7 +256,7 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
   }
 
   .media {
-    aspect-ratio: 16 / 7;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -276,7 +307,7 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
 
   .badge {
     display: inline-block;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     padding: 2px 8px;
     border-radius: 6px;
@@ -293,6 +324,126 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
   .badge.accent {
     background: rgb(220 38 38 / 0.16);
     color: #dc2626;
+  }
+
+  .badge.open {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgb(0 133 89 / 0.14);
+    color: var(--color-success);
+  }
+
+  .open-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-success);
+    animation: pulse-open 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse-open {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.55; transform: scale(1.18); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .open-dot { animation: none; }
+  }
+
+  .tag-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+  }
+
+  .tag-chip {
+    font-size: 12px;
+    color: var(--text-2);
+    background: var(--surface-2);
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    line-height: 1.4;
+  }
+
+  .amt-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-top: 6px;
+    gap: 12px;
+  }
+
+  .arrow-cta {
+    font-size: 18px;
+    color: var(--text-3);
+    font-weight: 600;
+    transition: transform 0.18s var(--ease-standard), color 0.18s var(--ease-standard);
+  }
+
+  .subsidy-card:hover .arrow-cta {
+    transform: translateX(4px);
+    color: var(--accent);
+  }
+
+  .amt-hook {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 12px;
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .amt-hook-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: hook-dot-pulse 1.6s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes hook-dot-pulse {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.35); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .amt-hook-dot { animation: none; }
+  }
+
+  .amt-hook.tone-주거 {
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+  }
+  .amt-hook.tone-자산 {
+    background: rgb(8 145 178 / 0.12);
+    color: #0891b2;
+  }
+  .amt-hook.tone-교육 {
+    background: rgb(139 92 246 / 0.12);
+    color: #8b5cf6;
+  }
+  .amt-hook.tone-창업 {
+    background: rgb(234 88 12 / 0.12);
+    color: #ea580c;
+  }
+  .amt-hook.tone-복지 {
+    background: rgb(236 72 153 / 0.12);
+    color: #ec4899;
+  }
+  .amt-hook.tone-취업 {
+    background: rgb(16 185 129 / 0.12);
+    color: #10b981;
+  }
+  .amt-hook.tone-농업 {
+    background: rgb(217 119 6 / 0.12);
+    color: #d97706;
   }
 
   .agency {
@@ -319,12 +470,12 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
     font-size: 22px;
     font-weight: 700;
     color: var(--accent);
-    margin-top: 6px;
     letter-spacing: -0.02em;
+    line-height: 1.1;
   }
 
   .amt .unit {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-2);
     font-weight: 500;
     margin-left: 4px;
