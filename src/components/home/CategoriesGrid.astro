@@ -2,6 +2,14 @@
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import { CATEGORIES } from '@/data/site-data';
+import { getCollection } from 'astro:content';
+
+const subsidies = await getCollection('subsidies');
+const counts = subsidies.reduce<Record<string, number>>((acc, s) => {
+  acc[s.data.category] = (acc[s.data.category] ?? 0) + 1;
+  return acc;
+}, {});
+const cats = CATEGORIES.slice(1).map((c) => ({ ...c, count: counts[c.id] ?? 0 }));
 ---
 
 <section class="band">
@@ -12,7 +20,7 @@ import { CATEGORIES } from '@/data/site-data';
     </div>
     <div class="cat-grid">
       {
-        CATEGORIES.slice(1).map((c) => (
+        cats.map((c) => (
           <a class="cat-tile" href={`/subsidies/?category=${encodeURIComponent(c.id)}`}>
             <div class={`cat-glyph tint-${c.id}`}>
               <Icon name={c.icon} size={28} strokeWidth={1.6} />
@@ -119,6 +127,10 @@ import { CATEGORIES } from '@/data/site-data';
   .tint-복지 {
     background: rgb(236 72 153 / 0.12);
     color: #ec4899;
+  }
+  .tint-농업 {
+    background: rgb(217 119 6 / 0.12);
+    color: #d97706;
   }
 
   .cat-name {

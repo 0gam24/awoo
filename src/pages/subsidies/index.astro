@@ -7,6 +7,16 @@ import { getCollection } from 'astro:content';
 
 const subsidies = await getCollection('subsidies');
 const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.isHot ? 1 : 0));
+
+const categoryCounts = subsidies.reduce<Record<string, number>>((acc, s) => {
+  acc[s.data.category] = (acc[s.data.category] ?? 0) + 1;
+  return acc;
+}, {});
+
+const categoriesWithCount = CATEGORIES.map((c) => ({
+  ...c,
+  count: c.id === 'all' ? subsidies.length : (categoryCounts[c.id] ?? 0),
+}));
 ---
 
 <BaseLayout
@@ -25,8 +35,12 @@ const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.is
 
       <div class="filter-rail" aria-label="분야 필터">
         {
-          CATEGORIES.map((c) => (
-            <a class="chip" href={c.id === 'all' ? '/subsidies/' : `#cat-${c.id}`}>
+          categoriesWithCount.map((c) => (
+            <a
+              class="chip"
+              data-chip-cat={c.id}
+              href={c.id === 'all' ? '/subsidies/' : `/subsidies/?category=${encodeURIComponent(c.id)}`}
+            >
               <Icon name={c.icon} size={14} />
               {c.name}
               <span class="cnt">{c.count}</span>
@@ -35,10 +49,12 @@ const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.is
         }
       </div>
 
+      <p class="empty-msg" id="empty-msg" hidden>해당 분야의 지원금이 없습니다.</p>
+
       <ul class="subsidy-grid">
         {
           sorted.map((s) => (
-            <li>
+            <li data-cat={s.data.category}>
               <a class="subsidy-card" href={`/subsidies/${s.data.id}/`}>
                 <div class={`media tint-${s.data.category}`}>
                   <Icon name={s.data.icon} size={48} strokeWidth={1.5} />
@@ -65,6 +81,41 @@ const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.is
     </Container>
   </section>
 </BaseLayout>
+
+<script>
+  const apply = () => {
+    const params = new URLSearchParams(window.location.search);
+    const active = params.get('category') || 'all';
+    let visible = 0;
+    document.querySelectorAll<HTMLLIElement>('.subsidy-grid li').forEach((li) => {
+      const cat = li.dataset.cat;
+      const show = active === 'all' || cat === active;
+      li.hidden = !show;
+      if (show) visible++;
+    });
+    document.querySelectorAll<HTMLAnchorElement>('.chip').forEach((chip) => {
+      chip.classList.toggle('active', chip.dataset.chipCat === active);
+    });
+    const empty = document.getElementById('empty-msg');
+    if (empty) empty.hidden = visible !== 0;
+  };
+
+  // Intercept chip clicks to use history.pushState (no full reload)
+  document.querySelectorAll<HTMLAnchorElement>('.chip').forEach((chip) => {
+    chip.addEventListener('click', (e) => {
+      const cat = chip.dataset.chipCat;
+      if (!cat) return;
+      e.preventDefault();
+      const url = cat === 'all' ? '/subsidies/' : `/subsidies/?category=${encodeURIComponent(cat)}`;
+      history.pushState({ cat }, '', url);
+      apply();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  });
+
+  window.addEventListener('popstate', apply);
+  apply();
+</script>
 
 <style>
   .band {
@@ -119,6 +170,25 @@ const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.is
     padding: 7px 13px;
   }
 
+  .chip.active {
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    padding: 8px 14px;
+  }
+
+  .chip.active .cnt {
+    background: rgb(255 255 255 / 0.22);
+    color: #ffffff;
+  }
+
+  .empty-msg {
+    text-align: center;
+    padding: 48px 16px;
+    color: var(--text-2);
+    font-size: 15px;
+  }
+
   .cnt {
     background: var(--surface);
     color: var(--text-2);
@@ -134,7 +204,7 @@ const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.is
     margin: 0;
     padding: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 16px;
   }
 
@@ -185,6 +255,10 @@ const sorted = [...subsidies].sort((a, b) => (b.data.isHot ? 1 : 0) - (a.data.is
   .tint-취업 {
     background: rgb(16 185 129 / 0.12);
     color: #10b981;
+  }
+  .tint-농업 {
+    background: rgb(217 119 6 / 0.12);
+    color: #d97706;
   }
 
   .body {

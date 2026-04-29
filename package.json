@@ -18,7 +18,8 @@
     "lhci:mobile": "lhci autorun --collect.settings.preset=mobile",
     "verify": "npm run lint && npm run check && npm run build && npm run lhci",
     "generate-types": "wrangler types",
-    "deploy": "npm run build && wrangler deploy"
+    "deploy": "npm run build && wrangler deploy",
+    "sync:subsidies": "node scripts/sync-subsidies.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",

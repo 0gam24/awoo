@@ -55,13 +55,14 @@ export interface Category {
 }
 
 export const CATEGORIES: Category[] = [
-  { id: 'all', name: '전체', icon: 'sparkles', count: 10 },
-  { id: '주거', name: '주거 (월세·전세·분양)', icon: 'cat-housing', count: 2 },
-  { id: '취업', name: '취업·재취업', icon: 'cat-employment', count: 1 },
-  { id: '창업', name: '창업·소상공인', icon: 'cat-startup', count: 3 },
-  { id: '교육', name: '교육·훈련', icon: 'cat-education', count: 1 },
-  { id: '자산', name: '자산 형성', icon: 'cat-wealth', count: 1 },
-  { id: '복지', name: '복지·돌봄', icon: 'cat-welfare', count: 2 },
+  { id: 'all', name: '전체', icon: 'sparkles', count: 0 },
+  { id: '주거', name: '주거 (월세·전세·분양)', icon: 'cat-housing', count: 0 },
+  { id: '취업', name: '취업·재취업', icon: 'cat-employment', count: 0 },
+  { id: '창업', name: '창업·소상공인', icon: 'cat-startup', count: 0 },
+  { id: '교육', name: '교육·훈련', icon: 'cat-education', count: 0 },
+  { id: '자산', name: '자산 형성', icon: 'cat-wealth', count: 0 },
+  { id: '복지', name: '복지·돌봄', icon: 'cat-welfare', count: 0 },
+  { id: '농업', name: '농업·귀농', icon: 'cat-farm', count: 0 },
 ];
 
 // 오늘의 이슈 (메인 헤드라인)
