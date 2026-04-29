@@ -226,31 +226,75 @@ function aggregateArticles(articles) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// summary 자동 생성 — 다중 기사 집계 시그널 활용
+// summary 자동 생성 — 다중 기사 집계 + 헤드라인 패턴 분기 + 훅 카피
 // ─────────────────────────────────────────────────────────────
-function generateSummary({ term, count, daysActive, totalCount, allArticles, matchedCount }) {
+function generateSummary({ term, count, daysActive, totalCount, category, allArticles, matchedCount }) {
   const agg = aggregateArticles(allArticles);
 
-  // 헤드라인
+  // 헤드라인 — 시청자 임팩트 우선순위
+  // 1) 다수 지자체 동시 시행 (사회적 증거 강함)
+  // 2) 며칠 연속 화제 (지속성)
+  // 3) 매체 주목 (단발성)
   let headline;
-  if (daysActive >= 5) headline = `${term} — ${daysActive}일 연속 화제`;
-  else if (daysActive >= 3) headline = `${term} — ${daysActive}일째 매체 주목`;
-  else headline = `${term} — 이번 주 화제`;
+  if (agg.cities.length >= 2) {
+    headline = `${term} — ${agg.cities.length}개 지자체 동시 시행 중`;
+  } else if (daysActive >= 5) {
+    headline = `${term} — ${daysActive}일 연속 화제`;
+  } else if (daysActive >= 3) {
+    headline = `${term} — ${daysActive}일째 매체 주목`;
+  } else {
+    headline = `${term} — 이번 주 화제`;
+  }
 
   // 부제 — 집계 시그널
   const parts = [];
   if (agg.cities.length >= 2) {
-    parts.push(`${agg.cities.slice(0, 4).join('·')} 등 ${agg.cities.length}곳 시행`);
+    parts.push(`${agg.cities.slice(0, 4).join('·')} 신청 접수`);
   } else if (agg.cities.length === 1) {
     parts.push(`${agg.cities[0]} 시행`);
   }
   const totalText = totalCount > count ? `누적 ${totalCount}회` : `${count}회`;
-  parts.push(`매체 ${totalText} 언급 (${agg.publisherCount}곳)`);
+  parts.push(`매체 ${totalText} 언급`);
   if (matchedCount > 0) parts.push(`관련 지원금 ${matchedCount}건 매칭`);
-
   const subhead = parts.join(' · ');
 
-  return { headline, subhead, aggregate: agg };
+  // 훅 카피 — 행동 유도, 시청자 감정 트리거
+  let hookCopy = null;
+  if (agg.cities.length >= 2) {
+    hookCopy = `${agg.cities[0]}·${agg.cities[1]} 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다.`;
+  } else if (matchedCount > 0) {
+    hookCopy = '받을 수 있는 분이라면 지금 확인하세요. 관련 지원금이 우리 DB에서 매칭됐습니다.';
+  } else if (daysActive >= 3) {
+    hookCopy = '며칠째 매체에서 주목받는 정책입니다. 자세한 분석을 확인하세요.';
+  } else {
+    hookCopy = '이번 주 처음 화제가 된 정책입니다. 정확한 정보를 빠르게 확인하세요.';
+  }
+
+  // 핵심 사실 4박스 — 빠른 스캔용
+  const coreFacts = [
+    {
+      label: '시행 지역',
+      value: agg.cities.length > 0 ? `${agg.cities.length}곳` : '확인 필요',
+      sub: agg.cities.length > 0 ? agg.cities.slice(0, 2).join('·') : '',
+    },
+    {
+      label: '매체 언급',
+      value: `${totalCount}회`,
+      sub: `${agg.publisherCount}개 매체`,
+    },
+    {
+      label: '트렌드',
+      value: daysActive >= 2 ? `${daysActive}일째` : '신규',
+      sub: daysActive >= 2 ? '연속 보도' : '오늘 등장',
+    },
+    {
+      label: '분야',
+      value: category ?? '복지',
+      sub: '카테고리',
+    },
+  ];
+
+  return { headline, subhead, hookCopy, coreFacts, aggregate: agg };
 }
 
 // 제목 필수 키워드 — 제목에 하나라도 없으면 정책성 뉴스로 보지 않음
@@ -596,6 +640,7 @@ async function main() {
     count: topTrendCount,
     daysActive,
     totalCount,
+    category: top.category,
     allArticles: topAllArticles,
     matchedCount: matched.length,
   });
@@ -621,7 +666,12 @@ async function main() {
     trendingTopic: topTrendTerm,
     trendingTopicCount: topTrendCount,
     // 누적 시그널 + 다중 기사 집계 요약 (LLM 없이 결정론적)
-    summary: { headline: summary.headline, subhead: summary.subhead },
+    summary: {
+      headline: summary.headline,
+      subhead: summary.subhead,
+      hookCopy: summary.hookCopy,
+      coreFacts: summary.coreFacts,
+    },
     aggregate: summary.aggregate, // cities, publisherCount, publishers, newestPubDate
     daysActive,
     totalCount,
