@@ -28,7 +28,8 @@ npm run dev                          # http://localhost:4321
 - **Astro 6** + React 19 Islands + Tailwind 4 + TypeScript strict
 - **Cloudflare Workers + Static Assets** 배포 (GitHub push → 자동 배포)
 - **Pretendard Variable** 셀프호스팅 (KS X 1001 + Latin subset)
-- **Astro Content Collections** (페르소나 6 / 지원금 10 / 이슈 4)
+- **Astro Content Collections** (페르소나 6 / 지원금 119 / 일간 이슈 자동 생성)
+- **자동 콘텐츠 파이프라인** — 보조금24·네이버 뉴스 + Claude Sonnet 4.6 일간 생성
 - 커스텀 도메인 [awoo.or.kr](https://awoo.or.kr)
 
 ## 주요 명령
@@ -39,9 +40,22 @@ npm run dev                          # http://localhost:4321
 | `npm run build` | 프로덕션 빌드 |
 | `npm run preview` | 빌드 + Wrangler 로컬 Worker 미리보기 |
 | `npm run lint` | Biome 린트 |
+| `npm run lint:content` | 콘텐츠 무결성 (slug 충돌·참조·schema) |
 | `npm run check` | astro check + tsc |
 | `npm run lhci` | Lighthouse CI 4×100 게이트 (Chrome 필요) |
-| `npm run verify` | lint + check + build + lhci 일괄 실행 |
+| `npm run verify` | lint + lint:content + check + build + lhci 일괄 |
+
+### 운영 자동화
+
+| 명령 | 용도 |
+|---|---|
+| `npm run sync:subsidies:new` | 보조금24 신규 incremental sync |
+| `npm run sync:issues` | 네이버 뉴스 → today-issue.json |
+| `npm run generate:issues` | Claude → /issues/[date]/[slug].json |
+| `npm run sweep:stale[:apply]` | 마감 30일+ 항목 archive |
+| `npm run tag:personas[:apply]` | 페르소나 휴리스틱 backfill |
+| `npm run check:apply-urls` | 외부 applyUrl HEAD 헬스 체크 (5% 샘플) |
+| `npm run indexnow:ping` | Bing/Yandex IndexNow 색인 ping |
 
 ## 운영 표준
 
@@ -56,20 +70,30 @@ npm run dev                          # http://localhost:4321
 
 ```
 src/
-├── content.config.ts           # Content Collections Zod 스키마
-├── data/                       # 페르소나·지원금·이슈 JSON + site-data.ts
-├── components/                 # Atom + home/* (UrgencyHook, NewsHero, IncomeChecker, ...)
-├── layouts/BaseLayout.astro    # SEO/OG/Twitter/skip-link/theme
-├── pages/                      # 정적 prerender 28페이지 + llms.txt 동적
-└── styles/global.css           # Tailwind + 디자인 토큰 + 폰트 face
+├── content.config.ts            # Content Collections (gov24/curated, _archived 제외)
+├── data/                        # personas / situations / today-issue / subsidies/_gov24 / issues
+├── lib/api/                     # rate-limit·utils·validation (서버 공용)
+├── components/                  # Atom + home/* (NewsHero, PersonaPicker, ...)
+├── layouts/BaseLayout.astro     # SEO/OG/Twitter/RSS alternate/skip-link
+├── pages/                       # 정적 prerender — 홈·이슈·지원금·페르소나·상황·카테고리·가이드·5분 진단
+│   ├── issues/topics/[term]     # 트렌딩 토픽 영구 페이지
+│   ├── subsidies/category/[c]/persona/[p]   # 4축 cross-ref hub
+│   └── api/                     # contact·feedback·vitals (rate-limited)
+└── styles/global.css            # Tailwind + 디자인 토큰
+
+scripts/                         # 빌드/운영 자동화 (Node CLI)
+├── sync-subsidies / sync-issues / generate-issue-posts
+├── sweep-stale / tag-personas / check-apply-urls / indexnow-ping
+└── lint-content                 # CI 게이트
 
 public/
-├── _headers                    # Cloudflare HTTP 보안 헤더 (HSTS·CSP·Permissions)
-├── robots.txt                  # AI 크롤러 명시 허용
-├── og-default.png              # 1200×630 OG 이미지
+├── _headers                     # CSP·HSTS·X-Frame·Permissions
+├── _redirects                   # 301 매핑
+├── robots.txt / og-default.png / favicon.svg
 └── fonts/PretendardVariable.subset.woff2
 
-docs/memory/                    # Claude 작업 컨텍스트 (HANDOFF에서 참조)
+.github/workflows/               # CI · 배포 · 5종 cron
+docs/ops/                        # 운영 가이드 (Search Console, IndexNow, ...)
 ```
 
 ## 운영 주체

@@ -38,6 +38,18 @@
     }
   ]
 
+  // KV — API rate limit 글로벌 분산 (선택, in-memory fallback 동작 중)
+  // 활성화 절차:
+  //   1. npx wrangler kv namespace create awoo-rate-limit
+  //   2. 출력된 id를 아래 namespace_id에 채우고 주석 해제
+  //   3. /api/contact, /api/feedback 자동 KV 사용 (코드 수정 불필요)
+  // "kv_namespaces": [
+  //   {
+  //     "binding": "RATE_LIMIT_KV",
+  //     "id": "REPLACE_AFTER_CREATE"
+  //   }
+  // ]
+
   // 시크릿 (코드 커밋 X — wrangler secret put 사용):
   // wrangler secret put RESEND_API_KEY
   // wrangler secret put TURNSTILE_SECRET_KEY

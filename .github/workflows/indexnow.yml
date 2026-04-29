@@ -1,0 +1,81 @@
+name: IndexNow ping
+
+# main 브랜치 push 후 색인 알림 (Bing·Yandex 등)
+# - Cloudflare 자동 배포와 병렬 — 색인 실패는 배포 차단 X
+# - INDEXNOW_KEY secret 미설정 시 graceful skip
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      reset:
+        description: '상태 초기화 (전체 재ping)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  ping:
+    name: Build + IndexNow submit
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Skip if INDEXNOW_KEY missing
+        id: gate
+        env:
+          KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::warning title=IndexNow::INDEXNOW_KEY secret 미설정 — skip (docs/ops/INDEXNOW.md 참조)"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install
+        if: steps.gate.outputs.skip == 'false'
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Reset state (수동 트리거 시)
+        if: steps.gate.outputs.skip == 'false' && inputs.reset == 'true'
+        run: rm -f .indexnow-state.json
+
+      - name: Build
+        if: steps.gate.outputs.skip == 'false'
+        run: npm run build
+
+      - name: IndexNow ping
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        run: npm run indexnow:ping
+        continue-on-error: true
+
+      - name: Commit state
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          if [ -n "$(git status --porcelain .indexnow-state.json)" ]; then
+            git config user.name "awoo-bot"
+            git config user.email "noreply@awoo.or.kr"
+            git add .indexnow-state.json
+            git commit -m "chore(indexnow): 상태 갱신 — $(date -u +%Y-%m-%d) [skip ci]"
+            git push origin main
+          fi

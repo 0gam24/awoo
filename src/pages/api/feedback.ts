@@ -19,8 +19,14 @@ interface D1Database {
   };
 }
 
+interface KVNamespace {
+  get: (key: string, options?: { type?: 'json' | 'text' }) => Promise<unknown>;
+  put: (key: string, value: string, options?: { expirationTtl?: number }) => Promise<void>;
+}
+
 interface Env {
   DB?: D1Database;
+  RATE_LIMIT_KV?: KVNamespace;
 }
 
 /**
@@ -49,9 +55,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const f = parsed.data;
   const ipHash = await hashIp(getClientIp(request));
   const ua = request.headers.get('user-agent')?.slice(0, 200) ?? null;
+  const env = (locals as { runtime?: { env?: Env } }).runtime?.env;
 
-  // Rate limit — IP 해시당 시간당 10건
-  const rl = checkRateLimit(`feedback:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC);
+  // Rate limit — IP 해시당 시간당 10건. KV 바인딩 있으면 글로벌.
+  const rl = await checkRateLimit(`feedback:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC, {
+    kv: env?.RATE_LIMIT_KV,
+  });
   if (!rl.allowed) {
     return new Response(
       JSON.stringify({ error: { code: 'rate_limited', detail: `${rl.retryAfterSeconds}초 후 재시도` } }),
@@ -65,8 +74,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
       },
     );
   }
-
-  const env = (locals as { runtime?: { env?: Env } }).runtime?.env;
 
   if (env?.DB) {
     try {

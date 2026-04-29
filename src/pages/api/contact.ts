@@ -26,8 +26,14 @@ interface D1Database {
   };
 }
 
+interface KVNamespace {
+  get: (key: string, options?: { type?: 'json' | 'text' }) => Promise<unknown>;
+  put: (key: string, value: string, options?: { expirationTtl?: number }) => Promise<void>;
+}
+
 interface Env {
   DB?: D1Database;
+  RATE_LIMIT_KV?: KVNamespace;
   RESEND_API_KEY?: string;
   TURNSTILE_SECRET_KEY?: string;
   ADMIN_EMAIL?: string;
@@ -64,7 +70,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const ipHash = await hashIp(ip);
 
   // Rate limit — IP 기반 시간당 3건 (양식 검증 통과 후 체크 — 잘못된 payload는 카운트 X)
-  const rl = checkRateLimit(`contact:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC);
+  // KV 바인딩 있으면 글로벌, 없으면 per-isolate
+  const rl = await checkRateLimit(`contact:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC, {
+    kv: env.RATE_LIMIT_KV,
+  });
   if (!rl.allowed) {
     return new Response(
       JSON.stringify({ error: { code: 'rate_limited', detail: `${rl.retryAfterSeconds}초 후 재시도` } }),
