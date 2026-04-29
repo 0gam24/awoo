@@ -3,6 +3,7 @@ import '@/styles/global.css';
 import Footer from '@/components/Footer.astro';
 import HotkeyNav from '@/components/HotkeyNav.astro';
 import TopBar from '@/components/TopBar.astro';
+import { buildBreadcrumb, type BreadcrumbItem } from '@/lib/schema';
 
 interface Props {
   title: string;
@@ -12,6 +13,8 @@ interface Props {
   noindex?: boolean;
   /** 활성 nav 키: 'home' | '/subsidies' | '/guide' 등 */
   activeNav?: string;
+  /** 페이지별 breadcrumb — 명시 시 BreadcrumbList JSON-LD 자동 출력 */
+  breadcrumbs?: BreadcrumbItem[];
 }
 
 const {
@@ -21,7 +24,10 @@ const {
   ogImage = '/og-default.png',
   noindex = false,
   activeNav = '',
+  breadcrumbs,
 } = Astro.props;
+
+const breadcrumbSchema = breadcrumbs && breadcrumbs.length > 1 ? buildBreadcrumb(breadcrumbs) : null;
 
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
 const ogImageURL = new URL(ogImage, Astro.site).toString();
@@ -91,6 +97,10 @@ const siteName = '지원금가이드';
       })();
     </script>
     <meta name="naver-site-verification" content="8203ca7628a4c7bc8b90fb2086b0086ec3c62ac9" />
+
+    {breadcrumbSchema && (
+      <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+    )}
   </head>
   <body>
     <a href="#main" class="skip-link">본문으로 건너뛰기</a>

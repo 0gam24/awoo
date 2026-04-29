@@ -78,22 +78,19 @@ const hubCategories = Object.entries(byCategory)
   .filter(([, v]) => v.count >= HUB_MIN)
   .sort((a, b) => b[1].count - a[1].count);
 
-const breadcrumbSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: '홈', item: 'https://awoo.or.kr/' },
-    { '@type': 'ListItem', position: 2, name: '지원금', item: 'https://awoo.or.kr/subsidies/' },
-    { '@type': 'ListItem', position: 3, name: '페르소나', item: 'https://awoo.or.kr/personas/' },
-    { '@type': 'ListItem', position: 4, name: p.label, item: `https://awoo.or.kr/personas/${p.id}/` },
-  ],
-};
+const breadcrumbs = [
+  { name: '홈', href: '/' },
+  { name: '지원금', href: '/subsidies/' },
+  { name: '페르소나', href: '/personas/' },
+  { name: p.label, href: `/personas/${p.id}/` },
+];
 ---
 
 <BaseLayout
   title={`${p.label} — 지원금가이드`}
   description={`${p.label}(${p.sub})에게 매칭되는 정부 지원금 ${matched.length}개. ${p.pains.join(', ')} 문제 해결을 위한 정보 안내.`}
   activeNav="/subsidies/"
+  breadcrumbs={breadcrumbs}
 >
   <section class="persona-hero" data-bg={p.bg}>
     <Container size="wide">
@@ -198,12 +195,6 @@ const breadcrumbSchema = {
       </nav>
     </Container>
   </section>
-
-  <script
-    is:inline
-    type="application/ld+json"
-    set:html={JSON.stringify(breadcrumbSchema)}
-  />
 </BaseLayout>
 
 <style>

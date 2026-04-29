@@ -33,15 +33,12 @@ const relatedGlossaryItems = (t.relatedGlossary ?? [])
   .map((id) => glossaryById.get(id))
   .filter((x): x is NonNullable<typeof x> => x !== undefined);
 
-const breadcrumbSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: '홈', item: 'https://awoo.or.kr/' },
-    { '@type': 'ListItem', position: 2, name: '주제별 종합', item: 'https://awoo.or.kr/topics/' },
-    { '@type': 'ListItem', position: 3, name: t.title, item: `https://awoo.or.kr/topics/${t.id}/` },
-  ],
-};
+const breadcrumbs = [
+  { name: '홈', href: '/' },
+  { name: '신청 가이드', href: '/guide/' },
+  { name: '주제별 종합', href: '/topics/' },
+  { name: t.title, href: `/topics/${t.id}/` },
+];
 
 const faqSchema = t.faq.length > 0 ? {
   '@context': 'https://schema.org',
@@ -58,8 +55,8 @@ const faqSchema = t.faq.length > 0 ? {
   title={`${t.title} | 지원금가이드`}
   description={t.shortDef}
   activeNav="/guide/"
+  breadcrumbs={breadcrumbs}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
 
   <article class="band">

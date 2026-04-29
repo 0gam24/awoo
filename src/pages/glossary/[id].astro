@@ -43,24 +43,21 @@ const definedTermSchema = {
   termCode: term.id,
 };
 
-const breadcrumbSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'BreadcrumbList',
-  itemListElement: [
-    { '@type': 'ListItem', position: 1, name: '홈', item: 'https://awoo.or.kr/' },
-    { '@type': 'ListItem', position: 2, name: '용어 사전', item: 'https://awoo.or.kr/glossary/' },
-    { '@type': 'ListItem', position: 3, name: term.term, item: `https://awoo.or.kr/glossary/${term.id}/` },
-  ],
-};
+const breadcrumbs = [
+  { name: '홈', href: '/' },
+  { name: '신청 가이드', href: '/guide/' },
+  { name: '용어 사전', href: '/glossary/' },
+  { name: term.term, href: `/glossary/${term.id}/` },
+];
 ---
 
 <BaseLayout
   title={`${term.term} — 정부 지원금 용어 정의 | 지원금가이드`}
   description={term.shortDef.slice(0, 160)}
   activeNav="/guide/"
+  breadcrumbs={breadcrumbs}
 >
   <script type="application/ld+json" set:html={JSON.stringify(definedTermSchema)} />
-  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 
   <article class="band">
     <Container size="narrow">

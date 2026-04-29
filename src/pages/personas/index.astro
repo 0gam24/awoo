@@ -1,8 +1,10 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
+import PageHeader from '@/components/PageHeader.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
+import { buildCollectionPage } from '@/lib/schema';
 import { getCollection } from 'astro:content';
 
 const personas = await getCollection('personas');
@@ -34,22 +36,34 @@ const ctxByPersona = personas.reduce<
   };
   return acc;
 }, {});
+
+const collectionSchema = buildCollectionPage({
+  name: '페르소나별 지원금',
+  description: '6가지 페르소나 단위로 정리된 정부 지원금 안내.',
+  pageUrl: '/personas/',
+  items: personas.map((p) => ({ url: `/personas/${p.data.id}/`, name: p.data.label })),
+});
 ---
 
 <BaseLayout
   title="페르소나별 지원금 — 사회초년생·자영업·신혼·중장년·저소득·농업"
   description="6가지 페르소나(생애·상황) 단위로 정리된 정부 지원금 안내. 본인과 가까운 페르소나를 선택하면 매칭 지원금을 즉시 확인할 수 있습니다."
   activeNav="/subsidies/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '지원금', href: '/subsidies/' },
+    { name: '페르소나', href: '/personas/' },
+  ]}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+
   <section class="band">
     <Container size="wide">
-      <div class="head">
-        <h1 class="title">페르소나별 지원금</h1>
-        <p class="lead">
-          본인 정체성·생애 단계에 가장 가까운 <strong>페르소나 6가지</strong> 중 하나를 선택하면, 매칭된 지원금을 한눈에 볼 수 있습니다.<br />
-          정확한 매칭은 <a class="lead-link" href="/quick/">5분 진단</a>을 사용하세요.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="페르소나별 지원금"
+        title="본인과 가장 가까운 그룹을 선택하세요"
+        lead={`정체성·생애 단계에 가장 가까운 <strong>페르소나 6가지</strong> 중 하나를 클릭하면 매칭 지원금이 즉시 보입니다.<br />정확한 매칭은 <a href="/quick/" style="color:var(--accent-link);font-weight:600">5분 진단</a>으로 확인하세요.`}
+      />
 
       <ul class="grid">
         {
@@ -112,28 +126,6 @@ const ctxByPersona = personas.reduce<
 
 <style>
   .band { padding: 48px 0 80px; }
-
-  .head {
-    margin-bottom: 28px;
-    max-width: 720px;
-  }
-  .title {
-    font-size: clamp(28px, 3.6vw, 44px);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin: 0 0 12px;
-  }
-  .lead {
-    font-size: 16px;
-    color: var(--text-2);
-    line-height: 1.65;
-    margin: 0;
-  }
-  .lead-link {
-    color: var(--accent-link);
-    font-weight: 600;
-  }
 
   .grid {
     list-style: none;

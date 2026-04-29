@@ -1,6 +1,8 @@
 ---
 import Container from '@/components/Container.astro';
+import PageHeader from '@/components/PageHeader.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildCollectionPage } from '@/lib/schema';
 import { getCollection } from 'astro:content';
 
 const items = (await getCollection('glossary')).sort((a, b) =>
@@ -32,25 +34,35 @@ const definedTermSetSchema = {
     url: `https://awoo.or.kr/glossary/${i.data.id}/`,
   })),
 };
+
+const collectionSchema = buildCollectionPage({
+  name: `정부 지원금 용어 ${items.length}개`,
+  description: '정부 지원금을 검색하다 자주 만나는 핵심 용어 1문단 정의 모음.',
+  pageUrl: '/glossary/',
+  items: items.map((i) => ({ url: `/glossary/${i.data.id}/`, name: i.data.term })),
+});
 ---
 
 <BaseLayout
   title={`정부 지원금 용어 사전 ${items.length}개 — 지원금가이드`}
   description="중위소득·기초생활보장·청약가점·EITC 등 정부 지원금 신청 시 자주 쓰이는 용어 30+개 1문단 정의."
   activeNav="/guide/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '신청 가이드', href: '/guide/' },
+    { name: '용어 사전', href: '/glossary/' },
+  ]}
 >
   <script type="application/ld+json" set:html={JSON.stringify(definedTermSetSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
 
   <section class="band">
     <Container size="wide">
-      <div class="head">
-        <div class="eyebrow">용어 사전</div>
-        <h1 class="title">정부 지원금 용어 {items.length}개</h1>
-        <p class="lead">
-          기준 중위소득·기초생활보장·청약가점·EITC ··· 정부 지원금을 검색하다 만나는 핵심 용어를 1문단으로 정리했습니다.<br />
-          각 항목에서 관련 지원금까지 바로 이동.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="용어 사전"
+        title={`정부 지원금 용어 ${items.length}개`}
+        lead={`기준 중위소득·기초생활보장·청약가점·EITC ··· 정부 지원금을 검색하다 만나는 핵심 용어를 1문단으로 정리했습니다.<br />각 항목에서 관련 지원금까지 바로 이동.`}
+      />
 
       {categories.map((cat) => (
         <section class="cat-block">
@@ -73,35 +85,6 @@ const definedTermSetSchema = {
 
 <style>
   .band { padding: 48px 0 80px; }
-
-  .head {
-    margin-bottom: 32px;
-    max-width: 720px;
-  }
-
-  .eyebrow {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 10px;
-  }
-
-  .title {
-    font-size: clamp(28px, 3.6vw, 44px);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin: 0 0 12px;
-  }
-
-  .lead {
-    font-size: 16px;
-    color: var(--text-2);
-    line-height: 1.65;
-    margin: 0;
-  }
 
   .cat-block {
     margin-bottom: 36px;

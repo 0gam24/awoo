@@ -1,8 +1,10 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
+import PageHeader from '@/components/PageHeader.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CATEGORIES } from '@/data/site-data';
+import { buildCollectionPage } from '@/lib/schema';
 import { getCollection } from 'astro:content';
 
 const subsidies = await getCollection('subsidies');
@@ -39,22 +41,34 @@ const cats = CATEGORIES.slice(1).map((c) => ({
   ...c,
   ...statsForCategory(c.id),
 }));
+
+const collectionSchema = buildCollectionPage({
+  name: `분야별 지원금 가이드 ${cats.length}분야`,
+  description: '주거·취업·창업·교육·자산·복지·농업 7개 분야별 정부 지원금 안내.',
+  pageUrl: '/categories/',
+  items: cats.map((c) => ({ url: `/categories/${encodeURIComponent(c.id)}/`, name: c.name })),
+});
 ---
 
 <BaseLayout
   title="분야별 지원금 가이드 — 주거·취업·창업·교육·자산·복지·농업"
   description="정부 지원금 7개 분야별 안내. 분야 개요, 자격 일반론, 대표 지원금까지 한 페이지에서 확인."
   activeNav="/subsidies/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '지원금', href: '/subsidies/' },
+    { name: '분야별', href: '/categories/' },
+  ]}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+
   <section class="band">
     <Container size="wide">
-      <div class="head">
-        <h1 class="title">분야별 지원금 가이드</h1>
-        <p class="lead">
-          정부 지원금을 7개 분야로 나눠 한눈에 정리했습니다.<br />
-          분야를 클릭하면 그 분야의 자격 요건 일반론과 대표 지원금을 함께 볼 수 있습니다.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="분야별 가이드"
+        title="7개 분야로 나눈 정부 지원금"
+        lead={`주거·취업·창업·교육·자산·복지·농업 — 분야를 클릭하면<br />자격 요건 일반론과 대표 지원금을 함께 볼 수 있습니다.`}
+      />
 
       <ul class="grid">
         {
@@ -105,24 +119,6 @@ const cats = CATEGORIES.slice(1).map((c) => ({
 
 <style>
   .band { padding: 48px 0 80px; }
-
-  .head {
-    margin-bottom: 28px;
-    max-width: 720px;
-  }
-  .title {
-    font-size: clamp(28px, 3.6vw, 44px);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin: 0 0 12px;
-  }
-  .lead {
-    font-size: 16px;
-    color: var(--text-2);
-    line-height: 1.65;
-    margin: 0;
-  }
 
   .grid {
     list-style: none;

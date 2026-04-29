@@ -1,0 +1,74 @@
+---
+// 모든 hub 인덱스의 통일된 헤더 — eyebrow + h1 + lead.
+// 메타 영역(meta·badge)은 children slot으로 추가 가능.
+//
+// 사용:
+//   <PageHeader eyebrow="용어 사전" title="정부 지원금 용어 30개" lead="...">
+//     <span class="badge">최신</span>
+//   </PageHeader>
+//
+// 정체성: 독자 중심 카피 원칙 준수 (운영자 행동 X).
+
+interface Props {
+  /** 작은 서브 타이틀 (선택) */
+  eyebrow?: string;
+  /** 메인 h1 */
+  title: string;
+  /** 본문 도입부 — 1~2문장. 한 줄 break는 <br /> 허용 */
+  lead?: string;
+  /** 컨테이너 좌우 정렬 (기본 left) */
+  align?: 'left' | 'center';
+  /** 폭 제한 — narrow(560)·default(720)·wide(960) */
+  width?: 'narrow' | 'default' | 'wide';
+}
+
+const { eyebrow, title, lead, align = 'left', width = 'default' } = Astro.props;
+---
+
+<header class:list={['page-header', `align-${align}`, `width-${width}`]}>
+  {eyebrow && <div class="eyebrow">{eyebrow}</div>}
+  <h1 class="title">{title}</h1>
+  {lead && <p class="lead" set:html={lead} />}
+  <slot />
+</header>
+
+<style>
+  .page-header {
+    margin-bottom: 32px;
+  }
+
+  .align-center { text-align: center; margin-inline: auto; }
+
+  .width-narrow { max-width: 560px; }
+  .width-default { max-width: 720px; }
+  .width-wide { max-width: 960px; }
+
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+
+  .title {
+    font-size: clamp(28px, 3.6vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .lead :global(strong) {
+    color: var(--text);
+    font-weight: 700;
+  }
+</style>

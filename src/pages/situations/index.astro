@@ -1,8 +1,10 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
+import PageHeader from '@/components/PageHeader.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import situations from '@/data/situations.json';
+import { buildCollectionPage } from '@/lib/schema';
 import { getCollection } from 'astro:content';
 
 interface Situation {
@@ -39,22 +41,34 @@ const enriched = (situations as Situation[]).map((s) => ({
 const topPriority = [...enriched]
   .sort((a, b) => b.count - a.count)
   .slice(0, 3);
+
+const collectionSchema = buildCollectionPage({
+  name: `라이프 이벤트별 지원금 ${enriched.length}가지`,
+  description: '출산·결혼·이사·실직 등 라이프 이벤트별 정부 지원금 안내.',
+  pageUrl: '/situations/',
+  items: enriched.map((s) => ({ url: `/situations/${s.id}/`, name: s.label })),
+});
 ---
 
 <BaseLayout
   title={`라이프 이벤트별 지원금 — 출산·결혼·이사·실직 ${situations.length}가지 상황`}
   description="인생의 변곡점마다 받을 수 있는 정부 지원금을 한눈에. 출산·결혼·이사·실직·창업·은퇴·입학·자녀양육·부모부양·질병·군복무·귀농 12가지 상황별 안내."
   activeNav="/subsidies/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '지원금', href: '/subsidies/' },
+    { name: '상황별', href: '/situations/' },
+  ]}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+
   <section class="band">
     <Container size="wide">
-      <div class="head">
-        <h1 class="title">상황별 지원금 찾기</h1>
-        <p class="lead">
-          페르소나가 정체성이라면, <strong>상황은 지금 일어나고 있는 사건</strong>입니다.<br />
-          출산했어요 / 이사 가요 / 실직했어요 — 자신의 라이프 이벤트를 클릭하면 매칭된 지원금을 바로 볼 수 있습니다.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="상황별 지원금"
+        title="지금 내 상황에 맞는 지원금을 찾으세요"
+        lead={`페르소나가 정체성이라면, <strong>상황은 지금 일어나고 있는 사건</strong>입니다.<br />출산·이사·실직 등 라이프 이벤트를 클릭하면 매칭 지원금이 즉시 보입니다.`}
+      />
 
       {topPriority.length > 0 && (
         <section class="priority-section" aria-labelledby="priority-title">
@@ -112,25 +126,6 @@ const topPriority = [...enriched]
 
 <style>
   .band { padding: 48px 0 80px; }
-
-  .head {
-    margin-bottom: 28px;
-    max-width: 720px;
-  }
-
-  .title {
-    font-size: clamp(28px, 3.6vw, 44px);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin: 0 0 12px;
-  }
-  .lead {
-    font-size: 16px;
-    color: var(--text-2);
-    line-height: 1.65;
-    margin: 0;
-  }
 
   .grid {
     list-style: none;

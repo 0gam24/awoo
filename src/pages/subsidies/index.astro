@@ -1,9 +1,11 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
+import PageHeader from '@/components/PageHeader.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CATEGORIES, formatWon } from '@/data/site-data';
 import { isNew } from '@/lib/subsidies-meta';
+import { buildCollectionPage } from '@/lib/schema';
 import { getCollection } from 'astro:content';
 
 const subsidies = await getCollection('subsidies');
@@ -60,21 +62,33 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
   ...c,
   count: c.id === 'all' ? subsidies.length : (categoryCounts[c.id] ?? 0),
 }));
+
+const collectionSchema = buildCollectionPage({
+  name: `정부 지원금 ${subsidies.length}개`,
+  description: '전 국민 대상 정부 지원금을 분야·페르소나별로 정리한 목록.',
+  pageUrl: '/subsidies/',
+  items: sorted.slice(0, 100).map((s) => ({ url: `/subsidies/${s.data.id}/`, name: s.data.title })),
+});
 ---
 
 <BaseLayout
   title={`정부 지원금 ${subsidies.length}개 둘러보기 — 지원금가이드`}
   description={`전 국민 대상 정부 지원금 ${subsidies.length}개를 분야·페르소나별로 정리. 청년 월세, 신혼 특공, 청년도약계좌, 소상공인 정책자금 등.`}
   activeNav="/subsidies/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '지원금', href: '/subsidies/' },
+  ]}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+
   <section class="band">
     <Container size="wide">
-      <div class="head">
-        <h1 class="title">지원금 둘러보기</h1>
-        <p class="lead">
-          전 국민 대상 정부 지원금 <strong>{subsidies.length}개</strong>를 분야·페르소나별로 살펴보세요.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="둘러보기"
+        title="지원금 둘러보기"
+        lead={`전 국민 대상 정부 지원금 <strong>${subsidies.length}개</strong>를 분야·페르소나별로 살펴보세요.`}
+      />
 
       <div class="filter-rail" aria-label="분야 필터">
         {
@@ -110,7 +124,7 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
               data-deadline-rank={deadlineRank(s.data)}
               data-popularity-rank={popularityRank(s.data)}
             >
-              <a class="subsidy-card" href={`/subsidies/${s.data.id}/`}>
+              <a class={`subsidy-card cat-${s.data.category}`} href={`/subsidies/${s.data.id}/`}>
                 <div class={`media tint-${s.data.category}`}>
                   <Icon name={s.data.icon} size={26} strokeWidth={1.6} />
                 </div>
@@ -231,26 +245,6 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
     padding: 48px 0 80px;
   }
 
-  .head {
-    margin-bottom: 28px;
-    max-width: 720px;
-  }
-
-  .title {
-    font-size: clamp(28px, 3.6vw, 44px);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin: 0 0 12px;
-  }
-
-  .lead {
-    font-size: 16px;
-    color: var(--text-2);
-    line-height: 1.6;
-    margin: 0;
-  }
-
   .filter-rail {
     display: flex;
     gap: 8px;
@@ -360,11 +354,12 @@ const categoriesWithCount = CATEGORIES.map((c) => ({
     flex-direction: column;
     background: var(--surface);
     border: 1px solid var(--border);
+    border-left: 4px solid var(--cat-color, var(--border-2));
     border-radius: var(--radius-lg);
     text-decoration: none;
     color: inherit;
     overflow: hidden;
-    transition: transform 0.18s var(--ease-standard);
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s;
   }
   .subsidy-card:hover {
     transform: translateY(-3px);

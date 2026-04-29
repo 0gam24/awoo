@@ -1,27 +1,53 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
+import PageHeader from '@/components/PageHeader.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildCollectionPage } from '@/lib/schema';
 import { getCollection } from 'astro:content';
 
 const topics = await getCollection('topics');
+
+// 각 토픽의 매칭 지원금 수 추정 (relatedSubsidyKeywords 기반)
+const allSubsidies = await getCollection('subsidies');
+const topicCounts = topics.reduce<Record<string, number>>((acc, t) => {
+  const kws = t.data.relatedSubsidyKeywords ?? [];
+  acc[t.data.id] = kws.length === 0
+    ? 0
+    : allSubsidies.filter((s) => {
+        const text = `${s.data.title} ${s.data.summary} ${(s.data.tags ?? []).join(' ')}`;
+        return kws.some((kw) => text.includes(kw));
+      }).length;
+  return acc;
+}, {});
+
+const collectionSchema = buildCollectionPage({
+  name: `주제별 종합 가이드 ${topics.length}개`,
+  description: '청년 주거·신혼 출산 등 한 번에 결정해야 할 주제를 한 페이지에 정리.',
+  pageUrl: '/topics/',
+  items: topics.map((t) => ({ url: `/topics/${t.data.id}/`, name: t.data.title })),
+});
 ---
 
 <BaseLayout
   title={`주제별 종합 가이드 ${topics.length}개 — 지원금가이드`}
   description="청년 주거·신혼 출산·중장년 재취업 등 인생 단계별로 받을 수 있는 정부 지원금을 한 페이지에서 비교·검토하세요."
   activeNav="/guide/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '신청 가이드', href: '/guide/' },
+    { name: '주제별 종합', href: '/topics/' },
+  ]}
 >
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+
   <section class="band">
     <Container size="wide">
-      <div class="head">
-        <div class="eyebrow">주제별 종합</div>
-        <h1 class="title">한 주제, 한 페이지로 정리</h1>
-        <p class="lead">
-          청년 주거·신혼 출산처럼 한 번에 결정해야 할 주제를 모아<br />
-          비교표·신청 순서·자주 떨어지는 이유까지 함께 안내합니다.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="주제별 종합"
+        title="한 주제, 한 페이지로 정리"
+        lead={`청년 주거·신혼 출산처럼 한 번에 결정해야 할 주제를 모아<br />비교표·신청 순서·자주 떨어지는 이유까지 함께 안내합니다.`}
+      />
 
       <ul class="grid">
         {topics.map((t) => (
@@ -33,6 +59,9 @@ const topics = await getCollection('topics');
               <div class="tile-body">
                 <div class="tile-title">{t.data.title}</div>
                 <div class="tile-def">{t.data.shortDef}</div>
+                {topicCounts[t.data.id] > 0 && (
+                  <div class="tile-meta">관련 지원금 {topicCounts[t.data.id]}건 안내</div>
+                )}
               </div>
               <span class="tile-arrow" aria-hidden="true">→</span>
             </a>
@@ -45,32 +74,6 @@ const topics = await getCollection('topics');
 
 <style>
   .band { padding: 48px 0 80px; }
-
-  .head {
-    margin-bottom: 32px;
-    max-width: 720px;
-  }
-  .eyebrow {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--accent);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: 10px;
-  }
-  .title {
-    font-size: clamp(28px, 3.6vw, 44px);
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    margin: 0 0 12px;
-  }
-  .lead {
-    font-size: 16px;
-    color: var(--text-2);
-    line-height: 1.65;
-    margin: 0;
-  }
 
   .grid {
     list-style: none;
@@ -133,6 +136,17 @@ const topics = await getCollection('topics');
     font-size: 14px;
     color: rgb(255 255 255 / 0.92);
     line-height: 1.55;
+    margin-bottom: 8px;
+  }
+
+  .tile-meta {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
   }
 
   .tile-arrow {

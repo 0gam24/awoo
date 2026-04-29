@@ -112,6 +112,11 @@ const breadcrumbSchema = {
   description={`"${term}" 정부 지원금 한 페이지 정리. ${entry.daysActive}일 화제 · ${entry.totalCount}건 보도 · 관련 지원금 ${matchedSubsidies.length}건 안내.`}
   activeNav="/issues/"
   noindex={isThin}
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '오늘의 이슈', href: '/issues/' },
+    { name: term, href: `/issues/topics/${encodeURIComponent(term)}/` },
+  ]}
 >
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
 

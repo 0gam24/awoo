@@ -62,6 +62,12 @@ const otherSituations = (situations as Situation[]).filter((s) => s.id !== situa
   title={`${situation.label} — 받을 수 있는 정부 지원금 ${matched.length}건`}
   description={situation.description}
   activeNav="/subsidies/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '지원금', href: '/subsidies/' },
+    { name: '상황별', href: '/situations/' },
+    { name: situation.label, href: `/situations/${situation.id}/` },
+  ]}
 >
   <section class="band">
     <Container size="wide">

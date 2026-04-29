@@ -98,6 +98,15 @@
   --accent-link: var(--color-link-blue);
   --accent-dark: #003875;
   --on-accent: #ffffff;
+
+  /* 카테고리 컬러 토큰 — 사이트 전역 일관성 (좌측 4px 바·badge·tint) */
+  --cat-주거: var(--accent);
+  --cat-자산: #0891b2;
+  --cat-교육: #8b5cf6;
+  --cat-창업: #ea580c;
+  --cat-복지: #ec4899;
+  --cat-취업: #10b981;
+  --cat-농업: #d97706;
   --shadow-soft: var(--shadow-sm);
   --shadow-pop: var(--shadow-md);
   --shadow-lift: var(--shadow-lg);
@@ -118,6 +127,14 @@
   --accent-link: var(--color-bright-blue);
   --accent-dark: #001a3d;
   --on-accent: #000000;
+  /* 다크모드 카테고리 토큰 — 채도 한 단계 위 */
+  --cat-주거: var(--accent);
+  --cat-자산: #22d3ee;
+  --cat-교육: #a78bfa;
+  --cat-창업: #fb923c;
+  --cat-복지: #f472b6;
+  --cat-취업: #34d399;
+  --cat-농업: #fbbf24;
 }
 
 /* prefers-color-scheme 자동 추적 (사용자가 명시 선택 전) */
@@ -257,6 +274,24 @@ button:disabled {
 .skip-link:focus {
   top: 16px;
 }
+
+/* 카테고리 컬러 헬퍼 — 모든 페이지에서 일관 적용 */
+.cat-주거 { --cat-color: var(--cat-주거); }
+.cat-자산 { --cat-color: var(--cat-자산); }
+.cat-교육 { --cat-color: var(--cat-교육); }
+.cat-창업 { --cat-color: var(--cat-창업); }
+.cat-복지 { --cat-color: var(--cat-복지); }
+.cat-취업 { --cat-color: var(--cat-취업); }
+.cat-농업 { --cat-color: var(--cat-농업); }
+
+/* tint- 패턴(기존 호환) — 좌측 4px 바 또는 배경 색상 토큰 */
+.tint-주거 { --cat-color: var(--cat-주거); }
+.tint-자산 { --cat-color: var(--cat-자산); }
+.tint-교육 { --cat-color: var(--cat-교육); }
+.tint-창업 { --cat-color: var(--cat-창업); }
+.tint-복지 { --cat-color: var(--cat-복지); }
+.tint-취업 { --cat-color: var(--cat-취업); }
+.tint-농업 { --cat-color: var(--cat-농업); }
 
 /* 이미지 CLS 방지 — 모든 img에 aspect-ratio 또는 width/height 권장 */
 img,

@@ -37,6 +37,12 @@ const otherCats = CATEGORIES.filter((c) => c.id !== 'all' && c.id !== category.i
   title={`${category.name} — 정부 지원금 ${inCategory.length}건 안내`}
   description={category.description ?? `${category.name} 분야의 정부 지원금 ${inCategory.length}건을 한눈에 확인.`}
   activeNav="/subsidies/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '지원금', href: '/subsidies/' },
+    { name: '분야별', href: '/categories/' },
+    { name: category.name, href: `/categories/${encodeURIComponent(category.id)}/` },
+  ]}
 >
   <section class="band">
     <Container size="wide">
