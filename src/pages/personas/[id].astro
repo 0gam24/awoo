@@ -43,15 +43,40 @@ const p = persona.data;
 const allSubsidies = await getCollection('subsidies');
 const matched = allSubsidies.filter((s) => s.data.targetPersonas.includes(p.id));
 
-// 카테고리별 카운트 — cross-ref hub 가 존재하는 (≥2건) 카테고리만 노출
+// 카테고리별 카운트 + 대표 지원금 — cross-ref hub 가 존재하는 (≥2건) 카테고리만 노출
 const HUB_MIN = 2;
-const byCategory: Record<string, number> = {};
+const byCategory: Record<string, { count: number; flagshipTitle: string }> = {};
 for (const s of matched) {
-  byCategory[s.data.category] = (byCategory[s.data.category] ?? 0) + 1;
+  const cat = s.data.category;
+  if (!byCategory[cat]) {
+    byCategory[cat] = { count: 0, flagshipTitle: '' };
+  }
+  byCategory[cat].count++;
+  // 대표: HOT 우선, 그다음 금액 큰 순
+  if (
+    !byCategory[cat].flagshipTitle ||
+    s.data.isHot ||
+    (s.data.amount ?? 0) > 0
+  ) {
+    // 점수 비교를 위해 잠시 보관 — 마지막 패스에서 정렬 결정
+  }
 }
+// 대표 결정 — 정렬해서 첫번째
+for (const cat of Object.keys(byCategory)) {
+  const inCat = matched
+    .filter((s) => s.data.category === cat)
+    .sort((a, b) => {
+      const ah = a.data.isHot ? 1 : 0;
+      const bh = b.data.isHot ? 1 : 0;
+      if (ah !== bh) return bh - ah;
+      return (b.data.amount ?? 0) - (a.data.amount ?? 0);
+    });
+  byCategory[cat].flagshipTitle = inCat[0]?.data.title ?? '';
+}
+
 const hubCategories = Object.entries(byCategory)
-  .filter(([, n]) => n >= HUB_MIN)
-  .sort((a, b) => b[1] - a[1]);
+  .filter(([, v]) => v.count >= HUB_MIN)
+  .sort((a, b) => b[1].count - a[1].count);
 
 const breadcrumbSchema = {
   '@context': 'https://schema.org',
@@ -129,11 +154,19 @@ const breadcrumbSchema = {
         <section class="hub-section">
           <h3 class="hub-title">카테고리별로 좁혀 보기</h3>
           <ul class="hub-grid">
-            {hubCategories.map(([cat, n]) => (
+            {hubCategories.map(([cat, v]) => (
               <li>
                 <a class="hub-card" href={`/subsidies/category/${encodeURIComponent(cat)}/persona/${p.id}/`}>
-                  <span class="hub-cat">{cat}</span>
-                  <span class="hub-count">{n}건</span>
+                  <div class="hub-row-1">
+                    <span class="hub-cat">{cat}</span>
+                    <span class="hub-count">{v.count}건</span>
+                  </div>
+                  {v.flagshipTitle && (
+                    <div class="hub-flagship">
+                      <span class="hub-flag-label">대표</span>
+                      <span class="hub-flag-title">{v.flagshipTitle}</span>
+                    </div>
+                  )}
                   <span class="hub-arrow" aria-hidden="true">→</span>
                 </a>
               </li>
@@ -431,14 +464,15 @@ const breadcrumbSchema = {
 
   .hub-card {
     display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 16px;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     text-decoration: none;
     color: inherit;
+    position: relative;
     transition: border-color 0.15s, transform 0.15s;
   }
 
@@ -448,10 +482,16 @@ const breadcrumbSchema = {
     text-decoration: none;
   }
 
+  .hub-row-1 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
   .hub-cat {
     font-size: 14px;
-    font-weight: 600;
-    flex: 1;
+    font-weight: 700;
   }
 
   .hub-count {
@@ -463,15 +503,50 @@ const breadcrumbSchema = {
     border-radius: var(--radius-pill);
   }
 
+  .hub-flagship {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+  }
+
+  .hub-flag-label {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    background: rgb(0 113 227 / 0.12);
+    padding: 2px 6px;
+    border-radius: var(--radius-pill);
+    line-height: 1.4;
+  }
+
+  .hub-flag-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-2);
+    line-height: 1.4;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+
   .hub-arrow {
+    position: absolute;
+    top: 14px;
+    right: 16px;
     color: var(--text-3);
     font-size: 16px;
     transition: transform 0.15s, color 0.15s;
+    /* 카운트 pill과 겹치므로 hover에서만 표시 */
+    opacity: 0;
   }
 
   .hub-card:hover .hub-arrow {
     transform: translateX(3px);
     color: var(--accent);
+    opacity: 1;
   }
 
   /* 다른 페르소나 horizontal nav */

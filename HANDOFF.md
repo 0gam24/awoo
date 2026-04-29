@@ -23,9 +23,26 @@
 |---|---|
 | **Phase 1** | Astro 6 + React 19 Islands + Tailwind 4 + TS strict 부트스트랩, Lighthouse 4×100 게이트 통과 |
 | **Phase 2** | 디자인 시스템 — Pretendard Variable 셀프호스팅 + Atom·Layout 컴포넌트 (Button, Chip, Badge, Container, TopBar, Footer) |
-| **Phase 3** | Astro Content Collections (페르소나 6개·지원금 10개·이슈 4개) + site-data(중위소득·카테고리·오늘의 이슈) |
+| **Phase 3** | Astro Content Collections (페르소나 6개·지원금 119건·이슈 자동 생성) + site-data(중위소득·카테고리) |
 | **Phase 4** | 홈 페이지 — UrgencyHook + NewsHero + IncomeChecker(React Island) + OtherIssues + PersonaPicker + CategoriesGrid. `/personas/[id]/`, `/subsidies/`, `/subsidies/[id]/`, `/guide/` 페이지 |
-| **Phase 5** | `/issues/main/` 상세, 법적 페이지 5종(privacy/terms/cookies/editorial-policy/contact), `@astrojs/sitemap`, `/llms.txt`+`/llms-full.txt` 자동생성, OG PNG, UrgencyHook 단어 페이드인, A11y target-size 수정 |
+| **Phase 5** | 법적 페이지 5종(privacy/terms/cookies/editorial-policy/contact), `@astrojs/sitemap`, `/llms.txt`+`/llms-full.txt` 자동생성, OG PNG, A11y target-size |
+| **Phase A** | API 라우트 3종 (`/api/vitals`, `/api/feedback`, `/api/contact`) + Cloudflare Analytics Engine `awoo_vitals` 데이터셋 |
+| **자동 콘텐츠** | 보조금24 API → `_gov24/_manifest.json` 주간 incremental sync (119건) + 네이버 뉴스 → 트렌딩 N-gram 추출 → `today-issue.json` 일간 + Claude Sonnet 4.6 → `issues/[date]/[slug].json` 일간 SEO/GEO 포스트 |
+| **9-스프린트 (4/29 일괄)** | 시청자 니치 → 보안 → 운영 → IA → SEO 9단계 일괄 적용 (아래 §2-1 참고) |
+
+### 2-1. 4/29 9-스프린트 결과
+
+| 스프린트 | 핵심 |
+|---|---|
+| **1차 (Tier 1 — niche)** | 홈 페르소나 그리드 매칭 카운트·대표 지원금 / 이슈 포스트 끝 next action CTA 4박스 / 지원금 목록 정렬 3종 / 페르소나 인덱스 카드 대표 지원금 |
+| **2차 (보안+SEO)** | XSS sanitize (set:html 제거) / CSP 8 directive / `lint-content.mjs` (slug 충돌·참조 무결성·schema) / BreadcrumbList JSON-LD 3종 |
+| **3차 (운영)** | 데이터 소스 단일화 (TODAY_NEWS 800줄 제거) / prompt-injection 강화 / Claude 실패 알림 (`_fail-{date}.json`) / manifest atomic write + lastVerifiedAt / sync workflow PR 모드 |
+| **4차 (IA 확장)** | `/issues/topics/[term]/` 트렌딩 토픽 영구 페이지 / `/subsidies/category/[c]/persona/[p]/` 4축 cross-ref hub / `/subsidies/archived/[slug]/` 410 / sweep-stale workflow |
+| **5차 (데이터)** | `tag-personas.mjs` 휴리스틱 backfill — 109건 중 103건(94%) 자동 태깅 / cross-ref hub 1 → 18 페이지 / sync-subsidies에 inferPersonas 통합 |
+| **6차 (UX)** | `/quick/` URL 직렬화 (#persona=…&result=1) + 클립보드 공유 / lighthouserc INP ≤ 150ms 어설션 / 가이드 FAQ 4 → 8건 |
+| **7차 (전환)** | `/subsidies/[id]` "이 지원금 받는 분들이 또 보는 것" cross-pollination / 페르소나 horizontal nav (6 칩 + 이전·다음) / target-size 보강 |
+| **8차 (UX hooks)** | `/situations/` 우선순위 Top 3 hero + 카운트 / `/categories/` 자주 등장 태그·페르소나 hook / `check-apply-urls.mjs` HEAD 헬스 체크 |
+| **9차 (운영 자동화)** | `check-apply-urls.yml` 매주 수 cron (5% 샘플) / `/personas/[id]` hub 카드 대표 지원금 미리보기 / HANDOFF 갱신 |
 
 ### 📊 라이브 PSI 측정값
 
@@ -42,11 +59,14 @@
 
 | 항목 | 우선순위 | 비고 |
 |---|---|---|
-| Phase A — API (`/api/contact`, `/api/feedback`, `/api/vitals`) | 사용자 지정 후 | Cloudflare D1 + Resend + Turnstile |
-| 모바일 Perf 100 끝장내기 | 선택 | Critical CSS 분리(Critters/Beasties), JS 번들 추가 축소 |
-| 콘텐츠 확장 | 운영 단계 | 지원금 10개 → 30~50개, 페르소나별 가이드 글 |
+| Sentry / Cloudflare Logpush 통합 | 중간 | 런타임 에러 추적, 현재는 Workers Dashboard 로그만 |
+| API rate limit (`/api/contact`, `/api/feedback`) | 중간 | IP 기반 시간당 N회 제한 — DDoS·spam 방어 |
+| `/api/feedback`·`/api/contact` D1 통합 활성화 | 중간 | wrangler.jsonc d1_databases 주석 해제 + 마이그레이션 |
 | Search Console 등록 | 즉시 가능 | sitemap-index.xml 제출 |
-| 공공데이터포털 API 연동 | 운영 단계 | 사용자 디코딩 키 보유 (`.env`로) — 자동 동기화 cron |
+| 모바일 Perf 100 끝장내기 | 선택 | Critical CSS 분리(Critters/Beasties), JS 번들 추가 축소 |
+| 페르소나 자동 태깅 정밀도 향상 | 선택 | 현 휴리스틱 94% → ML 분류기로 nudge (불필요할 수 있음) |
+| 카테고리 hub × 페르소나 임계 3건 상향 | 운영 단계 | 페르소나 태깅이 더 풍부해지면 자동으로 활성화 |
+| `/feed-issues.xml` RSS 신설 | 선택 | issue 포스트용 별도 피드 (AI agent 인용 친화) |
 | Phase D RAG (사이트 Q&A) | 보류 | Workers AI 또는 Anthropic SDK |
 
 ---
@@ -142,70 +162,76 @@ git config user.name "김준혁"
 
 ```
 awoo/
-├── .github/workflows/ci.yml      # Lint+Typecheck+Build+Lighthouse 게이트
+├── .github/workflows/
+│   ├── ci.yml                    # Lint+Typecheck+lint:content+Build+Lighthouse 게이트
+│   ├── deploy.yml                # main push → Cloudflare 자동 배포
+│   ├── sync-subsidies.yml        # 매주 월 03KST 보조금24 동기화 (PR 모드 옵션)
+│   ├── sync-issues.yml           # 매일 06KST 네이버 뉴스 트렌딩 큐레이션
+│   ├── sweep-stale.yml           # 매주 화 03KST 마감 30일+ 항목 archive
+│   └── check-apply-urls.yml      # 매주 수 04KST 외부 applyUrl 헬스 체크 (5% 샘플)
 ├── .nvmrc                        # Node 22
+├── agents/
+│   └── seo-geo-news-poster.md    # Claude system prompt (2026 SEO/GEO/FOX/BLUF)
+├── scripts/                      # 빌드/운영 자동화
+│   ├── sync-subsidies.mjs        # 보조금24 API → _gov24/{slug}.json + atomic manifest
+│   ├── sync-issues.mjs           # 네이버 뉴스 → today-issue.json (안전 clean·길이 캡)
+│   ├── generate-issue-posts.mjs  # Claude API → issues/[date]/[slug].json (.fail.json 로그)
+│   ├── tag-personas.mjs          # _gov24 휴리스틱 페르소나 태깅 (94% 자동)
+│   ├── sweep-stale.mjs           # 마감 30일+ → _archived/ 이동
+│   ├── check-apply-urls.mjs      # 외부 applyUrl HEAD 헬스 체크 (5% 샘플 + 재시도)
+│   └── lint-content.mjs          # 빌드 게이트: slug 충돌·참조 무결성·schema·XSS 패턴
 ├── public/
-│   ├── _headers                  # Cloudflare HTTP 보안 헤더 (HSTS·CSP·Permissions)
-│   ├── favicon.svg
-│   ├── og-default.png            # 1200×630 OG 이미지 (sharp로 SVG → PNG 변환)
-│   ├── robots.txt                # AI 크롤러 명시 허용 (§11-3)
-│   └── fonts/
-│       └── PretendardVariable.subset.woff2   # KS X 1001 + Latin
+│   ├── _headers                  # CSP·HSTS·X-Frame·Permissions·CORP
+│   ├── _redirects                # /issues/main → /issues/ 등 301
+│   ├── favicon.svg / og-default.png / robots.txt
+│   └── fonts/PretendardVariable.subset.woff2   # KS X 1001 + Latin
 ├── src/
-│   ├── content.config.ts         # Content Collections Zod 스키마
+│   ├── content.config.ts         # Content Collections + _archived/** 제외 패턴
 │   ├── data/
-│   │   ├── personas.json         # 페르소나 6개
-│   │   ├── subsidies/*.json      # 지원금 10개 (각 JSON 1개씩)
-│   │   ├── issues.json           # 추가 이슈 4개
-│   │   └── site-data.ts          # 중위소득·카테고리·오늘의 이슈 (TODAY_NEWS) + formatWon
-│   ├── components/
-│   │   ├── Container.astro       # narrow/default/wide 3 사이즈
-│   │   ├── Button.astro          # primary/ghost/dark × sm/md/lg
-│   │   ├── Chip.astro            # default/active × sm/md
-│   │   ├── Badge.astro           # neutral/accent/success/warning/danger
-│   │   ├── Icon.astro            # Lucide 스타일 SVG 28종
-│   │   ├── TopBar.astro          # sticky+blur, 테마 토글, 모바일 메뉴
-│   │   ├── Footer.astro          # 3-col + 법적 정보 (content-visibility:auto)
+│   │   ├── personas.json         # 6 페르소나
+│   │   ├── situations.json       # 12 라이프 이벤트
+│   │   ├── today-issue.json      # 일간 자동 큐레이션 결과 (sync-issues 출력)
+│   │   ├── site-data.ts          # 중위소득·CATEGORIES·formatWon (TODAY_NEWS 제거됨)
+│   │   ├── subsidies/
+│   │   │   ├── _gov24/           # 보조금24 자동 (110+건) + _manifest.json
+│   │   │   ├── _curated/         # 수동 큐레이션 핵심 10건
+│   │   │   └── _archived/        # 마감 30일+ sweep — collection 제외 / 410 안내
+│   │   └── issues/
+│   │       ├── [date]/[slug].json    # Claude 생성 SEO/GEO 포스트
+│   │       ├── _history.json     # 트렌딩 term 누적 통계
+│   │       └── _fail-{date}.json # Claude 실패 로그
+│   ├── components/                  # Container/Button/Chip/Badge/Icon/TopBar/Footer
 │   │   └── home/
-│   │       ├── UrgencyHook.astro       # 다크 임팩트 헤드 + CSS 단어 페이드인
-│   │       ├── NewsHero.astro          # 오늘의 이슈 헤드 + 트렌드 SVG + 실시간 인기
-│   │       ├── IncomeChecker.astro     # 셀(:global CSS)
-│   │       ├── IncomeChecker.tsx       # React Island (client:visible)
-│   │       ├── OtherIssuesSection.astro
-│   │       ├── PersonaPicker.astro     # 6 그라데이션 카드
-│   │       └── CategoriesGrid.astro    # 분야별 6개
-│   ├── layouts/BaseLayout.astro  # SEO/OG/Twitter/Theme/skip-link
-│   ├── lib/vitals.ts             # web-vitals beacon (Phase A에서 활성)
+│   │       ├── NewsHero.astro    # today-issue.json 단일 소스 + 듀얼 CTA
+│   │       ├── PersonaPicker.astro  # 6 카드 + 매칭 카운트 + 대표 지원금
+│   │       └── ...
+│   ├── layouts/BaseLayout.astro
+│   ├── lib/
+│   │   ├── vitals.ts             # web-vitals beacon
+│   │   └── subsidies-meta.ts     # manifest 기반 isNew·recentlyAdded·lastVerifiedAt
 │   ├── pages/
-│   │   ├── index.astro           # 홈 (6 섹션)
-│   │   ├── about.astro
-│   │   ├── contact.astro
-│   │   ├── editorial-policy.astro
-│   │   ├── privacy.astro
-│   │   ├── terms.astro
-│   │   ├── cookies.astro
-│   │   ├── demo.astro            # 컴포넌트 데모 (noindex)
-│   │   ├── guide.astro           # 신청 흐름 + 공식 사이트 + FAQ + FAQPage JSON-LD
-│   │   ├── issues/main.astro     # 오늘의 이슈 상세 (페르소나 적합도 + 신청 절차)
-│   │   ├── personas/[id].astro   # 6 페르소나 정적 prerender
-│   │   ├── subsidies/index.astro # 지원금 목록 + chip 필터
-│   │   ├── subsidies/[id].astro  # 지원금 상세 + GovernmentService JSON-LD
-│   │   ├── llms.txt.ts           # /llms.txt 동적 생성 (인덱스)
-│   │   └── llms-full.txt.ts      # /llms-full.txt 동적 생성 (전체 합본)
-│   └── styles/global.css         # Tailwind + 디자인 토큰 + 폰트 face
-├── astro.config.mjs              # Astro 설정 (output:static, sitemap, react)
-├── biome.json                    # Lint+포맷 설정
-├── lefthook.yml                  # pre-commit Biome+typecheck, pre-push build
-├── lighthouserc.json             # CI 4×100 데스크톱 게이트
-├── tsconfig.json                 # strictest + @/* 별칭
-├── wrangler.jsonc                # Cloudflare 자동생성 — 손대지 말기
-├── package.json
-├── package-lock.json
-├── HANDOFF.md                    # 본 문서
-├── AGENTS.md                     # 사용자 2026 표준 작업 지시서
-├── README.md
-└── docs/
-    └── memory/                   # 프로젝트 컨텍스트 (Claude memory 사본)
+│   │   ├── index.astro / about / contact / editorial-policy / privacy / terms / cookies
+│   │   ├── guide.astro           # 신청 가이드 8 FAQ + FAQPage + Breadcrumb
+│   │   ├── quick/index.astro     # 5분 진단 + URL 해시 직렬화 (#persona=…&result=1)
+│   │   ├── personas/index.astro  # 페르소나 인덱스 + 카드 대표 지원금 미리보기
+│   │   ├── personas/[id].astro   # 페르소나 상세 + hub + horizontal nav
+│   │   ├── situations/[id].astro # 라이프 이벤트 12종 + 우선순위 Top 3
+│   │   ├── categories/[id].astro # 카테고리 7종 + Top 태그·페르소나 hook
+│   │   ├── issues/index.astro    # 1위 hero + 월별 아카이브
+│   │   ├── issues/[date]/[slug].astro    # Claude 생성 영구 포스트 + 4-CTA
+│   │   ├── issues/topics/[term].astro    # 트렌딩 토픽 영구 페이지 (totalCount ≥ 3)
+│   │   ├── subsidies/index.astro # 카테고리 필터 + 정렬 (인기/금액/마감)
+│   │   ├── subsidies/[id].astro  # 상세 + GovService + Breadcrumb + cross-pollination
+│   │   ├── subsidies/category/[c]/persona/[p].astro  # 4축 cross-ref hub (≥2건)
+│   │   ├── subsidies/archived/[slug].astro  # 410 안내 (noindex)
+│   │   ├── subsidies/new.astro   # 신규 14일 윈도우
+│   │   ├── llms.txt.ts / llms-full.txt.ts
+│   │   └── api/                  # Phase A — vitals·feedback·contact (Cloudflare adapter)
+│   └── styles/global.css         # Tailwind + 디자인 토큰 + .sr-only 유틸
+├── astro.config.mjs              # output:static + Cloudflare adapter
+├── lighthouserc.json             # 4×100 + LCP·CLS·TBT + INP ≤ 150ms warn
+├── biome.json / lefthook.yml / tsconfig.json / wrangler.jsonc
+└── HANDOFF.md / AGENTS.md / README.md
 ```
 
 ---

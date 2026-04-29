@@ -1,0 +1,71 @@
+name: Check applyUrl health
+
+# 매주 수요일 04:00 KST (= 화요일 19:00 UTC)
+# - sync-subsidies(월) + sweep-stale(화) 다음 날
+# - 5% 무작위 샘플 + 직전 실패 항목 재시도 (네트워크 부담 최소화)
+on:
+  schedule:
+    - cron: '0 19 * * 2'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '점검 범위 — sample(5%) 또는 all(전체)'
+        required: false
+        default: 'sample'
+        type: choice
+        options:
+          - sample
+          - all
+
+concurrency:
+  group: check-apply-urls
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    name: HEAD probe applyUrl
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Run health check
+        run: |
+          if [ "${{ inputs.mode }}" = "all" ]; then
+            npm run check:apply-urls:all
+          else
+            npm run check:apply-urls
+          fi
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain src/data/subsidies/_link-health.json)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit health report
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          git add src/data/subsidies/_link-health.json
+          DATE=$(date -u +"%Y-%m-%d")
+          git commit -m "chore(data): applyUrl 헬스 체크 — ${DATE}
+
+          [skip ci]"
+          git push origin main
