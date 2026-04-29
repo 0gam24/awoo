@@ -7,11 +7,16 @@ import {
   json,
   verifyTurnstile,
 } from '@/lib/api/utils';
+import { checkRateLimit, rateLimitHeaders } from '@/lib/api/rate-limit';
 import { contactSchema } from '@/lib/api/validation';
 
 export const prerender = false;
 
 const ALLOWED_ORIGINS = ['https://awoo.or.kr', 'https://www.awoo.or.kr'];
+
+// Rate limit — IP 해시당 시간당 3건 (스팸·DoS 차단; 정상 사용자는 영향 없음)
+const RATE_LIMIT_MAX = 3;
+const RATE_LIMIT_WINDOW_SEC = 60 * 60;
 
 interface D1Database {
   prepare: (query: string) => {
@@ -57,6 +62,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const env = (locals as { runtime?: { env?: Env } }).runtime?.env ?? {};
   const ip = getClientIp(request);
   const ipHash = await hashIp(ip);
+
+  // Rate limit — IP 기반 시간당 3건 (양식 검증 통과 후 체크 — 잘못된 payload는 카운트 X)
+  const rl = checkRateLimit(`contact:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC);
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({ error: { code: 'rate_limited', detail: `${rl.retryAfterSeconds}초 후 재시도` } }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-store',
+          ...rateLimitHeaders(rl, RATE_LIMIT_MAX),
+        },
+      },
+    );
+  }
 
   // Turnstile 검증 — 시크릿 있을 때만
   if (env.TURNSTILE_SECRET_KEY) {

@@ -1,10 +1,15 @@
 import type { APIRoute } from 'astro';
 import { errorJson, getClientIp, hashIp, isAllowedOrigin, json } from '@/lib/api/utils';
+import { checkRateLimit, rateLimitHeaders } from '@/lib/api/rate-limit';
 import { feedbackSchema } from '@/lib/api/validation';
 
 export const prerender = false;
 
 const ALLOWED_ORIGINS = ['https://awoo.or.kr', 'https://www.awoo.or.kr'];
+
+// Rate limit — IP 해시당 시간당 10건 (페이지당 1회 + 정정 여유)
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_SEC = 60 * 60;
 
 interface D1Database {
   prepare: (query: string) => {
@@ -44,6 +49,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const f = parsed.data;
   const ipHash = await hashIp(getClientIp(request));
   const ua = request.headers.get('user-agent')?.slice(0, 200) ?? null;
+
+  // Rate limit — IP 해시당 시간당 10건
+  const rl = checkRateLimit(`feedback:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC);
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({ error: { code: 'rate_limited', detail: `${rl.retryAfterSeconds}초 후 재시도` } }),
+      {
+        status: 429,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-store',
+          ...rateLimitHeaders(rl, RATE_LIMIT_MAX),
+        },
+      },
+    );
+  }
 
   const env = (locals as { runtime?: { env?: Env } }).runtime?.env;
 
