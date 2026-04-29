@@ -366,13 +366,8 @@ async function main() {
     process.exit(1);
   }
 
-  // 3. 트렌딩 토픽별 매칭 기사 → 점수화 → 1위
-  // 상위 트렌딩 토픽들을 순회하며 첫 번째 점수 통과 기사를 선정
-  let top = null;
-  let topTrendTerm = null;
-  let topTrendCount = 0;
-  const allScored = [];
-
+  // 3. 트렌딩 토픽별 대표 기사 선정 (Top 5 트렌딩 각각 best 1건)
+  const trendingWithArticles = [];
   for (const [term, count] of ranked) {
     const matching = articles.filter((a) => a.title.includes(term));
     const scored = matching
@@ -380,30 +375,24 @@ async function main() {
       .filter(Boolean)
       .sort((s1, s2) => s2.score - s1.score);
 
-    allScored.push(...scored.map((s) => ({ ...s, trendTerm: term, trendCount: count })));
-
-    if (!top && scored.length > 0) {
-      top = scored[0];
-      topTrendTerm = term;
-      topTrendCount = count;
+    if (scored.length > 0) {
+      trendingWithArticles.push({
+        term,
+        count,
+        topArticle: scored[0],
+      });
     }
   }
 
-  if (!top) {
+  if (trendingWithArticles.length === 0) {
     console.error('❌ 모든 트렌딩 토픽이 필터 통과 못함');
     process.exit(1);
   }
 
-  // 백업 후보 5건 (다른 트렌딩 토픽 또는 차순위 기사)
-  const seenCandLinks = new Set([top.link]);
-  const candidates = allScored
-    .sort((a, b) => b.score - a.score)
-    .filter((c) => {
-      if (seenCandLinks.has(c.link)) return false;
-      seenCandLinks.add(c.link);
-      return true;
-    })
-    .slice(0, 5);
+  // 1위 = 최다 언급 트렌딩의 대표 기사
+  const top = trendingWithArticles[0].topArticle;
+  const topTrendTerm = trendingWithArticles[0].term;
+  const topTrendCount = trendingWithArticles[0].count;
 
   // 출력
   const output = {
@@ -419,17 +408,20 @@ async function main() {
     score: top.score,
     trendingTopic: topTrendTerm,
     trendingTopicCount: topTrendCount,
-    trending: ranked.slice(0, 10).map(([term, count]) => ({ term, count })),
-    candidates: candidates.map((c) => ({
-      title: c.title,
-      pubDate: c.pubDate,
-      pubDateKR: formatDateKR(c.pubDate),
-      link: c.link,
-      category: c.category,
-      score: c.score,
-      trendTerm: c.trendTerm,
-      trendCount: c.trendCount,
+    // 사이드바용 — Top 5 트렌딩 + 각각 대표 기사
+    trending: trendingWithArticles.slice(0, 5).map((t) => ({
+      term: t.term,
+      count: t.count,
+      topArticle: {
+        title: t.topArticle.title,
+        link: t.topArticle.link,
+        pubDate: t.topArticle.pubDate,
+        pubDateKR: formatDateKR(t.topArticle.pubDate),
+        category: t.topArticle.category,
+      },
     })),
+    // 디버그용 — 모든 트렌딩 N-gram 빈도 (Top 10)
+    trendingAll: ranked.slice(0, 10).map(([term, count]) => ({ term, count })),
   };
 
   await mkdir(dirname(OUT_PATH), { recursive: true });
