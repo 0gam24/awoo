@@ -7,11 +7,37 @@ import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
 export const getStaticPaths = (async () => {
+  const PERSONA_ORDER = ['office-rookie', 'self-employed', 'newlywed-family', 'senior', 'low-income', 'farmer'];
   const personas = await getCollection('personas');
-  return personas.map((p) => ({ params: { id: p.data.id }, props: { persona: p } }));
+  const sorted = [...personas].sort(
+    (a, b) => PERSONA_ORDER.indexOf(a.data.id) - PERSONA_ORDER.indexOf(b.data.id),
+  );
+  return sorted.map((p, i) => {
+    const prev = sorted[(i - 1 + sorted.length) % sorted.length];
+    const next = sorted[(i + 1) % sorted.length];
+    return {
+      params: { id: p.data.id },
+      props: {
+        persona: p,
+        all: sorted.map((x) => ({
+          id: x.data.id,
+          label: x.data.label,
+          icon: x.data.icon,
+          bg: x.data.bg,
+        })),
+        prev: { id: prev.data.id, label: prev.data.label },
+        next: { id: next.data.id, label: next.data.label },
+      },
+    };
+  });
 }) satisfies GetStaticPaths;
 
-const { persona } = Astro.props;
+const { persona, all, prev, next } = Astro.props as {
+  persona: Awaited<ReturnType<typeof getCollection<'personas'>>>[number];
+  all: Array<{ id: string; label: string; icon: string; bg: string }>;
+  prev: { id: string; label: string };
+  next: { id: string; label: string };
+};
 const p = persona.data;
 
 const allSubsidies = await getCollection('subsidies');
@@ -115,6 +141,28 @@ const breadcrumbSchema = {
           </ul>
         </section>
       )}
+
+      <nav class="persona-nav" aria-label="다른 페르소나">
+        <div class="pn-eyebrow">다른 페르소나로 보기</div>
+        <ul class="pn-grid">
+          {all.map((other) => (
+            <li>
+              <a
+                class={`pn-card ${other.id === p.id ? 'active' : ''} bg-${other.bg}`}
+                href={`/personas/${other.id}/`}
+                aria-current={other.id === p.id ? 'page' : undefined}
+              >
+                <Icon name={other.icon} size={22} strokeWidth={1.6} />
+                <span>{other.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <div class="pn-prev-next">
+          <a class="pn-pn-link" href={`/personas/${prev.id}/`}>← {prev.label}</a>
+          <a class="pn-pn-link" href={`/personas/${next.id}/`}>{next.label} →</a>
+        </div>
+      </nav>
     </Container>
   </section>
 
@@ -424,5 +472,89 @@ const breadcrumbSchema = {
   .hub-card:hover .hub-arrow {
     transform: translateX(3px);
     color: var(--accent);
+  }
+
+  /* 다른 페르소나 horizontal nav */
+  .persona-nav {
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  .pn-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--text-2);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .pn-grid {
+    list-style: none;
+    margin: 0 0 20px;
+    padding: 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .pn-card {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #fff;
+    opacity: 0.62;
+    transition: opacity 0.15s, transform 0.15s;
+    min-height: 44px; /* WCAG 2.2 target-size */
+  }
+
+  .pn-card:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  .pn-card.active {
+    opacity: 1;
+    cursor: default;
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .pn-card.bg-persona-blue   { background: linear-gradient(135deg, #0066cc 0%, #2997ff 100%); }
+  .pn-card.bg-persona-orange { background: linear-gradient(135deg, #d97706 0%, #f97316 100%); }
+  .pn-card.bg-persona-pink   { background: linear-gradient(135deg, #be185d 0%, #ec4899 100%); }
+  .pn-card.bg-persona-green  { background: linear-gradient(135deg, #047857 0%, #10b981 100%); }
+  .pn-card.bg-persona-purple { background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%); }
+  .pn-card.bg-persona-amber  { background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); }
+
+  .pn-prev-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .pn-pn-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    min-height: 44px;
+  }
+
+  .pn-pn-link:hover {
+    border-color: var(--border-2);
+    text-decoration: none;
   }
 </style>

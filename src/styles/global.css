@@ -208,6 +208,30 @@ a:hover {
   border-radius: 3px;
 }
 
+/* 버튼은 기본적으로 motion-safe + 키보드 친화 */
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* 스크린 리더 전용 (시각적 숨김) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* 스킵 링크 */
 .skip-link {
   position: absolute;
