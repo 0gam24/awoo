@@ -3,7 +3,7 @@ import Container from '@/components/Container.astro';
 import { TODAY_NEWS } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
 
-// 자동 큐레이션 데이터 우선, hardcode TODAY_NEWS는 trending/publicStats 등 보조용
+// 자동 큐레이션 데이터 우선, hardcode TODAY_NEWS는 publicStats 등 보조용
 const auto = todayIssue as {
   syncedAt: string;
   headline: string;
@@ -13,7 +13,13 @@ const auto = todayIssue as {
   link: string;
   category: string;
   source?: string;
+  trendingTopic?: string;
+  trendingTopicCount?: number;
+  trending?: Array<{ term: string; count: number }>;
 } | null;
+
+// 트렌딩 사이드바 — 자동 데이터 우선 (N-gram 빈도), 없으면 hardcode 폴백
+const autoTrending = auto?.trending && auto.trending.length > 0 ? auto.trending.slice(0, 5) : null;
 
 // trend chart 데이터 (TODAY_NEWS의 hardcode 유지 — 자동 데이터엔 trend 없음)
 const n = TODAY_NEWS;
@@ -135,33 +141,47 @@ const showTrendChart = !isAuto; // 자동 모드는 trend 데이터 없음 → �
 
       <aside class="news-trend-card">
         <div class="news-trend-card-head">
-          <div class="trend-eyebrow">실시간 인기</div>
-          <div class="trend-title">최근 1시간 급상승</div>
+          <div class="trend-eyebrow">트렌딩 키워드</div>
+          <div class="trend-title">{autoTrending ? '뉴스 매체 언급 Top 5' : '최근 1시간 급상승'}</div>
         </div>
 
-        <ol class="news-trend-list">
-          {
-            n.trending.map((t) => (
-              <li class:list={['news-trend-item', t.hot && 'hot']}>
-                {t.related ? (
-                  <a href={`/subsidies/${t.related}/`} class="trend-link">
-                    <span class="rank">{t.rank}</span>
-                    <span class="title">{t.title}</span>
-                    <span class="delta">↑ {t.delta}</span>
-                  </a>
-                ) : (
-                  <>
-                    <span class="rank">{t.rank}</span>
-                    <span class="title">{t.title}</span>
-                    <span class="delta">↑ {t.delta}</span>
-                  </>
-                )}
+        {autoTrending ? (
+          <ol class="news-trend-list">
+            {autoTrending.map((t, i) => (
+              <li class:list={['news-trend-item', i === 0 && 'hot']}>
+                <span class="rank">{i + 1}</span>
+                <span class="title">{t.term}</span>
+                <span class="delta">{t.count}회</span>
               </li>
-            ))
-          }
-        </ol>
+            ))}
+          </ol>
+        ) : (
+          <ol class="news-trend-list">
+            {
+              n.trending.map((t) => (
+                <li class:list={['news-trend-item', t.hot && 'hot']}>
+                  {t.related ? (
+                    <a href={`/subsidies/${t.related}/`} class="trend-link">
+                      <span class="rank">{t.rank}</span>
+                      <span class="title">{t.title}</span>
+                      <span class="delta">↑ {t.delta}</span>
+                    </a>
+                  ) : (
+                    <>
+                      <span class="rank">{t.rank}</span>
+                      <span class="title">{t.title}</span>
+                      <span class="delta">↑ {t.delta}</span>
+                    </>
+                  )}
+                </li>
+              ))
+            }
+          </ol>
+        )}
 
-        <div class="news-trend-card-foot">매시간 업데이트 · 검색량 기준</div>
+        <div class="news-trend-card-foot">
+          {autoTrending ? '네이버 뉴스 매체 언급 빈도 · 매일 자동 갱신' : '매시간 업데이트 · 검색량 기준'}
+        </div>
       </aside>
     </div>
 
