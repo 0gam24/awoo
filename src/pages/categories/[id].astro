@@ -1,0 +1,391 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { CATEGORIES, formatWon } from '@/data/site-data';
+import { type GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+
+export const getStaticPaths = (() => {
+  return CATEGORIES.filter((c) => c.id !== 'all').map((c) => ({
+    params: { id: c.id },
+    props: { category: c },
+  }));
+}) satisfies GetStaticPaths;
+
+const { category } = Astro.props;
+
+const subsidies = await getCollection('subsidies');
+const inCategory = subsidies.filter((s) => s.data.category === category.id);
+
+// 대표 지원금: HOT 우선, 그 다음 신청 가능 + 금액 desc
+const sorted = [...inCategory].sort((a, b) => {
+  const ha = a.data.isHot ? 1 : 0;
+  const hb = b.data.isHot ? 1 : 0;
+  if (ha !== hb) return hb - ha;
+  const sa = a.data.status === '신청 가능' ? 1 : 0;
+  const sb = b.data.status === '신청 가능' ? 1 : 0;
+  if (sa !== sb) return sb - sa;
+  return (b.data.amount ?? 0) - (a.data.amount ?? 0);
+});
+const top = sorted.slice(0, 8);
+
+const otherCats = CATEGORIES.filter((c) => c.id !== 'all' && c.id !== category.id);
+---
+
+<BaseLayout
+  title={`${category.name} — 정부 지원금 ${inCategory.length}건 안내`}
+  description={category.description ?? `${category.name} 분야의 정부 지원금 ${inCategory.length}건을 한눈에 확인.`}
+  activeNav="/categories/"
+>
+  <section class="band">
+    <Container size="wide">
+      <a class="back-link" href="/categories/">← 모든 분야 보기</a>
+
+      <header class="hero">
+        <div class={`hero-icon tint-${category.id}`}>
+          <Icon name={category.icon} size={40} strokeWidth={1.5} />
+        </div>
+        <div class="hero-text">
+          <div class="cnt-pill">{inCategory.length}건 보유</div>
+          <h1 class="title">{category.name}</h1>
+          <p class="lead">{category.description}</p>
+        </div>
+      </header>
+
+      <div class="body-grid">
+        <main class="body">
+          {category.commonEligibility && category.commonEligibility.length > 0 && (
+            <section class="post-section">
+              <h2>일반 자격 요건</h2>
+              <p class="section-lead">{category.name} 분야 지원금에서 자주 보는 자격 조건입니다. 개별 지원금 상세는 다를 수 있으니 반드시 확인하세요.</p>
+              <ul class="check-list">
+                {
+                  category.commonEligibility.map((c) => (
+                    <li><span class="chk" aria-hidden="true">✓</span>{c}</li>
+                  ))
+                }
+              </ul>
+            </section>
+          )}
+
+          <section class="post-section">
+            <h2>대표 지원금 {top.length}건</h2>
+            <ul class="match-list">
+              {
+                top.map((s) => (
+                  <li>
+                    <a class="match-card" href={`/subsidies/${s.data.id}/`}>
+                      <div class={`media tint-${s.data.category}`}>
+                        <Icon name={s.data.icon} size={26} strokeWidth={1.6} />
+                      </div>
+                      <div class="rc-body">
+                        <div class="rc-meta">
+                          <span class="b neutral">{s.data.category}</span>
+                          {s.data.status === '곧 마감' && <span class="b warn">곧 마감</span>}
+                          {s.data.isHot && <span class="b hot">HOT</span>}
+                        </div>
+                        <div class="rc-agency">{s.data.agency}</div>
+                        <div class="rc-title">{s.data.title}</div>
+                        <div class="rc-sum">{(s.data.summary ?? '').slice(0, 80)}{(s.data.summary ?? '').length > 80 ? '…' : ''}</div>
+                        <div class="rc-amt">
+                          {s.data.amount > 0 ? (
+                            <>
+                              {formatWon(s.data.amount)}
+                              <span class="ru">{s.data.amountLabel}</span>
+                            </>
+                          ) : (
+                            <span class="amt-na">내용 확인</span>
+                          )}
+                        </div>
+                      </div>
+                      <span class="rc-arrow" aria-hidden="true">→</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+            <div class="more-row">
+              <a class="more-link" href={`/subsidies/?category=${encodeURIComponent(category.id)}`}>
+                {category.name} 전체 {inCategory.length}건 보기 →
+              </a>
+            </div>
+          </section>
+
+          <section class="post-section">
+            <h2>다른 분야도 보기</h2>
+            <ul class="cat-row">
+              {
+                otherCats.map((c) => (
+                  <li>
+                    <a class={`cat-chip tint-${c.id}`} href={`/categories/${encodeURIComponent(c.id)}/`}>
+                      <Icon name={c.icon} size={16} strokeWidth={1.7} />
+                      <span>{c.name}</span>
+                      <span class="rc-arrow" aria-hidden="true">→</span>
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+        </main>
+
+        <aside class="rail">
+          <div class="rail-card">
+            <div class="rail-eyebrow">5분 진단</div>
+            <div class="rail-title">본인 상황 정확히 매칭</div>
+            <a class="rail-cta" href="/quick/">진단 시작하기 →</a>
+          </div>
+          <div class="rail-card">
+            <div class="rail-eyebrow">상황별</div>
+            <div class="rail-title">출산·이사·실직 등 라이프 이벤트</div>
+            <a class="rail-cta" href="/situations/">상황별 보기 →</a>
+          </div>
+          <div class="rail-card">
+            <div class="rail-eyebrow">신청 흐름</div>
+            <div class="rail-title">정부 지원금 신청 단계</div>
+            <a class="rail-cta" href="/guide/">신청 가이드 →</a>
+          </div>
+        </aside>
+      </div>
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .band { padding: 32px 0 80px; }
+
+  .back-link {
+    display: inline-block;
+    color: var(--text-2);
+    font-size: 14px;
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { text-decoration: underline; }
+
+  .hero {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 32px;
+    max-width: 720px;
+  }
+  @media (max-width: 600px) { .hero { flex-direction: column; align-items: flex-start; gap: 16px; } }
+
+  .hero-icon {
+    width: 72px; height: 72px;
+    border-radius: var(--radius-md);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .tint-주거 .hero-icon, .tint-주거 .media, .tint-주거 .tile-icon { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .tint-자산 .hero-icon, .tint-자산 .media { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  .tint-교육 .hero-icon, .tint-교육 .media { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .tint-창업 .hero-icon, .tint-창업 .media { background: rgb(234 88 12 / 0.12); color: #ea580c; }
+  .tint-복지 .hero-icon, .tint-복지 .media { background: rgb(236 72 153 / 0.12); color: #ec4899; }
+  .tint-취업 .hero-icon, .tint-취업 .media { background: rgb(16 185 129 / 0.12); color: #10b981; }
+  .tint-농업 .hero-icon, .tint-농업 .media { background: rgb(217 119 6 / 0.12); color: #d97706; }
+
+  .hero-text { flex: 1; min-width: 0; }
+  .cnt-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
+  }
+  .lead {
+    font-size: 15px;
+    color: var(--text-2);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .body-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 32px;
+  }
+  @media (max-width: 880px) { .body-grid { grid-template-columns: 1fr; } }
+
+  .body { min-width: 0; }
+
+  .post-section { margin-bottom: 36px; }
+  .post-section h2 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+  .section-lead {
+    font-size: 14px;
+    color: var(--text-2);
+    margin: 0 0 16px;
+    line-height: 1.6;
+  }
+
+  .check-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .check-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .chk {
+    color: var(--color-success);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .match-list {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 10px;
+  }
+  .match-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s;
+  }
+  .match-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    text-decoration: none;
+  }
+  .media {
+    width: 40px; height: 40px;
+    border-radius: var(--radius-sm);
+    display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .rc-body { flex: 1; min-width: 0; }
+  .rc-meta { display: flex; gap: 6px; margin-bottom: 4px; }
+  .b {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .b.neutral { background: var(--surface-2); color: var(--text-2); }
+  .b.warn { background: rgb(247 195 96 / 0.18); color: var(--color-warning); }
+  .b.hot { background: rgb(220 38 38 / 0.16); color: #dc2626; }
+  .rc-agency { font-size: 12px; color: var(--accent-link); font-weight: 500; }
+  .rc-title { font-size: 14px; font-weight: 600; line-height: 1.35; margin: 2px 0; }
+  .rc-sum { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+  .rc-amt { font-size: 16px; font-weight: 700; color: var(--accent); margin-top: 4px; }
+  .rc-amt .ru { font-size: 11px; color: var(--text-2); font-weight: 500; margin-left: 4px; }
+  .rc-amt .amt-na {
+    font-size: 13px;
+    color: var(--text-2);
+    background: var(--surface-2);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+  }
+  .rc-arrow {
+    color: var(--text-3);
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: transform 0.18s var(--ease-standard), color 0.18s;
+  }
+  .match-card:hover .rc-arrow {
+    transform: translateX(3px);
+    color: var(--accent);
+  }
+
+  .more-row { margin-top: 8px; }
+  .more-link {
+    display: inline-block;
+    color: var(--accent-link);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .more-link:hover { text-decoration: underline; }
+
+  .cat-row {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    color: var(--text);
+    text-decoration: none;
+  }
+  .cat-chip:hover { border-color: var(--border-2); text-decoration: none; }
+
+  /* Sidebar */
+  .rail { display: flex; flex-direction: column; gap: 12px; }
+  .rail-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+  }
+  .rail-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .rail-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 8px;
+  }
+  .rail-cta {
+    color: var(--accent-link);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .rail-cta:hover { text-decoration: underline; }
+</style>

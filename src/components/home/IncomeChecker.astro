@@ -17,6 +17,13 @@ import { IncomeChecker } from './IncomeChecker';
     </div>
 
     <IncomeChecker client:visible />
+
+    <div class="ic-followup">
+      <div class="ic-followup-text">
+        <strong>받을 수 있는 지원금까지 매칭</strong>해서 보고 싶다면?
+      </div>
+      <a class="ic-followup-cta" href="/quick/">5분 진단 시작 →</a>
+    </div>
   </Container>
 </section>
 
@@ -25,6 +32,41 @@ import { IncomeChecker } from './IncomeChecker';
   .income-checker {
     padding: 64px 0;
     background: var(--bg-alt);
+  }
+
+  .ic-followup {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    padding: 18px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .ic-followup-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .ic-followup-text strong { color: var(--accent); }
+  .ic-followup-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.18s var(--ease-standard);
+  }
+  .ic-followup-cta:hover {
+    transform: translateX(3px);
+    text-decoration: none;
   }
 
   .ic-head {

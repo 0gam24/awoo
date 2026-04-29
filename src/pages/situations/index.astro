@@ -1,0 +1,133 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import situations from '@/data/situations.json';
+---
+
+<BaseLayout
+  title={`라이프 이벤트별 지원금 — 출산·결혼·이사·실직 ${situations.length}가지 상황`}
+  description="인생의 변곡점마다 받을 수 있는 정부 지원금을 한눈에. 출산·결혼·이사·실직·창업·은퇴·입학·자녀양육·부모부양·질병·군복무·귀농 12가지 상황별 안내."
+  activeNav="/situations/"
+>
+  <section class="band">
+    <Container size="wide">
+      <div class="head">
+        <h1 class="title">상황별 지원금 찾기</h1>
+        <p class="lead">
+          페르소나가 정체성이라면, <strong>상황은 지금 일어나고 있는 사건</strong>입니다.<br />
+          출산했어요 / 이사 가요 / 실직했어요 — 자신의 라이프 이벤트를 클릭하면 매칭된 지원금을 바로 볼 수 있습니다.
+        </p>
+      </div>
+
+      <ul class="grid">
+        {
+          situations.map((s) => (
+            <li>
+              <a class={`tile tone-${s.tone}`} href={`/situations/${s.id}/`}>
+                <div class="tile-icon">
+                  <Icon name={s.icon} size={28} strokeWidth={1.6} />
+                </div>
+                <div class="tile-body">
+                  <div class="tile-label">{s.label}</div>
+                  <div class="tile-sub">{s.sub}</div>
+                </div>
+                <span class="tile-arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .band { padding: 48px 0 80px; }
+
+  .head {
+    margin-bottom: 28px;
+    max-width: 720px;
+  }
+
+  .title {
+    font-size: clamp(28px, 3.6vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .tile {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+  .tile:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    text-decoration: none;
+  }
+
+  .tile-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .tone-주거 .tile-icon { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .tone-자산 .tile-icon { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  .tone-교육 .tile-icon { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .tone-창업 .tile-icon { background: rgb(234 88 12 / 0.12); color: #ea580c; }
+  .tone-복지 .tile-icon { background: rgb(236 72 153 / 0.12); color: #ec4899; }
+  .tone-취업 .tile-icon { background: rgb(16 185 129 / 0.12); color: #10b981; }
+  .tone-농업 .tile-icon { background: rgb(217 119 6 / 0.12); color: #d97706; }
+
+  .tile-body { flex: 1; min-width: 0; }
+  .tile-label {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .tile-sub {
+    font-size: 13px;
+    color: var(--text-2);
+    margin-top: 2px;
+  }
+  .tile-arrow {
+    color: var(--text-3);
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: transform 0.18s var(--ease-standard), color 0.18s;
+  }
+  .tile:hover .tile-arrow {
+    transform: translateX(3px);
+    color: var(--accent);
+  }
+</style>

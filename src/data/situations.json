@@ -1,0 +1,134 @@
+[
+  {
+    "id": "childbirth",
+    "label": "출산",
+    "sub": "임신·출산·신생아",
+    "icon": "cat-baby",
+    "tone": "복지",
+    "description": "출산 직전부터 영아 양육까지, 정부와 지자체가 가구당 수백만 원 단위의 직접 지원을 제공합니다. 첫만남이용권·부모급여·아동수당이 핵심.",
+    "keywords": ["출산", "임신", "신생아", "영아", "부모급여", "첫만남", "산모", "아기"],
+    "primaryCategories": ["복지", "교육"],
+    "matchedPersonas": ["newlywed-family"]
+  },
+  {
+    "id": "marriage",
+    "label": "결혼",
+    "sub": "신혼부부 주거·자산",
+    "icon": "p-newlywed-family",
+    "tone": "주거",
+    "description": "결혼 7년 이내 신혼부부는 주거·자산·세제 혜택이 집중됩니다. 특별공급 청약, 신혼부부 전세대출, 청년도약계좌 등.",
+    "keywords": ["신혼", "결혼", "부부", "특공", "특별공급", "신혼부부"],
+    "primaryCategories": ["주거", "자산"],
+    "matchedPersonas": ["newlywed-family"]
+  },
+  {
+    "id": "moving",
+    "label": "이사",
+    "sub": "월세·전세·임대 주택",
+    "icon": "cat-housing",
+    "tone": "주거",
+    "description": "주거 이전 시 청년 월세 특별지원, 전세자금 대출, 공공임대 우선공급 등 다양한 주거 혜택을 활용할 수 있습니다.",
+    "keywords": ["월세", "전세", "이사", "임대", "주택", "주거", "공공주택"],
+    "primaryCategories": ["주거"],
+    "matchedPersonas": ["office-rookie", "newlywed-family"]
+  },
+  {
+    "id": "unemployment",
+    "label": "실직",
+    "sub": "구직·재취업 지원",
+    "icon": "cat-employment",
+    "tone": "취업",
+    "description": "실직 후 6개월 내 신청해야 하는 구직급여, 국민취업지원제도, 재취업 훈련 지원금 등이 있습니다. 신청 기한이 짧아 즉시 확인 필요.",
+    "keywords": ["실업", "구직", "취업", "재취업", "고용", "국민취업"],
+    "primaryCategories": ["취업"],
+    "matchedPersonas": ["office-rookie", "senior"]
+  },
+  {
+    "id": "startup",
+    "label": "창업",
+    "sub": "예비창업·소상공인",
+    "icon": "cat-startup",
+    "tone": "창업",
+    "description": "예비창업패키지부터 정책자금 융자, 청년창업 지원금까지 단계별로 제공됩니다. 만 39세 이하 청년 창업 시 특별 우대.",
+    "keywords": ["창업", "소상공인", "사업", "정책자금", "예비창업", "스타트업"],
+    "primaryCategories": ["창업"],
+    "matchedPersonas": ["self-employed", "office-rookie"]
+  },
+  {
+    "id": "retirement",
+    "label": "은퇴",
+    "sub": "노후·시니어 지원",
+    "icon": "p-senior",
+    "tone": "복지",
+    "description": "55세 이상 중장년층의 노후 안정과 재취업을 위한 지원이 확대되었습니다. 시니어 일자리, 기초연금, 노인장기요양보험 등.",
+    "keywords": ["노후", "은퇴", "시니어", "중장년", "고령", "노인"],
+    "primaryCategories": ["복지", "취업", "자산"],
+    "matchedPersonas": ["senior"]
+  },
+  {
+    "id": "education",
+    "label": "입학",
+    "sub": "학자금·장학·등록금",
+    "icon": "cat-education",
+    "tone": "교육",
+    "description": "초·중·고·대학 입학 시 활용할 수 있는 학자금 대출, 국가장학금, 교육급여 등 학생·가족 공통 혜택.",
+    "keywords": ["학자금", "장학", "학비", "입학", "등록금", "교육"],
+    "primaryCategories": ["교육"],
+    "matchedPersonas": ["newlywed-family", "office-rookie"]
+  },
+  {
+    "id": "parenting",
+    "label": "자녀양육",
+    "sub": "보육·돌봄·아이돌봄",
+    "icon": "cat-baby",
+    "tone": "복지",
+    "description": "0~12세 자녀를 둔 가구를 위한 보육료·아동수당·아이돌봄 서비스. 맞벌이 가구 우선 지원도 다수.",
+    "keywords": ["아동", "양육", "보육", "자녀", "어린이집", "유치원", "돌봄"],
+    "primaryCategories": ["복지", "교육"],
+    "matchedPersonas": ["newlywed-family"]
+  },
+  {
+    "id": "care",
+    "label": "부모부양",
+    "sub": "노부모·장기요양",
+    "icon": "cat-welfare",
+    "tone": "복지",
+    "description": "노부모를 모시는 가구를 위한 효 지원금, 노인장기요양보험 본인부담 경감, 부양가족 세제 혜택.",
+    "keywords": ["노인", "효", "노부모", "부양", "장기요양", "어르신"],
+    "primaryCategories": ["복지"],
+    "matchedPersonas": ["senior"]
+  },
+  {
+    "id": "medical",
+    "label": "질병·사고",
+    "sub": "의료비·재난 지원",
+    "icon": "cat-welfare",
+    "tone": "복지",
+    "description": "긴급의료비, 재난적의료비 지원, 산재·교통사고 보상, 저소득층 의료급여 등 위기 상황 대응 지원금.",
+    "keywords": ["의료", "질병", "사고", "재해", "긴급", "재난", "건강", "치료"],
+    "primaryCategories": ["복지"],
+    "matchedPersonas": ["low-income", "senior"]
+  },
+  {
+    "id": "military",
+    "label": "군 복무",
+    "sub": "현역·전역 지원",
+    "icon": "p-office-rookie",
+    "tone": "자산",
+    "description": "현역 복무 중 받을 수 있는 장병내일준비적금, 전역 후 취업·창업 우대, 사회복귀 지원금.",
+    "keywords": ["군", "병사", "전역", "복무", "장병", "예비역"],
+    "primaryCategories": ["자산", "취업"],
+    "matchedPersonas": ["office-rookie"]
+  },
+  {
+    "id": "rural",
+    "label": "귀농·귀촌",
+    "sub": "영농·농어촌 정착",
+    "icon": "cat-farm",
+    "tone": "농업",
+    "description": "도시에서 농어촌으로 이주하거나 영농을 시작하는 가구를 위한 정착지원금, 영농비, 주택 마련 자금.",
+    "keywords": ["귀농", "영농", "농업", "농어촌", "정착", "농가"],
+    "primaryCategories": ["농업"],
+    "matchedPersonas": ["farmer"]
+  }
+]
