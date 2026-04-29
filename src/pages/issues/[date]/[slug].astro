@@ -3,6 +3,7 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
+import { paragraphsAndLists } from '@/lib/inline-markdown';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -191,7 +192,15 @@ const breadcrumbSchema = {
               <h2>{s.heading}</h2>
               <p class="lead">{s.lead}</p>
               <div class="prose">
-                {s.body.split(/\n\n+/).map((para) => <p>{para}</p>)}
+                {paragraphsAndLists(s.body).map((block) =>
+                  block.type === 'p' ? (
+                    <p set:html={block.html} />
+                  ) : (
+                    <ul>
+                      {block.items.map((item) => <li set:html={item} />)}
+                    </ul>
+                  ),
+                )}
               </div>
             </section>
           ))}
@@ -492,6 +501,28 @@ const breadcrumbSchema = {
     font-size: 16px;
   }
   .prose p { margin: 12px 0; }
+  .prose ul {
+    margin: 12px 0;
+    padding-left: 22px;
+  }
+  .prose li {
+    margin: 4px 0;
+    line-height: 1.6;
+  }
+  .prose strong { font-weight: 700; color: var(--text); }
+  .prose em { font-style: italic; }
+  .prose code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    padding: 2px 6px;
+    background: var(--surface-2);
+    border-radius: 4px;
+  }
+  .prose a {
+    color: var(--accent-link);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
 
   .table-wrap { overflow-x: auto; }
   table {

@@ -37,8 +37,10 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'always',
 
+  // 전체 내부 링크 hover 시 prefetch — 클릭 시 즉시 로드 (perceived perf).
+  // 'hover' 전략은 사용자가 의도적으로 호버한 링크만 미리 가져와 대역폭 낭비 X.
   prefetch: {
-    prefetchAll: false,
+    prefetchAll: true,
     defaultStrategy: 'hover',
   },
 
