@@ -6,6 +6,15 @@ on:
   schedule:
     - cron: '0 18 * * 0'
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'commit 모드 — direct(main 직접) 또는 pr(검수용 PR 생성)'
+        required: false
+        default: 'pr'
+        type: choice
+        options:
+          - direct
+          - pr
 
 # 동시 실행 1개로 제한 (중복 PR 방지)
 concurrency:
@@ -38,6 +47,14 @@ jobs:
           DATA_GO_KR_KEY: ${{ secrets.DATA_GO_KR_KEY }}
         run: npm run sync:subsidies:new
 
+      - name: Verify content (lint + build)
+        run: |
+          npm run lint:content
+          npm run build
+        env:
+          # 빌드는 검증용 — 산출물은 폐기
+          NODE_ENV: production
+
       - name: Check for changes
         id: diff
         run: |
@@ -50,19 +67,48 @@ jobs:
             echo "No changes — skipping commit"
           fi
 
-      - name: Commit changes
+      - name: Compute commit metadata
         if: steps.diff.outputs.changed == 'true'
+        id: meta
         run: |
-          git config user.name "awoo-bot"
-          git config user.email "noreply@awoo.or.kr"
           git add src/data/subsidies/_gov24/
           DATE=$(date -u +"%Y-%m-%d")
           ADDED=$(git diff --cached --diff-filter=A --name-only -- src/data/subsidies/_gov24/ | wc -l | tr -d ' ')
           MODIFIED=$(git diff --cached --diff-filter=M --name-only -- src/data/subsidies/_gov24/ | wc -l | tr -d ' ')
           DELETED=$(git diff --cached --diff-filter=D --name-only -- src/data/subsidies/_gov24/ | wc -l | tr -d ' ')
-          git commit -m "chore(data): 보조금24 주간 동기화 — ${DATE}
+          echo "date=${DATE}" >> "$GITHUB_OUTPUT"
+          echo "added=${ADDED}" >> "$GITHUB_OUTPUT"
+          echo "modified=${MODIFIED}" >> "$GITHUB_OUTPUT"
+          echo "deleted=${DELETED}" >> "$GITHUB_OUTPUT"
 
-          + ${ADDED}건 추가 / ~ ${MODIFIED}건 갱신 / - ${DELETED}건 제거
+      - name: Commit changes (direct → main)
+        if: steps.diff.outputs.changed == 'true' && (github.event_name == 'schedule' || inputs.mode == 'direct')
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          git commit -m "chore(data): 보조금24 주간 동기화 — ${{ steps.meta.outputs.date }}
+
+          + ${{ steps.meta.outputs.added }}건 추가 / ~ ${{ steps.meta.outputs.modified }}건 갱신 / - ${{ steps.meta.outputs.deleted }}건 제거
 
           [skip ci]"
           git push origin main
+
+      - name: Create Pull Request (PR mode — 수동 실행 검수용)
+        if: steps.diff.outputs.changed == 'true' && github.event_name == 'workflow_dispatch' && inputs.mode == 'pr'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: bot/sync-subsidies-${{ steps.meta.outputs.date }}
+          delete-branch: true
+          title: "chore(data): 보조금24 동기화 PR — ${{ steps.meta.outputs.date }}"
+          body: |
+            ### 보조금24 자동 동기화 결과
+            - 추가: **${{ steps.meta.outputs.added }}**건
+            - 갱신: ${{ steps.meta.outputs.modified }}건
+            - 제거: ${{ steps.meta.outputs.deleted }}건
+
+            빌드 검증(`npm run build` + `lint:content`) 사전 통과.
+          commit-message: |
+            chore(data): 보조금24 동기화 — ${{ steps.meta.outputs.date }}
+          author: "awoo-bot <noreply@awoo.or.kr>"
+          committer: "awoo-bot <noreply@awoo.or.kr>"

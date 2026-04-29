@@ -5,10 +5,26 @@ import {
   formatWon,
   INCOME_THRESHOLDS,
   MEDIAN_INCOME,
-  TODAY_NEWS,
 } from '@/data/site-data';
+import todayIssue from '@/data/today-issue.json';
 
 export const prerender = true;
+
+interface AutoSummary {
+  headline?: string;
+  subhead?: string;
+  hookCopy?: string;
+}
+interface AutoTodayIssue {
+  syncedAt?: string;
+  headline?: string;
+  description?: string;
+  pubDateKR?: string;
+  source?: string;
+  category?: string;
+  summary?: AutoSummary;
+}
+const auto = todayIssue as AutoTodayIssue;
 
 export const GET: APIRoute = async () => {
   const personas = await getCollection('personas');
@@ -28,29 +44,29 @@ export const GET: APIRoute = async () => {
   lines.push('---');
   lines.push('');
 
-  // 오늘의 이슈
-  lines.push(`## 오늘의 이슈 — ${TODAY_NEWS.headline}`);
-  lines.push('');
-  lines.push(`발표일: ${TODAY_NEWS.date} · 출처: ${TODAY_NEWS.source}`);
-  lines.push('');
-  lines.push(TODAY_NEWS.subhead);
-  lines.push('');
-  lines.push(
-    `**핵심 수치**: ${TODAY_NEWS.bigLabel} ${TODAY_NEWS.prevValue} → ${TODAY_NEWS.bigNumber} (${TODAY_NEWS.deltaPct})`,
-  );
-  lines.push('');
-  lines.push(TODAY_NEWS.why);
-  lines.push('');
-  lines.push('### 페르소나별 적합도');
-  lines.push('');
-  for (const pi of TODAY_NEWS.personaImpact) {
-    const p = personas.find((x) => x.data.id === pi.personaId);
-    if (!p) continue;
-    lines.push(`- **${p.data.label}** — ${pi.label}: ${pi.detail}`);
+  // 오늘의 이슈 (자동 큐레이션 today-issue.json 기반)
+  const autoHeadline = auto?.summary?.headline ?? auto?.headline;
+  const autoSubhead = auto?.summary?.subhead ?? auto?.description;
+  if (autoHeadline) {
+    lines.push(`## 오늘의 이슈 — ${autoHeadline}`);
+    lines.push('');
+    if (auto?.pubDateKR || auto?.source) {
+      lines.push(`발표일: ${auto?.pubDateKR ?? '-'} · 출처: ${auto?.source ?? '뉴스 매체'}`);
+      lines.push('');
+    }
+    if (autoSubhead) {
+      lines.push(autoSubhead);
+      lines.push('');
+    }
+    if (auto?.summary?.hookCopy) {
+      lines.push(`**핵심**: ${auto.summary.hookCopy}`);
+      lines.push('');
+    }
+    lines.push('상세 포스트: https://awoo.or.kr/issues/');
+    lines.push('');
+    lines.push('---');
+    lines.push('');
   }
-  lines.push('');
-  lines.push('---');
-  lines.push('');
 
   // 페르소나
   lines.push('## 페르소나 (6개 유형)');

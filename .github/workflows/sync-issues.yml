@@ -37,6 +37,9 @@ jobs:
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
         run: npm run sync:issues
 
+      - name: Verify content (lint)
+        run: npm run lint:content
+
       - name: Check for changes
         id: diff
         run: |

@@ -158,101 +158,14 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
-// 오늘의 이슈 (메인 헤드라인)
-export interface PersonaImpact {
-  personaId: string;
-  verdict: 'eligible' | 'partial' | 'ineligible';
-  label: string;
-  detail: string;
-}
-
-export interface TrendingItem {
-  rank: number;
-  title: string;
-  delta: string;
-  hot?: boolean;
-  related?: string;
-}
-
+// 오늘의 이슈는 자동 큐레이션 (src/data/today-issue.json) 으로 단일화.
+// 레거시 TODAY_NEWS 하드코드는 제거됨 — NewsHero·llms-full 모두 today-issue.json 사용.
 export interface PublicStat {
   label: string;
   value: string;
   tone: 'accent' | 'positive' | 'default' | 'warning';
   sub: string;
 }
-
-export const TODAY_NEWS = {
-  badge: '오늘의 이슈',
-  date: '2026.04.28',
-  source: '국토교통부 발표 · 보도 23건',
-  headline: '청년 월세 지원, 5월부터 월 30만원으로 인상',
-  subhead: '소득 요건도 중위 60% → 70%로 완화. 5월 1일부터 신규 신청 시작.',
-  why: '월세 부담이 역대 최고치를 기록하면서 정부가 청년 주거 지원을 대폭 확대했어요. 기존 수혜자도 자동 증액되며, 신규 신청도 5월 1일부터 받습니다.',
-  bigNumber: '30만원',
-  bigLabel: '월 최대 지원금',
-  prevValue: '20만원',
-  deltaPct: '+50%',
-  trend: [12, 13, 14, 13, 15, 17, 18, 19, 20, 21, 22, 23],
-  trendLabel: '월별 신청자 추이 (단위: 만명)',
-  related: ['housing-monthly'],
-  personaImpact: [
-    {
-      personaId: 'office-rookie',
-      verdict: 'eligible',
-      label: '거의 확정',
-      detail: '월 30만 12개월 = 360만원 수령',
-    },
-    {
-      personaId: 'self-employed',
-      verdict: 'partial',
-      label: '조건부',
-      detail: '만 34세 이하 1인 사업자만 해당',
-    },
-    {
-      personaId: 'newlywed-family',
-      verdict: 'ineligible',
-      label: '미해당',
-      detail: '신혼·육아 가구는 별도 주거 지원 이용',
-    },
-    {
-      personaId: 'senior',
-      verdict: 'ineligible',
-      label: '미해당',
-      detail: '연령 기준 초과 — 주거급여 검토',
-    },
-    {
-      personaId: 'low-income',
-      verdict: 'partial',
-      label: '연계 가능',
-      detail: '주거급여와 중복 수급 불가, 유리한 쪽 선택',
-    },
-    {
-      personaId: 'farmer',
-      verdict: 'ineligible',
-      label: '미해당',
-      detail: '농어촌 청년은 귀농 정착지원금 우선',
-    },
-  ] satisfies PersonaImpact[],
-  trending: [
-    {
-      rank: 1,
-      title: '청년 월세 특별지원 인상',
-      delta: '+340%',
-      hot: true,
-      related: 'housing-monthly',
-    },
-    { rank: 2, title: '부모급여 0세 월 100만원', delta: '+180%', related: 'maternity-grant' },
-    { rank: 3, title: '소상공인 정책자금 한도 확대', delta: '+95%', related: 'small-biz-loan' },
-    { rank: 4, title: '청년도약계좌 만기 도래', delta: '+72%', related: 'savings-account' },
-    { rank: 5, title: '예비창업패키지 5월 공모', delta: '+45%', related: 'startup-grant' },
-  ] satisfies TrendingItem[],
-  publicStats: [
-    { label: '예상 수혜자', value: '23만명', tone: 'accent', sub: '기존 15만명 → +53%' },
-    { label: '월 인상폭', value: '+10만원', tone: 'positive', sub: '20만 → 30만' },
-    { label: '소득 기준', value: '70%', tone: 'default', sub: '중위소득 (완화)' },
-    { label: '시행일', value: '5/1', tone: 'warning', sub: '2026년 5월 1일' },
-  ] satisfies PublicStat[],
-} as const;
 
 // 통화 포맷
 export const formatWon = (n: number): string => {

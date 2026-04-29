@@ -1,0 +1,6 @@
+# Cloudflare Pages — Redirects
+# 형식: <source> <destination> <status>
+
+# 레거시 정적 시드 페이지 → 이슈 인덱스 (자동 큐레이션 today-issue.json 기반)
+/issues/main /issues/ 301
+/issues/main/ /issues/ 301

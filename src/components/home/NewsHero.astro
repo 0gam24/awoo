@@ -1,11 +1,10 @@
 ---
 import Container from '@/components/Container.astro';
-import { TODAY_NEWS } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
 
-// 메인 NewsHero — 1위 토픽의 정보·훅·전환 funnel.
+// 메인 NewsHero — 자동 큐레이션 today-issue.json 기반.
+// 데이터 없으면 graceful empty (CTA 만 노출), 트렌딩 차트·하드코드 fallback 제거.
 // CTA 1순위: 1위 토픽의 영구 포스트 (있으면 직진), 없으면 /issues/ 인덱스.
-// (사이드바·다른 영역은 외부 기사 유지 — 트렌드 모니터링용)
 type HistoryEntry = { firstSeen: string; postSlug: string };
 type HistoryFile = { byTerm?: Record<string, HistoryEntry> };
 const historyModules = import.meta.glob<{ default: HistoryFile }>(
@@ -22,7 +21,7 @@ function findTopicPostUrl(term: string | undefined): string | null {
   return `/issues/${entry.firstSeen}/${entry.postSlug}/`;
 }
 
-// 자동 큐레이션 데이터 우선, hardcode TODAY_NEWS는 publicStats 등 보조용
+// 자동 큐레이션 데이터 — today-issue.json (단일 소스)
 interface AutoTrendItem {
   term: string;
   count: number;
@@ -79,7 +78,7 @@ interface PublicStat {
   tone: StatTone;
   sub: string;
 }
-const autoStats: PublicStat[] | null = autoTrending
+const displayStats: readonly PublicStat[] = autoTrending
   ? [
       {
         label: '1위 트렌딩',
@@ -106,30 +105,14 @@ const autoStats: PublicStat[] | null = autoTrending
         sub: '대표 기사 기준',
       },
     ]
-  : null;
-const displayStats: readonly PublicStat[] = autoStats ?? n.publicStats;
+  : [];
 
-// trend chart 데이터 (TODAY_NEWS의 hardcode 유지 — 자동 데이터엔 trend 없음)
-const n = TODAY_NEWS;
-const w = 520;
-const h = 130;
-const pad = 8;
-const max = Math.max(...n.trend);
-const min = Math.min(...n.trend);
-const pts = n.trend.map((v, i) => {
-  const x = pad + (i * (w - pad * 2)) / (n.trend.length - 1);
-  const y = h - pad - ((v - min) / (max - min)) * (h - pad * 2);
-  return [x, y] as const;
-});
-const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0]} ${p[1]}`).join(' ');
-const last = pts[pts.length - 1] ?? [0, 0];
-const first = pts[0] ?? [0, 0];
-const areaPath = `${linePath} L ${last[0]} ${h - pad} L ${first[0]} ${h - pad} Z`;
-
-// 표시 데이터 — summary 우선 → 외부 기사 → hardcode 순
-const displayHeadline = auto?.summary?.headline ?? auto?.headline ?? n.headline;
-const displaySubhead = auto?.summary?.subhead ?? auto?.description ?? n.subhead;
-const displayDate = auto?.pubDateKR ?? n.date;
+// 표시 데이터 — summary 우선, 없으면 graceful empty
+const displayHeadline = auto?.summary?.headline ?? auto?.headline ?? '오늘의 정부 지원금 이슈';
+const displaySubhead =
+  auto?.summary?.subhead ??
+  auto?.description ??
+  '매일 자동으로 갱신되는 지원금 이슈를 확인하세요.';
 const displayCategory = auto?.category ?? '';
 const externalLink = auto?.link;
 const isAuto = !!auto;
@@ -161,8 +144,7 @@ function extractSource(link: string | undefined): string {
   }
 }
 
-const sourceLabel = isAuto ? extractSource(externalLink) : n.source;
-const showTrendChart = !isAuto; // 자동 모드는 trend 데이터 없음 → 차트 숨김
+const sourceLabel = isAuto ? extractSource(externalLink) : '뉴스 매체';
 
 // CTA — 1위 토픽 포스트 + /issues/ 인덱스 둘 다 노출 (시청자 선택권)
 const topicPostUrl = isAuto ? findTopicPostUrl(auto?.trendingTopic) : null;
@@ -175,7 +157,7 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
 <section class="news-band">
   <Container size="wide">
     <div class="news-meta">
-      <span class="news-pulse"><span class="dot" aria-hidden="true"></span>{n.badge}</span>
+      <span class="news-pulse"><span class="dot" aria-hidden="true"></span>오늘의 이슈</span>
       {hasSummary && daysActive >= 3 && (
         <span class="news-trending-pill">
           <span class="dot-tr" aria-hidden="true" />
@@ -193,18 +175,6 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
           <h1 class="news-headline">{displayHeadline}</h1>
           <p class="news-subhead">{displaySubhead}</p>
         </div>
-
-        {!isAuto && (
-          <div class="news-big-number-row">
-            <div class="news-big-label">{n.bigLabel}</div>
-            <div class="news-big-number">
-              <span class="prev-val">{n.prevValue}</span>
-              <span class="arrow" aria-hidden="true">→</span>
-              <span class="cur-val">{n.bigNumber}</span>
-            </div>
-            <div class="news-delta-pill">{n.deltaPct} 인상</div>
-          </div>
-        )}
 
         {coreFacts.length > 0 && (
           <ul class="core-facts">
@@ -258,85 +228,43 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
           )}
         </div>
 
-        {showTrendChart && (
-          <div class="news-trend-graph">
-            <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" width="100%" height={h} aria-hidden="true">
-              <defs>
-                <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.35"></stop>
-                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"></stop>
-                </linearGradient>
-              </defs>
-              <path d={areaPath} fill="url(#trendFill)"></path>
-              <path d={linePath} fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
-              <circle cx={last[0]} cy={last[1]} r="5" fill="var(--accent)"></circle>
-              <circle cx={last[0]} cy={last[1]} r="11" fill="var(--accent)" opacity="0.18"></circle>
-            </svg>
-            <div class="news-trend-axis">
-              <span>1월</span><span>4월</span><span>7월</span><span>10월</span><span>12월</span>
-            </div>
-            <div class="news-trend-label">{n.trendLabel}</div>
-          </div>
-        )}
       </div>
 
-      <aside class="news-trend-card">
-        <div class="news-trend-card-head">
-          <div class="trend-eyebrow">트렌딩 키워드</div>
-          <div class="trend-title">{autoTrending ? '뉴스 매체 언급 Top 5' : '최근 1시간 급상승'}</div>
-        </div>
+      {autoTrending && (
+        <aside class="news-trend-card">
+          <div class="news-trend-card-head">
+            <div class="trend-eyebrow">트렌딩 키워드</div>
+            <div class="trend-title">뉴스 매체 언급 Top 5</div>
+          </div>
 
-        {autoTrending ? (
           <ol class="news-trend-list auto">
             {autoTrending.map((t, i) => {
               const href = t.topArticle?.link ?? '#';
               return (
-              <li class:list={['news-trend-item-auto', i === 0 && 'hot']}>
-                <a href={href} class="trend-link-auto" target="_blank" rel="noopener noreferrer">
-                  <div class="trend-row-1">
-                    <span class="rank">{i + 1}</span>
-                    <span class="trend-pill">
-                      <span class="trend-term">{t.term}</span>
-                      <span class="trend-count">{t.count}회</span>
-                    </span>
-                  </div>
-                  <div class="trend-row-2">
-                    <span class="trend-news-title">{t.topArticle?.title ?? t.term}</span>
-                    {t.topArticle?.link && <span class="trend-arrow" aria-hidden="true">→</span>}
-                  </div>
-                </a>
-              </li>
+                <li class:list={['news-trend-item-auto', i === 0 && 'hot']}>
+                  <a href={href} class="trend-link-auto" target="_blank" rel="noopener noreferrer">
+                    <div class="trend-row-1">
+                      <span class="rank">{i + 1}</span>
+                      <span class="trend-pill">
+                        <span class="trend-term">{t.term}</span>
+                        <span class="trend-count">{t.count}회</span>
+                      </span>
+                    </div>
+                    <div class="trend-row-2">
+                      <span class="trend-news-title">{t.topArticle?.title ?? t.term}</span>
+                      {t.topArticle?.link && <span class="trend-arrow" aria-hidden="true">→</span>}
+                    </div>
+                  </a>
+                </li>
               );
             })}
           </ol>
-        ) : (
-          <ol class="news-trend-list">
-            {
-              n.trending.map((t) => (
-                <li class:list={['news-trend-item', t.hot && 'hot']}>
-                  {t.related ? (
-                    <a href={`/subsidies/${t.related}/`} class="trend-link">
-                      <span class="rank">{t.rank}</span>
-                      <span class="title">{t.title}</span>
-                      <span class="delta">↑ {t.delta}</span>
-                    </a>
-                  ) : (
-                    <>
-                      <span class="rank">{t.rank}</span>
-                      <span class="title">{t.title}</span>
-                      <span class="delta">↑ {t.delta}</span>
-                    </>
-                  )}
-                </li>
-              ))
-            }
-          </ol>
-        )}
 
-        <div class="news-trend-card-foot">
-          {autoTrending ? '네이버 뉴스 매체 언급 빈도 · 매일 자동 갱신' : '매시간 업데이트 · 검색량 기준'}
-        </div>
-      </aside>
+          <div class="news-trend-card-foot">
+            네이버 뉴스 매체 언급 빈도 · 매일 자동 갱신
+          </div>
+        </aside>
+      )}
     </div>
 
     <div class="news-stat-strip">

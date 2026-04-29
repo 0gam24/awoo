@@ -266,6 +266,9 @@ async function main() {
 
   let success = 0;
   let failed = 0;
+  const failures = [];
+  // GitHub Actions 환경 감지 — annotation 출력
+  const isCI = !!process.env.GITHUB_ACTIONS;
 
   // 2. Top N 토픽 순회
   for (const [idx, t] of trending.slice(0, TOP_N).entries()) {
@@ -328,7 +331,20 @@ ${JSON.stringify(userInput, null, 2)}
       const raw = await callClaude(systemPrompt, userPrompt, apiKey);
       post = parseJsonFromResponse(raw);
     } catch (e) {
-      console.warn(`⚠️ Claude 호출 실패: ${e.message}`);
+      const reason = e?.message ?? String(e);
+      console.warn(`⚠️ Claude 호출 실패: ${reason}`);
+      if (isCI) {
+        // GitHub Actions annotation — 워크플로 요약에 노출
+        console.log(`::warning title=Claude 포스트 생성 실패::${term} (${idx + 1}/${TOP_N}): ${reason}`);
+      }
+      failures.push({
+        rank: idx + 1,
+        term,
+        count,
+        category,
+        reason,
+        at: new Date().toISOString(),
+      });
       failed++;
       continue;
     }
@@ -354,6 +370,52 @@ ${JSON.stringify(userInput, null, 2)}
   // 8. _history.json 저장
   await saveHistory(history);
   console.log(`\n📊 ${success} 성공 / ${failed} 실패 — 히스토리 갱신`);
+
+  // 9. 실패 로그 — .fail.json (운영 모니터링용)
+  if (failures.length > 0) {
+    const failPath = join(ISSUES_OUT_DIR, date, `_fail-${date}.json`);
+    await writeFile(
+      failPath,
+      JSON.stringify(
+        {
+          date,
+          model: MODEL,
+          attempted: TOP_N,
+          succeeded: success,
+          failed: failures.length,
+          failures,
+        },
+        null,
+        2,
+      ) + '\n',
+      'utf8',
+    );
+    console.log(`📝 실패 로그 저장: ${failPath}`);
+
+    // CI 환경에서는 step summary에도 기록
+    if (isCI && process.env.GITHUB_STEP_SUMMARY) {
+      const lines = [
+        `## ⚠️ 오늘의 이슈 포스트 생성: ${failures.length}건 실패`,
+        '',
+        `- 모델: \`${MODEL}\``,
+        `- 성공: ${success} / 시도: ${TOP_N}`,
+        '',
+        '| 순위 | 토픽 | 사유 |',
+        '|---|---|---|',
+        ...failures.map((f) => `| ${f.rank} | ${f.term} | ${f.reason.replace(/\|/g, '\\|').slice(0, 120)} |`),
+      ];
+      try {
+        const { appendFile } = await import('node:fs/promises');
+        await appendFile(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+      } catch {}
+    }
+  }
+
+  // 0건 성공이면 exit code 1 — CI 명시 실패
+  if (success === 0 && failed > 0) {
+    console.error('💥 모든 포스트 생성 실패');
+    process.exit(1);
+  }
 }
 
 main().catch((e) => {

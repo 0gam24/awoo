@@ -32,6 +32,9 @@ jobs:
       - name: Astro check (TS + Astro)
         run: npx astro check
 
+      - name: Content lint (slug 충돌·참조 무결성·schema)
+        run: npm run lint:content
+
       - name: Build
         run: npm run build
 

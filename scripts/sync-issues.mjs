@@ -314,17 +314,45 @@ function titleHasPolicyTerm(title) {
 // ─────────────────────────────────────────────────────────────
 // HTML 엔티티 / <b> 태그 제거
 // ─────────────────────────────────────────────────────────────
-function clean(text) {
+// 안전한 텍스트 정제 — HTML 모든 태그·주석·CDATA·제어문자 제거.
+// Claude 프롬프트로 들어가는 외부 텍스트의 prompt injection 표면 축소.
+const MAX_TITLE_LEN = 200;
+const MAX_DESC_LEN = 500;
+
+function clean(text, maxLen = 0) {
   if (!text) return '';
-  return text
-    .replace(/<\/?b>/g, '')
+  let s = String(text);
+  // HTML 주석·CDATA 제거
+  s = s.replace(/<!--[\s\S]*?-->/g, '');
+  s = s.replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '');
+  // script·style 블록 통째 제거
+  s = s.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+  s = s.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+  // 모든 HTML 태그 제거 (속성 포함)
+  s = s.replace(/<[^>]*>/g, '');
+  // HTML 엔티티 디코드
+  s = s
     .replace(/&quot;/g, '"')
     .replace(/&apos;/g, "'")
-    .replace(/&amp;/g, '&')
+    .replace(/&#39;/g, "'")
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .trim();
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&');
+  // 제어 문자 제거 (탭·개행 제외)
+  s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  // javascript:·data: URI 스킴 흔적 무력화 (텍스트일 뿐이지만 토큰 절약)
+  s = s.replace(/javascript:/gi, 'javascript_').replace(/data:/gi, 'data_');
+  // 다중 공백 정리
+  s = s.replace(/\s+/g, ' ').trim();
+  if (maxLen > 0 && s.length > maxLen) {
+    s = s.slice(0, maxLen) + '…';
+  }
+  return s;
 }
+
+function cleanTitle(t) { return clean(t, MAX_TITLE_LEN); }
+function cleanDesc(t) { return clean(t, MAX_DESC_LEN); }
 
 // ─────────────────────────────────────────────────────────────
 // Naver News 검색 — 페이지네이션 (최대 100건/페이지, total ≤ 100)
@@ -490,8 +518,8 @@ function commercialPenalty(text) {
 // 후보 점수화
 // ─────────────────────────────────────────────────────────────
 function scoreItem(item, cat) {
-  const title = clean(item.title);
-  const desc = clean(item.description);
+  const title = cleanTitle(item.title);
+  const desc = cleanDesc(item.description);
   const text = `${title} ${desc}`;
 
   // 1차 필터: 제목에 정책성 키워드 필수

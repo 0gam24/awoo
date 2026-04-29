@@ -297,14 +297,51 @@ async function fetchAllServices(key) {
 async function readManifest() {
   try {
     const text = await readFile(MANIFEST_PATH, 'utf8');
-    return JSON.parse(text);
-  } catch {
+    const parsed = JSON.parse(text);
+    // schema 최소 검증
+    if (typeof parsed !== 'object' || parsed === null) {
+      throw new Error('manifest is not an object');
+    }
+    if (!parsed.items || typeof parsed.items !== 'object') {
+      console.warn('⚠️ manifest.items 누락 — 빈 객체로 복구');
+      parsed.items = {};
+    }
+    return parsed;
+  } catch (e) {
+    // 손상된 파일 백업 후 빈 manifest 반환
+    if (existsSync(MANIFEST_PATH)) {
+      const backup = `${MANIFEST_PATH}.corrupt.${Date.now()}.bak`;
+      try {
+        const corrupt = await readFile(MANIFEST_PATH, 'utf8');
+        await writeFile(backup, corrupt, 'utf8');
+        console.warn(`⚠️ manifest 손상 — 백업: ${backup} (사유: ${e.message})`);
+      } catch {}
+    }
     return { lastSync: null, items: {} };
   }
 }
 
 async function writeManifest(manifest) {
-  await writeFile(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+  // Atomic write — temp 파일에 쓴 후 rename
+  // 부분 쓰기 도중 프로세스 중단 시 기존 manifest 보존
+  const tmpPath = `${MANIFEST_PATH}.next`;
+  const bakPath = `${MANIFEST_PATH}.bak`;
+  const data = JSON.stringify(manifest, null, 2) + '\n';
+
+  // 1. 임시 파일에 쓰기
+  await writeFile(tmpPath, data, 'utf8');
+
+  // 2. 직전 manifest 백업 (1세대)
+  if (existsSync(MANIFEST_PATH)) {
+    try {
+      const { copyFile } = await import('node:fs/promises');
+      await copyFile(MANIFEST_PATH, bakPath);
+    } catch {}
+  }
+
+  // 3. atomic rename (Node fs.rename은 같은 파일시스템 내 atomic)
+  const { rename } = await import('node:fs/promises');
+  await rename(tmpPath, MANIFEST_PATH);
 }
 
 // 등록일시 / 수정일시 ('YYYYMMDDHHmmss') → ms timestamp
@@ -377,6 +414,7 @@ async function runBootstrap(items) {
 
   const used = new Set();
   const manifestItems = {};
+  const bootstrapAt = new Date().toISOString();
   let written = 0;
   let skipped = 0;
 
@@ -390,6 +428,7 @@ async function runBootstrap(items) {
         slug,
         regDate: item['등록일시'] || '',
         modDate: item['수정일시'] || '',
+        lastVerifiedAt: bootstrapAt,
       };
       written++;
     } catch (e) {
@@ -466,6 +505,7 @@ async function runNew(items) {
         slug,
         regDate: item['등록일시'] || '',
         modDate: item['수정일시'] || '',
+        lastVerifiedAt: runAt,
       };
       batchSlugs.push(slug);
       written++;
