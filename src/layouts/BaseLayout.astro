@@ -55,6 +55,13 @@ const siteName = '지원금가이드';
         font 다운로드를 기다리느라 지연됨 (300KB / Slow 4G = ~1.5s 페널티). */}
 
     {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {!noindex && (
+      <Fragment>
+        {/* Discover·검색 결과에서 큰 이미지 미리보기 허용 (썸네일 → 와이드 카드) */}
+        <meta name="robots" content="max-image-preview:large, max-snippet:-1" />
+        <meta name="googlebot" content="max-image-preview:large, max-snippet:-1" />
+      </Fragment>
+    )}
 
     {/* Open Graph */}
     <meta property="og:type" content="website" />

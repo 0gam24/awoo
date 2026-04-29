@@ -62,6 +62,11 @@ const year = new Date().getFullYear();
     </div>
 
     <div class="legal">
+      <div class="trust-badge">
+        <span class="trust-mark" aria-hidden="true">✓</span>
+        AI 보조로 작성, <strong>김준혁 편집책임자</strong>가 검수합니다.
+        <a href="/editorial-policy/">편집 정책 →</a>
+      </div>
       <div class="legal-row">
         <span>{SITE.legalName}</span>
         <span class="dot">·</span>
@@ -174,6 +179,39 @@ const year = new Date().getFullYear();
     font-size: 13px;
     color: var(--text-2);
     line-height: 1.6;
+  }
+
+  .trust-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: rgb(0 113 227 / 0.06);
+    border: 1px solid rgb(0 113 227 / 0.16);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .trust-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .trust-badge a {
+    color: var(--accent-link);
+    font-weight: 500;
   }
 
   .legal-row {

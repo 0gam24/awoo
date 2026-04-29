@@ -58,6 +58,20 @@ const orgSchema = {
         <li>출처는 정부 부처 공식 발표를 기준으로 작성하고 주기적으로 갱신합니다.</li>
       </ul>
 
+      <h2>편집책임자</h2>
+      <div class="editor-card">
+        <div class="editor-name">{SITE.founder}</div>
+        <div class="editor-role">편집책임자 · {SITE.legalName} 대표</div>
+        <p class="editor-bio">
+          정부 지원금 정보의 정확한 전달을 책임집니다.
+          본 사이트의 모든 정책 안내·이슈 포스트는 김준혁 편집책임자의 검수를 거쳐 발행됩니다.
+          오류·정정 요청은 <a href={`mailto:${SITE.email}`}>{SITE.email}</a>로 보내주세요.
+        </p>
+        <div class="editor-meta">
+          <span>이메일: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></span>
+        </div>
+      </div>
+
       <h2>운영 주체</h2>
       <dl class="info-grid">
         <dt>상호</dt>
@@ -124,6 +138,44 @@ const orgSchema = {
     line-height: 1.3;
     letter-spacing: -0.01em;
     margin: 40px 0 16px;
+  }
+
+  .editor-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin: 16px 0 32px;
+  }
+
+  .editor-name {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+
+  .editor-role {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .editor-bio {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    margin: 0 0 12px;
+  }
+
+  .editor-meta {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+
+  .editor-meta a {
+    color: var(--accent-link);
   }
 
   ul {

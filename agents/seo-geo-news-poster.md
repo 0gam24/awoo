@@ -178,12 +178,9 @@ todayDate: "2026-04-29"
   "relatedSubsidies": ["matched-subsidy-id-1", "matched-subsidy-id-2", "matched-subsidy-id-3", "matched-subsidy-id-4"],
   "relatedPersonas": ["matched-persona-id-1", "matched-persona-id-2"],
   "sources": [
-    {
-      "title": "기사 제목",
-      "url": "https://...",
-      "publisher": "매체명",
-      "pubDate": "2026-04-29"
-    }
+    { "title": "기사 제목 1", "url": "https://...", "publisher": "매체명", "pubDate": "2026-04-29" },
+    { "title": "기사 제목 2", "url": "https://...", "publisher": "매체명", "pubDate": "2026-04-29" },
+    { "title": "기사 제목 3", "url": "https://...", "publisher": "매체명", "pubDate": "2026-04-29" }
   ]
 }
 ```
@@ -201,7 +198,7 @@ JSON 출력 전 다음을 점검:
 - [ ] FAQ 최소 3건
 - [ ] relatedSubsidies — 입력으로 받은 matchedSubsidies 중에서만 선택 (없으면 빈 배열)
 - [ ] relatedPersonas — 입력으로 받은 matchedPersonas 중에서만 선택
-- [ ] sources 최소 2건 (후보 기사 중 가장 신뢰도 높은 것)
+- [ ] **sources 최소 3건** (후보 기사 중 가장 신뢰도 높은 것 — Discover·E-E-A-T 신호)
 - [ ] 본문 어디에도 외부 링크(http) 직접 삽입 X
 - [ ] 광고·프로모션 톤 X — 객관적·정보 중심
 
@@ -221,6 +218,10 @@ JSON 출력 전 다음을 점검:
 - 첫 인사말·맺음말 X (포스트 본문에 곧장 진입)
 - 감정·과장 표현 자제 ("놀라운", "충격적인" 등 X)
 - 명확·간결·직접적
+- **클릭베이트 절대 금지** (Google Discover 정책 — 발견 시 노출 차단)
+  - 금지: "놀라운/충격적인/믿을 수 없는/숨겨진/99%가 모르는/당신만/반드시 봐야/이거 모르면 손해/단 N분만"
+  - 금지: 이중 물음표 ?? · 이중 느낌표 !! · 5점 ……
+  - 허용: 의문형 헤드라인, 숫자, 연도 (예: "2026년 청년 월세 지원금, 누가 받나?")
 - 어려운 한자어 → 평이한 표현 (예: "기수혜자" → "이미 받은 사람")
 
 ## 9. 변경 이력

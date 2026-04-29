@@ -154,6 +154,26 @@ const REQUIRED_POST_FIELDS = [
 // JSON-LD shape 검증용 — 본 사이트가 출력하는 schema의 필수 필드 체크
 const ALLOWED_CATEGORIES = ['주거', '취업', '창업', '교육', '자산', '복지', '농업'];
 
+// 헤드라인 클릭베이트·과장 패턴 — Google Discover 정책 준수용
+// 발견 시 warn (포스트별 사람 검토 신호)
+const CLICKBAIT_PATTERNS = [
+  /놀라운|충격적인|믿을 수 없는|소름|미친|역대급|화제폭발/,
+  /\?\?|!!|\.\.\.\.\./,
+  /숨겨진|아무도 모르는|99%가 모르는|단독|특종/,
+  /당신만|꼭 봐야|반드시 봐야|이거 모르면 손해/,
+  /이렇게만 하면|단 N분만|한 번에 끝|초간단/,
+];
+
+// 본문보다 헤드라인이 과장된지 — 의문형·숫자·연도는 허용
+function checkClickbait(title) {
+  for (const pattern of CLICKBAIT_PATTERNS) {
+    if (pattern.test(title)) {
+      return pattern.source;
+    }
+  }
+  return null;
+}
+
 for (const { date, slug, file } of issueFiles) {
   let post;
   try {
@@ -233,9 +253,29 @@ for (const { date, slug, file } of issueFiles) {
     }
   }
 
+  // sources 최소 3건 — Discover·E-E-A-T 신호 (warn — 기존 포스트는 점진 보완)
+  if (Array.isArray(post.sources) && post.sources.length < 3) {
+    warn(`이슈 sources ${post.sources.length}건 (권장 3건+): ${date}/${slug}`);
+  }
+
   // category 화이트리스트
   if (post.category && !ALLOWED_CATEGORIES.includes(post.category)) {
     warn(`이슈 category 화이트리스트 외 (${post.category}): ${date}/${slug}`);
+  }
+
+  // 헤드라인 클릭베이트 패턴 (Google Discover 정책 준수)
+  if (typeof post.title === 'string') {
+    const hit = checkClickbait(post.title);
+    if (hit) {
+      warn(`이슈 title 클릭베이트 패턴 (${hit}): ${date}/${slug} — "${post.title.slice(0, 60)}"`);
+    }
+  }
+  // metaDescription에도 동일 적용
+  if (typeof post.metaDescription === 'string') {
+    const hit = checkClickbait(post.metaDescription);
+    if (hit) {
+      warn(`이슈 metaDescription 클릭베이트 패턴 (${hit}): ${date}/${slug}`);
+    }
   }
 
   // publishedAt ISO 형식
