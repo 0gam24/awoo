@@ -26,7 +26,9 @@
     "sync:issues": "node scripts/sync-issues.mjs",
     "generate:issues": "node scripts/generate-issue-posts.mjs",
     "sweep:stale": "node scripts/sweep-stale.mjs",
-    "sweep:stale:apply": "node scripts/sweep-stale.mjs --apply"
+    "sweep:stale:apply": "node scripts/sweep-stale.mjs --apply",
+    "tag:personas": "node scripts/tag-personas.mjs",
+    "tag:personas:apply": "node scripts/tag-personas.mjs --apply"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",
