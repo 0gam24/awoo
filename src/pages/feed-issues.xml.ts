@@ -77,7 +77,7 @@ export const GET: APIRoute = async () => {
     <title>지원금가이드 — 오늘의 정책 이슈</title>
     <link>${SITE}/issues/</link>
     <atom:link href="${SITE}/feed-issues.xml" rel="self" type="application/rss+xml" />
-    <description>매일 자동 큐레이션되는 정부 지원금 정책 이슈. 트렌딩 키워드별 SEO/GEO 표준 포스트.</description>
+    <description>이번 주 가장 화제인 정부 지원금 정책 이슈. 자격·금액·신청 방법까지 한 페이지 요약.</description>
     <language>ko-KR</language>
     <lastBuildDate>${lastBuildISO}</lastBuildDate>
 ${xmlItems}

@@ -109,7 +109,7 @@ const breadcrumbSchema = {
 
 <BaseLayout
   title={`${term} — 트렌딩 토픽 | 지원금가이드`}
-  description={`정부 지원금 트렌딩 토픽 "${term}". ${entry.daysActive}일 활성 · 누적 ${entry.totalCount}회 매체 언급. 관련 지원금 ${matchedSubsidies.length}건.`}
+  description={`"${term}" 정부 지원금 한 페이지 정리. ${entry.daysActive}일 화제 · ${entry.totalCount}건 보도 · 관련 지원금 ${matchedSubsidies.length}건 안내.`}
   activeNav="/issues/"
   noindex={isThin}
 >
@@ -126,33 +126,33 @@ const breadcrumbSchema = {
         </div>
         <h1 class="title">{term}</h1>
         <p class="lead">
-          매체에서 <strong>{entry.totalCount}회</strong> 언급된 정부 지원금 키워드입니다.
+          최근 <strong>{entry.totalCount}건</strong>의 보도가 있던 정부 지원금 키워드입니다.
           {entry.daysActive >= 3 && <> {entry.daysActive}일 연속 화제.</>}
-          관련 지원금 <strong>{matchedSubsidies.length}건</strong>을 정리했습니다.
+          관련 지원금 <strong>{matchedSubsidies.length}건</strong>을 한 페이지에 모았습니다.
         </p>
       </div>
 
       <div class="stats">
         <div class="stat">
-          <div class="lbl">최초 등장</div>
+          <div class="lbl">처음 화제</div>
           <div class="val">{entry.firstSeen}</div>
         </div>
         <div class="stat">
-          <div class="lbl">최근 언급</div>
+          <div class="lbl">최근 보도</div>
           <div class="val">{entry.lastSeen}</div>
         </div>
         <div class="stat">
-          <div class="lbl">활성 일수</div>
+          <div class="lbl">화제 일수</div>
           <div class="val">{entry.daysActive}일</div>
         </div>
         <div class="stat accent">
-          <div class="lbl">누적 매체 언급</div>
-          <div class="val">{entry.totalCount}회</div>
+          <div class="lbl">누적 보도</div>
+          <div class="val">{entry.totalCount}건</div>
         </div>
         {peakDay.count > 0 && (
           <div class="stat">
-            <div class="lbl">피크</div>
-            <div class="val">{peakDay.count}회</div>
+            <div class="lbl">최다 보도일</div>
+            <div class="val">{peakDay.count}건</div>
             <div class="sub">{peakDay.date}</div>
           </div>
         )}
@@ -208,7 +208,7 @@ const breadcrumbSchema = {
 
       {dailyEntries.length > 0 && (
         <section class="timeline">
-          <h2>일별 매체 언급</h2>
+          <h2>일별 보도 흐름</h2>
           <ul class="timeline-list">
             {dailyEntries.map(([d, c]) => (
               <li>

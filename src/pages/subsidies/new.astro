@@ -36,29 +36,28 @@ const dateLabel = formatDateKR(lastBatchAtISO);
 ---
 
 <BaseLayout
-  title={`신규 등록 정부 지원금 ${all.length}건 — 지원금가이드`}
-  description={`최근 ${NEW_WINDOW_DAYS}일 이내 등록된 정부 지원금 ${all.length}건을 한눈에 모아 봅니다. 매주 자동 동기화 (마지막: ${dateLabel}).`}
+  title={`새로 등록된 정부 지원금 ${all.length}건 — 지원금가이드`}
+  description={`최근 ${NEW_WINDOW_DAYS}일 이내 새로 등록된 정부 지원금 ${all.length}건을 한눈에 보세요.`}
   activeNav="/subsidies/"
 >
   <section class="band">
     <Container size="wide">
       <div class="head">
         <div class="head-meta">
-          <span class="badge"><span class="dot" aria-hidden="true" />신규 등록</span>
-          {dateLabel && <span class="meta">최근 동기화: {dateLabel}</span>}
+          <span class="badge"><span class="dot" aria-hidden="true" />NEW</span>
+          {dateLabel && <span class="meta">{dateLabel} 기준</span>}
         </div>
         <h1 class="title">새로 추가된 지원금</h1>
         <p class="lead">
-          정부24·보조금24 API에서 최근 {NEW_WINDOW_DAYS}일 이내 등록된 지원금 <strong>{all.length}건</strong>입니다.
-          매주 월요일 03:00에 자동 갱신됩니다.
+          최근 {NEW_WINDOW_DAYS}일 이내 새로 등록된 정부 지원금 <strong>{all.length}건</strong>을 한눈에 확인하세요.
         </p>
         <div class="actions">
-          <a class="btn-ghost" href="/subsidies/">전체 지원금</a>
+          <a class="btn-ghost" href="/subsidies/">전체 지원금 보기</a>
         </div>
       </div>
 
       {all.length === 0 && (
-        <p class="empty">최근 등록된 신규 지원금이 없습니다. 다음 동기화를 기다려 주세요.</p>
+        <p class="empty">아직 새로 등록된 지원금이 없습니다. 곧 업데이트됩니다.</p>
       )}
 
       <ul class="grid">

@@ -44,7 +44,7 @@ export const GET: APIRoute = async () => {
     <title>지원금가이드 — 신규 정부 지원금</title>
     <link>${SITE}/</link>
     <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />
-    <description>정부24·보조금24에서 새로 등록된 정부 지원금을 자동 동기화하여 안내합니다.</description>
+    <description>최근 새로 등록된 정부 지원금을 한눈에 확인하세요.</description>
     <language>ko-KR</language>
     <lastBuildDate>${lastBuildISO}</lastBuildDate>
 ${xmlItems}

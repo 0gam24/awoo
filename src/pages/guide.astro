@@ -84,9 +84,35 @@ const breadcrumbSchema = {
       <div class="eyebrow">지원금 신청 가이드</div>
       <h1>처음 신청해도 안 헤매도록.</h1>
       <p class="lead">
-        정부 지원금 신청에서 자주 막히는 부분만 모았어요. 정보 안내 사이트라 직접 신청은 받지 않습니다.
+        정부 지원금 신청에서 자주 막히는 부분을 모았습니다. 본 사이트에서 직접 신청은 받지 않으며, 정부 공식 사이트로 안내합니다.
       </p>
     </div>
+
+    <section class="section">
+      <h2>주제별로 한 번에 보기</h2>
+      <ul class="entry-grid">
+        <li>
+          <a class="entry-card" href="/topics/">
+            <div class="entry-icon">📚</div>
+            <div class="entry-body">
+              <div class="entry-title">주제별 종합 가이드</div>
+              <div class="entry-desc">청년 주거·신혼 출산 등 한 주제, 한 페이지. 비교표·신청 순서·자주 떨어지는 이유까지.</div>
+            </div>
+            <span class="entry-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a class="entry-card" href="/glossary/">
+            <div class="entry-icon">📖</div>
+            <div class="entry-body">
+              <div class="entry-title">용어 사전 30개</div>
+              <div class="entry-desc">중위소득·기초생활보장·청약가점 등 신청 시 자주 만나는 용어를 1문단 정의로.</div>
+            </div>
+            <span class="entry-arrow" aria-hidden="true">→</span>
+          </a>
+        </li>
+      </ul>
+    </section>
 
     <section class="section">
       <h2>신청 흐름</h2>
@@ -196,6 +222,58 @@ const breadcrumbSchema = {
     font-weight: 700;
     margin: 0 0 24px;
     letter-spacing: -0.015em;
+  }
+
+  .entry-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 12px;
+  }
+
+  .entry-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+  .entry-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    text-decoration: none;
+  }
+  .entry-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .entry-body { flex: 1; min-width: 0; }
+  .entry-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .entry-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+  .entry-arrow {
+    color: var(--text-3);
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: transform 0.15s, color 0.15s;
+  }
+  .entry-card:hover .entry-arrow {
+    transform: translateX(3px);
+    color: var(--accent);
   }
 
   .steps {

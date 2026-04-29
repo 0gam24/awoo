@@ -8,6 +8,7 @@ import {
   verifyTurnstile,
 } from '@/lib/api/utils';
 import { checkRateLimit, rateLimitHeaders } from '@/lib/api/rate-limit';
+import { logError } from '@/lib/api/error-log';
 import { contactSchema } from '@/lib/api/validation';
 
 export const prerender = false;
@@ -31,9 +32,14 @@ interface KVNamespace {
   put: (key: string, value: string, options?: { expirationTtl?: number }) => Promise<void>;
 }
 
+interface AnalyticsBinding {
+  writeDataPoint?: (data: { blobs?: string[]; doubles?: number[]; indexes?: string[] }) => void;
+}
+
 interface Env {
   DB?: D1Database;
   RATE_LIMIT_KV?: KVNamespace;
+  ANALYTICS?: AnalyticsBinding;
   RESEND_API_KEY?: string;
   TURNSTILE_SECRET_KEY?: string;
   ADMIN_EMAIL?: string;
@@ -106,7 +112,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
         .bind(c.name, c.email, c.subject, c.message, ipHash)
         .run();
     } catch (e) {
-      console.error('contact DB insert failed', e);
+      logError(env, {
+        route: 'contact',
+        kind: 'db_insert_failed',
+        detail: e instanceof Error ? e.message : String(e),
+        ipHash,
+      });
       // DB 실패해도 이메일은 시도 — 사용자 메시지 손실 회피
     }
   }
@@ -144,11 +155,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
       if (!res.ok) {
         const text = await res.text();
-        console.error('Resend failed', res.status, text);
+        logError(env, {
+          route: 'contact',
+          kind: 'resend_failed',
+          status: res.status,
+          detail: text.slice(0, 100),
+          ipHash,
+        });
         return errorJson(502, 'email_send_failed');
       }
     } catch (e) {
-      console.error('Resend network error', e);
+      logError(env, {
+        route: 'contact',
+        kind: 'resend_network_error',
+        detail: e instanceof Error ? e.message : String(e),
+        ipHash,
+      });
       return errorJson(502, 'email_network_error');
     }
   } else {

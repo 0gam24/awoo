@@ -78,4 +78,44 @@ const glossary = defineCollection({
   }),
 });
 
-export const collections = { personas, subsidies, issues, glossary };
+const topics = defineCollection({
+  loader: file('src/data/topics.json'),
+  schema: z.object({
+    id: z.string(),
+    title: z.string(),
+    shortDef: z.string(),
+    longDef: z.string(),
+    category: z.string(),
+    icon: z.string(),
+    bg: z.string(),
+    mainPersonas: z.array(z.string()),
+    mainSituations: z.array(z.string()),
+    decisionTree: z.array(z.object({
+      q: z.string(),
+      a: z.string(),
+      linkSlug: z.string().optional(),
+    })),
+    comparison: z.object({
+      title: z.string(),
+      headers: z.array(z.string()),
+      rows: z.array(z.array(z.string())),
+    }).optional(),
+    timeline: z.object({
+      title: z.string(),
+      steps: z.array(z.object({
+        when: z.string(),
+        what: z.string(),
+        detail: z.string(),
+      })),
+    }).optional(),
+    rejectionReasons: z.array(z.object({
+      cause: z.string(),
+      fix: z.string(),
+    })).optional(),
+    relatedSubsidyKeywords: z.array(z.string()).optional(),
+    relatedGlossary: z.array(z.string()).optional(),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })),
+  }),
+});
+
+export const collections = { personas, subsidies, issues, glossary, topics };

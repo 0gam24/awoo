@@ -263,11 +263,11 @@ function generateSummary({ term, count, daysActive, totalCount, category, allArt
   if (agg.cities.length >= 2) {
     hookCopy = `${agg.cities[0]}·${agg.cities[1]} 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다.`;
   } else if (matchedCount > 0) {
-    hookCopy = '받을 수 있는 분이라면 지금 확인하세요. 관련 지원금이 우리 DB에서 매칭됐습니다.';
+    hookCopy = '받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다.';
   } else if (daysActive >= 3) {
-    hookCopy = '며칠째 매체에서 주목받는 정책입니다. 자세한 분석을 확인하세요.';
+    hookCopy = '며칠째 화제인 정책입니다. 자격 조건과 신청 방법을 한 번에 확인하세요.';
   } else {
-    hookCopy = '이번 주 처음 화제가 된 정책입니다. 정확한 정보를 빠르게 확인하세요.';
+    hookCopy = '이번 주 새로 화제가 된 정책입니다. 자격·금액·신청을 빠르게 확인하세요.';
   }
 
   // 핵심 사실 4박스 — 빠른 스캔용
@@ -278,9 +278,9 @@ function generateSummary({ term, count, daysActive, totalCount, category, allArt
       sub: agg.cities.length > 0 ? agg.cities.slice(0, 2).join('·') : '',
     },
     {
-      label: '매체 언급',
-      value: `${totalCount}회`,
-      sub: `${agg.publisherCount}개 매체`,
+      label: '보도 건수',
+      value: `${totalCount}건`,
+      sub: `${agg.publisherCount}개 매체 보도`,
     },
     {
       label: '트렌드',

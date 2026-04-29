@@ -198,7 +198,8 @@ const readMin = readingTimeMinutes();
           {post.freshness && (
             <span class="freshness-pill">
               <span class="dot" aria-hidden="true" />
-              {post.freshness.daysActive}일 연속 트렌딩 · {post.freshness.totalCount}회 매체 언급
+              {post.freshness.daysActive}일 연속 화제
+              {post.freshness.totalCount > 0 && ` · ${post.freshness.totalCount}건 보도`}
             </span>
           )}
           <span class="cat-pill">{post.category}</span>

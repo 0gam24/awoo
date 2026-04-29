@@ -1,0 +1,654 @@
+---
+import Container from '@/components/Container.astro';
+import Icon from '@/components/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { paragraphsAndLists } from '@/lib/inline-markdown';
+import { type GetStaticPaths } from 'astro';
+import { getCollection } from 'astro:content';
+
+export const getStaticPaths = (async () => {
+  const topics = await getCollection('topics');
+  return topics.map((t) => ({ params: { id: t.data.id }, props: { topic: t } }));
+}) satisfies GetStaticPaths;
+
+const { topic } = Astro.props;
+const t = topic.data;
+
+// 매칭 지원금 — relatedSubsidyKeywords 기반
+const allSubsidies = await getCollection('subsidies');
+const matchedSubsidies = (t.relatedSubsidyKeywords?.length ?? 0) > 0
+  ? allSubsidies
+      .filter((s) => {
+        const text = `${s.data.title} ${s.data.summary} ${(s.data.tags ?? []).join(' ')}`;
+        return (t.relatedSubsidyKeywords ?? []).some((kw) => text.includes(kw));
+      })
+      .sort((a, b) => (b.data.amount ?? 0) - (a.data.amount ?? 0))
+      .slice(0, 9)
+  : [];
+
+// 관련 용어
+const allGlossary = await getCollection('glossary');
+const glossaryById = new Map(allGlossary.map((g) => [g.data.id, g.data]));
+const relatedGlossaryItems = (t.relatedGlossary ?? [])
+  .map((id) => glossaryById.get(id))
+  .filter((x): x is NonNullable<typeof x> => x !== undefined);
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '홈', item: 'https://awoo.or.kr/' },
+    { '@type': 'ListItem', position: 2, name: '주제별 종합', item: 'https://awoo.or.kr/topics/' },
+    { '@type': 'ListItem', position: 3, name: t.title, item: `https://awoo.or.kr/topics/${t.id}/` },
+  ],
+};
+
+const faqSchema = t.faq.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: t.faq.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+} : null;
+---
+
+<BaseLayout
+  title={`${t.title} | 지원금가이드`}
+  description={t.shortDef}
+  activeNav="/guide/"
+>
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+
+  <article class="band">
+    <Container size="wide">
+      <a class="back-link" href="/topics/">← 주제별 종합</a>
+
+      <header class={`hero bg-${t.bg}`}>
+        <div class="hero-icon">
+          <Icon name={t.icon} size={40} strokeWidth={1.5} />
+        </div>
+        <div class="hero-text">
+          <div class="cat-pill">{t.category}</div>
+          <h1 class="title">{t.title}</h1>
+          <p class="short-def">{t.shortDef}</p>
+        </div>
+      </header>
+
+      <div class="body-grid">
+        <main class="body">
+          <section class="section">
+            <h2>지금 알아야 할 핵심</h2>
+            <div class="long-def">
+              {paragraphsAndLists(t.longDef).map((block) =>
+                block.type === 'p' ? (
+                  <p set:html={block.html} />
+                ) : (
+                  <ul>{block.items.map((item) => <li set:html={item} />)}</ul>
+                ),
+              )}
+            </div>
+          </section>
+
+          <section class="section">
+            <h2>내 상황에 맞는 답 찾기</h2>
+            <p class="section-lead">아래 질문 중 하나라도 해당되면 그 줄을 보세요.</p>
+            <ol class="dt-list">
+              {t.decisionTree.map((node) => (
+                <li class="dt-node">
+                  <div class="dt-q">{node.q}</div>
+                  <div class="dt-a" set:html={paragraphsAndLists(node.a)[0]?.type === 'p' ? paragraphsAndLists(node.a)[0].html : node.a} />
+                  {node.linkSlug && glossaryById.has(node.linkSlug) && (
+                    <a class="dt-link" href={`/glossary/${node.linkSlug}/`}>
+                      “{glossaryById.get(node.linkSlug)!.term}” 정의 보기 →
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          {t.comparison && (
+            <section class="section">
+              <h2>{t.comparison.title}</h2>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>{t.comparison.headers.map((h) => <th scope="col">{h}</th>)}</tr>
+                  </thead>
+                  <tbody>
+                    {t.comparison.rows.map((row) => (
+                      <tr>{row.map((cell, i) => i === 0 ? <th scope="row">{cell}</th> : <td>{cell}</td>)}</tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+
+          {t.timeline && (
+            <section class="section">
+              <h2>{t.timeline.title}</h2>
+              <ol class="tl">
+                {t.timeline.steps.map((step) => (
+                  <li class="tl-step">
+                    <div class="tl-when">{step.when}</div>
+                    <div class="tl-body">
+                      <div class="tl-what">{step.what}</div>
+                      <div class="tl-detail">{step.detail}</div>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+
+          {t.rejectionReasons && t.rejectionReasons.length > 0 && (
+            <section class="section">
+              <h2>자주 떨어지는 이유와 해결</h2>
+              <ul class="rj-list">
+                {t.rejectionReasons.map((r) => (
+                  <li class="rj-card">
+                    <div class="rj-cause"><span class="rj-tag">사유</span> {r.cause}</div>
+                    <div class="rj-fix"><span class="rj-tag fix">해결</span> {r.fix}</div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {matchedSubsidies.length > 0 && (
+            <section class="section">
+              <h2>이 주제에서 신청 가능한 지원금</h2>
+              <ul class="grid-sub">
+                {matchedSubsidies.map((s) => (
+                  <li>
+                    <a class="card" href={`/subsidies/${s.data.id}/`}>
+                      <div class={`media tint-${s.data.category}`}>
+                        <Icon name={s.data.icon} size={22} strokeWidth={1.6} />
+                      </div>
+                      <div class="card-body">
+                        <div class="card-meta">{s.data.category} · {s.data.agency}</div>
+                        <div class="card-title">{s.data.title}</div>
+                      </div>
+                      <span class="card-arrow" aria-hidden="true">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {t.faq.length > 0 && (
+            <section class="section">
+              <h2>자주 묻는 질문</h2>
+              <div class="faq">
+                {t.faq.map((f, i) => (
+                  <details class="faq-item" open={i === 0}>
+                    <summary>{f.q}</summary>
+                    <p>{f.a}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
+        </main>
+
+        <aside class="rail">
+          <div class="rail-card">
+            <div class="rail-eyebrow">5분 진단</div>
+            <div class="rail-title">내 상황에 맞춰 정확히 매칭</div>
+            <a class="rail-cta" href="/quick/">진단 시작하기 →</a>
+          </div>
+
+          {relatedGlossaryItems.length > 0 && (
+            <div class="rail-card">
+              <div class="rail-eyebrow">함께 보면 좋은 용어</div>
+              <ul class="g-list">
+                {relatedGlossaryItems.map((g) => (
+                  <li>
+                    <a href={`/glossary/${g.id}/`} class="g-link">
+                      <span class="g-term">{g.term}</span>
+                      <span class="g-def">{g.shortDef.slice(0, 50)}…</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div class="rail-card">
+            <div class="rail-eyebrow">신청 가이드</div>
+            <div class="rail-title">서류·공식 사이트 한 번에</div>
+            <a class="rail-cta" href="/guide/">가이드 보기 →</a>
+          </div>
+        </aside>
+      </div>
+    </Container>
+  </article>
+</BaseLayout>
+
+<style>
+  .band { padding: 32px 0 80px; }
+
+  .back-link {
+    display: inline-block;
+    color: var(--text-2);
+    font-size: 14px;
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { text-decoration: underline; }
+
+  .hero {
+    display: flex;
+    gap: 24px;
+    padding: 32px;
+    border-radius: var(--radius-xl);
+    color: #fff;
+    margin-bottom: 32px;
+  }
+
+  .bg-persona-blue   { background: linear-gradient(135deg, #0066cc 0%, #2997ff 100%); }
+  .bg-persona-orange { background: linear-gradient(135deg, #d97706 0%, #f97316 100%); }
+  .bg-persona-pink   { background: linear-gradient(135deg, #be185d 0%, #ec4899 100%); }
+  .bg-persona-green  { background: linear-gradient(135deg, #047857 0%, #10b981 100%); }
+  .bg-persona-purple { background: linear-gradient(135deg, #6d28d9 0%, #a855f7 100%); }
+  .bg-persona-amber  { background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); }
+
+  .hero-icon {
+    width: 72px;
+    height: 72px;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-lg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .cat-pill {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgb(255 255 255 / 0.18);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .title {
+    font-size: clamp(26px, 3.4vw, 36px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+
+  .short-def {
+    font-size: 15px;
+    color: rgb(255 255 255 / 0.92);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .body-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 32px;
+  }
+  @media (max-width: 880px) {
+    .body-grid { grid-template-columns: 1fr; }
+  }
+
+  .body { min-width: 0; }
+
+  .section {
+    margin-bottom: 36px;
+  }
+
+  .section h2 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+
+  .section-lead {
+    font-size: 15px;
+    color: var(--text-2);
+    margin: 0 0 14px;
+  }
+
+  .long-def {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .long-def p { margin: 12px 0; }
+  .long-def strong { font-weight: 700; }
+
+  /* Decision tree */
+  .dt-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    counter-reset: dt;
+  }
+
+  .dt-node {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    counter-increment: dt;
+    position: relative;
+  }
+
+  .dt-node::before {
+    content: counter(dt);
+    position: absolute;
+    top: 16px;
+    left: -10px;
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dt-q {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    padding-left: 18px;
+  }
+
+  .dt-a {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.6;
+    padding-left: 18px;
+  }
+
+  .dt-a strong { color: var(--text); font-weight: 700; }
+
+  .dt-link {
+    display: inline-block;
+    margin-top: 6px;
+    margin-left: 18px;
+    font-size: 13px;
+    color: var(--accent-link);
+    font-weight: 500;
+  }
+
+  /* Comparison table */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface-2);
+    font-weight: 700;
+    color: var(--text);
+  }
+  thead th { border-bottom: 2px solid var(--border-2); }
+  th[scope="row"] { background: var(--surface); font-weight: 600; }
+
+  /* Timeline */
+  .tl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tl-step {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+
+  .tl-when {
+    flex-shrink: 0;
+    width: 110px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    padding: 2px 10px;
+    background: rgb(0 113 227 / 0.1);
+    border-radius: var(--radius-pill);
+    text-align: center;
+  }
+
+  .tl-what {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .tl-detail {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.55;
+  }
+
+  /* Rejection reasons */
+  .rj-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rj-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+  }
+
+  .rj-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgb(247 195 96 / 0.18);
+    color: var(--color-warning);
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 6px;
+    vertical-align: 1px;
+  }
+
+  .rj-tag.fix {
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+  }
+
+  .rj-cause {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .rj-fix {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.55;
+  }
+
+  /* Subsidy grid */
+  .grid-sub {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+
+  .card:hover {
+    border-color: var(--border-2);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+
+  .media {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .tint-주거 { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .tint-자산 { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  .tint-교육 { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .tint-창업 { background: rgb(234 88 12 / 0.12); color: #ea580c; }
+  .tint-복지 { background: rgb(236 72 153 / 0.12); color: #ec4899; }
+  .tint-취업 { background: rgb(16 185 129 / 0.12); color: #10b981; }
+  .tint-농업 { background: rgb(217 119 6 / 0.12); color: #d97706; }
+
+  .card-body { flex: 1; min-width: 0; }
+  .card-meta { font-size: 12px; color: var(--text-2); }
+  .card-title { font-size: 14px; font-weight: 600; line-height: 1.3; margin-top: 2px; }
+  .card-arrow {
+    color: var(--text-3);
+    flex-shrink: 0;
+    transition: transform 0.15s, color 0.15s;
+  }
+  .card:hover .card-arrow { transform: translateX(3px); color: var(--accent); }
+
+  /* FAQ */
+  .faq-item {
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+  }
+  .faq-item summary {
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    padding: 4px 0;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::before { content: 'Q '; color: var(--accent); font-weight: 700; }
+  .faq-item p { margin: 8px 0 4px; padding-left: 22px; color: var(--text-2); line-height: 1.6; }
+
+  /* Rail */
+  .rail { display: flex; flex-direction: column; gap: 12px; }
+
+  .rail-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+  }
+
+  .rail-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .rail-title {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .rail-cta {
+    display: inline-block;
+    color: var(--accent-link);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .rail-cta:hover { text-decoration: underline; }
+
+  .g-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .g-link {
+    display: block;
+    padding: 8px 10px;
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s;
+  }
+
+  .g-link:hover {
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .g-term {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  .g-def {
+    display: block;
+    font-size: 11px;
+    color: var(--text-2);
+    line-height: 1.4;
+  }
+</style>

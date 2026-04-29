@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { errorJson, getClientIp, hashIp, isAllowedOrigin, json } from '@/lib/api/utils';
 import { checkRateLimit, rateLimitHeaders } from '@/lib/api/rate-limit';
+import { logError } from '@/lib/api/error-log';
 import { feedbackSchema } from '@/lib/api/validation';
 
 export const prerender = false;
@@ -24,9 +25,14 @@ interface KVNamespace {
   put: (key: string, value: string, options?: { expirationTtl?: number }) => Promise<void>;
 }
 
+interface AnalyticsBinding {
+  writeDataPoint?: (data: { blobs?: string[]; doubles?: number[]; indexes?: string[] }) => void;
+}
+
 interface Env {
   DB?: D1Database;
   RATE_LIMIT_KV?: KVNamespace;
+  ANALYTICS?: AnalyticsBinding;
 }
 
 /**
@@ -84,7 +90,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
         .bind(f.page_path, f.helpful ? 1 : 0, f.comment ?? null, ua, ipHash)
         .run();
     } catch (e) {
-      console.error('feedback DB insert failed', e);
+      logError(env, {
+        route: 'feedback',
+        kind: 'db_insert_failed',
+        detail: e instanceof Error ? e.message : String(e),
+        ipHash,
+      });
       return errorJson(500, 'storage_failed');
     }
   } else {

@@ -81,16 +81,16 @@ interface PublicStat {
 const displayStats: readonly PublicStat[] = autoTrending
   ? [
       {
-        label: '1위 트렌딩',
+        label: '이번 주 1위',
         value: autoTrending[0]?.term ?? '-',
         tone: 'accent',
-        sub: `${autoTrending[0]?.count ?? 0}회 매체 언급`,
+        sub: `${autoTrending[0]?.count ?? 0}건 보도`,
       },
       {
-        label: '2위 트렌딩',
+        label: '이번 주 2위',
         value: autoTrending[1]?.term ?? '-',
         tone: 'positive',
-        sub: `${autoTrending[1]?.count ?? 0}회 매체 언급`,
+        sub: `${autoTrending[1]?.count ?? 0}건 보도`,
       },
       {
         label: '분야',
@@ -161,7 +161,7 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
       {hasSummary && daysActive >= 3 && (
         <span class="news-trending-pill">
           <span class="dot-tr" aria-hidden="true" />
-          {daysActive}일 연속 화제 · 누적 {totalCount}회
+          {daysActive}일 연속 화제 · 누적 {totalCount}건 보도
         </span>
       )}
       {isAuto && displayCategory && (
@@ -234,7 +234,7 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
         <aside class="news-trend-card">
           <div class="news-trend-card-head">
             <div class="trend-eyebrow">트렌딩 키워드</div>
-            <div class="trend-title">뉴스 매체 언급 Top 5</div>
+            <div class="trend-title">이번 주 가장 화제인 키워드</div>
           </div>
 
           <ol class="news-trend-list auto">
@@ -247,7 +247,7 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
                       <span class="rank">{i + 1}</span>
                       <span class="trend-pill">
                         <span class="trend-term">{t.term}</span>
-                        <span class="trend-count">{t.count}회</span>
+                        <span class="trend-count">{t.count}건</span>
                       </span>
                     </div>
                     <div class="trend-row-2">
@@ -261,7 +261,7 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
           </ol>
 
           <div class="news-trend-card-foot">
-            네이버 뉴스 매체 언급 빈도 · 매일 자동 갱신
+            클릭하면 관련 지원금까지 함께 확인할 수 있습니다
           </div>
         </aside>
       )}
