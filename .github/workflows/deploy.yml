@@ -1,0 +1,50 @@
+name: Deploy (Cloudflare Workers)
+
+# main push 시 자동 빌드·배포 + 수동 트리거 가능
+# 사전 설정 필요 (1회):
+#   GitHub repo Settings → Secrets and variables → Actions
+#     - CLOUDFLARE_API_TOKEN (Cloudflare Dashboard → My Profile → API Tokens → Create Token
+#                              "Edit Cloudflare Workers" 템플릿 권장)
+#     - CLOUDFLARE_ACCOUNT_ID (Cloudflare Dashboard → Workers & Pages 우측 상단 Account ID)
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - 'docs/**'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    name: Build + wrangler deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Build (astro)
+        run: npm run build
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
