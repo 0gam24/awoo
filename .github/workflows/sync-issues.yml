@@ -1,0 +1,61 @@
+name: Sync today's issue (naver-news)
+
+# 매일 06:00 KST (= 21:00 UTC 전일) 자동 실행
+# + 수동 실행 가능
+on:
+  schedule:
+    - cron: '0 21 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: sync-issues
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Fetch news + auto-curate today's issue
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Run sync script
+        env:
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+        run: npm run sync:issues
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain src/data/today-issue.json)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Changes detected"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No headline change — skipping commit"
+          fi
+
+      - name: Commit changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          git add src/data/today-issue.json
+          DATE=$(date -u +"%Y-%m-%d")
+          git commit -m "chore(data): 오늘의 이슈 자동 갱신 — ${DATE}
+
+          [skip ci]"
+          git push origin main

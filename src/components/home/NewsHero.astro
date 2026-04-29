@@ -1,7 +1,21 @@
 ---
 import Container from '@/components/Container.astro';
 import { TODAY_NEWS } from '@/data/site-data';
+import todayIssue from '@/data/today-issue.json';
 
+// 자동 큐레이션 데이터 우선, hardcode TODAY_NEWS는 trending/publicStats 등 보조용
+const auto = todayIssue as {
+  syncedAt: string;
+  headline: string;
+  description: string;
+  pubDate: string;
+  pubDateKR: string;
+  link: string;
+  category: string;
+  source?: string;
+} | null;
+
+// trend chart 데이터 (TODAY_NEWS의 hardcode 유지 — 자동 데이터엔 trend 없음)
 const n = TODAY_NEWS;
 const w = 520;
 const h = 130;
@@ -17,57 +31,106 @@ const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p[0]} ${p[1]}`).joi
 const last = pts[pts.length - 1] ?? [0, 0];
 const first = pts[0] ?? [0, 0];
 const areaPath = `${linePath} L ${last[0]} ${h - pad} L ${first[0]} ${h - pad} Z`;
+
+// 표시 데이터 — 자동 데이터 있으면 우선, 없으면 hardcode
+const displayHeadline = auto?.headline ?? n.headline;
+const displaySubhead = auto?.description ?? n.subhead;
+const displayDate = auto?.pubDateKR ?? n.date;
+const displayCategory = auto?.category ?? '';
+const externalLink = auto?.link;
+const isAuto = !!auto;
+
+// 매체명 추출 (URL 도메인 → 사람 친화)
+function extractSource(link: string | undefined): string {
+  if (!link) return '뉴스 매체';
+  try {
+    const host = new URL(link).hostname.replace(/^www\./, '');
+    const map: Record<string, string> = {
+      'yna.co.kr': '연합뉴스', 'newsis.com': '뉴시스',
+      'kbs.co.kr': 'KBS', 'imnews.imbc.com': 'MBC뉴스', 'sbs.co.kr': 'SBS', 'ytn.co.kr': 'YTN',
+      'joongang.co.kr': '중앙일보', 'chosun.com': '조선일보', 'donga.com': '동아일보',
+      'hani.co.kr': '한겨레', 'khan.co.kr': '경향신문',
+      'hankyung.com': '한국경제', 'mk.co.kr': '매일경제', 'sedaily.com': '서울경제',
+      'jtbc.co.kr': 'JTBC', 'mbn.co.kr': 'MBN',
+      'mt.co.kr': '머니투데이', 'asiae.co.kr': '아시아경제', 'edaily.co.kr': '이데일리',
+    };
+    for (const [k, v] of Object.entries(map)) {
+      if (host.endsWith(k)) return v;
+    }
+    return host;
+  } catch {
+    return '뉴스 매체';
+  }
+}
+
+const sourceLabel = isAuto ? extractSource(externalLink) : n.source;
+const showTrendChart = !isAuto; // 자동 모드는 trend 데이터 없음 → 차트 숨김
 ---
 
 <section class="news-band">
   <Container size="wide">
     <div class="news-meta">
       <span class="news-pulse"><span class="dot" aria-hidden="true"></span>{n.badge}</span>
-      <span class="news-meta-text">{n.date}</span>
+      <span class="news-meta-text">{displayDate}</span>
       <span class="news-meta-dot">·</span>
-      <span class="news-meta-text">{n.source}</span>
+      <span class="news-meta-text">{sourceLabel}</span>
+      {isAuto && displayCategory && (
+        <>
+          <span class="news-meta-dot">·</span>
+          <span class="news-cat-pill">{displayCategory}</span>
+        </>
+      )}
     </div>
 
     <div class="news-grid">
       <div class="news-big-card">
         <div class="news-big-head">
-          <h1 class="news-headline">{n.headline}</h1>
-          <p class="news-subhead">{n.subhead}</p>
+          <h1 class="news-headline">{displayHeadline}</h1>
+          <p class="news-subhead">{displaySubhead}</p>
         </div>
 
-        <div class="news-big-number-row">
-          <div class="news-big-label">{n.bigLabel}</div>
-          <div class="news-big-number">
-            <span class="prev-val">{n.prevValue}</span>
-            <span class="arrow" aria-hidden="true">→</span>
-            <span class="cur-val">{n.bigNumber}</span>
+        {!isAuto && (
+          <div class="news-big-number-row">
+            <div class="news-big-label">{n.bigLabel}</div>
+            <div class="news-big-number">
+              <span class="prev-val">{n.prevValue}</span>
+              <span class="arrow" aria-hidden="true">→</span>
+              <span class="cur-val">{n.bigNumber}</span>
+            </div>
+            <div class="news-delta-pill">{n.deltaPct} 인상</div>
           </div>
-          <div class="news-delta-pill">{n.deltaPct} 인상</div>
-        </div>
+        )}
 
         <div class="news-actions">
-          <a class="cta-primary" href="/issues/main/">이 이슈 자세히 →</a>
-          {n.related[0] && <a class="cta-ghost" href={`/subsidies/${n.related[0]}/`}>지원금 상세</a>}
+          {isAuto && externalLink ? (
+            <a class="cta-primary" href={externalLink} target="_blank" rel="noopener noreferrer">원문 기사 보기 →</a>
+          ) : (
+            <a class="cta-primary" href="/issues/main/">이 이슈 자세히 →</a>
+          )}
+          {!isAuto && n.related[0] && <a class="cta-ghost" href={`/subsidies/${n.related[0]}/`}>지원금 상세</a>}
+          <a class="cta-ghost" href="/subsidies/new/">신규 지원금 모음 →</a>
         </div>
 
-        <div class="news-trend-graph">
-          <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" width="100%" height={h} aria-hidden="true">
-            <defs>
-              <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.35"></stop>
-                <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"></stop>
-              </linearGradient>
-            </defs>
-            <path d={areaPath} fill="url(#trendFill)"></path>
-            <path d={linePath} fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
-            <circle cx={last[0]} cy={last[1]} r="5" fill="var(--accent)"></circle>
-            <circle cx={last[0]} cy={last[1]} r="11" fill="var(--accent)" opacity="0.18"></circle>
-          </svg>
-          <div class="news-trend-axis">
-            <span>1월</span><span>4월</span><span>7월</span><span>10월</span><span>12월</span>
+        {showTrendChart && (
+          <div class="news-trend-graph">
+            <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" width="100%" height={h} aria-hidden="true">
+              <defs>
+                <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="var(--accent)" stop-opacity="0.35"></stop>
+                  <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"></stop>
+                </linearGradient>
+              </defs>
+              <path d={areaPath} fill="url(#trendFill)"></path>
+              <path d={linePath} fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></path>
+              <circle cx={last[0]} cy={last[1]} r="5" fill="var(--accent)"></circle>
+              <circle cx={last[0]} cy={last[1]} r="11" fill="var(--accent)" opacity="0.18"></circle>
+            </svg>
+            <div class="news-trend-axis">
+              <span>1월</span><span>4월</span><span>7월</span><span>10월</span><span>12월</span>
+            </div>
+            <div class="news-trend-label">{n.trendLabel}</div>
           </div>
-          <div class="news-trend-label">{n.trendLabel}</div>
-        </div>
+        )}
       </div>
 
       <aside class="news-trend-card">
@@ -162,6 +225,17 @@ const areaPath = `${linePath} L ${last[0]} ${h - pad} L ${first[0]} ${h - pad} Z
 
   .news-meta-dot {
     color: var(--text-3);
+  }
+
+  .news-cat-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
   }
 
   .news-grid {
