@@ -49,21 +49,28 @@ async function loadEnv() {
 //   - "시사" 그룹: 시기성/긴급 (민생, 고유가, 재난 등)
 //   - 나머지: 고정 카테고리
 // ─────────────────────────────────────────────────────────────
-// 모든 쿼리는 "구체 정책명" — catch-all/모호 단어 사용 X (노이즈 방지)
-const KEYWORD_GROUPS = [
-  // 시기성·긴급 (트렌드 키워드)
-  { cat: '복지', queries: ['민생지원금', '에너지바우처', '재난지원금', '긴급생계지원'] },
-  { cat: '자산', queries: ['고유가 지원금', '유류세 인하', '난방비 지원'] },
+// 광역 쿼리 3개 — 최신 정책 뉴스를 광범위하게 수집 (각 100건 최신순)
+const BROAD_QUERIES = ['지원금', '보조금', '수당'];
 
-  // 카테고리 고정
-  { cat: '주거', queries: ['청년 월세 지원', '신혼부부 특별공급', '주택 임대 지원금', '전세 지원'] },
-  { cat: '취업', queries: ['청년 취업 지원금', '국민취업지원제도', '구직자 지원금'] },
-  { cat: '창업', queries: ['청년 창업 지원금', '소상공인 정책자금', '예비창업패키지'] },
-  { cat: '교육', queries: ['국가장학금', '내일배움카드', '평생교육 바우처'] },
-  { cat: '복지', queries: ['부모급여', '아동수당', '기초생활보장 급여', '한부모 지원'] },
-  { cat: '자산', queries: ['청년도약계좌', '청년내일저축계좌', '자산형성 지원'] },
-  { cat: '농업', queries: ['청년 농업인 지원금', '귀농 정착지원', '영농 정착지원금'] },
+// 트렌드 토픽 추출 대상 접미사 (N-gram의 마지막 단어)
+const TRENDING_SUFFIXES = ['지원금', '보조금', '수당', '바우처', '장려금', '급여'];
+
+// 카테고리 자동 분류 — 제목에 카테고리 키워드 매칭
+const CAT_PATTERNS = [
+  { cat: '주거', re: /주거|월세|전세|주택|임대|특별공급|분양|신혼/ },
+  { cat: '취업', re: /취업|구직|고용|일자리|국민취업/ },
+  { cat: '창업', re: /창업|소상공인|예비창업|정책자금/ },
+  { cat: '교육', re: /장학|학비|교육|훈련|배움|평생교육/ },
+  { cat: '자산', re: /도약계좌|저축계좌|자산|유류|난방비|유가/ },
+  { cat: '농업', re: /농업|귀농|영농|농가|농어촌/ },
 ];
+
+function deriveCategory(text) {
+  for (const { cat, re } of CAT_PATTERNS) {
+    if (re.test(text)) return cat;
+  }
+  return '복지'; // 기본값
+}
 
 // 제목 필수 키워드 — 제목에 하나라도 없으면 정책성 뉴스로 보지 않음
 const TITLE_REQUIRED = [
@@ -95,10 +102,10 @@ function clean(text) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Naver News 검색
+// Naver News 검색 — 페이지네이션 (최대 100건/페이지, total ≤ 100)
 // ─────────────────────────────────────────────────────────────
-async function searchNaver(query, clientId, clientSecret) {
-  const url = `${NAVER_API}?query=${encodeURIComponent(query)}&display=30&sort=date`;
+async function searchNaver(query, clientId, clientSecret, display = 100, start = 1) {
+  const url = `${NAVER_API}?query=${encodeURIComponent(query)}&display=${display}&start=${start}&sort=date`;
   const res = await fetch(url, {
     headers: {
       'X-Naver-Client-Id': clientId,
@@ -107,7 +114,6 @@ async function searchNaver(query, clientId, clientSecret) {
   });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    // 키 echo 방지
     const safe = body
       .replace(new RegExp(clientId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '***')
       .replace(new RegExp(clientSecret.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '***');
@@ -115,6 +121,35 @@ async function searchNaver(query, clientId, clientSecret) {
   }
   const json = await res.json();
   return Array.isArray(json.items) ? json.items : [];
+}
+
+// ─────────────────────────────────────────────────────────────
+// 제목에서 트렌딩 N-gram 추출 (X지원금 / X보조금 / X수당 / X바우처 등)
+// 한글 2~5자 + 접미사 패턴, 단어 경계 체크
+// ─────────────────────────────────────────────────────────────
+function extractTrendingNgrams(articles) {
+  const counts = new Map();
+  for (const a of articles) {
+    const title = a.title;
+    for (const suffix of TRENDING_SUFFIXES) {
+      let idx = 0;
+      while ((idx = title.indexOf(suffix, idx)) !== -1) {
+        for (let preLen = 2; preLen <= 5; preLen++) {
+          const start = idx - preLen;
+          if (start < 0) continue;
+          const pre = title.slice(start, idx);
+          // 한글 연속 2~5자
+          if (!/^[가-힣]+$/.test(pre)) continue;
+          // 단어 경계: pre 직전이 한글이면 더 긴 단어 일부 → skip
+          if (start > 0 && /[가-힣]/.test(title[start - 1])) continue;
+          const ngram = pre + suffix;
+          counts.set(ngram, (counts.get(ngram) ?? 0) + 1);
+        }
+        idx += suffix.length;
+      }
+    }
+  }
+  return counts;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -271,7 +306,7 @@ function scoreItem(item, cat) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 메인
+// 메인 — 하이브리드: 광역 fetch → N-gram 빈도 → 트렌딩 토픽 → 베스트 기사 선정
 // ─────────────────────────────────────────────────────────────
 async function main() {
   const env = await loadEnv();
@@ -283,52 +318,98 @@ async function main() {
   }
   console.log('🔑 Naver API 키 로드 완료');
 
-  // 카테고리별 검색
-  const allCandidates = [];
-  let rawCount = 0;
-  for (const group of KEYWORD_GROUPS) {
-    for (const q of group.queries) {
-      try {
-        process.stdout.write(`\r🔍 ${group.cat}: ${q.padEnd(20)}`);
-        const items = await searchNaver(q, clientId, clientSecret);
-        for (const it of items) {
-          rawCount++;
-          const scored = scoreItem(it, group.cat);
-          if (scored) allCandidates.push(scored);
-        }
-        // rate limit 대비 간단 delay
-        await new Promise((r) => setTimeout(r, 100));
-      } catch (e) {
-        console.warn(`\n⚠️ ${q} skip: ${e.message}`);
+  // 1. 광역 fetch — 최신순 100건씩 × 3 쿼리 = 300건
+  const articles = [];
+  const seenLinks = new Set();
+  for (const q of BROAD_QUERIES) {
+    try {
+      process.stdout.write(`\r🔍 광역 fetch: ${q.padEnd(8)}`);
+      const items = await searchNaver(q, clientId, clientSecret, 100);
+      for (const it of items) {
+        const link = it.originallink || it.link;
+        if (!link || seenLinks.has(link)) continue;
+        seenLinks.add(link);
+        articles.push({
+          title: clean(it.title),
+          description: clean(it.description),
+          pubDate: it.pubDate,
+          link,
+          naverLink: it.link,
+        });
       }
+      await new Promise((r) => setTimeout(r, 100));
+    } catch (e) {
+      console.warn(`\n⚠️ ${q} skip: ${e.message}`);
     }
   }
   process.stdout.write('\n');
-  console.log(`📦 raw ${rawCount}건 → 정부 컨텍스트 필터 통과 ${allCandidates.length}건`);
+  console.log(`📦 광역 수집 ${articles.length}건 (중복 제거)`);
 
-  if (allCandidates.length === 0) {
-    console.error('❌ 후보 0건 — 검색 실패 또는 키 권한 문제');
+  if (articles.length === 0) {
+    console.error('❌ 기사 0건');
     process.exit(1);
   }
 
-  // 중복 제거 (같은 링크)
-  const seen = new Set();
-  const unique = allCandidates.filter((c) => {
-    if (!c.link || seen.has(c.link)) return false;
-    seen.add(c.link);
-    return true;
+  // 2. 트렌딩 N-gram 추출 (제목에서 X지원금/X보조금/X수당/X바우처 패턴)
+  const ngramCounts = extractTrendingNgrams(articles);
+  const ranked = [...ngramCounts.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .filter(([, count]) => count >= 2);
+
+  console.log(`🔥 트렌딩 토픽 Top 10:`);
+  ranked.slice(0, 10).forEach(([term, count], i) => {
+    console.log(`   ${i + 1}. ${term} — ${count}회`);
   });
 
-  // 점수 desc 정렬
-  unique.sort((a, b) => b.score - a.score);
+  if (ranked.length === 0) {
+    console.error('❌ 트렌딩 토픽 0개 (모든 기사가 단발성)');
+    process.exit(1);
+  }
 
-  const top = unique[0];
-  const candidates = unique.slice(1, 6); // 백업 5건
+  // 3. 트렌딩 토픽별 매칭 기사 → 점수화 → 1위
+  // 상위 트렌딩 토픽들을 순회하며 첫 번째 점수 통과 기사를 선정
+  let top = null;
+  let topTrendTerm = null;
+  let topTrendCount = 0;
+  const allScored = [];
 
-  // 출력 데이터 구성
+  for (const [term, count] of ranked) {
+    const matching = articles.filter((a) => a.title.includes(term));
+    const scored = matching
+      .map((a) => scoreItem(a, deriveCategory(a.title + ' ' + a.description)))
+      .filter(Boolean)
+      .sort((s1, s2) => s2.score - s1.score);
+
+    allScored.push(...scored.map((s) => ({ ...s, trendTerm: term, trendCount: count })));
+
+    if (!top && scored.length > 0) {
+      top = scored[0];
+      topTrendTerm = term;
+      topTrendCount = count;
+    }
+  }
+
+  if (!top) {
+    console.error('❌ 모든 트렌딩 토픽이 필터 통과 못함');
+    process.exit(1);
+  }
+
+  // 백업 후보 5건 (다른 트렌딩 토픽 또는 차순위 기사)
+  const seenCandLinks = new Set([top.link]);
+  const candidates = allScored
+    .sort((a, b) => b.score - a.score)
+    .filter((c) => {
+      if (seenCandLinks.has(c.link)) return false;
+      seenCandLinks.add(c.link);
+      return true;
+    })
+    .slice(0, 5);
+
+  // 출력
   const output = {
     syncedAt: new Date().toISOString(),
     source: 'naver-news',
+    method: 'trending-ngram',
     headline: top.title,
     description: top.description.slice(0, 200),
     pubDate: top.pubDate,
@@ -336,6 +417,9 @@ async function main() {
     link: top.link,
     category: top.category,
     score: top.score,
+    trendingTopic: topTrendTerm,
+    trendingTopicCount: topTrendCount,
+    trending: ranked.slice(0, 10).map(([term, count]) => ({ term, count })),
     candidates: candidates.map((c) => ({
       title: c.title,
       pubDate: c.pubDate,
@@ -343,13 +427,15 @@ async function main() {
       link: c.link,
       category: c.category,
       score: c.score,
+      trendTerm: c.trendTerm,
+      trendCount: c.trendCount,
     })),
   };
 
   await mkdir(dirname(OUT_PATH), { recursive: true });
   await writeFile(OUT_PATH, JSON.stringify(output, null, 2) + '\n', 'utf8');
 
-  console.log(`✅ 오늘의 이슈 선정 (점수 ${top.score})`);
+  console.log(`\n✅ 오늘의 이슈: [${topTrendTerm}] (${topTrendCount}회 언급, score ${top.score})`);
   console.log(`   카테고리: ${top.category}`);
   console.log(`   ${top.title}`);
   console.log(`📂 ${OUT_PATH}`);
