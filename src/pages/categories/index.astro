@@ -6,12 +6,39 @@ import { CATEGORIES } from '@/data/site-data';
 import { getCollection } from 'astro:content';
 
 const subsidies = await getCollection('subsidies');
-const counts = subsidies.reduce<Record<string, number>>((acc, s) => {
-  acc[s.data.category] = (acc[s.data.category] ?? 0) + 1;
-  return acc;
-}, {});
+const personas = await getCollection('personas');
+const personaLabels = new Map(personas.map((p) => [p.data.id, p.data.label]));
 
-const cats = CATEGORIES.slice(1).map((c) => ({ ...c, count: counts[c.id] ?? 0 }));
+// 카테고리별 통계 — 카운트 + Top 태그 3 + Top 페르소나 2
+function statsForCategory(cat: string) {
+  const matched = subsidies.filter((s) => s.data.category === cat);
+  const tagCount: Record<string, number> = {};
+  const personaCount: Record<string, number> = {};
+  for (const s of matched) {
+    for (const tag of s.data.tags ?? []) {
+      // 카테고리명 자체는 제외 (잡음)
+      if (tag === cat) continue;
+      tagCount[tag] = (tagCount[tag] ?? 0) + 1;
+    }
+    for (const pid of s.data.targetPersonas ?? []) {
+      personaCount[pid] = (personaCount[pid] ?? 0) + 1;
+    }
+  }
+  const topTags = Object.entries(tagCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([t]) => t);
+  const topPersonas = Object.entries(personaCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([pid]) => personaLabels.get(pid) ?? pid);
+  return { count: matched.length, topTags, topPersonas };
+}
+
+const cats = CATEGORIES.slice(1).map((c) => ({
+  ...c,
+  ...statsForCategory(c.id),
+}));
 ---
 
 <BaseLayout
@@ -34,17 +61,39 @@ const cats = CATEGORIES.slice(1).map((c) => ({ ...c, count: counts[c.id] ?? 0 })
           cats.map((c) => (
             <li>
               <a class={`tile tint-${c.id}`} href={`/categories/${encodeURIComponent(c.id)}/`}>
-                <div class="tile-icon">
-                  <Icon name={c.icon} size={32} strokeWidth={1.5} />
+                <div class="tile-top">
+                  <div class="tile-icon">
+                    <Icon name={c.icon} size={32} strokeWidth={1.5} />
+                  </div>
+                  <div class="tile-body">
+                    <div class="tile-name">{c.name}</div>
+                    <div class="tile-desc">{(c.description ?? '').slice(0, 80)}…</div>
+                  </div>
+                  <div class="tile-meta">
+                    <span class="cnt">{c.count}건</span>
+                    <span class="arrow" aria-hidden="true">→</span>
+                  </div>
                 </div>
-                <div class="tile-body">
-                  <div class="tile-name">{c.name}</div>
-                  <div class="tile-desc">{(c.description ?? '').slice(0, 80)}…</div>
-                </div>
-                <div class="tile-meta">
-                  <span class="cnt">{c.count}건</span>
-                  <span class="arrow" aria-hidden="true">→</span>
-                </div>
+                {(c.topTags.length > 0 || c.topPersonas.length > 0) && (
+                  <div class="tile-stats">
+                    {c.topTags.length > 0 && (
+                      <div class="tile-stat-row">
+                        <span class="tile-stat-label">자주 등장</span>
+                        <div class="tile-stat-pills">
+                          {c.topTags.map((t) => <span class="stat-pill">#{t}</span>)}
+                        </div>
+                      </div>
+                    )}
+                    {c.topPersonas.length > 0 && (
+                      <div class="tile-stat-row">
+                        <span class="tile-stat-label">주요 대상</span>
+                        <div class="tile-stat-pills">
+                          {c.topPersonas.map((p) => <span class="stat-pill persona">{p}</span>)}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </a>
             </li>
           ))
@@ -86,8 +135,8 @@ const cats = CATEGORIES.slice(1).map((c) => ({ ...c, count: counts[c.id] ?? 0 })
 
   .tile {
     display: flex;
-    align-items: flex-start;
-    gap: 14px;
+    flex-direction: column;
+    gap: 12px;
     padding: 22px 24px;
     background: var(--surface);
     border: 1px solid var(--border);
@@ -95,6 +144,12 @@ const cats = CATEGORIES.slice(1).map((c) => ({ ...c, count: counts[c.id] ?? 0 })
     text-decoration: none;
     color: inherit;
     transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+
+  .tile-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
   }
   .tile:hover {
     transform: translateY(-3px);
@@ -152,5 +207,51 @@ const cats = CATEGORIES.slice(1).map((c) => ({ ...c, count: counts[c.id] ?? 0 })
   .tile:hover .arrow {
     transform: translateX(3px);
     color: var(--accent);
+  }
+
+  .tile-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .tile-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tile-stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-2);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    min-width: 56px;
+  }
+
+  .tile-stat-pills {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .stat-pill {
+    padding: 2px 8px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .stat-pill.persona {
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    font-weight: 600;
   }
 </style>

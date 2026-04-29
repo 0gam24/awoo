@@ -3,6 +3,42 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import situations from '@/data/situations.json';
+import { getCollection } from 'astro:content';
+
+interface Situation {
+  id: string;
+  label: string;
+  sub: string;
+  icon: string;
+  tone: string;
+  description: string;
+  keywords: string[];
+  primaryCategories: string[];
+  matchedPersonas: string[];
+}
+
+const allSubsidies = await getCollection('subsidies');
+
+// 각 상황별 매칭 지원금 수 — 라이트 스코어 기반
+function countMatched(sit: Situation): number {
+  return allSubsidies.filter((s) => {
+    const text = `${s.data.title} ${s.data.summary ?? ''} ${(s.data.tags ?? []).join(' ')}`;
+    if (sit.keywords.some((kw) => text.includes(kw))) return true;
+    if (sit.primaryCategories.includes(s.data.category)) return true;
+    if (sit.matchedPersonas.some((p) => (s.data.targetPersonas ?? []).includes(p))) return true;
+    return false;
+  }).length;
+}
+
+const enriched = (situations as Situation[]).map((s) => ({
+  ...s,
+  count: countMatched(s),
+}));
+
+// 우선순위 hero — 매칭 지원금이 가장 많은 Top 3 (시청자 임팩트 기준)
+const topPriority = [...enriched]
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 3);
 ---
 
 <BaseLayout
@@ -20,16 +56,48 @@ import situations from '@/data/situations.json';
         </p>
       </div>
 
+      {topPriority.length > 0 && (
+        <section class="priority-section" aria-labelledby="priority-title">
+          <div class="priority-eyebrow">
+            <span class="dot" aria-hidden="true" />
+            가장 많은 지원금이 매칭되는 상황
+          </div>
+          <h2 class="priority-title" id="priority-title">먼저 확인할 것 — 우선순위 Top 3</h2>
+          <ol class="priority-grid">
+            {topPriority.map((s, i) => (
+              <li>
+                <a class={`pri-card tone-${s.tone}`} href={`/situations/${s.id}/`}>
+                  <div class="pri-rank">{i + 1}</div>
+                  <div class="pri-icon">
+                    <Icon name={s.icon} size={28} strokeWidth={1.6} />
+                  </div>
+                  <div class="pri-body">
+                    <div class="pri-label">{s.label}</div>
+                    <div class="pri-sub">{s.sub}</div>
+                    <div class="pri-count">매칭 {s.count}건</div>
+                  </div>
+                  <span class="pri-arrow" aria-hidden="true">→</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      <h2 class="section-title">전체 라이프 이벤트 {enriched.length}가지</h2>
       <ul class="grid">
         {
-          situations.map((s) => (
+          enriched.map((s) => (
             <li>
               <a class={`tile tone-${s.tone}`} href={`/situations/${s.id}/`}>
                 <div class="tile-icon">
                   <Icon name={s.icon} size={28} strokeWidth={1.6} />
                 </div>
                 <div class="tile-body">
-                  <div class="tile-label">{s.label}</div>
+                  <div class="tile-label">
+                    {s.label}
+                    {s.count > 0 && <span class="tile-count">{s.count}건</span>}
+                  </div>
                   <div class="tile-sub">{s.sub}</div>
                 </div>
                 <span class="tile-arrow" aria-hidden="true">→</span>
@@ -129,5 +197,175 @@ import situations from '@/data/situations.json';
   .tile:hover .tile-arrow {
     transform: translateX(3px);
     color: var(--accent);
+  }
+
+  .tile-count {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+    vertical-align: 2px;
+  }
+
+  /* 우선순위 hero */
+  .priority-section {
+    margin-bottom: 36px;
+    padding: 28px 32px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+  }
+
+  .priority-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 4px 12px;
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 12px;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot { animation: none; }
+  }
+
+  .priority-title {
+    font-size: clamp(20px, 2.4vw, 24px);
+    font-weight: 700;
+    margin: 0 0 18px;
+    letter-spacing: -0.015em;
+  }
+
+  .priority-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    counter-reset: priority;
+  }
+
+  .pri-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
+  }
+  .pri-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+
+  .pri-rank {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: 28px;
+    height: 28px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
+  }
+
+  .pri-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .tone-주거 .pri-icon { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .tone-자산 .pri-icon { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  .tone-교육 .pri-icon { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .tone-창업 .pri-icon { background: rgb(234 88 12 / 0.12); color: #ea580c; }
+  .tone-복지 .pri-icon { background: rgb(236 72 153 / 0.12); color: #ec4899; }
+  .tone-취업 .pri-icon { background: rgb(16 185 129 / 0.12); color: #10b981; }
+  .tone-농업 .pri-icon { background: rgb(217 119 6 / 0.12); color: #d97706; }
+
+  .pri-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pri-label {
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .pri-sub {
+    font-size: 12px;
+    color: var(--text-2);
+    margin-top: 2px;
+    margin-bottom: 6px;
+  }
+
+  .pri-count {
+    display: inline-block;
+    padding: 2px 10px;
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .pri-arrow {
+    color: var(--text-3);
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: transform 0.15s, color 0.15s;
+  }
+
+  .pri-card:hover .pri-arrow {
+    transform: translateX(3px);
+    color: var(--accent);
+  }
+
+  .section-title {
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 700;
+    margin: 32px 0 14px;
+    letter-spacing: -0.01em;
   }
 </style>
