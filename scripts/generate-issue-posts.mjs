@@ -38,7 +38,11 @@ const PERSONAS_PATH = join(ROOT, 'src', 'data', 'personas.json');
 const ISSUES_OUT_DIR = join(ROOT, 'src', 'data', 'issues');
 const HISTORY_PATH = join(ROOT, 'src', 'data', 'issues', '_history.json');
 
-const TOP_N = 3; // 매일 상위 3개 트렌딩에 대해 포스트 생성
+// Cycle #7 — 1일 1개 고정 (사용자 요청). 단 콘텐츠 중복·생성 실패 시 다음 트렌딩 키워드로 fallback.
+// trending Top FALLBACK_CANDIDATES 개 후보로 순회하되, 성공한 첫 1건이 채택되면 즉시 stop.
+const POSTS_PER_DAY = 1;
+const FALLBACK_CANDIDATES = 5;
+const TOP_N = FALLBACK_CANDIDATES; // 호환 alias
 const MODEL = 'claude-sonnet-4-6'; // 한국어 정책 글의 자연스러움·뉘앙스 우선
 const MAX_TOKENS = 4096;
 
@@ -552,6 +556,12 @@ ${JSON.stringify(userInput, null, 2)}
     updateHistory(history, term, count, finalSlug);
 
     success++;
+
+    // Cycle #7: 1일 1개 고정 — POSTS_PER_DAY 도달 시 즉시 break (fallback 후보 더 시도하지 않음)
+    if (success >= POSTS_PER_DAY) {
+      console.log(`\n✓ POSTS_PER_DAY=${POSTS_PER_DAY} 도달 — 다음 후보 trending 처리 중단`);
+      break;
+    }
   }
 
   // 8. _history.json 저장

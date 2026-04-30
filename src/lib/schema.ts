@@ -18,7 +18,7 @@ export const ORG = {
   founder: '김준혁',
   taxID: '406-06-34485',
   address: '인천광역시 계양구 새벌로 88, 효성동',
-  email: 'contact@awoo.or.kr',
+  email: 'smartdatashop@gmail.com',
   url: SITE_URL,
 } as const;
 

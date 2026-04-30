@@ -51,7 +51,7 @@ interface Env {
  * 환경변수 (없으면 graceful degrade):
  * - RESEND_API_KEY: Resend 발송 키
  * - TURNSTILE_SECRET_KEY: Cloudflare Turnstile 봇 차단
- * - ADMIN_EMAIL: 알림 수신처 (기본 contact@awoo.or.kr)
+ * - ADMIN_EMAIL: 알림 수신처 (기본 smartdatashop@gmail.com)
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   if (!isAllowedOrigin(request, ALLOWED_ORIGINS)) {
