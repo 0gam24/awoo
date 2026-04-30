@@ -61,7 +61,13 @@ if (existsSync(siteDataPath)) {
 
 function loadHtml(routePath) {
   // routePath: /personas/young/  →  HTML_ROOT/personas/young/index.html
-  const clean = routePath.replace(/^\//, '').replace(/\/$/, '');
+  // URL 인코딩된 한글 routePath (`/categories/%EC%A3%BC%EA%B1%B0/`)도 처리
+  let clean = routePath.replace(/^\//, '').replace(/\/$/, '');
+  try {
+    clean = decodeURIComponent(clean);
+  } catch {
+    // 잘못된 시퀀스 무시
+  }
   const candidates = [
     path.join(HTML_ROOT, clean, 'index.html'),
     path.join(HTML_ROOT, `${clean}.html`),
