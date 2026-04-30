@@ -226,11 +226,15 @@ const readMin = readingTimeMinutes();
       <header class="hero">
         <div class="meta">
           {post.freshness && (
-            <span class="freshness-pill">
+            <a
+              class="freshness-pill"
+              href={`/issues/topics/${encodeURIComponent(post.freshness.trendingTerm)}/`}
+              title={`${post.freshness.trendingTerm} 토픽 hub로 이동`}
+            >
               <span class="dot" aria-hidden="true" />
               {post.freshness.daysActive}일 연속 화제
               {post.freshness.totalCount > 0 && ` · ${post.freshness.totalCount}건 보도`}
-            </span>
+            </a>
           )}
           <span class="cat-pill">{post.category}</span>
           <span class="date">{post.date}</span>
@@ -480,6 +484,13 @@ const readMin = readingTimeMinutes();
     border-radius: var(--radius-pill);
     font-size: 13px;
     font-weight: 700;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  /* Cycle #15 P0-2: 토픽 hub 백링크 */
+  a.freshness-pill:hover {
+    background: rgb(0 113 227 / 0.22);
+    text-decoration: none;
   }
   .dot {
     width: 6px;
