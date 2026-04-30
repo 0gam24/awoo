@@ -95,7 +95,7 @@ jobs:
 
       - name: Create Pull Request (PR mode — 수동 실행 검수용)
         if: steps.diff.outputs.changed == 'true' && github.event_name == 'workflow_dispatch' && inputs.mode == 'pr'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: bot/sync-subsidies-${{ steps.meta.outputs.date }}
