@@ -197,7 +197,14 @@ for (const s of subsidies) {
   };
 }
 
-// 통계 요약
+// 통계 요약 (Cycle #12 P2-6: 양방향·orphan 검증 추가)
+const totalTopics = Object.keys(graph.entities.topics).length;
+const totalSubsidies = Object.keys(graph.entities.subsidies).length;
+const orphanSubsidies = Object.values(graph.entities.subsidies).filter((s) => {
+  const inbound = (s.mentionedInTopics?.length ?? 0) + (s.targetPersonas?.length ?? 0);
+  return inbound === 0;
+}).length;
+
 graph.stats = {
   glossary_dangling_count: Object.values(graph.entities.glossary).reduce(
     (s, g) => s + (g.related_dangling?.length ?? 0),
@@ -213,6 +220,18 @@ graph.stats = {
   topics_with_subsidy_matches: Object.values(graph.entities.topics).filter(
     (t) => (t.matchedSubsidies?.length ?? 0) > 0,
   ).length,
+  // Cycle #12 P2-6: orphan 검증 — 어디서도 참조 안 되는 subsidy
+  topics_total: totalTopics,
+  topics_without_matches:
+    totalTopics -
+    Object.values(graph.entities.topics).filter((t) => (t.matchedSubsidies?.length ?? 0) > 0)
+      .length,
+  subsidies_total: totalSubsidies,
+  subsidies_orphan_count: orphanSubsidies,
+  subsidies_inbound_coverage_pct:
+    totalSubsidies > 0
+      ? Math.round(((totalSubsidies - orphanSubsidies) / totalSubsidies) * 100)
+      : 100,
 };
 
 const outPath = path.join(ROOT, 'src/data/entity-graph.json');

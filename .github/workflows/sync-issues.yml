@@ -22,6 +22,7 @@ jobs:
     # job-level env hoisting — step-level if 조건에서 env.* 평가 가능
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -81,3 +82,15 @@ jobs:
 
           [skip ci]"
           git push origin main
+
+      # Cycle #12 P0-3: 신규 영구 포스트 즉시 IndexNow ping (검색엔진 24h → 즉시)
+      # [skip ci] 커밋이라 indexnow.yml 트리거 안 됨 → 직접 호출
+      - name: IndexNow ping (sync 직후)
+        if: steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != ''
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        continue-on-error: true
+        run: |
+          npm run build
+          npm run indexnow:ping
+          # 상태 파일 갱신은 다음 정규 indexnow.yml 실행에서 처리

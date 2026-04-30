@@ -21,8 +21,6 @@ interface PostMeta {
 interface PostEntry { date: string; slug: string; data: PostMeta }
 
 // Cycle #11 P1-5: 50건/페이지 페이지네이션 (Astro paginate)
-const PAGE_SIZE = 50;
-
 export const getStaticPaths = (async ({ paginate }) => {
   const issueModules = import.meta.glob<{ default: PostMeta }>(
     '/src/data/issues/*/*.json',
