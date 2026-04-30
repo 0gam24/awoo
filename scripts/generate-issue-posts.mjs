@@ -191,7 +191,15 @@ async function callClaude(systemPrompt, userPrompt, apiKey) {
     body: JSON.stringify({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      system: systemPrompt,
+      // Cycle #3 P0-8: prompt caching — system prompt(521줄, ~1400 토큰)을 ephemeral 캐시에 마킹
+      // 일간 Top 3 토픽 처리 시 2~3회차는 cache_read (90% 절감) → 일 35% 토큰 절감
+      system: [
+        {
+          type: 'text',
+          text: systemPrompt,
+          cache_control: { type: 'ephemeral' },
+        },
+      ],
       messages: [{ role: 'user', content: userPrompt }],
     }),
   });
@@ -203,6 +211,11 @@ async function callClaude(systemPrompt, userPrompt, apiKey) {
   const json = await res.json();
   const content = json.content?.[0]?.text;
   if (!content) throw new Error('Empty Claude response');
+  // 캐시 통계 console 로그 (운영 모니터링 — _fail-{date}.json 옆 _cache-{date}.json 누적은 P1)
+  const usage = json.usage ?? {};
+  if (usage.cache_creation_input_tokens || usage.cache_read_input_tokens) {
+    console.log(`[claude-cache] create=${usage.cache_creation_input_tokens ?? 0} read=${usage.cache_read_input_tokens ?? 0} input=${usage.input_tokens ?? 0} output=${usage.output_tokens ?? 0}`);
+  }
   return content;
 }
 
