@@ -1,4 +1,5 @@
 ---
+import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import CrossRefRail from '@/components/CrossRefRail.astro';
 import Icon from '@/components/Icon.astro';
@@ -66,6 +67,14 @@ const crossRefItems = [
   { href: '/quick/', label: '5분 진단으로 정확 매칭', sub: '내 상황에 맞춰 자동 추천' },
 ];
 
+// BLUF 자동 통계
+const blufStatsTopic = [
+  { value: `${matchedSubsidies.length}건`, label: '관련 지원금' },
+  { value: `${t.decisionTree.length}단계`, label: '의사결정 흐름' },
+  { value: `${t.faq.length}건`, label: '자주 묻는 질문' },
+];
+const blufSummaryTopic = `${t.title} 주제와 관련된 정부 지원금 ${matchedSubsidies.length}건을 정리했습니다. ${t.shortDef}`;
+
 const faqSchema = t.faq.length > 0 ? {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -99,6 +108,8 @@ const faqSchema = t.faq.length > 0 ? {
           <p class="short-def">{t.shortDef}</p>
         </div>
       </header>
+
+      <BlufBox summary={blufSummaryTopic} stats={blufStatsTopic} basis="주제별 종합 가이드" />
 
       <div class="body-grid">
         <main class="body">

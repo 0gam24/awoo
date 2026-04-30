@@ -1,4 +1,5 @@
 ---
+import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -31,6 +32,30 @@ const sorted = [...inCategory].sort((a, b) => {
 const top = sorted.slice(0, 8);
 
 const otherCats = CATEGORIES.filter((c) => c.id !== 'all' && c.id !== category.id);
+
+// BLUF 자동 통계 — 카테고리 내 페르소나 분포 + 신청 가능 카운트
+const personaCount: Record<string, number> = {};
+for (const s of inCategory) {
+  for (const pid of s.data.targetPersonas ?? []) {
+    personaCount[pid] = (personaCount[pid] ?? 0) + 1;
+  }
+}
+const topPersona = Object.entries(personaCount).sort((a, b) => b[1] - a[1])[0];
+const personaLabelMap: Record<string, string> = {
+  'office-rookie': '사회초년생',
+  'self-employed': '자영업',
+  'newlywed-family': '신혼·육아',
+  'senior': '중장년',
+  'low-income': '저소득',
+  'farmer': '농업',
+};
+const openCount = inCategory.filter((s) => s.data.status === '신청 가능').length;
+const blufStatsCategory = [
+  { value: `${inCategory.length}건`, label: `${category.name} 지원금` },
+  { value: `${openCount}건`, label: '지금 신청 가능' },
+  ...(topPersona ? [{ value: `${topPersona[1]}건`, label: `${personaLabelMap[topPersona[0]] ?? topPersona[0]} 매칭` }] : []),
+];
+const blufSummaryCategory = `${category.name} 분야 정부 지원금은 ${inCategory.length}건이고, 이 중 ${openCount}건이 지금 신청 가능합니다.`;
 ---
 
 <BaseLayout
@@ -58,6 +83,8 @@ const otherCats = CATEGORIES.filter((c) => c.id !== 'all' && c.id !== category.i
           <p class="lead">{category.description}</p>
         </div>
       </header>
+
+      <BlufBox summary={blufSummaryCategory} stats={blufStatsCategory} basis="2026년 4월 기준 · 보조금24 + 큐레이션" />
 
       <div class="body-grid">
         <main class="body">
