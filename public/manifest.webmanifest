@@ -1,0 +1,51 @@
+{
+  "name": "지원금가이드",
+  "short_name": "지원금",
+  "description": "정부 지원금을 페르소나·상황 단위로 정리한 정보 안내 사이트.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#0071e3",
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "categories": ["government", "finance", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/og-default.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "5분 진단",
+      "short_name": "진단",
+      "description": "4질문으로 받을 수 있는 지원금 매칭",
+      "url": "/quick/",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "오늘의 이슈",
+      "short_name": "이슈",
+      "description": "이번 주 화제 정부 지원금",
+      "url": "/issues/",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "전체 지원금",
+      "short_name": "지원금",
+      "description": "정부 지원금 카테고리별 전체 목록",
+      "url": "/subsidies/",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ]
+}
