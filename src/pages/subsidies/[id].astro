@@ -72,11 +72,15 @@ const govSchema = {
   description: s.summary,
   url: s.applyUrl,
   termsOfService: s.eligibility.join(' / '),
+  // 1차 자료 — 정부 공식 신청처 URL을 schema 차원에서 명시 (GEO/AI 인용 핵심 신호)
+  isBasedOn: s.applyUrl,
   availableChannel: {
     '@type': 'ServiceChannel',
     serviceUrl: s.applyUrl,
     availableLanguage: 'ko',
   },
+  // 사이트와이드 Organization을 publisher로 참조 (Cycle #1 P0-2 자산)
+  publisher: { '@id': 'https://awoo.or.kr/#organization' },
   ...(regDateISO ? { dateCreated: regDateISO } : {}),
 };
 
