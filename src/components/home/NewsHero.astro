@@ -247,18 +247,22 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
 
           <ol class="news-trend-list auto">
             {autoTrending.map((t, i) => {
-              // 우선순위: 토픽 hub → 외부 기사 → 폴백 (사이트 내 검색)
+              // Cycle #9: 사이트 이탈 차단 — 외부 뉴스 링크 X. 3단계 내부 링크만:
+              //   1) 영구 포스트 (있으면 가장 풍부)
+              //   2) 토픽 hub (totalCount ≥ 3)
+              //   3) /issues/ 인덱스 폴백
+              const postUrl = findTopicPostUrl(t.term);
               const hubUrl = findTopicHubUrl(t.term);
-              const isInternal = !!hubUrl;
-              const href = hubUrl ?? t.topArticle?.link ?? `/issues/`;
+              const href = postUrl ?? hubUrl ?? '/issues/';
+              const tier: 'post' | 'topic' | 'fallback' =
+                postUrl ? 'post' : hubUrl ? 'topic' : 'fallback';
+              const ctaLabel =
+                tier === 'post' ? '포스트로 이동' :
+                tier === 'topic' ? '관련 지원금 모아보기' :
+                '오늘의 이슈로 이동';
               return (
                 <li class:list={['news-trend-item-auto', i === 0 && 'hot']}>
-                  <a
-                    href={href}
-                    class="trend-link-auto"
-                    target={isInternal ? undefined : '_blank'}
-                    rel={isInternal ? undefined : 'noopener noreferrer'}
-                  >
+                  <a href={href} class={`trend-link-auto tier-${tier}`}>
                     <div class="trend-row-1">
                       <span class="rank">{i + 1}</span>
                       <span class="trend-pill">
@@ -268,9 +272,12 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
                     </div>
                     <div class="trend-row-2">
                       <span class="trend-news-title">
-                        {isInternal ? `관련 지원금 모아보기` : (t.topArticle?.title ?? t.term)}
+                        {t.topArticle?.title ?? t.term}
                       </span>
                       <span class="trend-arrow" aria-hidden="true">→</span>
+                    </div>
+                    <div class="trend-row-3">
+                      <span class="trend-cta">{ctaLabel}</span>
                     </div>
                   </a>
                 </li>
@@ -279,7 +286,7 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
           </ol>
 
           <div class="news-trend-card-foot">
-            클릭하면 관련 지원금까지 함께 확인할 수 있습니다
+            클릭하면 사이트 내 관련 포스트·지원금으로 이동합니다
           </div>
         </aside>
       )}
@@ -935,6 +942,30 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
   .trend-link-auto:hover .trend-arrow {
     transform: translateX(3px);
     color: #ffffff;
+  }
+
+  /* 클릭 destination 명시 chip — 사용자 신뢰성 (Cycle #9) */
+  .trend-row-3 {
+    margin-top: 6px;
+  }
+  .trend-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    background: rgb(255 255 255 / 0.16);
+    color: rgb(255 255 255 / 0.92);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .trend-link-auto.tier-post .trend-cta {
+    background: rgb(255 255 255 / 0.95);
+    color: #003875;
+  }
+  .news-trend-item-auto.hot .trend-cta {
+    background: rgb(255 255 255 / 0.92);
+    color: #003875;
   }
 
   /* Stat strip */
