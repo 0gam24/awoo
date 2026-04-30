@@ -155,6 +155,18 @@ const articleSchema = {
   isAccessibleForFree: true,
   // Cycle #11 P0-1: AI 답변 엔진 인용 confidence 신호
   wordCount: articleWordCount,
+  // Cycle #29: archive + topic hub 관계 명시 (entity 그래프 strengthen)
+  isPartOf: {
+    '@type': 'CollectionPage',
+    '@id': 'https://awoo.or.kr/issues/all/#collection',
+    name: '전체 분석 포스트 아카이브',
+    url: 'https://awoo.or.kr/issues/all/',
+  },
+  ...(post.freshness?.trendingTerm
+    ? {
+        discussionUrl: `https://awoo.or.kr/issues/topics/${encodeURIComponent(post.freshness.trendingTerm)}/`,
+      }
+    : {}),
   // Cycle #6 P0-4: audience + mentions — 페르소나 매칭 + glossary entity 그래프 연결
   // relatedPersonas/relatedSubsidies는 이미 .data 객체 추출됨 (Map.get 결과)
   ...(relatedPersonas.length > 0
