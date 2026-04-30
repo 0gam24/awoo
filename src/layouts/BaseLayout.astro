@@ -3,7 +3,7 @@ import '@/styles/global.css';
 import Footer from '@/components/Footer.astro';
 import HotkeyNav from '@/components/HotkeyNav.astro';
 import TopBar from '@/components/TopBar.astro';
-import { buildBreadcrumb, type BreadcrumbItem } from '@/lib/schema';
+import { buildBreadcrumb, buildOrganization, buildWebSite, type BreadcrumbItem } from '@/lib/schema';
 
 interface Props {
   title: string;
@@ -28,6 +28,10 @@ const {
 } = Astro.props;
 
 const breadcrumbSchema = breadcrumbs && breadcrumbs.length > 1 ? buildBreadcrumb(breadcrumbs) : null;
+
+// 사이트와이드 entity — 모든 페이지에 1회 노출 (Organization + WebSite, @id 앵커로 다른 schema에서 참조)
+const orgSchema = buildOrganization();
+const siteSchema = buildWebSite();
 
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
 const ogImageURL = new URL(ogImage, Astro.site).toString();
@@ -97,6 +101,10 @@ const siteName = '지원금가이드';
       })();
     </script>
     <meta name="naver-site-verification" content="8203ca7628a4c7bc8b90fb2086b0086ec3c62ac9" />
+
+    {/* 사이트와이드 entity — 모든 페이지 1회. AI 인용·지식 그래프·sitelinks 신호. */}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
 
     {breadcrumbSchema && (
       <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
