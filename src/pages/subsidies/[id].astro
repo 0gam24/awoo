@@ -1,4 +1,5 @@
 ---
+import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -67,6 +68,21 @@ const matchedTopic = allTopics.find((t) => {
 // matchedTopic 0건일 때 카테고리 공통 FAQ로 fallback (Cycle #3 P0-3)
 const subsidyFaqs = matchedTopic?.faq ?? CATEGORY_FAQS[s.category] ?? [];
 const subsidyRejections = matchedTopic?.rejectionReasons ?? [];
+
+// BLUF 자동 통계 (Cycle #3 P0-4) — schema와 본문 인용 단위 동시 확보
+const personaLabels = matchedPersonas
+  .map((p) => p?.label)
+  .filter((x): x is string => Boolean(x));
+const personaSummary = personaLabels.length > 0
+  ? `${personaLabels.slice(0, 2).join('·')}${personaLabels.length > 2 ? ' 외' : ''}`
+  : '대상 확인 필요';
+const blufSummarySubsidy = `${s.title}은 ${s.agency}이 제공하는 ${s.category} 분야 지원금입니다. ${formatWon(s.amount)} ${s.amountLabel}, ${personaSummary}이 받을 수 있습니다.`;
+const blufStatsSubsidy = [
+  { value: `${formatWon(s.amount)}`, label: s.amountLabel || '지원 금액' },
+  { value: s.deadline, label: '신청 마감' },
+  { value: personaSummary, label: '매칭 페르소나' },
+  { value: s.status, label: '신청 상태' },
+];
 
 const faqSchema = subsidyFaqs.length > 0 ? {
   '@context': 'https://schema.org',
@@ -189,6 +205,7 @@ const breadcrumbs = [
 
   <section class="band alt">
     <Container size="wide">
+      <BlufBox summary={blufSummarySubsidy} stats={blufStatsSubsidy} basis={lastVerifiedKR ? `마지막 동기화: ${lastVerifiedKR}` : '보조금24 + 큐레이션'} />
       <div class="two-col">
         <div>
           <h2 class="utility">지원 대상</h2>
