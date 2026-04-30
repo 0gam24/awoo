@@ -94,6 +94,10 @@ const faqSchema = subsidyFaqs.length > 0 ? {
     name: f.q,
     acceptedAnswer: { '@type': 'Answer', text: f.a },
   })),
+  speakable: {
+    '@type': 'SpeakableSpecification',
+    cssSelector: ['.summary', '.faq-section'],
+  },
 } : null;
 
 const govSchema = {
