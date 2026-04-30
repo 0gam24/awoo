@@ -180,8 +180,39 @@ function updateHistory(history, term, count, slug) {
 // ─────────────────────────────────────────────────────────────
 // Claude API 호출
 // ─────────────────────────────────────────────────────────────
-async function callClaude(systemPrompt, userPrompt, apiKey) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+// Cycle #5 P0-7: 재시도 로직 — 429/503 일시 실패 시 exponential backoff 3회
+async function fetchWithRetry(url, init, maxRetries = 3) {
+  let lastErr;
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const res = await fetch(url, init);
+      if (res.ok) return res;
+      // 429/503/502/504 일시 실패만 재시도, 4xx는 즉시 throw
+      if (![429, 502, 503, 504].includes(res.status)) return res;
+      const wait = 1000 * 2 ** attempt; // 1s, 2s, 4s
+      console.warn(`[claude-retry] attempt ${attempt + 1} 실패 (HTTP ${res.status}), ${wait}ms 후 재시도`);
+      await new Promise((r) => setTimeout(r, wait));
+      lastErr = res;
+    } catch (e) {
+      // 네트워크 오류 등
+      const wait = 1000 * 2 ** attempt;
+      console.warn(`[claude-retry] attempt ${attempt + 1} 네트워크 실패, ${wait}ms 후 재시도: ${e.message}`);
+      await new Promise((r) => setTimeout(r, wait));
+      lastErr = e;
+    }
+  }
+  if (lastErr instanceof Response) return lastErr;
+  throw lastErr;
+}
+
+/**
+ * Claude API 호출.
+ * @returns {Promise<{ content: string, usage: object }>}
+ *   content: 생성된 텍스트
+ *   usage: cache_creation_input_tokens / cache_read_input_tokens / input_tokens / output_tokens
+ */
+async function callClaude(systemPrompt, userPrompt, apiKey, staticContext = '') {
+  const res = await fetchWithRetry('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -191,8 +222,7 @@ async function callClaude(systemPrompt, userPrompt, apiKey) {
     body: JSON.stringify({
       model: MODEL,
       max_tokens: MAX_TOKENS,
-      // Cycle #3 P0-8: prompt caching — system prompt(521줄, ~1400 토큰)을 ephemeral 캐시에 마킹
-      // 일간 Top 3 토픽 처리 시 2~3회차는 cache_read (90% 절감) → 일 35% 토큰 절감
+      // Cycle #3 P0-8: prompt caching — system prompt(521줄, ~1400 토큰)을 ephemeral 캐시
       system: [
         {
           type: 'text',
@@ -200,7 +230,18 @@ async function callClaude(systemPrompt, userPrompt, apiKey) {
           cache_control: { type: 'ephemeral' },
         },
       ],
-      messages: [{ role: 'user', content: userPrompt }],
+      // Cycle #5 P0-8: 정적 컨텍스트 별도 cache block (+~500 토큰 추가 캐시)
+      messages: [
+        {
+          role: 'user',
+          content: staticContext
+            ? [
+                { type: 'text', text: staticContext, cache_control: { type: 'ephemeral' } },
+                { type: 'text', text: userPrompt },
+              ]
+            : userPrompt,
+        },
+      ],
     }),
   });
   if (!res.ok) {
@@ -211,12 +252,10 @@ async function callClaude(systemPrompt, userPrompt, apiKey) {
   const json = await res.json();
   const content = json.content?.[0]?.text;
   if (!content) throw new Error('Empty Claude response');
-  // 캐시 통계 console 로그 + 영속 로깅 (Cycle #4 P0-8)
   const usage = json.usage ?? {};
   if (usage.cache_creation_input_tokens || usage.cache_read_input_tokens) {
     console.log(`[claude-cache] create=${usage.cache_creation_input_tokens ?? 0} read=${usage.cache_read_input_tokens ?? 0} input=${usage.input_tokens ?? 0} output=${usage.output_tokens ?? 0}`);
   }
-  // 영속 로깅 — _cache-{date}.json (운영자 주간 리뷰: cache hit ratio, 비용 절감)
   return { content, usage };
 }
 
@@ -335,7 +374,18 @@ async function main() {
   const personas = await loadPersonas();
   const history = await loadHistory();
 
-  console.log(`📦 시스템 프롬프트 ${systemPrompt.length}자 / 지원금 ${allSubsidies.length}건 / 페르소나 ${personas.length}건`);
+  // Cycle #5 P0-8: 정적 컨텍스트 (매 호출 동일) — 별도 cache block으로 분리
+  const staticContext = [
+    '# 페르소나 참조 맵 (모든 호출 공통)',
+    '',
+    JSON.stringify(personas, null, 2),
+    '',
+    '# 카테고리 → 페르소나 매핑',
+    '',
+    JSON.stringify(CAT_TO_PERSONAS, null, 2),
+  ].join('\n');
+
+  console.log(`📦 시스템 프롬프트 ${systemPrompt.length}자 / 정적 컨텍스트 ${staticContext.length}자 / 지원금 ${allSubsidies.length}건 / 페르소나 ${personas.length}건`);
 
   const trending = todayIssue.trending ?? [];
   if (trending.length === 0) {
@@ -419,7 +469,7 @@ ${JSON.stringify(userInput, null, 2)}
     let post;
     let callUsage = null;
     try {
-      const result = await callClaude(systemPrompt, userPrompt, apiKey);
+      const result = await callClaude(systemPrompt, userPrompt, apiKey, staticContext);
       // Cycle #4 P0-8: callClaude 반환 구조 변경 — 하위호환 (string도 처리)
       const raw = typeof result === 'string' ? result : result.content;
       callUsage = typeof result === 'string' ? null : result.usage;
