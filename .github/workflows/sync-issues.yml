@@ -25,7 +25,7 @@ jobs:
       INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
