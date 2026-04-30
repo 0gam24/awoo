@@ -47,6 +47,26 @@ const breadcrumbSchema = breadcrumbs && breadcrumbs.length > 1 ? buildBreadcrumb
 const orgSchema = buildOrganization();
 const siteSchema = buildWebSite();
 
+// Cycle #24: SiteNavigationElement schema — TopBar 주요 메뉴 + 핵심 hub 진입점 명시
+// Google sitelinks 자격 + AI 답변 엔진 사이트 구조 인지
+const siteNavigation = {
+  '@context': 'https://schema.org',
+  '@type': 'SiteNavigationElement',
+  '@id': 'https://awoo.or.kr/#sitenav',
+  name: 'Main Navigation',
+  hasPart: [
+    { '@type': 'WebPage', name: '홈', url: 'https://awoo.or.kr/' },
+    { '@type': 'WebPage', name: '오늘의 이슈', url: 'https://awoo.or.kr/issues/' },
+    { '@type': 'WebPage', name: '지원금', url: 'https://awoo.or.kr/subsidies/' },
+    { '@type': 'WebPage', name: '가이드', url: 'https://awoo.or.kr/guide/' },
+    { '@type': 'WebPage', name: '5분 진단', url: 'https://awoo.or.kr/quick/' },
+    { '@type': 'WebPage', name: '페르소나별', url: 'https://awoo.or.kr/personas/' },
+    { '@type': 'WebPage', name: '상황별', url: 'https://awoo.or.kr/situations/' },
+    { '@type': 'WebPage', name: '주제별', url: 'https://awoo.or.kr/topics/' },
+    { '@type': 'WebPage', name: '용어 사전', url: 'https://awoo.or.kr/glossary/' },
+  ],
+};
+
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
 const ogImageURL = new URL(ogImage, Astro.site).toString();
 const siteName = '지원금가이드';
@@ -130,6 +150,8 @@ const siteName = '지원금가이드';
     {/* 사이트와이드 entity — 모든 페이지 1회. AI 인용·지식 그래프·sitelinks 신호. */}
     <script is:inline type="application/ld+json" set:html={JSON.stringify(orgSchema)} />
     <script is:inline type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
+    {/* Cycle #24: 사이트 메뉴 구조 (sitelinks + AI 답변 엔진 사이트맵 인지) */}
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(siteNavigation)} />
 
     {breadcrumbSchema && (
       <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
