@@ -15,7 +15,7 @@
 //
 // 출력: stdout JSON, 빌드 미완료 시 1
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -38,17 +38,15 @@ const personas = readJson(path.join(ROOT, 'src/data/personas.json')) || [];
 const situations = readJson(path.join(ROOT, 'src/data/situations.json')) || [];
 
 // site-data.ts에서 CATEGORIES 추출 (정규식)
-let categories = [];
+const categories = [];
 const siteDataPath = path.join(ROOT, 'src/data/site-data.ts');
 if (existsSync(siteDataPath)) {
   const td = readFileSync(siteDataPath, 'utf8');
-  // export const CATEGORIES = [ { id: '주거', label: '주거 지원', ...}, ... ]
   const m = td.match(/CATEGORIES\s*[:=]\s*\[([\s\S]*?)\];?/);
   if (m) {
     const blockText = m[1];
     const itemRe = /\{([^{}]*)\}/g;
-    let im;
-    while ((im = itemRe.exec(blockText))) {
+    for (const im of blockText.matchAll(itemRe)) {
       const inner = im[1];
       const idM = inner.match(/id\s*:\s*['"]([^'"]+)['"]/);
       const labelM = inner.match(/label\s*:\s*['"]([^'"]+)['"]/);
@@ -102,10 +100,10 @@ function stripTags(s) {
 function countOccurrences(haystack, needle) {
   if (!needle || !haystack) return 0;
   let count = 0;
-  let i = 0;
-  while ((i = haystack.indexOf(needle, i)) !== -1) {
+  let i = haystack.indexOf(needle, 0);
+  while (i !== -1) {
     count++;
-    i += needle.length;
+    i = haystack.indexOf(needle, i + needle.length);
   }
   return count;
 }

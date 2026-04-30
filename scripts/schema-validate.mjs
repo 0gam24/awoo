@@ -46,8 +46,7 @@ function htmlPathToRoute(htmlPath) {
 function extractJsonLd(html) {
   const out = [];
   const re = /<script\s+type=("|')application\/ld\+json\1\s*>([\s\S]*?)<\/script>/gi;
-  let m;
-  while ((m = re.exec(html))) {
+  for (const m of html.matchAll(re)) {
     const text = m[2].trim();
     try {
       const parsed = JSON.parse(text);

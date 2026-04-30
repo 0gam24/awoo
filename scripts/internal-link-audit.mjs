@@ -53,16 +53,13 @@ function htmlPathToRoute(htmlPath) {
 function extractLinks(html) {
   const out = new Set();
   const re = /<a\s+[^>]*href=("|')([^"']+)\1/gi;
-  let m;
-  while ((m = re.exec(html))) {
+  for (const m of html.matchAll(re)) {
     const href = m[2];
     if (!href) continue;
     if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) continue;
     if (/^https?:\/\//.test(href)) continue;
-    // 쿼리·해시 제거
     const clean = href.split('#')[0].split('?')[0];
     if (!clean) continue;
-    // 절대 경로만 (상대 경로는 페이지 컨텍스트 필요 — 본 사이트는 trailingSlash always라 모두 절대)
     if (!clean.startsWith('/')) continue;
     out.add(clean);
   }

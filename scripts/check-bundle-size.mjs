@@ -11,7 +11,7 @@
 //
 // 위반 시 process.exit(1) → CI 빌드 fail. 임계값 변경은 본 파일 + lighthouserc.json 동기.
 
-import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';

@@ -58,15 +58,14 @@ function extractRoutesFromLlms(text) {
   const out = new Set();
   // markdown 링크 [..](https://awoo.or.kr/path/) 또는 [..](/path/)
   const re = /\]\((?:https?:\/\/awoo\.or\.kr)?(\/[^\s)]+)\)/g;
-  let m;
-  while ((m = re.exec(text))) {
+  for (const m of text.matchAll(re)) {
     const route = m[1].split('#')[0].split('?')[0];
     if (!route) continue;
     out.add(route);
   }
   // 단순 URL (https://awoo.or.kr/path/)
   const re2 = /https?:\/\/awoo\.or\.kr(\/[^\s)]*)/g;
-  while ((m = re2.exec(text))) {
+  for (const m of text.matchAll(re2)) {
     const route = m[1].split('#')[0].split('?')[0];
     if (!route) continue;
     out.add(route);
