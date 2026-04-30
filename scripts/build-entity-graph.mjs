@@ -66,10 +66,10 @@ const categoryId = (cat) => `${SITE_URL}/categories/${encodeURIComponent(cat)}/`
 // ─────────────────────────────────────────────────────────────
 // graph 빌드
 
+// Cycle #6 P0-8: generated_at 제거 — git diff 노이즈 차단 (매 빌드 변경분 1줄 발생)
 const graph = {
   '@context': 'https://schema.org',
   '@type': 'Graph',
-  generated_at: new Date().toISOString(),
   source: {
     personas: personas.length,
     situations: situations.length,

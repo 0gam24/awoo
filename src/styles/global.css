@@ -188,18 +188,35 @@ html {
   }
 }
 
-/* Cycle #5 P0-6: prefers-contrast: more — WCAG 1.4.6 AAA 옵트인 사용자 대응 */
+/* Cycle #5 P0-6: prefers-contrast: more — WCAG 1.4.6 AAA 옵트인 사용자 대응
+ * Cycle #6 P0-8: light/dark 분기 명시 (이전 :root:not([data-theme='light']) 가 light + auto 모두 매치 위험) */
 @media (prefers-contrast: more) {
-  :root {
+  /* 라이트 모드 명시 — data-theme='light' 또는 prefers-color-scheme: light 시스템 */
+  :root[data-theme='light'] {
     --text-2: var(--text);
     --text-3: var(--text-2);
     --border: var(--border-2);
   }
-  [data-theme='dark'],
-  :root:not([data-theme='light']) {
+  /* 사용자 명시 X + 시스템이 light인 경우 — auto fallback */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme='dark']) {
+      --text-2: var(--text);
+      --text-3: var(--text-2);
+      --border: var(--border-2);
+    }
+  }
+  /* 다크 모드 명시 또는 시스템 dark + 사용자 명시 X */
+  :root[data-theme='dark'] {
     --text-2: #ffffff;
     --text-3: #e5e5e7;
     --border: #6e6e73;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+      --text-2: #ffffff;
+      --text-3: #e5e5e7;
+      --border: #6e6e73;
+    }
   }
   /* focus-visible 더 굵게 */
   :focus-visible {

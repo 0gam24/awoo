@@ -171,7 +171,10 @@ export function buildWebApplication(opts: {
     description: opts.description,
     url: absolute(opts.pageUrl),
     inLanguage: 'ko-KR',
-    applicationCategory: opts.applicationCategory ?? 'GovernmentApplication',
+    // Schema.org ApplicationCategory 표준 enum (Cycle #6 P0-8 회귀 차단)
+    // 'GovernmentApplication'은 비표준 → 'BusinessApplication' + additionalType
+    applicationCategory: opts.applicationCategory ?? 'BusinessApplication',
+    additionalType: 'https://schema.org/GovernmentService',
     operatingSystem: 'Web',
     browserRequirements: 'JavaScript',
     isAccessibleForFree: true,
