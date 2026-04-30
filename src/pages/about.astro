@@ -15,6 +15,7 @@ const SITE = {
 };
 
 // Cycle #5 P0-4: AboutPage schema — 운영자 자기소개 entity
+// Cycle #16: E-E-A-T 보강 — significantLink + lastReviewed + datePublished
 const aboutPageSchema = {
   '@context': 'https://schema.org',
   '@type': 'AboutPage',
@@ -28,6 +29,22 @@ const aboutPageSchema = {
     '@type': 'PeopleAudience',
     audienceType: '정부 지원금 정보를 찾는 일반 시민',
   },
+  // E-E-A-T 신호: 운영 정책 페이지 cross-link
+  significantLink: [
+    'https://awoo.or.kr/editorial-policy/',
+    'https://awoo.or.kr/privacy/',
+    'https://awoo.or.kr/terms/',
+    'https://awoo.or.kr/contact/',
+  ],
+  // YMYL 영역 — 검수·정정 정책 명시
+  reviewedBy: {
+    '@type': 'Person',
+    name: '김준혁',
+    jobTitle: '편집책임자',
+    url: 'https://awoo.or.kr/about/',
+  },
+  // 사이트 운영 시작 (Cycle #1 commit 기준 추정)
+  datePublished: '2026-04-29',
 };
 ---
 
