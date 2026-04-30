@@ -101,8 +101,8 @@ const crossRefItems = [
 ---
 
 <BaseLayout
-  title={`${situation.label} — 받을 수 있는 정부 지원금 ${matched.length}건`}
-  description={situation.description}
+  title={`${situation.label} 정부 지원금 ${matched.length}건 — ${situation.sub}`}
+  description={`${situation.label} 상황에서 받을 수 있는 정부 지원금 ${matched.length}건. ${situation.description}`}
   activeNav="/subsidies/"
   breadcrumbs={[
     { name: '홈', href: '/' },
