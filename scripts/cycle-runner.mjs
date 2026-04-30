@@ -33,7 +33,14 @@ function readCycle() {
       let v = m[2].trim();
       if (v === 'null') v = null;
       else if (/^\d+$/.test(v)) v = Number.parseInt(v, 10);
-      else if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
+      else if (v.startsWith('"') && v.endsWith('"')) {
+        // JSON 형식의 quoted string — escape 시퀀스 정확히 복구 (이중 escape 누적 방지)
+        try {
+          v = JSON.parse(v);
+        } catch {
+          v = v.slice(1, -1);
+        }
+      }
       meta[m[1]] = v;
     }
   }
