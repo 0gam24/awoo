@@ -6,6 +6,7 @@ import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
 import situationsData from '@/data/situations.json';
+import { buildCollectionPage } from '@/lib/schema';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -133,6 +134,17 @@ const crossRefItems = [
   })),
   { href: '/quick/', label: '5분 진단으로 정확 매칭', sub: '내 상황에 맞춰 자동 추천' },
 ];
+
+// Cycle #14 P0-1: CollectionPage + ItemList schema — 페르소나별 매칭 지원금 entity 그래프
+const collectionSchema = buildCollectionPage({
+  name: `${p.label} 정부 지원금 ${matched.length}건`,
+  description: `${p.label}(${p.age}, ${p.income})에게 매칭되는 정부 지원금 모음`,
+  pageUrl: `/personas/${p.id}/`,
+  items: matched.slice(0, 100).map((s) => ({
+    url: `/subsidies/${s.data.id}/`,
+    name: s.data.title,
+  })),
+});
 ---
 
 <BaseLayout
@@ -284,6 +296,8 @@ const crossRefItems = [
       </nav>
     </Container>
   </section>
+
+  {collectionSchema && <script is:inline type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
 </BaseLayout>
 
 <style>

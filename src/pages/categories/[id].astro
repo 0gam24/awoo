@@ -4,6 +4,7 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CATEGORIES, formatWon } from '@/data/site-data';
+import { buildCollectionPage } from '@/lib/schema';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -56,6 +57,17 @@ const blufStatsCategory = [
   ...(topPersona ? [{ value: `${topPersona[1]}건`, label: `${personaLabelMap[topPersona[0]] ?? topPersona[0]} 매칭` }] : []),
 ];
 const blufSummaryCategory = `${category.name} 분야 정부 지원금은 ${inCategory.length}건이고, 이 중 ${openCount}건이 지금 신청 가능합니다.`;
+
+// Cycle #14 P0-3: CollectionPage + ItemList schema — 카테고리별 entity
+const collectionSchema = buildCollectionPage({
+  name: `${category.name} 분야 정부 지원금 ${inCategory.length}건`,
+  description: category.description ?? `${category.name} 분야 정부 지원금 모음`,
+  pageUrl: `/categories/${category.id}/`,
+  items: sorted.slice(0, 100).map((s) => ({
+    url: `/subsidies/${s.data.id}/`,
+    name: s.data.title,
+  })),
+});
 ---
 
 <BaseLayout
@@ -183,6 +195,8 @@ const blufSummaryCategory = `${category.name} 분야 정부 지원금은 ${inCat
       </div>
     </Container>
   </section>
+
+  {collectionSchema && <script is:inline type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
 </BaseLayout>
 
 <style>
