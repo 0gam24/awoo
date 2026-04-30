@@ -9,11 +9,13 @@ const bySlug = new Map(subsidies.map((s) => [s.data.id, s.data]));
 
 // 1순위: 마지막 동기화 회차에서 추가된 항목 (lastBatch)
 // 2순위: lastBatch 비어있으면 등록일 desc 상위 6건
+type Subsidy = NonNullable<ReturnType<typeof bySlug.get>>;
+const isPresent = <T,>(v: T | undefined): v is T => v !== undefined;
 let mode: 'batch' | 'recent' = 'batch';
-let items = lastBatchSlugs.map((slug) => bySlug.get(slug)).filter(Boolean);
+let items: Subsidy[] = lastBatchSlugs.map((slug) => bySlug.get(slug)).filter(isPresent);
 if (items.length === 0) {
   mode = 'recent';
-  items = recentlyAddedSlugs(6).map(({ slug }) => bySlug.get(slug)).filter(Boolean);
+  items = recentlyAddedSlugs(6).map(({ slug }) => bySlug.get(slug)).filter(isPresent);
 }
 
 const limited = items.slice(0, 6);

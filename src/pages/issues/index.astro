@@ -49,9 +49,10 @@ const posts: Array<{ date: string; slug: string; data: PostMeta }> = [];
 for (const [path, mod] of Object.entries(issueModules)) {
   const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
   if (!m) continue;
+  const date = m[1];
   const slug = m[2];
-  if (slug.startsWith('_')) continue;
-  posts.push({ date: m[1], slug, data: mod.default });
+  if (!date || !slug || slug.startsWith('_')) continue;
+  posts.push({ date, slug, data: mod.default });
 }
 
 // 날짜 desc 정렬
@@ -62,6 +63,8 @@ type TodayIssue = {
   trending?: Array<{
     term: string;
     count: number;
+    mediaCount?: number;
+    articleCount?: number;
     topArticle?: { title: string; link?: string; category?: string };
   }>;
   trendingTopic?: string;
@@ -92,7 +95,6 @@ const heroCards: HeroCard[] = trending.slice(0, 3).map((t, i) => ({
   post: findPost(t.term),
   topicHref: topicHref(t.term),
 }));
-const heroPost = heroCards[0]?.post ?? null;
 
 // hero 영역 사용된 포스트 슬러그 set — 아카이브에서 중복 제거
 const heroPostKeys = new Set(
@@ -223,7 +225,7 @@ const months = Object.keys(byMonth).sort().reverse();
               <section class="month-block">
                 <h2 class="month-title">{ym.replace('-', '년 ')}월</h2>
                 <ul class="post-list">
-                  {byMonth[ym].map((p) => (
+                  {(byMonth[ym] ?? []).map((p) => (
                     <li>
                       <a class={`post-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
                         <div class="pc-meta">
@@ -272,7 +274,10 @@ const months = Object.keys(byMonth).sort().reverse();
                     <>
                       <span class="rk">{i + 1}</span>
                       <span class="trm">{t.term}</span>
-                      <span class="cnt">{t.count}회</span>
+                      <span class="cnt">
+                        {t.count}회
+                        {t.mediaCount && t.mediaCount >= 2 && <span class="med"> · {t.mediaCount}곳</span>}
+                      </span>
                     </>
                   );
                   return (
@@ -796,5 +801,10 @@ const months = Object.keys(byMonth).sort().reverse();
   }
   .trm { flex: 1; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .cnt { color: var(--accent); font-weight: 700; flex-shrink: 0; }
+  .cnt .med {
+    color: var(--text-2);
+    font-weight: 500;
+    font-size: 11px;
+  }
   .trend-empty { font-size: 13px; color: var(--text-3); }
 </style>

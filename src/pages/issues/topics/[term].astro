@@ -54,10 +54,10 @@ export const getStaticPaths = (() => {
     const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
     if (!m) continue;
     const slug = m[2];
-    if (slug.startsWith('_')) continue;
     const date = m[1];
+    if (!slug || !date || slug.startsWith('_')) continue;
     if (!postsByDate[date]) postsByDate[date] = [];
-    postsByDate[date].push(mod.default);
+    postsByDate[date]!.push(mod.default);
   }
 
   // 활성 term (totalCount ≥ 3) 정렬 — 페이지마다 "다른 토픽 보기" nav에 사용

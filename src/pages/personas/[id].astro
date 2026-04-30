@@ -16,8 +16,8 @@ export const getStaticPaths = (async () => {
     (a, b) => PERSONA_ORDER.indexOf(a.data.id) - PERSONA_ORDER.indexOf(b.data.id),
   );
   return sorted.map((p, i) => {
-    const prev = sorted[(i - 1 + sorted.length) % sorted.length];
-    const next = sorted[(i + 1) % sorted.length];
+    const prev = sorted[(i - 1 + sorted.length) % sorted.length]!;
+    const next = sorted[(i + 1) % sorted.length]!;
     return {
       params: { id: p.data.id },
       props: {
@@ -54,7 +54,7 @@ for (const s of matched) {
   if (!byCategory[cat]) {
     byCategory[cat] = { count: 0, flagshipTitle: '' };
   }
-  byCategory[cat].count++;
+  byCategory[cat]!.count++;
   // 대표: HOT 우선, 그다음 금액 큰 순
   if (
     !byCategory[cat].flagshipTitle ||
@@ -74,7 +74,7 @@ for (const cat of Object.keys(byCategory)) {
       if (ah !== bh) return bh - ah;
       return (b.data.amount ?? 0) - (a.data.amount ?? 0);
     });
-  byCategory[cat].flagshipTitle = inCat[0]?.data.title ?? '';
+  byCategory[cat]!.flagshipTitle = inCat[0]?.data.title ?? '';
 }
 
 const hubCategories = Object.entries(byCategory)

@@ -258,17 +258,24 @@ const webAppSchema = buildWebApplication({
         <div class="step result" data-step="result">
           <div class="result-head">
             <h2 class="result-title">당신에게 추천하는 지원금</h2>
-            <div class="result-summary" data-result-summary></div>
+            <div class="result-summary-grid" data-result-stats></div>
           </div>
 
+          <div class="result-filter" data-result-filter hidden>
+            <span class="result-filter-label">분야로 좁히기</span>
+            <div class="result-filter-chips" data-result-filter-chips></div>
+          </div>
+
+          <div class="result-top3" data-result-top3></div>
           <ul class="result-list" data-result-list></ul>
 
           <div class="result-empty" data-result-empty hidden>
             <div class="empty-mark">🤔</div>
             <h3>매칭된 지원금이 없어요</h3>
-            <p>조건이 너무 좁을 수 있어요. 아래에서 다음 단계를 선택해 주세요.</p>
+            <p class="empty-detail" data-empty-detail>조건이 너무 좁을 수 있어요. 아래에서 다음 단계를 선택해 주세요.</p>
+            <div class="empty-personas" data-empty-personas></div>
             <div class="empty-actions">
-              <button type="button" class="btn-primary" data-btn-relax>조건 완화 다시 시도</button>
+              <button type="button" class="btn-primary" data-btn-relax>카테고리·이벤트 해제 후 재매칭</button>
               <a class="btn-ghost" href="/subsidies/">전체 지원금 둘러보기</a>
             </div>
           </div>
@@ -456,6 +463,7 @@ const webAppSchema = buildWebApplication({
     if (errorMsg) errorMsg.hidden = true;
     updateIncome();
     history.replaceState(null, '', window.location.pathname);
+    document.title = '5분 만에 받을 수 있는 지원금 찾기 | 지원금가이드';
     showStep(1);
   });
 
@@ -625,6 +633,19 @@ const webAppSchema = buildWebApplication({
       size,
       income,
     });
+
+    // Cycle #8 P0-5: document.title 동적 업데이트 (SNS·메신저 공유 시 컨텍스트 노출)
+    updateDocumentTitle(persona, top.length);
+  }
+
+  function updateDocumentTitle(personaId, matchCount) {
+    if (!personaId) {
+      document.title = '5분 만에 받을 수 있는 지원금 찾기 | 지원금가이드';
+      return;
+    }
+    const p = compactPersonas.find((x) => x.id === personaId);
+    const label = p?.label || '나';
+    document.title = `${label}에게 추천하는 지원금 ${matchCount}건 | 지원금가이드`;
   }
 
   function fitLabel(score) {
@@ -633,65 +654,93 @@ const webAppSchema = buildWebApplication({
     return { label: '관련', cls: 'fit-soft' };
   }
 
+  // 현재 결과 캐시 — 카테고리 chip 필터에서 재렌더 시 활용
+  let _currentItems = [];
+  let _currentCtx = null;
+  let _activeCatFilter = null;
+
   function renderResult(items, ctx) {
+    _currentItems = items;
+    _currentCtx = ctx;
+    _activeCatFilter = null;
+
+    const top3El = root.querySelector('[data-result-top3]');
     const list = root.querySelector('[data-result-list]');
-    const summary = root.querySelector('[data-result-summary]');
+    const statsEl = root.querySelector('[data-result-stats]');
+    const filterEl = root.querySelector('[data-result-filter]');
+    const filterChipsEl = root.querySelector('[data-result-filter-chips]');
     const personasEl = root.querySelector('[data-result-personas]');
     const emptyEl = root.querySelector('[data-result-empty]');
+    const emptyDetailEl = root.querySelector('[data-empty-detail]');
+    const emptyPersonasEl = root.querySelector('[data-empty-personas]');
 
-    // 결과 요약 (사용자 입력 echo)
+    // 결과 요약 — 4 stat grid
     const personaLabel = ctx.persona
       ? compactPersonas.find((p) => p.id === ctx.persona)?.label
-      : null;
-    const summaryParts = [];
-    if (personaLabel) summaryParts.push(`<strong>${escapeHtml(personaLabel)}</strong>`);
-    summaryParts.push(`${ctx.size}인 가구 · 월 ${ctx.income}만원 (중위 ${ctx.pct}%)`);
-    if (ctx.cats.length > 0) summaryParts.push(`관심: ${ctx.cats.map(escapeHtml).join('·')}`);
-    if (ctx.eventKeys.length > 0)
-      summaryParts.push(`이벤트: ${ctx.eventKeys.map(escapeHtml).join('·')}`);
-    summary.innerHTML = summaryParts.join(' · ');
+      : '미선택';
+    const incomeTier = (() => {
+      if (ctx.pct <= 30) return '기초생활';
+      if (ctx.pct <= 50) return '차상위';
+      if (ctx.pct <= 70) return '청년 월세 구간';
+      if (ctx.pct <= 100) return '중위 100% 이내';
+      if (ctx.pct <= 150) return '신혼 특공 구간';
+      return '보편 지원';
+    })();
+    statsEl.innerHTML = (
+      '<div class="rs-stat"><div class="rs-lbl">페르소나</div><div class="rs-val">' + escapeHtml(personaLabel ?? '미선택') + '</div></div>' +
+      '<div class="rs-stat"><div class="rs-lbl">가구·소득</div><div class="rs-val">' + ctx.size + '인 · 월 ' + ctx.income + '만원</div><div class="rs-sub">중위 ' + ctx.pct + '% · ' + incomeTier + '</div></div>' +
+      '<div class="rs-stat"><div class="rs-lbl">관심 분야</div><div class="rs-val">' + (ctx.cats.length > 0 ? ctx.cats.map(escapeHtml).join('·') : '전체') + '</div></div>' +
+      '<div class="rs-stat"><div class="rs-lbl">라이프 이벤트</div><div class="rs-val">' + (ctx.eventKeys.length > 0 ? ctx.eventKeys.map(escapeHtml).join('·') : '없음') + '</div></div>'
+    );
 
     if (items.length === 0) {
+      top3El.innerHTML = '';
       list.innerHTML = '';
+      filterEl.hidden = true;
       personasEl.innerHTML = '';
+      // empty 상태 — 가까운 페르소나 3개 추천
+      const personaSugg = compactPersonas
+        .filter((p) => p.id !== ctx.persona)
+        .slice(0, 3);
+      emptyPersonasEl.innerHTML = personaSugg.length > 0
+        ? '<div class="empty-personas-label">다른 페르소나로 둘러보기</div><div class="empty-personas-row">' +
+          personaSugg.map((p) =>
+            '<a class="empty-persona-pill" href="/personas/' + encodeURIComponent(p.id) + '/">' +
+            escapeHtml(p.label) + ' →</a>'
+          ).join('') +
+          '</div>'
+        : '';
+      emptyDetailEl.textContent = '입력하신 조건과 일치하는 지원금이 없어요. 조건을 완화하거나 다른 페르소나에서 둘러보세요.';
       emptyEl.hidden = false;
       return;
     }
     emptyEl.hidden = true;
 
-    list.innerHTML = items
-      .map(({ s, score, reasons }, i) => {
-        const fit = fitLabel(score);
-        const amtText =
-          s.amount > 0
-            ? formatWon(s.amount) + ' <span class="ru">' + escapeHtml(s.amountLabel) + '</span>'
-            : '<span class="amt-na">내용 확인</span>';
-        const reasonText = reasons.length > 0
-          ? reasons.map((r) => '<span class="reason-pill">' + escapeHtml(r) + '</span>').join('')
-          : '';
-        return (
-          '<li class="result-item">' +
-          '<a class="result-card" href="/subsidies/' + encodeURIComponent(s.id) + '/">' +
-          '<div class="rc-rank">' + (i + 1) + '</div>' +
-          '<div class="rc-body">' +
-          '<div class="rc-meta">' +
-          '<span class="rc-fit ' + fit.cls + '">' + fit.label + '</span>' +
-          '<span class="rc-cat">' + escapeHtml(s.category) + '</span>' +
-          (s.status === '곧 마감' ? '<span class="rc-warn">곧 마감</span>' : '') +
-          (s.isHot ? '<span class="rc-hot">HOT</span>' : '') +
-          '</div>' +
-          '<div class="rc-agency">' + escapeHtml(s.agency) + '</div>' +
-          '<div class="rc-title">' + escapeHtml(s.title) + '</div>' +
-          '<div class="rc-sum">' + escapeHtml(s.summary) + '</div>' +
-          (reasonText ? '<div class="rc-reasons">' + reasonText + '</div>' : '') +
-          '<div class="rc-amt">' + amtText + '</div>' +
-          '</div>' +
-          '<span class="rc-arrow" aria-hidden="true">→</span>' +
-          '</a>' +
-          '</li>'
-        );
-      })
-      .join('');
+    // 카테고리 빈도 — quick filter
+    const catFreq = new Map();
+    for (const it of items) {
+      catFreq.set(it.s.category, (catFreq.get(it.s.category) ?? 0) + 1);
+    }
+    const sortedCats = [...catFreq.entries()].sort((a, b) => b[1] - a[1]);
+    if (sortedCats.length >= 2) {
+      filterEl.hidden = false;
+      filterChipsEl.innerHTML =
+        '<button type="button" class="rf-chip ' + (_activeCatFilter === null ? 'active' : '') + '" data-rf-cat="">전체 ' + items.length + '</button>' +
+        sortedCats.map(([cat, n]) =>
+          '<button type="button" class="rf-chip" data-rf-cat="' + escapeHtml(cat) + '">' + escapeHtml(cat) + ' ' + n + '</button>'
+        ).join('');
+      filterChipsEl.querySelectorAll('[data-rf-cat]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const cat = btn.getAttribute('data-rf-cat');
+          _activeCatFilter = cat || null;
+          renderListAndTop3();
+        });
+      });
+    } else {
+      filterEl.hidden = true;
+    }
+
+    renderListAndTop3();
 
     if (ctx.persona) {
       const p = compactPersonas.find((x) => x.id === ctx.persona);
@@ -704,6 +753,94 @@ const webAppSchema = buildWebApplication({
     } else {
       personasEl.innerHTML = '';
     }
+  }
+
+  function renderListAndTop3() {
+    const top3El = root.querySelector('[data-result-top3]');
+    const list = root.querySelector('[data-result-list]');
+
+    const filtered = _activeCatFilter
+      ? _currentItems.filter((x) => x.s.category === _activeCatFilter)
+      : _currentItems;
+
+    // Top 3는 필터 적용 후 상위 3 (필터로 3 미만이면 그만큼만)
+    const top3 = filtered.slice(0, 3);
+    const rest = filtered.slice(3);
+
+    // chip active 상태 동기화
+    const chips = root.querySelectorAll('[data-rf-cat]');
+    chips.forEach((c) => {
+      const cat = c.getAttribute('data-rf-cat');
+      c.classList.toggle('active', (cat || null) === _activeCatFilter);
+    });
+
+    top3El.innerHTML = top3
+      .map(({ s, score, reasons }, i) => buildHeroCard(s, score, reasons, i + 1))
+      .join('');
+    list.innerHTML = rest.length > 0
+      ? rest.map(({ s, score, reasons }, i) => buildCompactCard(s, score, reasons, i + 4)).join('')
+      : '';
+  }
+
+  function buildHeroCard(s, score, reasons, rank) {
+    const fit = fitLabel(score);
+    const amtText = s.amount > 0
+      ? formatWon(s.amount) + ' <span class="ru">' + escapeHtml(s.amountLabel) + '</span>'
+      : '<span class="amt-na">내용 확인</span>';
+    const reasonText = reasons.length > 0
+      ? reasons.map((r) => '<span class="reason-pill">' + escapeHtml(r) + '</span>').join('')
+      : '';
+    return (
+      '<article class="result-hero ' + fit.cls + '">' +
+      '<div class="rh-rank-row">' +
+      '<span class="rh-rank">' + rank + '위</span>' +
+      '<span class="rh-fit">' + fit.label + ' · 점수 ' + score + '</span>' +
+      '<span class="rh-cat">' + escapeHtml(s.category) + '</span>' +
+      (s.status === '곧 마감' ? '<span class="rh-warn">곧 마감</span>' : '') +
+      (s.isHot ? '<span class="rh-hot">HOT</span>' : '') +
+      '</div>' +
+      '<div class="rh-agency">' + escapeHtml(s.agency) + '</div>' +
+      '<h3 class="rh-title">' + escapeHtml(s.title) + '</h3>' +
+      '<p class="rh-sum">' + escapeHtml(s.summary) + '</p>' +
+      (reasonText ? '<div class="rh-reasons">' + reasonText + '</div>' : '') +
+      '<div class="rh-amt">' + amtText + '</div>' +
+      '<div class="rh-cta-row">' +
+      '<a class="rh-cta primary" href="/subsidies/' + encodeURIComponent(s.id) + '/">자세히 보기 →</a>' +
+      '<a class="rh-cta ghost" href="/subsidies/?q=' + encodeURIComponent(s.category) + '">' + escapeHtml(s.category) + ' 다른 지원금</a>' +
+      '</div>' +
+      '</article>'
+    );
+  }
+
+  function buildCompactCard(s, score, reasons, rank) {
+    const fit = fitLabel(score);
+    const amtText = s.amount > 0
+      ? formatWon(s.amount) + ' <span class="ru">' + escapeHtml(s.amountLabel) + '</span>'
+      : '<span class="amt-na">내용 확인</span>';
+    const reasonText = reasons.length > 0
+      ? reasons.slice(0, 2).map((r) => '<span class="reason-pill">' + escapeHtml(r) + '</span>').join('')
+      : '';
+    return (
+      '<li class="result-item">' +
+      '<a class="result-card" href="/subsidies/' + encodeURIComponent(s.id) + '/">' +
+      '<div class="rc-rank">' + rank + '</div>' +
+      '<div class="rc-body">' +
+      '<div class="rc-meta">' +
+      '<span class="rc-fit ' + fit.cls + '">' + fit.label + '</span>' +
+      '<span class="rc-cat">' + escapeHtml(s.category) + '</span>' +
+      (s.status === '곧 마감' ? '<span class="rc-warn">곧 마감</span>' : '') +
+      (s.isHot ? '<span class="rc-hot">HOT</span>' : '') +
+      '</div>' +
+      '<div class="rc-agency">' + escapeHtml(s.agency) + '</div>' +
+      '<div class="rc-title">' + escapeHtml(s.title) + '</div>' +
+      '<div class="rc-sum">' + escapeHtml(s.summary) + '</div>' +
+      (reasonText ? '<div class="rc-reasons">' + reasonText + '</div>' : '') +
+      '<div class="rc-amt">' + amtText + '</div>' +
+      '</div>' +
+      '<span class="rc-arrow" aria-hidden="true">→</span>' +
+      '</a>' +
+      '</li>'
+    );
   }
 
   function formatWon(n) {
@@ -1165,15 +1302,213 @@ const webAppSchema = buildWebApplication({
     font-size: clamp(22px, 2.6vw, 28px);
     font-weight: 700;
     color: var(--accent);
-    margin: 0 0 8px;
+    margin: 0 0 12px;
   }
-  .result-summary {
+  /* 결과 요약 — 4 stat grid (Cycle #8 P0-1) */
+  .result-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 8px;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+  }
+  .rs-stat { min-width: 0; }
+  .rs-lbl {
+    font-size: 11px;
+    color: var(--text-3);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .rs-val {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+    word-break: keep-all;
+  }
+  .rs-sub {
+    font-size: 11px;
+    color: var(--text-2);
+    margin-top: 2px;
+  }
+
+  /* 카테고리 quick filter chips (Cycle #8 P0-1) */
+  .result-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .result-filter-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-2);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .result-filter-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .rf-chip {
+    padding: 6px 12px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 32px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .rf-chip:hover {
+    border-color: var(--accent);
+  }
+  .rf-chip.active {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
+
+  /* Top 3 hero 카드 (Cycle #8 P0-1) */
+  .result-top3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .result-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 22px 24px;
+    background: linear-gradient(135deg, rgb(0 113 227 / 0.06) 0%, rgb(0 113 227 / 0.02) 100%);
+    border: 1px solid rgb(0 113 227 / 0.18);
+    border-radius: var(--radius-lg);
+    position: relative;
+    isolation: isolate;
+  }
+  .result-hero.fit-strong {
+    background: linear-gradient(135deg, rgb(0 169 110 / 0.1) 0%, rgb(0 169 110 / 0.02) 100%);
+    border-color: rgb(0 169 110 / 0.28);
+  }
+  .rh-rank-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 11px;
+  }
+  .rh-rank {
+    padding: 3px 12px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+  }
+  .result-hero.fit-strong .rh-rank {
+    background: var(--color-success);
+  }
+  .rh-fit {
+    padding: 3px 10px;
+    background: rgb(255 255 255 / 0.6);
+    color: var(--text);
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+  }
+  .rh-cat, .rh-warn, .rh-hot {
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+  }
+  .rh-cat { background: var(--surface-2); color: var(--text-2); }
+  .rh-warn { background: rgb(247 195 96 / 0.22); color: var(--color-warning); }
+  .rh-hot { background: rgb(220 38 38 / 0.18); color: #dc2626; }
+  .rh-agency {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent-link);
+  }
+  .rh-title {
+    font-size: clamp(17px, 2vw, 20px);
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .rh-sum {
     font-size: 14px;
     color: var(--text-2);
-    line-height: 1.6;
-    padding: 12px 16px;
+    line-height: 1.55;
+    margin: 0;
+  }
+  .rh-reasons {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .rh-amt {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+  }
+  .rh-amt .ru {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-left: 4px;
+  }
+  .rh-amt .amt-na {
+    font-size: 14px;
+    color: var(--text-2);
     background: var(--surface-2);
+    padding: 4px 12px;
     border-radius: var(--radius-sm);
+    font-weight: 600;
+  }
+  .rh-cta-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+  .rh-cta {
+    display: inline-flex;
+    align-items: center;
+    padding: 9px 16px;
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    min-height: 36px;
+    transition: transform 0.15s, background 0.15s;
+  }
+  .rh-cta.primary {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .rh-cta.primary:hover {
+    background: color-mix(in oklch, var(--accent), black 10%);
+    text-decoration: none;
+  }
+  .rh-cta.ghost {
+    background: transparent;
+    color: var(--accent-link);
+    border: 1px solid var(--border);
+  }
+  .rh-cta.ghost:hover {
+    background: var(--surface-2);
+    text-decoration: none;
   }
 
   .result-list {
@@ -1305,6 +1640,39 @@ const webAppSchema = buildWebApplication({
     gap: 8px;
     justify-content: center;
     flex-wrap: wrap;
+  }
+  /* empty 상태 페르소나 추천 (Cycle #8 P0-7) */
+  .empty-personas { margin: 16px 0; }
+  .empty-personas-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-2);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .empty-personas-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .empty-persona-pill {
+    padding: 7px 14px;
+    background: var(--surface);
+    color: var(--accent-link);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    min-height: 32px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .empty-persona-pill:hover {
+    border-color: var(--accent);
+    background: var(--surface-2);
+    text-decoration: none;
   }
 
   .result-personas { margin-bottom: 16px; }

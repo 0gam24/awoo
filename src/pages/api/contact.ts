@@ -51,7 +51,7 @@ interface Env {
  * 환경변수 (없으면 graceful degrade):
  * - RESEND_API_KEY: Resend 발송 키
  * - TURNSTILE_SECRET_KEY: Cloudflare Turnstile 봇 차단
- * - ADMIN_EMAIL: 알림 수신처 (기본 smartdatashop@gmail.com)
+ * - ADMIN_EMAIL: 알림 수신처 (기본 smartdatashop@gmail.com — 운영 주체 이메일)
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   if (!isAllowedOrigin(request, ALLOWED_ORIGINS)) {
@@ -124,7 +124,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   // Resend 발송
   if (env.RESEND_API_KEY) {
-    const adminEmail = env.ADMIN_EMAIL ?? 'kjh791213@gmail.com';
+    const adminEmail = env.ADMIN_EMAIL ?? 'smartdatashop@gmail.com';
     const subject = `[지원금가이드] ${c.subject}`;
     const html = `
       <h2>새 문의가 도착했습니다</h2>

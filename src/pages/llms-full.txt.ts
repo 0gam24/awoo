@@ -46,7 +46,7 @@ function loadRecentIssuePosts(maxDays = 30): Array<{ date: string; slug: string;
     if (!m) continue;
     const date = m[1];
     const slug = m[2];
-    if (slug.startsWith('_')) continue;
+    if (!date || !slug || slug.startsWith('_')) continue;
     const dateMs = new Date(date).getTime();
     if (Number.isNaN(dateMs) || dateMs < cutoffMs) continue;
     out.push({ date, slug, data: mod.default });

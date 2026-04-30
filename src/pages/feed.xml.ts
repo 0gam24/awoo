@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import { recentlyAddedSlugs, getRegDateISO } from '@/lib/subsidies-meta';
+import { recentlyAddedSlugs } from '@/lib/subsidies-meta';
 
 const SITE = 'https://awoo.or.kr';
 
