@@ -58,10 +58,70 @@ export default defineConfig({
         locales: { ko: 'ko-KR' },
       },
       serialize(item) {
-        const m = item.url.match(/\/subsidies\/([^/]+)\/?$/);
-        if (m && slugToLastmod.has(m[1])) {
-          item.lastmod = slugToLastmod.get(m[1]);
+        // 1) subsidies 상세 — _gov24 manifest의 regDate를 lastmod로 주입
+        const subsidyMatch = item.url.match(/\/subsidies\/([^/]+)\/?$/);
+        if (subsidyMatch && slugToLastmod.has(subsidyMatch[1])) {
+          item.lastmod = slugToLastmod.get(subsidyMatch[1]);
         }
+
+        // 2) 페이지 타입별 priority/changefreq 차등화
+        //    홈·issues·subsidies·trending hub = 신선도·중요도 모두 높음 → daily/0.9
+        //    개별 issues 포스트 / subsidy 상세 / persona·situation·category·topic hub = weekly/0.8
+        //    glossary·about·contact·terms·privacy 등 evergreen = monthly/0.5
+        const url = item.url;
+        const path = url.replace(/^https?:\/\/[^/]+/, '');
+
+        // daily / 0.9 — 자주 갱신되는 hub 인덱스
+        if (
+          path === '/' ||
+          path === '/issues/' ||
+          path === '/subsidies/' ||
+          path === '/subsidies/new/' ||
+          /^\/issues\/topics\/[^/]+\/$/.test(path) ||
+          path === '/personas/' ||
+          path === '/situations/' ||
+          path === '/categories/' ||
+          path === '/topics/'
+        ) {
+          item.changefreq = 'daily';
+          item.priority = 0.9;
+          return item;
+        }
+
+        // weekly / 0.8 — 개별 콘텐츠
+        if (
+          /^\/issues\/\d{4}-\d{2}-\d{2}\/[^/]+\/$/.test(path) ||
+          /^\/subsidies\/[^/]+\/$/.test(path) ||
+          /^\/personas\/[^/]+\/$/.test(path) ||
+          /^\/situations\/[^/]+\/$/.test(path) ||
+          /^\/categories\/[^/]+\/$/.test(path) ||
+          /^\/topics\/[^/]+\/$/.test(path) ||
+          /^\/subsidies\/category\/[^/]+\/persona\/[^/]+\/$/.test(path)
+        ) {
+          item.changefreq = 'weekly';
+          item.priority = 0.8;
+          return item;
+        }
+
+        // monthly / 0.5 — evergreen 정보 페이지
+        if (
+          path === '/about/' ||
+          path === '/contact/' ||
+          path === '/guide/' ||
+          path === '/quick/' ||
+          path === '/glossary/' ||
+          path === '/preferences/' ||
+          path === '/editorial-policy/' ||
+          path === '/cookies/' ||
+          path === '/privacy/' ||
+          path === '/terms/' ||
+          /^\/glossary\/[^/]+\/$/.test(path)
+        ) {
+          item.changefreq = 'monthly';
+          item.priority = 0.5;
+          return item;
+        }
+
         return item;
       },
     }),
