@@ -1,0 +1,118 @@
+---
+// BLUF (Bottom Line Up Front) 박스 — hub 페이지 hero 직하 첫 화면.
+//
+// 목적:
+//   - 독자: 이 페이지에서 무엇을 얻는지 80~120자로 즉답
+//   - AI 인용: 자기충족 청크(질문→답) 단위로 인용 가능하게 명시
+//   - GEO 신호: 핵심 숫자 1개 이상 + 출처/기준 시점 명시
+//
+// 사용:
+//   <BlufBox
+//     summary="사회초년생이 받을 수 있는 정부 지원금은 23건, 이 중 주거 분야가 9건으로 가장 많습니다."
+//     stats={[
+//       { value: '23건', label: '받을 수 있는 지원금' },
+//       { value: '9건', label: '주거 분야' },
+//       { value: '평균 320만원', label: '연간 지원금' },
+//     ]}
+//     basis="2026년 4월 기준"
+//   />
+//
+// 정체성: 독자 중심 카피 (feedback_reader_centric_copy 메모리 룰).
+// 추측 금지 — 데이터 기반 자동 계산만 출력.
+
+interface Stat {
+  value: string;
+  label: string;
+}
+
+interface Props {
+  /** 한 문장 요약 (80~120자 권장). 핵심 숫자 1개 이상 포함. */
+  summary: string;
+  /** 핵심 통계 (선택, 2~4건 권장) */
+  stats?: Stat[];
+  /** 기준 시점 / 출처 (선택, 예: "2026년 4월 기준") */
+  basis?: string;
+}
+
+const { summary, stats = [], basis } = Astro.props;
+---
+
+<aside class="bluf" aria-label="페이지 요약">
+  <p class="summary">{summary}</p>
+  {stats.length > 0 && (
+    <dl class="stats">
+      {stats.map((s) => (
+        <div class="stat">
+          <dt>{s.label}</dt>
+          <dd>{s.value}</dd>
+        </div>
+      ))}
+    </dl>
+  )}
+  {basis && <p class="basis">{basis}</p>}
+</aside>
+
+<style>
+  .bluf {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 24px;
+    margin: 0 0 32px;
+    max-width: 820px;
+  }
+
+  .summary {
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--text);
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px 20px;
+    margin: 16px 0 0;
+    padding: 0;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat dt {
+    font-size: 12px;
+    color: var(--text-2);
+    margin: 0;
+  }
+
+  .stat dd {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .basis {
+    font-size: 12px;
+    color: var(--text-2);
+    margin: 14px 0 0;
+  }
+
+  @media (max-width: 480px) {
+    .bluf {
+      padding: 16px 18px;
+    }
+    .summary {
+      font-size: 15.5px;
+    }
+    .stat dd {
+      font-size: 16px;
+    }
+  }
+</style>

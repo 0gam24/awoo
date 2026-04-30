@@ -1,4 +1,5 @@
 ---
+import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import CrossRefRail from '@/components/CrossRefRail.astro';
 import Icon from '@/components/Icon.astro';
@@ -80,6 +81,27 @@ const hubCategories = Object.entries(byCategory)
   .filter(([, v]) => v.count >= HUB_MIN)
   .sort((a, b) => b[1].count - a[1].count);
 
+// BLUF — 자동 통계 (추측 X, 매칭 데이터 기반)
+const topCategoryEntry = hubCategories[0];
+const totalAmount = matched.reduce((sum, s) => sum + (s.data.amount ?? 0), 0);
+const avgAmountWon = matched.length > 0 ? Math.round(totalAmount / matched.length) : 0;
+const avgAmountLabel =
+  avgAmountWon >= 100000000
+    ? `${(avgAmountWon / 100000000).toFixed(1)}억원`
+    : avgAmountWon >= 10000
+      ? `${Math.round(avgAmountWon / 10000)}만원`
+      : avgAmountWon > 0
+        ? `${avgAmountWon}원`
+        : null;
+const blufSummary = topCategoryEntry
+  ? `${p.label}이 받을 수 있는 정부 지원금은 ${matched.length}건이고, 이 중 ${topCategoryEntry[0]} 분야가 ${topCategoryEntry[1].count}건으로 가장 많습니다.`
+  : `${p.label}에게 매칭되는 정부 지원금 ${matched.length}건을 정리했습니다.`;
+const blufStats = [
+  { value: `${matched.length}건`, label: '받을 수 있는 지원금' },
+  ...(topCategoryEntry ? [{ value: `${topCategoryEntry[1].count}건`, label: `${topCategoryEntry[0]} 분야` }] : []),
+  ...(avgAmountLabel ? [{ value: avgAmountLabel, label: '평균 지원 규모' }] : []),
+];
+
 const breadcrumbs = [
   { name: '홈', href: '/' },
   { name: '지원금', href: '/subsidies/' },
@@ -114,8 +136,8 @@ const crossRefItems = [
 ---
 
 <BaseLayout
-  title={`${p.label} — 지원금가이드`}
-  description={`${p.label}(${p.sub})에게 매칭되는 정부 지원금 ${matched.length}개. ${p.pains.join(', ')} 문제 해결을 위한 정보 안내.`}
+  title={`${p.label} 정부 지원금 ${matched.length}건 — ${p.sub}`}
+  description={`${p.label}(${p.age}, ${p.income}, ${p.living})에게 매칭되는 정부 지원금 ${matched.length}건. ${p.pains.slice(0, 3).join(' · ')} 같은 고민을 위한 페르소나별 정리.`}
   activeNav="/subsidies/"
   breadcrumbs={breadcrumbs}
 >
@@ -147,6 +169,28 @@ const crossRefItems = [
 
   <section class="band">
     <Container size="wide">
+      <BlufBox summary={blufSummary} stats={blufStats} basis="2026년 4월 기준 · 보조금24 + 큐레이션" />
+
+      {p.pains.length > 0 && (
+        <section class="key-section">
+          <h2 class="key-h2">{p.label}이 자주 겪는 어려움</h2>
+          <p class="key-lead">정부 지원금을 찾는 사람들이 가장 많이 호소하는 고민입니다. 페이지 아래에서 분야별로 매칭되는 지원금을 정리했습니다.</p>
+          <ul class="pain-list">
+            {p.pains.map((pain) => <li>{pain}</li>)}
+          </ul>
+        </section>
+      )}
+
+      <section class="key-section">
+        <h2 class="key-h2">{p.label} 자격 요건 한눈에</h2>
+        <ul class="cond-list">
+          <li><strong>연령대</strong>: {p.age}</li>
+          <li><strong>소득 기준</strong>: {p.income}</li>
+          <li><strong>주거·환경</strong>: {p.living}</li>
+        </ul>
+        <p class="key-note">개별 지원금마다 세부 조건은 다릅니다. 각 지원금 상세에서 정확한 자격 요건을 확인하세요.</p>
+      </section>
+
       <h2 class="display">{p.label}이 받을 수 있는 지원금 {matched.length}개</h2>
       <ul class="subsidy-grid">
         {
@@ -331,6 +375,51 @@ const crossRefItems = [
     font-size: clamp(22px, 2.6vw, 30px);
     font-weight: 600;
     margin: 0 0 24px;
+  }
+
+  .key-section {
+    margin: 0 0 28px;
+    max-width: 820px;
+  }
+  .key-h2 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .key-lead {
+    font-size: 15px;
+    color: var(--text-2);
+    margin: 0 0 14px;
+    line-height: 1.65;
+  }
+  .key-note {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 12px 0 0;
+  }
+  .pain-list, .cond-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 10px;
+  }
+  .pain-list li, .cond-list li {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    font-size: 14.5px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .cond-list li strong {
+    color: var(--accent);
+    font-weight: 700;
+    margin-right: 6px;
   }
 
   .subsidy-grid {

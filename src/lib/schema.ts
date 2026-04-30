@@ -9,6 +9,65 @@
 
 const SITE_URL = 'https://awoo.or.kr';
 
+/**
+ * 운영 주체 — 푸터·about·schema에서 일관 사용 (코드 변경 시 단일 진실 소스).
+ * 메모리: project_entity (스마트데이터샵 / 김준혁 / 등록번호 / 동 단위 소재지)
+ */
+export const ORG = {
+  legalName: '스마트데이터샵',
+  founder: '김준혁',
+  taxID: '406-06-34485',
+  address: '인천광역시 계양구 새벌로 88, 효성동',
+  email: 'contact@awoo.or.kr',
+  url: SITE_URL,
+} as const;
+
+/**
+ * 사이트와이드 Organization JSON-LD — 모든 페이지에 1회 노출 (BaseLayout).
+ * AI 인용·지식 그래프·E-E-A-T 신호의 단일 entity 소스.
+ *
+ * @id 앵커로 다른 schema(GovernmentService.provider, NewsArticle.publisher 등)에서
+ * `{"@id": "https://awoo.or.kr/#organization"}` 참조하여 entity 일관성 유지.
+ */
+export function buildOrganization() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    '@id': `${SITE_URL}/#organization`,
+    name: '지원금가이드',
+    legalName: ORG.legalName,
+    url: SITE_URL,
+    logo: `${SITE_URL}/og-default.png`,
+    email: ORG.email,
+    taxID: ORG.taxID,
+    founder: { '@type': 'Person', name: ORG.founder },
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'KR',
+      addressLocality: '인천광역시 계양구',
+      streetAddress: '새벌로 88',
+    },
+    inLanguage: 'ko-KR',
+    description: '정부 지원금을 페르소나·상황 단위로 정리한 비영리 정보 안내 사이트.',
+  };
+}
+
+/**
+ * 사이트와이드 WebSite JSON-LD — sitelinks·entity 신호.
+ * SearchAction은 사이트 내 검색 라우트 부재로 생략 (가짜 신호 X).
+ */
+export function buildWebSite() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    '@id': `${SITE_URL}/#website`,
+    name: '지원금가이드',
+    url: SITE_URL,
+    inLanguage: 'ko-KR',
+    publisher: { '@id': `${SITE_URL}/#organization` },
+  };
+}
+
 export interface BreadcrumbItem {
   name: string;
   /** 절대 또는 상대 경로 ('/' 시작) */

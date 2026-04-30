@@ -114,6 +114,10 @@ const months = Object.keys(byMonth).sort().reverse();
   title={`오늘의 이슈 — 정부 지원금 정책 ${posts.length}건`}
   description="이번 주 가장 화제인 정부 지원금 정책 이슈를 한 페이지에서 확인하세요. 자격·금액·신청 방법까지 핵심 요약."
   activeNav="/issues/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '오늘의 이슈', href: '/issues/' },
+  ]}
 >
   <section class="band">
     <Container size="wide">
@@ -324,14 +328,7 @@ const months = Object.keys(byMonth).sort().reverse();
     margin: 0;
   }
 
-  /* 카테고리 컬러 토큰 — 카드 좌측 4px 바 */
-  .cat-주거   { --cat-color: var(--accent); }
-  .cat-자산   { --cat-color: #0891b2; }
-  .cat-교육   { --cat-color: #8b5cf6; }
-  .cat-창업   { --cat-color: #ea580c; }
-  .cat-복지   { --cat-color: #ec4899; }
-  .cat-취업   { --cat-color: #10b981; }
-  .cat-농업   { --cat-color: #d97706; }
+  /* .cat-* 카테고리 토큰은 global.css에서 일괄 정의 (라이트/다크 양쪽) */
 
   /* 다층 hero — 1위 lg + 2·3위 sm grid */
   .hero-section {

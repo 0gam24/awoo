@@ -1,4 +1,5 @@
 ---
+import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import CrossRefRail from '@/components/CrossRefRail.astro';
 import Icon from '@/components/Icon.astro';
@@ -55,6 +56,21 @@ const matched = scored
 
 const matchedPersonaData = personas.filter((p) => situation.matchedPersonas.includes(p.data.id));
 
+// BLUF 자동 통계
+const topCategoryFromMatched: Record<string, number> = {};
+for (const s of matched) {
+  topCategoryFromMatched[s.data.category] = (topCategoryFromMatched[s.data.category] ?? 0) + 1;
+}
+const topCategorySituation = Object.entries(topCategoryFromMatched).sort((a, b) => b[1] - a[1])[0];
+const blufStatsSituation = [
+  { value: `${matched.length}건`, label: '매칭된 지원금' },
+  ...(topCategorySituation ? [{ value: `${topCategorySituation[1]}건`, label: `${topCategorySituation[0]} 분야` }] : []),
+  { value: `${matchedPersonaData.length}명`, label: '관련 페르소나' },
+];
+const blufSummarySituation = topCategorySituation
+  ? `${situation.label} 상황에서 받을 수 있는 정부 지원금은 ${matched.length}건이고, ${topCategorySituation[0]} 분야가 ${topCategorySituation[1]}건으로 가장 많습니다.`
+  : `${situation.label} 상황에 매칭되는 정부 지원금 ${matched.length}건을 정리했습니다.`;
+
 // 다른 라이프 이벤트 (네비게이션)
 const otherSituations = (situations as Situation[]).filter((s) => s.id !== situation.id).slice(0, 8);
 
@@ -85,8 +101,8 @@ const crossRefItems = [
 ---
 
 <BaseLayout
-  title={`${situation.label} — 받을 수 있는 정부 지원금 ${matched.length}건`}
-  description={situation.description}
+  title={`${situation.label} 정부 지원금 ${matched.length}건 — ${situation.sub}`}
+  description={`${situation.label} 상황에서 받을 수 있는 정부 지원금 ${matched.length}건. ${situation.description}`}
   activeNav="/subsidies/"
   breadcrumbs={[
     { name: '홈', href: '/' },
@@ -109,6 +125,8 @@ const crossRefItems = [
           <p class="lead">{situation.description}</p>
         </div>
       </header>
+
+      <BlufBox summary={blufSummarySituation} stats={blufStatsSituation} basis="2026년 4월 기준 · 보조금24 + 큐레이션" />
 
       <div class="body-grid">
         <main class="body">

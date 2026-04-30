@@ -336,6 +336,50 @@ awoo/
 
 ---
 
+## 11-A. 운영 사이클 하네스 (2026-04-30~)
+
+본 프로젝트는 SEO/GEO 트래픽 성장을 KPI로 한 **수동 트리거 운영 사이클**을 사용한다.
+
+### 사용법
+사용자가 채팅에 "**사이클**" 또는 `/cycle`을 입력하면 Claude가:
+1. `ops/OPS_CYCLE.md`의 현재 phase 확인
+2. 다음 phase 자동 실행
+3. 산출물 `ops/`에 저장 + 커밋 (푸시 X)
+
+### Phase 흐름
+```
+PLAN (11 에이전트 소환) → REVIEW (격리·우선순위) → EXECUTE (P0 구현)
+  → OPERATE (audit 4종) → OBSERVE (지표·회귀) → 다음 PLAN
+```
+
+### 디렉토리
+- `ops/OPS_CYCLE.md` — 현재 phase·이력 (단일 진실 소스)
+- `ops/backlog-external.md` — 외부 의존·유료 항목 동결 (사이클 자동 격리)
+- `ops/proposals/{date}/` — PLAN 산출물 (에이전트별)
+- `ops/reviews/{date}.md` — REVIEW 합성
+- `ops/execute-log/{date}.md` — EXECUTE 결과
+- `ops/observations/{date}.md` — OPERATE+OBSERVE 지표
+
+### 신규 audit 스크립트 (외부 호출 0)
+- `npm run audit:links` — 내부 링크 그래프 (고립·딥페이지·dangling)
+- `npm run audit:schema` — JSON-LD 무결성
+- `npm run audit:llms` — llms.txt 신선도
+- `npm run audit:keywords` — persona/situation/category 키워드 커버리지
+
+### 디스패처
+- `npm run cycle:status` — 현재 phase·다음 phase 확인
+- `npm run cycle:advance` — 수동 phase 전이
+- `npm run cycle:reset` — cycle_no 1, phase PLAN 초기화
+
+### 푸시 정책
+- 모든 phase 로컬 커밋 자동, **푸시는 사용자 "푸쉬" 명시 시에만**
+- EXECUTE phase는 `cycle/{n}-{date}` 브랜치에서 작업
+
+### 외부 의존 키워드 자동 격리
+REVIEW phase는 PLAN 산출물에서 결제·외부 키 등록·계정 가입 등의 키워드를 정규식으로 매칭하여 발견 시 `backlog-external.md`로 자동 이관. 사이클은 절대 외부 의존 항목을 EXECUTE에 포함시키지 않는다.
+
+---
+
 ## 12. 변경 이력
 
 | 날짜 | 커밋 | 내용 |
@@ -351,6 +395,7 @@ awoo/
 | 2026-04-29 | `6f7a6a3` | Phase 5 — issues/main, 법적 페이지, sitemap, llms 자동 생성, OG PNG, UrgencyHook 애니 |
 | 2026-04-29 | `886c25d` | A11y target-size + content-visibility 측정 충돌 해소 |
 | 2026-04-29 | (이 커밋) | HANDOFF.md + AGENTS.md + memory 백업 |
+| 2026-04-30 | (이 커밋) | 운영 사이클 하네스 — `/cycle` + `ops/` + audit 4종 + 11 에이전트 PLAN 패턴 |
 
 ---
 
