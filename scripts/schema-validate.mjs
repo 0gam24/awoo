@@ -48,6 +48,11 @@ function extractJsonLd(html) {
   const re = /<script\s+type=("|')application\/ld\+json\1\s*>([\s\S]*?)<\/script>/gi;
   for (const m of html.matchAll(re)) {
     const text = m[2].trim();
+    // null literal 검출 — buildCollectionPage 빈 가드 누락 잠복 누수 차단
+    if (text === 'null') {
+      out.push({ ok: false, error: 'null_literal', snippet: 'JSON-LD null literal — falsy 가드 누락' });
+      continue;
+    }
     try {
       const parsed = JSON.parse(text);
       out.push({ ok: true, parsed });

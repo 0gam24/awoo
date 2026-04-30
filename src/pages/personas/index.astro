@@ -55,7 +55,7 @@ const collectionSchema = buildCollectionPage({
     { name: '페르소나', href: '/personas/' },
   ]}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  {collectionSchema && <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
 
   <section class="band">
     <Container size="wide">

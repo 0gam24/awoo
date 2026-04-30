@@ -80,7 +80,7 @@ const collectionSchema = buildCollectionPage({
     { name: '지원금', href: '/subsidies/' },
   ]}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  {collectionSchema && <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
 
   <section class="band">
     <Container size="wide">
