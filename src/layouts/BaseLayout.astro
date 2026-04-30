@@ -84,6 +84,9 @@ const siteName = '지원금가이드';
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/png" href="/favicon.svg" />
+    {/* Cycle #30: PWA manifest — Chrome installable, 빠른 재방문 신호 */}
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
 
     {/* RSS 피드 — 신규 지원금 + 이슈 포스트 별도 채널 */}
     <link rel="alternate" type="application/rss+xml" title="신규 정부 지원금" href="/feed.xml" />
