@@ -218,6 +218,22 @@ const crossRefItems = [
         }
       </ul>
 
+      {hubCategories.slice(0, 3).length > 0 && (
+        <section class="cat-h2-section">
+          <h2>{p.label}이 자주 받는 분야 Top 3</h2>
+          <ul class="cat-h2-list">
+            {hubCategories.slice(0, 3).map(([cat, v]) => (
+              <li>
+                <a href={`/subsidies/category/${encodeURIComponent(cat)}/persona/${p.id}/`}>
+                  <strong>{cat}</strong> 분야 <span>{v.count}건</span>
+                  {v.flagshipTitle && <em> · 대표: {v.flagshipTitle}</em>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {hubCategories.length > 0 && (
         <section class="hub-section">
           <h3 class="hub-title">카테고리별로 좁혀 보기</h3>
@@ -376,6 +392,40 @@ const crossRefItems = [
     font-weight: 600;
     margin: 0 0 24px;
   }
+
+  .cat-h2-section {
+    margin: 32px 0;
+    max-width: 820px;
+  }
+  .cat-h2-section h2 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    margin: 0 0 14px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .cat-h2-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .cat-h2-list a {
+    display: block;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text);
+    font-size: 15px;
+    transition: border-color 0.18s ease;
+  }
+  .cat-h2-list a:hover { border-color: var(--accent); }
+  .cat-h2-list strong { color: var(--accent); }
+  .cat-h2-list span { color: var(--text-2); font-size: 13px; }
+  .cat-h2-list em { color: var(--text-2); font-size: 13px; font-style: normal; }
 
   .key-section {
     margin: 0 0 28px;
