@@ -4,6 +4,7 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { MEDIAN_INCOME } from '@/data/site-data';
+import { buildWebApplication } from '@/lib/schema';
 import { getCollection } from 'astro:content';
 
 const subsidies = await getCollection('subsidies');
@@ -60,6 +61,21 @@ const EVENTS = [
   { key: '은퇴', icon: 'p-senior', tags: ['노후', '은퇴', '중장년', '시니어'] },
   { key: '입학', icon: 'cat-education', tags: ['학자금', '교육', '장학', '학비', '입학'] },
 ];
+
+// Cycle #5 P0-3: WebApplication schema — 인터랙티브 도구를 entity로 명시
+const webAppSchema = buildWebApplication({
+  name: '5분 진단 — 정부 지원금 매칭 도구',
+  description: `정부 지원금 ${subsidies.length}건을 페르소나·소득·관심분야·라이프이벤트 4질문으로 매칭. 5분 내 자동 추천. 개인정보 저장 0.`,
+  pageUrl: '/quick/',
+  applicationCategory: 'GovernmentApplication',
+  featureList: [
+    '페르소나 매칭',
+    '소득 구간 자동 계산',
+    'URL 해시 결과 공유',
+    '개인정보 저장 0',
+    '브라우저 내 계산',
+  ],
+});
 ---
 
 <BaseLayout
@@ -278,6 +294,12 @@ const EVENTS = [
       </div>
     </Container>
   </section>
+
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(webAppSchema)}
+  />
 </BaseLayout>
 
 <script is:inline define:vars={{ compactSubsidies, compactPersonas, MEDIAN_INCOME }}>
