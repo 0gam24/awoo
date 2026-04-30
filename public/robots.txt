@@ -54,3 +54,9 @@ User-agent: DaumBot
 Allow: /
 
 Sitemap: https://awoo.or.kr/sitemap-index.xml
+
+# AI 답변 엔진용 콘텐츠 인덱스 (Cycle #20)
+# llms.txt: 사이트맵 + 핵심 진입점 요약
+# llms-full.txt: 전체 콘텐츠 합본 (glossary, topics, subsidies 본문)
+# AI 크롤러는 우선 이 파일들을 읽어 사이트 컨텍스트 파악 가능
+# Reference: https://llmstxt.org/

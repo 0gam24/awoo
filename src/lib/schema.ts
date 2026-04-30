@@ -49,6 +49,24 @@ export function buildOrganization() {
     },
     inLanguage: 'ko-KR',
     description: '정부 지원금을 페르소나·상황 단위로 정리한 비영리 정보 안내 사이트.',
+    // Cycle #20: 영역 + 전문성 신호 (knowledge graph entity 강화)
+    areaServed: { '@type': 'Country', name: '대한민국', identifier: 'KR' },
+    knowsAbout: [
+      '정부 지원금',
+      '복지 제도',
+      '주거 지원',
+      '취업·창업 지원',
+      '청년 정책',
+      '신혼·육아 지원',
+      '저소득 복지',
+      '농업 지원',
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: ORG.email,
+      availableLanguage: ['ko'],
+    },
   };
 }
 
