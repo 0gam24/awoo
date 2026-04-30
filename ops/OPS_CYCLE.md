@@ -1,8 +1,8 @@
 ---
 phase: PLAN
-cycle_no: 6
+cycle_no: 7
 last_completed: OBSERVE
-last_completed_at: "2026-04-30 14:00:00"
+last_completed_at: "2026-04-30 15:00:00"
 next_command: /cycle
 trigger: manual
 goal: SEO/GEO 트래픽 성장 (외부 의존·유료 항목은 backlog-external.md로 격리)
@@ -46,6 +46,7 @@ PLAN → REVIEW → EXECUTE → OPERATE → OBSERVE → (PLAN 재진입, cycle_n
 | #3 | 2026-04-30 | 11 에이전트 / 11 proposals | P0 8건 / 외부격리 0건 | 8 P0 (브랜치 cycle/3-2026-04-30) | duplicate_@id 5→0 / FAQPage 80→124 / 고립 audit 31→4 / categories score 0→13 | 회귀 0건 / 다음 PLAN 인풋 11건 |
 | #4 | 2026-04-30 | 11 에이전트 / 11 proposals | P0 8건 / 외부격리 0건 | 8 P0 (브랜치 cycle/4-2026-04-30) | audit 5종 (heading 신규 218 페이지 위반 0) / GovService dateModified 119 / BreadcrumbList @id 210 / 홈 23.1→22.6KB | 회귀 0건 / 다음 PLAN 인풋 10건 |
 | #5 | 2026-04-30 | 11 에이전트 / 11 proposals | P0 8건 / 외부격리 0건 | 6 P0 (P0-2·5 Cycle #6 이월, 브랜치 cycle/5-2026-04-30) | audit 7종 (skip-link·rss 신규) / entity-graph 169 entity / HowTo·WebApp·AboutPage·Article 신규 4 schema | 회귀 0건 / 다음 PLAN 인풋 10건 |
+| #6 | 2026-04-30 | 11 에이전트 / 11 proposals | P0 8건 / 외부격리 0건 | 7 P0 (P0-6 Cycle #7 이월, 브랜치 cycle/6-2026-04-30) | inline-glossary 첫 가동·dangling 8→0·NewsArticle audience+mentions·persona H2 18건·llms-full categories 확장 | 회귀 1건 (.data 이중 접근) 즉시 수정 / 다음 PLAN 인풋 10건 |
 
 ## 안전장치
 

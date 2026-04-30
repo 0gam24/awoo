@@ -63,11 +63,11 @@ const EVENTS = [
 ];
 
 // Cycle #5 P0-3: WebApplication schema — 인터랙티브 도구를 entity로 명시
+// Cycle #6 P0-8: applicationCategory 기본값(BusinessApplication 표준) 사용 + additionalType=GovernmentService
 const webAppSchema = buildWebApplication({
   name: '5분 진단 — 정부 지원금 매칭 도구',
   description: `정부 지원금 ${subsidies.length}건을 페르소나·소득·관심분야·라이프이벤트 4질문으로 매칭. 5분 내 자동 추천. 개인정보 저장 0.`,
   pageUrl: '/quick/',
-  applicationCategory: 'GovernmentApplication',
   featureList: [
     '페르소나 매칭',
     '소득 구간 자동 계산',

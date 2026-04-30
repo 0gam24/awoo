@@ -32,6 +32,8 @@ const definedTermSetSchema = {
     name: i.data.term,
     description: i.data.shortDef,
     url: `https://awoo.or.kr/glossary/${i.data.id}/`,
+    // Cycle #6 P0-3: DefinedTermSet 역참조 (그래프 완결성)
+    inDefinedTermSet: { '@id': 'https://awoo.or.kr/glossary/#dts' },
   })),
 };
 

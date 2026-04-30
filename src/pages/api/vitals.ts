@@ -1,9 +1,16 @@
 import type { APIRoute } from 'astro';
 import { vitalsSchema } from '@/lib/api/validation';
+import { hashIp, getClientIp } from '@/lib/api/utils';
+import { checkRateLimit } from '@/lib/api/rate-limit';
 
 export const prerender = false;
 
 const ALLOWED_ORIGINS = ['https://awoo.or.kr', 'https://www.awoo.or.kr'];
+
+// Cycle #6 P0-7: vitals rate limit — IP 해시당 분당 60건 (정상 페이지뷰 여유)
+// 동일 출처 봇·탭 폭주 시 ANALYTICS writeDataPoint 비용 차단
+const RATE_LIMIT_MAX = 60;
+const RATE_LIMIT_WINDOW_SEC = 60;
 
 /**
  * Web Vitals beacon — `navigator.sendBeacon('/api/vitals', JSON.stringify(...))`로 호출.
@@ -17,6 +24,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const origin = request.headers.get('origin');
   if (origin && !ALLOWED_ORIGINS.includes(origin)) {
     return new Response(null, { status: 403 });
+  }
+
+  // Cycle #6 P0-7: IP 해시 rate limit (분당 60건, 메모리 백엔드)
+  const ip = getClientIp(request);
+  const ipHash = await hashIp(ip);
+  const rl = await Promise.resolve(checkRateLimit(`vitals:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC));
+  if (!rl.allowed) {
+    return new Response(null, { status: 429 });
   }
 
   let body: unknown;

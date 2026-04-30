@@ -99,6 +99,11 @@ const faqSchema = subsidyFaqs.length > 0 ? {
 const govSchema = {
   '@context': 'https://schema.org',
   '@type': 'GovernmentService',
+  '@id': `https://awoo.or.kr/subsidies/${s.id}/#govservice`,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': `https://awoo.or.kr/subsidies/${s.id}/`,
+  },
   name: s.title,
   serviceType: s.category,
   provider: {

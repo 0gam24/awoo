@@ -40,7 +40,7 @@ const definedTermSchema = {
   description: term.shortDef,
   url: `https://awoo.or.kr/glossary/${term.id}/`,
   inLanguage: 'ko-KR',
-  inDefinedTermSet: 'https://awoo.or.kr/glossary/#dts',
+  inDefinedTermSet: { '@id': 'https://awoo.or.kr/glossary/#dts' },
   alternateName: term.synonyms,
   termCode: term.id,
 };
