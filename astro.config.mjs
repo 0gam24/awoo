@@ -53,6 +53,8 @@ export default defineConfig({
     sitemap({
       changefreq: 'weekly',
       priority: 0.7,
+      // /issues/main/은 meta refresh redirect 라우트 — 인덱싱 노이즈 차단 (Cycle #2 P0-6)
+      filter: (page) => !page.endsWith('/issues/main/') && !page.endsWith('/demo/'),
       i18n: {
         defaultLocale: 'ko',
         locales: { ko: 'ko-KR' },

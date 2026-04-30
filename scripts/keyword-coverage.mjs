@@ -42,15 +42,19 @@ const categories = [];
 const siteDataPath = path.join(ROOT, 'src/data/site-data.ts');
 if (existsSync(siteDataPath)) {
   const td = readFileSync(siteDataPath, 'utf8');
-  const m = td.match(/CATEGORIES\s*[:=]\s*\[([\s\S]*?)\];?/);
+  // CATEGORIES 또는 CATEGORIES: Category[] = 형식 모두 매칭
+  // greedy match — 항목 내부의 commonEligibility[] 배열 ]에 의한 조기 종료 방지.
+  // 단 다음 export 까지로 한정 (안전 가드)
+  const m = td.match(/CATEGORIES(?:\s*:\s*[A-Za-z_][\w<>[\]\s,]*)?\s*=\s*\[([\s\S]*?)\n\];?/);
   if (m) {
     const blockText = m[1];
     const itemRe = /\{([^{}]*)\}/g;
     for (const im of blockText.matchAll(itemRe)) {
       const inner = im[1];
       const idM = inner.match(/id\s*:\s*['"]([^'"]+)['"]/);
-      const labelM = inner.match(/label\s*:\s*['"]([^'"]+)['"]/);
-      if (idM) categories.push({ id: idM[1], label: labelM ? labelM[1] : idM[1] });
+      // site-data.ts CATEGORIES는 `name` 필드 사용 (label X)
+      const nameM = inner.match(/name\s*:\s*['"]([^'"]+)['"]/);
+      if (idM) categories.push({ id: idM[1], label: nameM ? nameM[1] : idM[1] });
     }
   }
 }
