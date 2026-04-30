@@ -232,12 +232,15 @@ function generateSummary({ term, count, daysActive, totalCount, category, allArt
   const agg = aggregateArticles(allArticles);
 
   // 헤드라인 — 시청자 임팩트 우선순위
-  // 1) 다수 지자체 동시 시행 (사회적 증거 강함)
-  // 2) 며칠 연속 화제 (지속성)
-  // 3) 매체 주목 (단발성)
+  // 1) 다수 지자체 동시 시행 (지역 + 사회적 증거 결합)
+  // 2) Cycle #8 P0-8: 다수 매체 동시 보도 (≥ 4곳 → 사회적 증거 강)
+  // 3) 며칠 연속 화제 (지속성)
+  // 4) 매체 주목 (단발성)
   let headline;
   if (agg.cities.length >= 2) {
     headline = `${term} — ${agg.cities.length}개 지자체 동시 시행 중`;
+  } else if (agg.publisherCount >= 4) {
+    headline = `${term} — 주요 매체 ${agg.publisherCount}곳 동시 보도`;
   } else if (daysActive >= 5) {
     headline = `${term} — ${daysActive}일 연속 화제`;
   } else if (daysActive >= 3) {
@@ -262,6 +265,8 @@ function generateSummary({ term, count, daysActive, totalCount, category, allArt
   let hookCopy = null;
   if (agg.cities.length >= 2) {
     hookCopy = `${agg.cities[0]}·${agg.cities[1]} 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다.`;
+  } else if (agg.publisherCount >= 4) {
+    hookCopy = `${agg.publisherCount}개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요.`;
   } else if (matchedCount > 0) {
     hookCopy = '받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다.';
   } else if (daysActive >= 3) {

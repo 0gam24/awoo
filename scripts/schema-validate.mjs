@@ -176,7 +176,13 @@ for (const file of walkHtml(HTML_ROOT)) {
   }
 
   // 지원금 상세는 GovernmentService 또는 GovService 권장
-  if (/^\/subsidies\/[^/]+\/$/.test(route) && !route.includes('/category/') && !route.includes('/archived/')) {
+  // /subsidies/new/ 는 hub 페이지 (CollectionPage 사용) → 예외
+  if (
+    /^\/subsidies\/[^/]+\/$/.test(route) &&
+    !route.includes('/category/') &&
+    !route.includes('/archived/') &&
+    route !== '/subsidies/new/'
+  ) {
     if (!routeTypes.includes('GovernmentService') && !routeTypes.includes('GovService')) {
       warnings.push({ route, issue: 'subsidy_no_govservice' });
     }
