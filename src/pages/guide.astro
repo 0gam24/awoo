@@ -79,6 +79,7 @@ const howToSchema = buildHowTo({
   steps: steps.map((s) => ({
     name: s.t,
     text: s.d,
+    url: `/guide/#step-${s.n}`, // Cycle #36: HowToStep deep-link anchor
   })),
   tools: channels.map((c) => ({ name: c.name, sameAs: c.url })),
 });
@@ -168,15 +169,19 @@ const learningSchema = {
       </ul>
     </section>
 
-    <section class="section">
+    <section class="section" id="apply-flow">
       <h2>신청 흐름</h2>
       <ol class="steps">
         {
           steps.map((s) => (
-            <li class="step">
+            <li class="step" id={`step-${s.n}`}>
               <div class="step-num">{s.n}</div>
               <div>
-                <h3>{s.t}</h3>
+                <h3>
+                  <a class="step-anchor" href={`#step-${s.n}`} aria-label={`${s.t} 단계 직접 링크`}>
+                    {s.t}
+                  </a>
+                </h3>
                 <p>{s.d}</p>
               </div>
             </li>
@@ -370,6 +375,15 @@ const learningSchema = {
     font-size: 17px;
     font-weight: 600;
     margin: 0 0 6px;
+  }
+  /* Cycle #36: step anchor — HowToStep deep-link */
+  .step { scroll-margin-top: 80px; }
+  .step-anchor {
+    color: inherit;
+    text-decoration: none;
+  }
+  .step-anchor:hover {
+    color: var(--accent);
   }
 
   .step p {
