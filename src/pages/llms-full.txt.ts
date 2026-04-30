@@ -1,3 +1,6 @@
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
 import {
@@ -7,6 +10,61 @@ import {
   MEDIAN_INCOME,
 } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
+
+// 빌드타임 issues/{date}/{slug}.json 본문 합본 — Claude 생성 SEO/GEO 포스트
+// AI 답변 엔진(GPTBot/ClaudeBot/PerplexityBot)이 본문 청크 단위로 정확 인용
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ISSUES_DIR = path.resolve(__dirname, '../../src/data/issues');
+
+interface IssuePostSection {
+  heading: string;
+  lead?: string;
+  body?: string;
+}
+interface IssuePostFAQ {
+  q: string;
+  a: string;
+}
+interface IssuePostFile {
+  title?: string;
+  slug?: string;
+  metaDescription?: string;
+  tldr?: string[];
+  category?: string;
+  tags?: string[];
+  coreFacts?: { who?: string; amount?: string; deadline?: string; where?: string };
+  sections?: IssuePostSection[];
+  faq?: IssuePostFAQ[];
+}
+
+function loadRecentIssuePosts(maxDays = 30): Array<{ date: string; slug: string; data: IssuePostFile }> {
+  const out: Array<{ date: string; slug: string; data: IssuePostFile }> = [];
+  if (!existsSync(ISSUES_DIR)) return out;
+
+  const cutoffMs = Date.now() - maxDays * 24 * 60 * 60 * 1000;
+
+  for (const dateEntry of readdirSync(ISSUES_DIR, { withFileTypes: true })) {
+    if (!dateEntry.isDirectory()) continue;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateEntry.name)) continue;
+    const dateMs = new Date(dateEntry.name).getTime();
+    if (Number.isNaN(dateMs) || dateMs < cutoffMs) continue;
+
+    const dateDir = path.join(ISSUES_DIR, dateEntry.name);
+    for (const f of readdirSync(dateDir)) {
+      if (!f.endsWith('.json') || f.startsWith('_')) continue;
+      const slug = f.replace(/\.json$/, '');
+      try {
+        const data = JSON.parse(readFileSync(path.join(dateDir, f), 'utf8')) as IssuePostFile;
+        out.push({ date: dateEntry.name, slug, data });
+      } catch {
+        // skip malformed file
+      }
+    }
+  }
+
+  // 최신순
+  return out.sort((a, b) => b.date.localeCompare(a.date) || b.slug.localeCompare(a.slug));
+}
 
 export const prerender = true;
 
@@ -154,7 +212,7 @@ export const GET: APIRoute = async () => {
   lines.push('---');
   lines.push('');
 
-  // 추가 이슈
+  // 추가 이슈 (큐레이션 단신)
   lines.push('## 이번 주 이슈 (추가)');
   lines.push('');
   for (const iss of issues) {
@@ -167,6 +225,74 @@ export const GET: APIRoute = async () => {
   }
   lines.push('---');
   lines.push('');
+
+  // Claude 생성 SEO/GEO 포스트 본문 (최근 30일) — AI 답변 엔진 인용 청크
+  const issuePosts = loadRecentIssuePosts(30);
+  if (issuePosts.length > 0) {
+    lines.push(`## 트렌딩 이슈 SEO/GEO 포스트 — 최근 30일 (${issuePosts.length}건)`);
+    lines.push('');
+    lines.push('각 포스트는 BLUF·답변형 H2·table·FAQ 청크로 구성. 본문 단위로 정확 인용 가능.');
+    lines.push('');
+    for (const post of issuePosts) {
+      const d = post.data;
+      const url = `https://awoo.or.kr/issues/${post.date}/${post.slug}/`;
+      lines.push(`### [${post.date}] ${d.title ?? post.slug}`);
+      lines.push('');
+      if (d.metaDescription) {
+        lines.push(`> ${d.metaDescription}`);
+        lines.push('');
+      }
+      lines.push(`- 분류: ${d.category ?? '-'} · 본문: ${url}`);
+      if (d.tags && d.tags.length > 0) {
+        lines.push(`- 태그: ${d.tags.join(', ')}`);
+      }
+      lines.push('');
+
+      if (d.tldr && d.tldr.length > 0) {
+        lines.push('**TL;DR**');
+        for (const t of d.tldr) lines.push(`- ${t}`);
+        lines.push('');
+      }
+
+      if (d.coreFacts) {
+        lines.push('**핵심 사실 (Core Facts)**');
+        if (d.coreFacts.who) lines.push(`- 대상: ${d.coreFacts.who}`);
+        if (d.coreFacts.amount) lines.push(`- 금액: ${d.coreFacts.amount}`);
+        if (d.coreFacts.deadline) lines.push(`- 마감: ${d.coreFacts.deadline}`);
+        if (d.coreFacts.where) lines.push(`- 신청처: ${d.coreFacts.where}`);
+        lines.push('');
+      }
+
+      if (d.sections && d.sections.length > 0) {
+        for (const sec of d.sections) {
+          lines.push(`#### ${sec.heading}`);
+          lines.push('');
+          if (sec.lead) {
+            lines.push(`**${sec.lead}**`);
+            lines.push('');
+          }
+          if (sec.body) {
+            // 빈 줄 보존하면서 본문 정리 (AI 인용 시 청크 경계)
+            lines.push(sec.body.trim());
+            lines.push('');
+          }
+        }
+      }
+
+      if (d.faq && d.faq.length > 0) {
+        lines.push('**자주 묻는 질문**');
+        for (const f of d.faq) {
+          lines.push('');
+          lines.push(`**Q. ${f.q}**`);
+          lines.push(`A. ${f.a}`);
+        }
+        lines.push('');
+      }
+
+      lines.push('---');
+      lines.push('');
+    }
+  }
 
   // 운영 주체
   lines.push('## 운영 주체 / 편집 정책');
