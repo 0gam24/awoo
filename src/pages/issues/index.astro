@@ -98,14 +98,9 @@ const heroCards: HeroCard[] = trending.slice(0, 3).map((t, i) => ({
   topicHref: topicHref(t.term),
 }));
 
-// hero 영역 사용된 포스트 슬러그 set — 아카이브에서 중복 제거
-const heroPostKeys = new Set(
-  heroCards
-    .map((c) => (c.post ? `${c.post.date}/${c.post.slug}` : null))
-    .filter((x): x is string => x !== null),
-);
-const archivePosts = posts.filter((p) => !heroPostKeys.has(`${p.date}/${p.slug}`));
-const byMonth = archivePosts.reduce<Record<string, typeof posts>>((acc, p) => {
+// Cycle #23: 분석 포스트 좌측 본문에 모두 최신순 정렬 (hero 중복 허용 — 사용자 요청)
+// hero가 있어도 본문 list에도 같은 포스트가 보임. 시간 desc + 월별 그룹.
+const byMonth = posts.reduce<Record<string, typeof posts>>((acc, p) => {
   const ym = p.date.slice(0, 7);
   acc[ym] = acc[ym] ?? [];
   acc[ym].push(p);
@@ -260,9 +255,14 @@ const months = Object.keys(byMonth).sort().reverse();
               <a class="empty-link" href="/subsidies/new/">신규 지원금 둘러보기 →</a>
             </div>
           ) : (
-            months.map((ym) => (
-              <section class="month-block">
-                <h2 class="month-title">{ym.replace('-', '년 ')}월</h2>
+            <>
+              <div class="archive-head">
+                <h2 class="archive-title">분석 포스트 {posts.length}건 (최신순)</h2>
+                <a class="archive-all" href="/issues/all/">전체 아카이브 →</a>
+              </div>
+              {months.map((ym) => (
+                <section class="month-block">
+                  <h2 class="month-title">{ym.replace('-', '년 ')}월</h2>
                 <ul class="post-list">
                   {(byMonth[ym] ?? []).map((p) => (
                     <li>
@@ -291,7 +291,8 @@ const months = Object.keys(byMonth).sort().reverse();
                   ))}
                 </ul>
               </section>
-            ))
+              ))}
+            </>
           )}
         </main>
 
@@ -754,6 +755,33 @@ const months = Object.keys(byMonth).sort().reverse();
     font-weight: 500;
   }
   .empty-link:hover { text-decoration: underline; }
+
+  /* Cycle #23: archive 헤더 (전체 분석 포스트 라벨) */
+  .archive-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .archive-title {
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .archive-all {
+    color: var(--accent-link);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .archive-all:hover {
+    text-decoration: underline;
+  }
 
   .month-block { margin-bottom: 36px; }
   .month-title {
