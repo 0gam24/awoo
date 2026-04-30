@@ -2,7 +2,7 @@
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { formatWon } from '@/data/site-data';
+import { formatWon, CATEGORY_FAQS } from '@/data/site-data';
 import { isNew, isStale, getRegDateISO, getLastVerifiedKR, STALE_THRESHOLD_DAYS } from '@/lib/subsidies-meta';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -64,7 +64,8 @@ const matchedTopic = allTopics.find((t) => {
   return sameCategory && personaOverlap;
 })?.data ?? allTopics.find((t) => t.data.category === s.category)?.data;
 
-const subsidyFaqs = matchedTopic?.faq ?? [];
+// matchedTopic 0건일 때 카테고리 공통 FAQ로 fallback (Cycle #3 P0-3)
+const subsidyFaqs = matchedTopic?.faq ?? CATEGORY_FAQS[s.category] ?? [];
 const subsidyRejections = matchedTopic?.rejectionReasons ?? [];
 
 const faqSchema = subsidyFaqs.length > 0 ? {
