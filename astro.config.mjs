@@ -88,7 +88,11 @@ export default defineConfig({
       changefreq: 'weekly',
       priority: 0.7,
       // /issues/main/은 meta refresh redirect 라우트 — 인덱싱 노이즈 차단 (Cycle #2 P0-6)
-      filter: (page) => !page.endsWith('/issues/main/') && !page.endsWith('/demo/'),
+      // /preferences/ 는 Cycle #7에서 사용자 진입점 제거 + noindex — sitemap에서도 제외 (Cycle #12 P1-5)
+      filter: (page) =>
+        !page.endsWith('/issues/main/') &&
+        !page.endsWith('/demo/') &&
+        !page.endsWith('/preferences/'),
       i18n: {
         defaultLocale: 'ko',
         locales: { ko: 'ko-KR' },
@@ -108,7 +112,7 @@ export default defineConfig({
 
         // Cycle #11 P2-8: 토픽 hub lastSeen → lastmod
         const topicMatch = postPath.match(/^\/issues\/topics\/([^/]+)\/$/);
-        if (topicMatch) {
+        if (topicMatch?.[1]) {
           const term = decodeURIComponent(topicMatch[1]);
           if (topicHubLastmod.has(term)) {
             item.lastmod = topicHubLastmod.get(term);

@@ -1,10 +1,10 @@
 ---
 phase: PLAN
-cycle_no: 7
-last_completed: OBSERVE
-last_completed_at: "2026-04-30 15:00:00"
+cycle_no: 12
+last_completed: EXECUTE
+last_completed_at: "2026-04-30 23:30:00"
 next_command: /cycle
-trigger: manual
+trigger: manual+autonomous
 goal: SEO/GEO 트래픽 성장 (외부 의존·유료 항목은 backlog-external.md로 격리)
 ---
 
@@ -47,6 +47,13 @@ PLAN → REVIEW → EXECUTE → OPERATE → OBSERVE → (PLAN 재진입, cycle_n
 | #4 | 2026-04-30 | 11 에이전트 / 11 proposals | P0 8건 / 외부격리 0건 | 8 P0 (브랜치 cycle/4-2026-04-30) | audit 5종 (heading 신규 218 페이지 위반 0) / GovService dateModified 119 / BreadcrumbList @id 210 / 홈 23.1→22.6KB | 회귀 0건 / 다음 PLAN 인풋 10건 |
 | #5 | 2026-04-30 | 11 에이전트 / 11 proposals | P0 8건 / 외부격리 0건 | 6 P0 (P0-2·5 Cycle #6 이월, 브랜치 cycle/5-2026-04-30) | audit 7종 (skip-link·rss 신규) / entity-graph 169 entity / HowTo·WebApp·AboutPage·Article 신규 4 schema | 회귀 0건 / 다음 PLAN 인풋 10건 |
 | #6 | 2026-04-30 | 11 에이전트 / 11 proposals | P0 8건 / 외부격리 0건 | 7 P0 (P0-6 Cycle #7 이월, 브랜치 cycle/6-2026-04-30) | inline-glossary 첫 가동·dangling 8→0·NewsArticle audience+mentions·persona H2 18건·llms-full categories 확장 | 회귀 1건 (.data 이중 접근) 즉시 수정 / 다음 PLAN 인풋 10건 |
+| #7 | 2026-04-30 | 사용자 즉시 요청 5건 + 트렌딩 동작 고급화 | P0 9건 (사용자 명시 5 + 트렌딩 4) | 9 P0 (브랜치 cycle/7-2026-04-30): Footer/이메일/FeedbackWidget 카운트/POSTS_PER_DAY=1/dead text/3-tier 사이드바/매체수 정렬/원문 보도 섹션/7일 dedup | audit suite 0 violations | 회귀 0건 |
+| #8 | 2026-04-30 | 5 에이전트 진단 후속 | P0 8건 | 8 P0 (브랜치 cycle/8-2026-04-30): /quick UI 고급화·contact ADMIN_EMAIL fix·CollectionPage·TS 67→26·document.title 동적·mediaCount 헤드라인 | audit·biome 통과 | 회귀 0건 |
+| #9 | 2026-04-30 | 영구 포스트 관리 정책 + 1:1 매핑 | P0 5건 | 5 Step (브랜치 cycle/9-2026-04-30): NewsHero 영구 포스트 row·/issues/all/·archive 진입점·sync-issues.yml 자동화·thinness 완화 totalCount≥1·matchedSubsidiesByTerm | audit 218 페이지 통과 | 회귀 0건 |
+| #9b | 2026-04-30 | biome lint 정리 (CI 빨간불 해소) | 자동 fix 162파일 + 수동 8건 | (cycle/9-biome-fix-2026-04-30) focusTrap·feed-issues·sync-issues·indexnow·lint-content·inline-markdown | biome 0 errors | — |
+| #10 | 2026-04-30 | 5 에이전트 프론트엔드 점검 | P0 14건 | 14 P0-P2 (브랜치 cycle/10-2026-04-30): sync-issues secrets fix·NewsHero 다크모드·.tint-* 토큰화·/quick CLS 예약·:focus-visible·step focus·form aria·정책 description·gap 16·aria-pressed·recent-posts CLS·schema cap | 218 페이지·biome 0 | 회귀 0건 |
+| #11 | 2026-04-30 | SEO/GEO + 코드 위생 | P0 8건 | 8 P0-P2 (브랜치 cycle/11-2026-04-30): NewsArticle wordCount·보너스 포스팅 정책·TS 27→0·/issues/all 페이지네이션·매칭 점수 배지·sitemap lastmod | TS 0 / biome 0 / sitemap 영구 포스트 lastmod 정상 | 회귀 0건 |
+| #12 | 2026-04-30 | 회귀 정리 + 자동화 강화 | P0 6건 | 6 P0-P2 (브랜치 cycle/12-2026-04-30): astro.config TS·PAGE_SIZE·entity-graph biome ignore·lhci 7페이지 확장·web-vitals runbook·sync-issues IndexNow ping·/preferences·entity 양방향 검증 | TS 0 / biome 0 | 회귀 0건 |
 
 ## 안전장치
 

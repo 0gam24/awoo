@@ -1,8 +1,16 @@
 {
   "ci": {
     "collect": {
-      "staticDistDir": "./dist",
-      "url": ["http://localhost/index.html", "http://localhost/about/index.html"],
+      "staticDistDir": "./dist/client",
+      "url": [
+        "http://localhost/index.html",
+        "http://localhost/about/index.html",
+        "http://localhost/quick/index.html",
+        "http://localhost/issues/index.html",
+        "http://localhost/subsidies/index.html",
+        "http://localhost/personas/index.html",
+        "http://localhost/issues/all/index.html"
+      ],
       "numberOfRuns": 1,
       "settings": {
         "preset": "desktop",
