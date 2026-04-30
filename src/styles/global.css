@@ -188,6 +188,26 @@ html {
   }
 }
 
+/* Cycle #5 P0-6: prefers-contrast: more — WCAG 1.4.6 AAA 옵트인 사용자 대응 */
+@media (prefers-contrast: more) {
+  :root {
+    --text-2: var(--text);
+    --text-3: var(--text-2);
+    --border: var(--border-2);
+  }
+  [data-theme='dark'],
+  :root:not([data-theme='light']) {
+    --text-2: #ffffff;
+    --text-3: #e5e5e7;
+    --border: #6e6e73;
+  }
+  /* focus-visible 더 굵게 */
+  :focus-visible {
+    outline-width: 3px !important;
+    outline-offset: 2px !important;
+  }
+}
+
 body {
   font-family: var(--font-sans);
   font-size: 17px;

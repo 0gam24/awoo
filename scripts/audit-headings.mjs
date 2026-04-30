@@ -94,5 +94,5 @@ const summary = {
 };
 
 console.log(JSON.stringify(summary, null, 2));
-// 점진 도입: 위반 있어도 exit 0 (warn). 한 cycle 후 데이터 보고 strict 전환 결정
-process.exit(0);
+// Cycle #5 P0-6: strict 전환 — Cycle #4 데이터로 위반 0 확인됨
+process.exit(violations.length > 0 ? 1 : 0);

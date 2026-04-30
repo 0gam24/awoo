@@ -41,7 +41,9 @@
     "audit:schema": "node scripts/schema-validate.mjs",
     "audit:llms": "node scripts/llms-freshness.mjs",
     "audit:keywords": "node scripts/keyword-coverage.mjs",
-    "audit:headings": "node scripts/audit-headings.mjs"
+    "audit:headings": "node scripts/audit-headings.mjs",
+    "audit:skip-link": "node scripts/audit-skip-link.mjs",
+    "audit:a11y": "npm run audit:headings && npm run audit:skip-link"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",
