@@ -1,0 +1,323 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { type GetStaticPaths } from 'astro';
+import { getCollection, render } from 'astro:content';
+
+export const getStaticPaths = (async () => {
+  const guides = await getCollection('guides');
+  return guides.map((g) => ({
+    params: { slug: g.id },
+    props: { guide: g },
+  }));
+}) satisfies GetStaticPaths;
+
+const { guide } = Astro.props;
+const { Content } = await render(guide);
+const d = guide.data;
+const url = `https://awoo.or.kr/guides/${guide.id}/`;
+
+// Article schema (LearningResource 변형)
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  '@id': `${url}#article`,
+  mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+  headline: d.title,
+  description: d.description,
+  url,
+  inLanguage: 'ko-KR',
+  datePublished: d.publishedAt,
+  dateModified: d.updatedAt ?? d.publishedAt,
+  articleSection: d.category,
+  author: { '@type': 'Person', name: d.author, url: 'https://awoo.or.kr/editor/jjh/' },
+  publisher: { '@id': 'https://awoo.or.kr/#organization' },
+  isAccessibleForFree: true,
+  ...(d.isFlagship ? { educationalLevel: 'beginner', learningResourceType: 'Guide' } : {}),
+};
+
+// FAQ schema (있을 때만)
+const faqSchema = d.faq && d.faq.length > 0
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      '@id': `${url}#faq`,
+      mainEntity: d.faq.map((f) => ({
+        '@type': 'Question',
+        name: f.q,
+        acceptedAnswer: { '@type': 'Answer', text: f.a },
+      })),
+      speakable: { '@type': 'SpeakableSpecification', cssSelector: ['.tldr', '.faq-section'] },
+    }
+  : null;
+---
+
+<BaseLayout
+  title={`${d.title} | 지원금가이드`}
+  description={d.description}
+  activeNav="/guide/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '심층 가이드', href: '/guides/' },
+    { name: d.title, href: `/guides/${guide.id}/` },
+  ]}
+  ogType="article"
+  ogArticle={{
+    publishedTime: d.publishedAt,
+    modifiedTime: d.updatedAt ?? d.publishedAt,
+    author: d.author,
+    section: d.category,
+  }}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  {faqSchema && <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+
+  <article class="band">
+    <Container size="narrow">
+      <a class="back-link" href="/guides/">← 심층 가이드 목록</a>
+
+      <header class="hero">
+        <div class="meta">
+          {d.isFlagship && <span class="flagship-pill">flagship</span>}
+          <span class="cat-pill">{d.category}</span>
+          <span class="date">{(d.updatedAt ?? d.publishedAt).slice(0, 10)}</span>
+        </div>
+        <h1 class="title">{d.title}</h1>
+        <p class="lead">{d.description}</p>
+
+        <aside class="ai-disclosure" aria-label="편집 정책">
+          <span class="ai-icon" aria-hidden="true">✓</span>
+          <span class="ai-text">
+            편집책임자
+            <a href="/editor/jjh/">김준혁</a> 검수
+            <a class="ai-policy" href="/editorial-policy/">편집 정책</a>
+          </span>
+        </aside>
+      </header>
+
+      {d.tldr.length > 0 && (
+        <section class="tldr">
+          <div class="tldr-label">핵심 요약</div>
+          <ul>{d.tldr.map((t) => <li>{t}</li>)}</ul>
+        </section>
+      )}
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      {d.faq && d.faq.length > 0 && (
+        <section class="faq-section">
+          <h2>자주 묻는 질문</h2>
+          <dl>
+            {d.faq.map((f) => (
+              <Fragment>
+                <dt>{f.q}</dt>
+                <dd>{f.a}</dd>
+              </Fragment>
+            ))}
+          </dl>
+        </section>
+      )}
+    </Container>
+  </article>
+</BaseLayout>
+
+<style>
+  .band {
+    padding: 32px 0 80px;
+  }
+  .back-link {
+    display: inline-block;
+    color: var(--text-2);
+    font-size: 14px;
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover { text-decoration: underline; }
+
+  .hero {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    font-size: 13px;
+  }
+  .flagship-pill {
+    padding: 4px 12px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+  .cat-pill {
+    padding: 3px 10px;
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+  }
+  .date {
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .title {
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+  }
+  .lead {
+    font-size: 17px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+  .ai-disclosure {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: color-mix(in oklch, var(--accent), transparent 92%);
+    border: 1px solid color-mix(in oklch, var(--accent), transparent 78%);
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .ai-icon {
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+  }
+  .ai-text a {
+    color: var(--accent-link);
+    margin: 0 4px;
+  }
+  .ai-policy { margin-left: auto; }
+
+  .tldr {
+    margin: 24px 0;
+    padding: 20px 22px;
+    background: var(--surface-2);
+    border-left: 4px solid var(--accent);
+    border-radius: var(--radius-sm);
+  }
+  .tldr-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+  }
+  .tldr ul {
+    margin: 0;
+    padding-left: 18px;
+    line-height: 1.7;
+  }
+  .tldr li {
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .prose {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+  .prose :global(h2) {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    margin: 36px 0 14px;
+    letter-spacing: -0.01em;
+    scroll-margin-top: 80px;
+  }
+  .prose :global(h3) {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 24px 0 10px;
+  }
+  .prose :global(p) {
+    margin: 0 0 14px;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 22px;
+    margin: 0 0 14px;
+  }
+  .prose :global(li) {
+    margin-bottom: 6px;
+  }
+  .prose :global(a) {
+    color: var(--accent-link);
+  }
+  .prose :global(blockquote) {
+    margin: 16px 0;
+    padding: 12px 18px;
+    border-left: 3px solid var(--accent);
+    background: var(--surface-2);
+    color: var(--text-2);
+  }
+  .prose :global(code) {
+    font-family: ui-monospace, monospace;
+    font-size: 0.9em;
+    padding: 2px 6px;
+    background: var(--surface-2);
+    border-radius: 4px;
+  }
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+  }
+  .prose :global(th),
+  .prose :global(td) {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  .prose :global(th) {
+    background: var(--surface-2);
+    font-weight: 700;
+  }
+
+  .faq-section {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .faq-section h2 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    margin: 0 0 16px;
+  }
+  .faq-section dl {
+    margin: 0;
+  }
+  .faq-section dt {
+    font-weight: 700;
+    margin: 16px 0 6px;
+    color: var(--text);
+    font-size: 16px;
+  }
+  .faq-section dd {
+    margin: 0 0 14px;
+    color: var(--text-2);
+    line-height: 1.7;
+  }
+</style>

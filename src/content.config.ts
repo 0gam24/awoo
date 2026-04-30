@@ -130,4 +130,25 @@ const topics = defineCollection({
   }),
 });
 
-export const collections = { personas, subsidies, issues, glossary, topics };
+// Cycle #39: flagship guides — markdown 본문 + 자동 라우트·schema·llms 포함
+// 사용자가 src/content/guides/{slug}.md 작성 → 즉시 발행
+const guides = defineCollection({
+  // _template.md, _draft.md 등 underscore prefix 명시적 제외
+  loader: glob({ pattern: ['**/*.md', '!_*.md', '!**/_*.md'], base: 'src/content/guides' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    category: z.enum(['주거', '취업', '창업', '교육', '복지', '자산', '농업', '범용']),
+    persona: z.array(z.string()).optional(), // office-rookie, self-employed 등
+    relatedSubsidies: z.array(z.string()).optional(),
+    relatedTopics: z.array(z.string()).optional(),
+    publishedAt: z.string(),
+    updatedAt: z.string().optional(),
+    author: z.string().default('김준혁'),
+    tldr: z.array(z.string()).min(1).max(7),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).optional(),
+    isFlagship: z.boolean().default(false), // 심층 가이드 표시
+  }),
+});
+
+export const collections = { personas, subsidies, issues, glossary, topics, guides };

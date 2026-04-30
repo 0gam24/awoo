@@ -9,7 +9,7 @@
 //
 // 출력: stdout JSON. 위반 시 exit 1.
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -56,16 +56,17 @@ const DESC_MIN = 80;
 const DESC_MAX = 165;
 
 for (const f of files) {
-  const route = `/${path.relative(DIST, f).replace(/\\/g, '/').replace(/index\.html$/, '')}`;
+  const route = `/${path
+    .relative(DIST, f)
+    .replace(/\\/g, '/')
+    .replace(/index\.html$/, '')}`;
   if (EXCLUDE_PATTERNS.some((re) => re.test(route))) continue;
   const html = readFileSync(f, 'utf8');
   // noindex 페이지 제외
   if (/<meta\s+name=["']robots["']\s+content=["'][^"']*noindex/i.test(html)) continue;
 
   const titleMatch = html.match(/<title>([^<]+)<\/title>/);
-  const descMatch = html.match(
-    /<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i,
-  );
+  const descMatch = html.match(/<meta\s+name=["']description["']\s+content=["']([^"']+)["']/i);
   const title = titleMatch?.[1]?.trim() ?? '';
   const desc = descMatch?.[1]?.trim() ?? '';
 
@@ -126,7 +127,9 @@ console.log(JSON.stringify(report, null, 2));
 // - 중복 title: 검색 cannibalization 위험 — 향후 fail 전환 예정
 // - title/description 길이 위반: SEO 약점이지만 차단 X
 if (dupTitles.length > 0) {
-  console.warn(`\n[audit-titles] 중복 title ${dupTitles.length}건 (warning) — 후속 사이클 fail 예정`);
+  console.warn(
+    `\n[audit-titles] 중복 title ${dupTitles.length}건 (warning) — 후속 사이클 fail 예정`,
+  );
 }
 if (violations.length > 0) {
   console.warn(`\n[audit-titles] ${violations.length}건 length 위반 (warning)`);
