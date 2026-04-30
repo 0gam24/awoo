@@ -763,7 +763,7 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     margin-top: 6px;
   }
 
-  /* 실시간 인기 카드 */
+  /* 실시간 인기 카드 — Cycle #10 P0-2: 다크모드 대응 */
   .news-trend-card {
     position: relative;
     background: linear-gradient(180deg, #0071e3 0%, #003875 100%);
@@ -775,6 +775,17 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     gap: 16px;
     overflow: hidden;
     isolation: isolate;
+  }
+  /* 다크모드: 채도 낮춘 navy로 — 밝은 파란색 강요 회피 */
+  :global([data-theme='dark']) .news-trend-card {
+    background: linear-gradient(180deg, #1a3a5c 0%, #0a1e33 100%);
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .news-trend-card {
+      background: linear-gradient(180deg, #1a3a5c 0%, #0a1e33 100%);
+      border: 1px solid rgb(255 255 255 / 0.08);
+    }
   }
 
   .news-trend-card::before {
@@ -1111,7 +1122,10 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     padding: 0;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 12px;
+    /* Cycle #10 P2-9: 사이트 카드 그리드 리듬 16px 통일 */
+    gap: 16px;
+    /* Cycle #10 P2-11: 카드 height 변동에도 row 영역 유지 (CLS 0.05 방지) */
+    min-height: 180px;
   }
   .rp-card {
     position: relative;

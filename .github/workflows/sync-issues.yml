@@ -19,6 +19,9 @@ jobs:
     name: Fetch news + auto-curate today's issue
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    # job-level env hoisting — step-level if 조건에서 env.* 평가 가능
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
     steps:
       - uses: actions/checkout@v4
@@ -40,21 +43,18 @@ jobs:
       - name: Verify content (lint)
         run: npm run lint:content
 
-      # Cycle #9 Step 4: 1일 1개 영구 포스트 자동 생성
+      # Cycle #9 Step 4 / Cycle #10 P0-1: 1일 1개 영구 포스트 자동 생성
       # ANTHROPIC_API_KEY 미등록 시 graceful skip — sync 실패로 이어지지 않음.
       # POSTS_PER_DAY=1 + 7일 primary subsidy dedup (Cycle #7) 적용.
+      # NOTE: ANTHROPIC_API_KEY는 job-level env로 hoisting됨 → 조건이 정상 평가됨.
       - name: Generate permanent post
         id: generate
         if: ${{ env.ANTHROPIC_API_KEY != '' }}
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         continue-on-error: true
         run: npm run generate:issues
 
       - name: Skip notice (no ANTHROPIC_API_KEY)
         if: ${{ env.ANTHROPIC_API_KEY == '' }}
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           echo "::warning title=영구 포스트 생성 스킵::ANTHROPIC_API_KEY 미등록 — sync만 진행"
 

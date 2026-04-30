@@ -513,13 +513,14 @@ const blufStatsTopic = [
     background: var(--surface-2);
   }
 
-  .tint-주거 { background: rgb(0 113 227 / 0.12); color: var(--accent); }
-  .tint-자산 { background: rgb(8 145 178 / 0.12); color: #0891b2; }
-  .tint-교육 { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
-  .tint-창업 { background: rgb(234 88 12 / 0.12); color: #ea580c; }
-  .tint-복지 { background: rgb(236 72 153 / 0.12); color: #ec4899; }
-  .tint-취업 { background: rgb(16 185 129 / 0.12); color: #10b981; }
-  .tint-농업 { background: rgb(217 119 6 / 0.12); color: #d97706; }
+  /* Cycle #10 P0-3: 카테고리 색상 토큰화 — 다크모드 자동 대응 */
+  .tint-주거 { background: color-mix(in oklch, var(--cat-주거), transparent 88%); color: var(--cat-주거); }
+  .tint-자산 { background: color-mix(in oklch, var(--cat-자산), transparent 88%); color: var(--cat-자산); }
+  .tint-교육 { background: color-mix(in oklch, var(--cat-교육), transparent 88%); color: var(--cat-교육); }
+  .tint-창업 { background: color-mix(in oklch, var(--cat-창업), transparent 88%); color: var(--cat-창업); }
+  .tint-복지 { background: color-mix(in oklch, var(--cat-복지), transparent 88%); color: var(--cat-복지); }
+  .tint-취업 { background: color-mix(in oklch, var(--cat-취업), transparent 88%); color: var(--cat-취업); }
+  .tint-농업 { background: color-mix(in oklch, var(--cat-농업), transparent 88%); color: var(--cat-농업); }
 
   .body {
     padding: 16px 18px 18px;
