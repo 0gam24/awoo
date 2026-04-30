@@ -457,6 +457,10 @@ ${JSON.stringify(userInput, null, 2)}
         unmatched: fc.unmatched,
         at: new Date().toISOString(),
       });
+      // Cycle #4 P0-7: factCheckFails 누적 카운터 — OBSERVE phase에서 7일 추세 모니터링
+      const today = new Date().toISOString().slice(0, 10);
+      history.factCheckFails ??= {};
+      history.factCheckFails[today] = (history.factCheckFails[today] ?? 0) + 1;
       failed++;
       continue;
     }
