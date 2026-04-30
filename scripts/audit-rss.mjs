@@ -74,10 +74,14 @@ for (const feed of feeds) {
   for (const m of xml.matchAll(itemRe)) {
     if (itemIdx >= 5) break;
     const body = m[1];
-    if (!/<title>/.test(body)) violations.push({ feed: feed.name, issue: 'item_no_title', index: itemIdx });
-    if (!/<link>/.test(body)) violations.push({ feed: feed.name, issue: 'item_no_link', index: itemIdx });
-    if (!/<pubDate>/.test(body)) violations.push({ feed: feed.name, issue: 'item_no_pubDate', index: itemIdx });
-    if (!/<guid/.test(body)) violations.push({ feed: feed.name, issue: 'item_no_guid', index: itemIdx });
+    if (!/<title>/.test(body))
+      violations.push({ feed: feed.name, issue: 'item_no_title', index: itemIdx });
+    if (!/<link>/.test(body))
+      violations.push({ feed: feed.name, issue: 'item_no_link', index: itemIdx });
+    if (!/<pubDate>/.test(body))
+      violations.push({ feed: feed.name, issue: 'item_no_pubDate', index: itemIdx });
+    if (!/<guid/.test(body))
+      violations.push({ feed: feed.name, issue: 'item_no_guid', index: itemIdx });
     itemIdx++;
   }
 

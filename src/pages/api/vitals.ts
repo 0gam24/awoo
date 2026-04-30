@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { vitalsSchema } from '@/lib/api/validation';
-import { hashIp, getClientIp } from '@/lib/api/utils';
 import { checkRateLimit } from '@/lib/api/rate-limit';
+import { getClientIp, hashIp } from '@/lib/api/utils';
+import { vitalsSchema } from '@/lib/api/validation';
 
 export const prerender = false;
 
@@ -29,7 +29,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // Cycle #6 P0-7: IP 해시 rate limit (분당 60건, 메모리 백엔드)
   const ip = getClientIp(request);
   const ipHash = await hashIp(ip);
-  const rl = await Promise.resolve(checkRateLimit(`vitals:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC));
+  const rl = await Promise.resolve(
+    checkRateLimit(`vitals:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC),
+  );
   if (!rl.allowed) {
     return new Response(null, { status: 429 });
   }

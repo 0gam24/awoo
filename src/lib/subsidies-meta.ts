@@ -31,7 +31,7 @@ const m = manifest as Manifest;
 export function parseGovDate(s: string): number {
   if (!s) return 0;
   const match = s.match(/^(\d{4})(\d{2})(\d{2})/);
-  if (!match || !match[1] || !match[2] || !match[3]) return 0;
+  if (!match?.[1] || !match[2] || !match[3]) return 0;
   return new Date(+match[1], +match[2] - 1, +match[3]).getTime();
 }
 

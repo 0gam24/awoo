@@ -81,8 +81,9 @@ function loadHtml(routePath) {
 function extractSlots(html) {
   if (!html) return null;
   const titleM = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-  const metaM = html.match(/<meta[^>]*name=("|')description\1[^>]*content=("|')([\s\S]*?)\2/i)
-    || html.match(/<meta[^>]*content=("|')([\s\S]*?)\1[^>]*name=("|')description\3/i);
+  const metaM =
+    html.match(/<meta[^>]*name=("|')description\1[^>]*content=("|')([\s\S]*?)\2/i) ||
+    html.match(/<meta[^>]*content=("|')([\s\S]*?)\1[^>]*name=("|')description\3/i);
   const h1All = [...html.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi)].map((m) => stripTags(m[1]));
   const h2All = [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi)].map((m) => stripTags(m[1]));
   // body: <body>~</body> 사이 텍스트, script/style 제거

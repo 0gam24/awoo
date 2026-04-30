@@ -16,7 +16,7 @@
 //
 // 출력: stdout JSON, 정상 종료 0, 빌드 미완료 시 1
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -25,9 +25,7 @@ const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 
 // Astro Cloudflare 어댑터는 dist/ 직하 또는 dist/client/ 어느 쪽에 둘 수 있음
-const HTML_ROOT = existsSync(path.join(DIST, 'client'))
-  ? path.join(DIST, 'client')
-  : DIST;
+const HTML_ROOT = existsSync(path.join(DIST, 'client')) ? path.join(DIST, 'client') : DIST;
 
 if (!existsSync(HTML_ROOT)) {
   console.error('dist/ 미발견. 먼저 npm run build 실행 필요.');
@@ -106,8 +104,19 @@ const dangling = [];
 for (const target of incoming.keys()) {
   if (target.startsWith('/api/')) continue;
   if (target.startsWith('/_')) continue;
-  if (target.endsWith('.xml') || target.endsWith('.txt') || target.endsWith('.png') || target.endsWith('.svg') || target.endsWith('.ico') || target.endsWith('.webmanifest') || target.endsWith('.woff2') || target.endsWith('.json')) continue;
-  if (!routes.has(target)) dangling.push({ target, referrers: [...incoming.get(target)].slice(0, 3) });
+  if (
+    target.endsWith('.xml') ||
+    target.endsWith('.txt') ||
+    target.endsWith('.png') ||
+    target.endsWith('.svg') ||
+    target.endsWith('.ico') ||
+    target.endsWith('.webmanifest') ||
+    target.endsWith('.woff2') ||
+    target.endsWith('.json')
+  )
+    continue;
+  if (!routes.has(target))
+    dangling.push({ target, referrers: [...incoming.get(target)].slice(0, 3) });
 }
 
 // BFS 깊이 (홈 기준)
@@ -117,7 +126,7 @@ const queue = ['/'];
 while (queue.length) {
   const cur = queue.shift();
   const d = depth.get(cur);
-  for (const next of (outgoing.get(cur) || [])) {
+  for (const next of outgoing.get(cur) || []) {
     if (!routes.has(next)) continue;
     if (depth.has(next)) continue;
     depth.set(next, d + 1);
@@ -135,7 +144,9 @@ for (const route of routes) {
 const depths = [...depth.values()];
 const avgDepth = depths.length ? depths.reduce((a, b) => a + b, 0) / depths.length : 0;
 const maxDepth = depths.length ? Math.max(...depths) : 0;
-const deepPages = [...depth.entries()].filter(([, d]) => d >= 4).map(([r, d]) => ({ route: r, depth: d }));
+const deepPages = [...depth.entries()]
+  .filter(([, d]) => d >= 4)
+  .map(([r, d]) => ({ route: r, depth: d }));
 
 // 인기 페이지 (incoming count 기준 Top 20)
 const popularity = [...incoming.entries()]

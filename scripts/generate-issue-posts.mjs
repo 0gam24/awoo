@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * 오늘의 이슈 영구 포스트 생성 — Claude API + agents/seo-geo-news-poster.md
  *
@@ -22,8 +23,8 @@
  * PSI 호환: 빌드타임만. 런타임 API 호출 X.
  */
 
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -31,7 +32,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const AGENT_PATH = join(ROOT, 'agents', 'seo-geo-news-poster.md');
 const TODAY_ISSUE_PATH = join(ROOT, 'src', 'data', 'today-issue.json');
-const MANIFEST_PATH = join(ROOT, 'src', 'data', 'subsidies', '_gov24', '_manifest.json');
+const _MANIFEST_PATH = join(ROOT, 'src', 'data', 'subsidies', '_gov24', '_manifest.json');
 const CURATED_DIR = join(ROOT, 'src', 'data', 'subsidies', '_curated');
 const GOV24_DIR = join(ROOT, 'src', 'data', 'subsidies', '_gov24');
 const PERSONAS_PATH = join(ROOT, 'src', 'data', 'personas.json');
@@ -97,7 +98,7 @@ async function loadAllSubsidies() {
 }
 
 function matchSubsidies(headline, term, category, allSubsidies, limit = 6) {
-  const text = `${headline} ${term}`;
+  const _text = `${headline} ${term}`;
   const scored = allSubsidies.map((s) => {
     let score = 0;
     // 제목 매칭
@@ -182,7 +183,7 @@ async function loadRecentPrimaries(days = 7) {
 
 async function saveHistory(history) {
   await mkdir(dirname(HISTORY_PATH), { recursive: true });
-  await writeFile(HISTORY_PATH, JSON.stringify(history, null, 2) + '\n', 'utf8');
+  await writeFile(HISTORY_PATH, `${JSON.stringify(history, null, 2)}\n`, 'utf8');
 }
 
 function todayDateStr() {
@@ -223,13 +224,17 @@ async function fetchWithRetry(url, init, maxRetries = 3) {
       // 429/503/502/504 일시 실패만 재시도, 4xx는 즉시 throw
       if (![429, 502, 503, 504].includes(res.status)) return res;
       const wait = 1000 * 2 ** attempt; // 1s, 2s, 4s
-      console.warn(`[claude-retry] attempt ${attempt + 1} 실패 (HTTP ${res.status}), ${wait}ms 후 재시도`);
+      console.warn(
+        `[claude-retry] attempt ${attempt + 1} 실패 (HTTP ${res.status}), ${wait}ms 후 재시도`,
+      );
       await new Promise((r) => setTimeout(r, wait));
       lastErr = res;
     } catch (e) {
       // 네트워크 오류 등
       const wait = 1000 * 2 ** attempt;
-      console.warn(`[claude-retry] attempt ${attempt + 1} 네트워크 실패, ${wait}ms 후 재시도: ${e.message}`);
+      console.warn(
+        `[claude-retry] attempt ${attempt + 1} 네트워크 실패, ${wait}ms 후 재시도: ${e.message}`,
+      );
       await new Promise((r) => setTimeout(r, wait));
       lastErr = e;
     }
@@ -287,7 +292,9 @@ async function callClaude(systemPrompt, userPrompt, apiKey, staticContext = '') 
   if (!content) throw new Error('Empty Claude response');
   const usage = json.usage ?? {};
   if (usage.cache_creation_input_tokens || usage.cache_read_input_tokens) {
-    console.log(`[claude-cache] create=${usage.cache_creation_input_tokens ?? 0} read=${usage.cache_read_input_tokens ?? 0} input=${usage.input_tokens ?? 0} output=${usage.output_tokens ?? 0}`);
+    console.log(
+      `[claude-cache] create=${usage.cache_creation_input_tokens ?? 0} read=${usage.cache_read_input_tokens ?? 0} input=${usage.input_tokens ?? 0} output=${usage.output_tokens ?? 0}`,
+    );
   }
   return { content, usage };
 }
@@ -333,9 +340,7 @@ function factCheck(post, sourceArticles) {
   const claims = extractClaims(post);
   if (claims.length === 0) return { passed: true, score: 1, unmatched: [] };
 
-  const sourceText = sourceArticles
-    .map((a) => `${a.title ?? ''} ${a.description ?? ''}`)
-    .join(' ');
+  const sourceText = sourceArticles.map((a) => `${a.title ?? ''} ${a.description ?? ''}`).join(' ');
 
   const unmatched = [];
   let matched = 0;
@@ -357,7 +362,13 @@ function factCheck(post, sourceArticles) {
   const score = matched / claims.length;
   // 70% 이상 매칭이면 pass — 30%는 동의어·간접 표현 허용
   const passed = score >= 0.7;
-  return { passed, score: Number(score.toFixed(2)), unmatched: unmatched.slice(0, 10), totalClaims: claims.length, matched };
+  return {
+    passed,
+    score: Number(score.toFixed(2)),
+    unmatched: unmatched.slice(0, 10),
+    totalClaims: claims.length,
+    matched,
+  };
 }
 
 function parseJsonFromResponse(text) {
@@ -418,7 +429,9 @@ async function main() {
     JSON.stringify(CAT_TO_PERSONAS, null, 2),
   ].join('\n');
 
-  console.log(`📦 시스템 프롬프트 ${systemPrompt.length}자 / 정적 컨텍스트 ${staticContext.length}자 / 지원금 ${allSubsidies.length}건 / 페르소나 ${personas.length}건`);
+  console.log(
+    `📦 시스템 프롬프트 ${systemPrompt.length}자 / 정적 컨텍스트 ${staticContext.length}자 / 지원금 ${allSubsidies.length}건 / 페르소나 ${personas.length}건`,
+  );
 
   const trending = todayIssue.trending ?? [];
   if (trending.length === 0) {
@@ -469,13 +482,18 @@ async function main() {
 
     // 이력 정보 (이번 회차 update 전 상태로 daysActive 계산)
     const histEntry = history.byTerm[term];
-    const daysActive = (histEntry?.daysActive ?? 0) + (histEntry?.dailyCounts?.[date] === undefined ? 1 : 0);
+    const daysActive =
+      (histEntry?.daysActive ?? 0) + (histEntry?.dailyCounts?.[date] === undefined ? 1 : 0);
     const totalCount = (histEntry?.totalCount ?? 0) + count;
 
     // 다중 소스 종합 — Top 1 토픽이면 topTrendingArticles 전체 (10+건),
     // Top 2,3 토픽이면 topArticle + candidates 중 매칭 키워드 포함된 것
     let articlesForTopic;
-    if (idx === 0 && Array.isArray(todayIssue.topTrendingArticles) && todayIssue.topTrendingArticles.length > 0) {
+    if (
+      idx === 0 &&
+      Array.isArray(todayIssue.topTrendingArticles) &&
+      todayIssue.topTrendingArticles.length > 0
+    ) {
       articlesForTopic = todayIssue.topTrendingArticles;
     } else {
       const fromCandidates = (todayIssue.candidates ?? []).filter((c) => c.title?.includes(term));
@@ -537,7 +555,9 @@ ${JSON.stringify(userInput, null, 2)}
       console.warn(`⚠️ Claude 호출 실패: ${reason}`);
       if (isCI) {
         // GitHub Actions annotation — 워크플로 요약에 노출
-        console.log(`::warning title=Claude 포스트 생성 실패::${term} (${idx + 1}/${TOP_N}): ${reason}`);
+        console.log(
+          `::warning title=Claude 포스트 생성 실패::${term} (${idx + 1}/${TOP_N}): ${reason}`,
+        );
       }
       failures.push({
         rank: idx + 1,
@@ -596,7 +616,7 @@ ${JSON.stringify(userInput, null, 2)}
 
     // 7. 저장
     const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
-    await writeFile(outPath, JSON.stringify(post, null, 2) + '\n', 'utf8');
+    await writeFile(outPath, `${JSON.stringify(post, null, 2)}\n`, 'utf8');
     console.log(`✅ ${outPath}`);
 
     // 8. 히스토리 갱신
@@ -613,11 +633,15 @@ ${JSON.stringify(userInput, null, 2)}
 
   // 8. _history.json 저장
   await saveHistory(history);
-  console.log(`\n📊 ${success} 성공 / ${failed} 실패 / ${skippedDuplicates.length} 중복스킵 — 히스토리 갱신`);
+  console.log(
+    `\n📊 ${success} 성공 / ${failed} 실패 / ${skippedDuplicates.length} 중복스킵 — 히스토리 갱신`,
+  );
 
   // Cycle #7: 모든 후보가 중복이라 0건 성공 → 포스팅 자체 스킵 (사용자 요청: 다른 화제로도 안 만듦)
   if (success === 0 && skippedDuplicates.length > 0 && failed === 0) {
-    console.log(`📭 ${skippedDuplicates.length}개 후보 모두 7일 내 primary 중복 — 오늘 포스팅 없음`);
+    console.log(
+      `📭 ${skippedDuplicates.length}개 후보 모두 7일 내 primary 중복 — 오늘 포스팅 없음`,
+    );
     if (isCI && process.env.GITHUB_STEP_SUMMARY) {
       const lines = [
         `## 📭 오늘의 이슈 포스팅 없음 (전 후보 중복)`,
@@ -630,7 +654,7 @@ ${JSON.stringify(userInput, null, 2)}
       ];
       try {
         const { appendFile } = await import('node:fs/promises');
-        await appendFile(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+        await appendFile(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
       } catch {}
     }
   }
@@ -646,7 +670,7 @@ ${JSON.stringify(userInput, null, 2)}
       await mkdir(dirname(cachePath), { recursive: true });
       await writeFile(
         cachePath,
-        JSON.stringify(
+        `${JSON.stringify(
           {
             date,
             model: MODEL,
@@ -656,13 +680,14 @@ ${JSON.stringify(userInput, null, 2)}
               cache_read: totalRead,
               input: totalInput,
               output: totalOutput,
-              cache_hit_ratio: totalRead > 0 ? (totalRead / (totalCreate + totalRead)).toFixed(3) : '0',
+              cache_hit_ratio:
+                totalRead > 0 ? (totalRead / (totalCreate + totalRead)).toFixed(3) : '0',
             },
             calls_detail: cacheLog,
           },
           null,
           2,
-        ) + '\n',
+        )}\n`,
         'utf8',
       );
       console.log(`📝 Cache 로그 저장: ${cachePath} (read=${totalRead} create=${totalCreate})`);
@@ -676,7 +701,7 @@ ${JSON.stringify(userInput, null, 2)}
     const failPath = join(ISSUES_OUT_DIR, date, `_fail-${date}.json`);
     await writeFile(
       failPath,
-      JSON.stringify(
+      `${JSON.stringify(
         {
           date,
           model: MODEL,
@@ -687,7 +712,7 @@ ${JSON.stringify(userInput, null, 2)}
         },
         null,
         2,
-      ) + '\n',
+      )}\n`,
       'utf8',
     );
     console.log(`📝 실패 로그 저장: ${failPath}`);
@@ -702,11 +727,13 @@ ${JSON.stringify(userInput, null, 2)}
         '',
         '| 순위 | 토픽 | 사유 |',
         '|---|---|---|',
-        ...failures.map((f) => `| ${f.rank} | ${f.term} | ${f.reason.replace(/\|/g, '\\|').slice(0, 120)} |`),
+        ...failures.map(
+          (f) => `| ${f.rank} | ${f.term} | ${f.reason.replace(/\|/g, '\\|').slice(0, 120)} |`,
+        ),
       ];
       try {
         const { appendFile } = await import('node:fs/promises');
-        await appendFile(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+        await appendFile(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
       } catch {}
     }
   }

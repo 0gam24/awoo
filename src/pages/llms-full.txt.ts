@@ -1,11 +1,6 @@
 import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
-import {
-  CATEGORIES,
-  formatWon,
-  INCOME_THRESHOLDS,
-  MEDIAN_INCOME,
-} from '@/data/site-data';
+import { CATEGORIES, formatWon, INCOME_THRESHOLDS, MEDIAN_INCOME } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
 
 interface IssuePostSection {
@@ -32,12 +27,13 @@ interface IssuePostFile {
 // 빌드타임 issues/{date}/{slug}.json 본문 합본 — Claude 생성 SEO/GEO 포스트.
 // import.meta.glob로 Vite 정적 import (Cloudflare prerender 환경 호환 — node:fs 미사용).
 // AI 답변 엔진(GPTBot/ClaudeBot/PerplexityBot)이 본문 청크 단위로 정확 인용 가능.
-const issuePostModules = import.meta.glob<{ default: IssuePostFile }>(
-  '/src/data/issues/*/*.json',
-  { eager: true },
-);
+const issuePostModules = import.meta.glob<{ default: IssuePostFile }>('/src/data/issues/*/*.json', {
+  eager: true,
+});
 
-function loadRecentIssuePosts(maxDays = 30): Array<{ date: string; slug: string; data: IssuePostFile }> {
+function loadRecentIssuePosts(
+  maxDays = 30,
+): Array<{ date: string; slug: string; data: IssuePostFile }> {
   const out: Array<{ date: string; slug: string; data: IssuePostFile }> = [];
   const cutoffMs = Date.now() - maxDays * 24 * 60 * 60 * 1000;
 
@@ -203,9 +199,7 @@ export const GET: APIRoute = async () => {
   for (const c of CATEGORIES) {
     if (c.id === 'all') continue;
     const inCat = subsidies.filter((s) => s.data.category === c.id);
-    const top3 = [...inCat]
-      .sort((a, b) => (b.data.amount ?? 0) - (a.data.amount ?? 0))
-      .slice(0, 3);
+    const top3 = [...inCat].sort((a, b) => (b.data.amount ?? 0) - (a.data.amount ?? 0)).slice(0, 3);
     lines.push(`### ${c.name} (${inCat.length}건)`);
     lines.push('');
     if (c.description) {
@@ -220,7 +214,9 @@ export const GET: APIRoute = async () => {
     if (top3.length > 0) {
       lines.push('**대표 지원금**');
       for (const s of top3) {
-        lines.push(`- [${s.data.title}](https://awoo.or.kr/subsidies/${s.data.id}/) · ${s.data.agency}`);
+        lines.push(
+          `- [${s.data.title}](https://awoo.or.kr/subsidies/${s.data.id}/) · ${s.data.agency}`,
+        );
       }
       lines.push('');
     }

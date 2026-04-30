@@ -60,7 +60,9 @@ export function readPrefs(): AnonPrefs | null {
   }
 }
 
-export function writePrefs(patch: Partial<Omit<AnonPrefs, 'v' | 'createdAt' | 'lastUsedAt'>>): void {
+export function writePrefs(
+  patch: Partial<Omit<AnonPrefs, 'v' | 'createdAt' | 'lastUsedAt'>>,
+): void {
   if (typeof window === 'undefined') return;
   try {
     const now = Date.now();

@@ -14,7 +14,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // 빌드타임에 _gov24/_manifest.json 읽어 slug → regDate(ISO) 맵 구축
 // sitemap의 lastmod에 활용 (SEO/GEO 신선도 신호)
-let slugToLastmod = new Map();
+const slugToLastmod = new Map();
 try {
   const manifest = JSON.parse(
     readFileSync(join(__dirname, 'src/data/subsidies/_gov24/_manifest.json'), 'utf8'),

@@ -58,12 +58,12 @@ export function createFocusTrap(root: HTMLElement, opts: FocusTrapOptions = {}):
     if (e.key !== 'Tab') return;
 
     const tabbables = getTabbable();
-    if (tabbables.length === 0) {
+    const first = tabbables[0];
+    const last = tabbables[tabbables.length - 1];
+    if (!first || !last) {
       e.preventDefault();
       return;
     }
-    const first = tabbables[0]!;
-    const last = tabbables[tabbables.length - 1]!;
     const current = document.activeElement as HTMLElement | null;
 
     if (e.shiftKey) {
@@ -87,8 +87,9 @@ export function createFocusTrap(root: HTMLElement, opts: FocusTrapOptions = {}):
       document.addEventListener('keydown', handleKeyDown);
       // 첫 tabbable에 포커스 (없으면 root 자체)
       const tabbables = getTabbable();
-      if (tabbables.length > 0) {
-        tabbables[0]!.focus();
+      const firstTabbable = tabbables[0];
+      if (firstTabbable) {
+        firstTabbable.focus();
       } else if (root.tabIndex >= 0) {
         root.focus();
       }

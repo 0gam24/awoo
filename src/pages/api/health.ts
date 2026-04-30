@@ -1,5 +1,5 @@
-import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import type { APIRoute } from 'astro';
 
 export const prerender = false;
 
@@ -91,7 +91,7 @@ export const GET: APIRoute = async ({ locals }) => {
 };
 
 export const HEAD: APIRoute = async ({ locals }) => {
-  const env = (locals as { runtime?: { env?: Env } }).runtime?.env ?? {};
+  const _env = (locals as { runtime?: { env?: Env } }).runtime?.env ?? {};
   let ok = true;
   try {
     await getCollection('subsidies');

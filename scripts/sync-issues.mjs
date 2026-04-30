@@ -16,7 +16,7 @@
  * 보안: 키 값은 절대 출력 안 함.
  */
 
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -143,14 +143,27 @@ async function loadHistory() {
 // 매체명 추출 (URL 도메인 → 한국 매체)
 // ─────────────────────────────────────────────────────────────
 const PUBLISHER_MAP = {
-  'yna.co.kr': '연합뉴스', 'newsis.com': '뉴시스',
-  'kbs.co.kr': 'KBS', 'imnews.imbc.com': 'MBC', 'sbs.co.kr': 'SBS', 'ytn.co.kr': 'YTN',
-  'joongang.co.kr': '중앙일보', 'chosun.com': '조선일보', 'donga.com': '동아일보',
-  'hani.co.kr': '한겨레', 'khan.co.kr': '경향신문',
-  'hankyung.com': '한국경제', 'mk.co.kr': '매일경제', 'sedaily.com': '서울경제',
-  'jtbc.co.kr': 'JTBC', 'mbn.co.kr': 'MBN',
-  'mt.co.kr': '머니투데이', 'asiae.co.kr': '아시아경제', 'edaily.co.kr': '이데일리',
-  'newspim.com': '뉴스핌', 'kukinews.com': '쿠키뉴스',
+  'yna.co.kr': '연합뉴스',
+  'newsis.com': '뉴시스',
+  'kbs.co.kr': 'KBS',
+  'imnews.imbc.com': 'MBC',
+  'sbs.co.kr': 'SBS',
+  'ytn.co.kr': 'YTN',
+  'joongang.co.kr': '중앙일보',
+  'chosun.com': '조선일보',
+  'donga.com': '동아일보',
+  'hani.co.kr': '한겨레',
+  'khan.co.kr': '경향신문',
+  'hankyung.com': '한국경제',
+  'mk.co.kr': '매일경제',
+  'sedaily.com': '서울경제',
+  'jtbc.co.kr': 'JTBC',
+  'mbn.co.kr': 'MBN',
+  'mt.co.kr': '머니투데이',
+  'asiae.co.kr': '아시아경제',
+  'edaily.co.kr': '이데일리',
+  'newspim.com': '뉴스핌',
+  'kukinews.com': '쿠키뉴스',
 };
 function extractPublisher(link) {
   if (!link) return null;
@@ -170,9 +183,30 @@ function extractPublisher(link) {
 // ─────────────────────────────────────────────────────────────
 // 시·군·구 추출 노이즈 필터 — 일반 한국어 단어 중 시/군/구로 끝나는 것
 const CITY_NOISE_PREFIX = [
-  '공백에', '홍보', '제공', '진행', '서비스', '실현', '예고', '자료',
-  '향후', '다음', '실시', '주거', '가능', '대상', '시행', '관계',
-  '제출', '선정', '경우', '발표', '이용', '신청', '검토', '준비',
+  '공백에',
+  '홍보',
+  '제공',
+  '진행',
+  '서비스',
+  '실현',
+  '예고',
+  '자료',
+  '향후',
+  '다음',
+  '실시',
+  '주거',
+  '가능',
+  '대상',
+  '시행',
+  '관계',
+  '제출',
+  '선정',
+  '경우',
+  '발표',
+  '이용',
+  '신청',
+  '검토',
+  '준비',
 ];
 function isNoiseCity(city) {
   for (const noise of CITY_NOISE_PREFIX) {
@@ -183,7 +217,7 @@ function isNoiseCity(city) {
 
 function aggregateArticles(articles) {
   // 행정구역: 한글 2~4자 + 시/군/구, 뒤에 조사·구두점·공백이 와야 함 (조사 뒤따라야 정식 지명일 가능성↑)
-  const cityRe = /([가-힣]{2,4}(?:시|군|구))(?=[은는이가에의을를도과와로\s,\.\)\]·]|$)/g;
+  const cityRe = /([가-힣]{2,4}(?:시|군|구))(?=[은는이가에의을를도과와로\s,.)\]·]|$)/g;
   const cities = new Map(); // 출현 빈도
   const publishers = new Set();
   let newestTs = 0;
@@ -192,9 +226,8 @@ function aggregateArticles(articles) {
   for (const a of articles) {
     const text = `${a.title} ${a.description ?? ''}`;
     const seenInArticle = new Set();
-    let m;
     cityRe.lastIndex = 0;
-    while ((m = cityRe.exec(text)) !== null) {
+    for (let m = cityRe.exec(text); m !== null; m = cityRe.exec(text)) {
       const city = m[1];
       if (city.length < 2 || city.length > 5) continue;
       if (isNoiseCity(city)) continue;
@@ -228,7 +261,15 @@ function aggregateArticles(articles) {
 // ─────────────────────────────────────────────────────────────
 // summary 자동 생성 — 다중 기사 집계 + 헤드라인 패턴 분기 + 훅 카피
 // ─────────────────────────────────────────────────────────────
-function generateSummary({ term, count, daysActive, totalCount, category, allArticles, matchedCount }) {
+function generateSummary({
+  term,
+  count,
+  daysActive,
+  totalCount,
+  category,
+  allArticles,
+  matchedCount,
+}) {
   const agg = aggregateArticles(allArticles);
 
   // 헤드라인 — 시청자 임팩트 우선순위
@@ -304,12 +345,44 @@ function generateSummary({ term, count, daysActive, totalCount, category, allArt
 
 // 제목 필수 키워드 — 제목에 하나라도 없으면 정책성 뉴스로 보지 않음
 const TITLE_REQUIRED = [
-  '지원금', '보조금', '장려금', '수당', '급여', '바우처', '이용권',
-  '특별공급', '정책자금', '장학', '취업', '창업', '월세', '전세',
-  '신청', '공모', '모집', '발표', '시행', '확대', '인상', '신설',
-  '도약계좌', '저축계좌', '내일배움', '농업인', '귀농', '영농',
-  '민생', '재난', '에너지', '고유가', '유류세', '난방비',
-  '부모급여', '아동수당', '기초생활', '한부모',
+  '지원금',
+  '보조금',
+  '장려금',
+  '수당',
+  '급여',
+  '바우처',
+  '이용권',
+  '특별공급',
+  '정책자금',
+  '장학',
+  '취업',
+  '창업',
+  '월세',
+  '전세',
+  '신청',
+  '공모',
+  '모집',
+  '발표',
+  '시행',
+  '확대',
+  '인상',
+  '신설',
+  '도약계좌',
+  '저축계좌',
+  '내일배움',
+  '농업인',
+  '귀농',
+  '영농',
+  '민생',
+  '재난',
+  '에너지',
+  '고유가',
+  '유류세',
+  '난방비',
+  '부모급여',
+  '아동수당',
+  '기초생활',
+  '한부모',
 ];
 
 function titleHasPolicyTerm(title) {
@@ -345,19 +418,24 @@ function clean(text, maxLen = 0) {
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&');
   // 제어 문자 제거 (탭·개행 제외)
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: explicit control-char strip — HTML/JSON 안전성 + prompt injection 표면 축소
   s = s.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
   // javascript:·data: URI 스킴 흔적 무력화 (텍스트일 뿐이지만 토큰 절약)
   s = s.replace(/javascript:/gi, 'javascript_').replace(/data:/gi, 'data_');
   // 다중 공백 정리
   s = s.replace(/\s+/g, ' ').trim();
   if (maxLen > 0 && s.length > maxLen) {
-    s = s.slice(0, maxLen) + '…';
+    s = `${s.slice(0, maxLen)}…`;
   }
   return s;
 }
 
-function cleanTitle(t) { return clean(t, MAX_TITLE_LEN); }
-function cleanDesc(t) { return clean(t, MAX_DESC_LEN); }
+function cleanTitle(t) {
+  return clean(t, MAX_TITLE_LEN);
+}
+function cleanDesc(t) {
+  return clean(t, MAX_DESC_LEN);
+}
 
 // ─────────────────────────────────────────────────────────────
 // Naver News 검색 — 페이지네이션 (최대 100건/페이지, total ≤ 100)
@@ -390,8 +468,11 @@ function extractTrendingNgrams(articles) {
   for (const a of articles) {
     const title = a.title;
     for (const suffix of TRENDING_SUFFIXES) {
-      let idx = 0;
-      while ((idx = title.indexOf(suffix, idx)) !== -1) {
+      for (
+        let idx = title.indexOf(suffix);
+        idx !== -1;
+        idx = title.indexOf(suffix, idx + suffix.length)
+      ) {
         for (let preLen = 2; preLen <= 5; preLen++) {
           const start = idx - preLen;
           if (start < 0) continue;
@@ -403,7 +484,6 @@ function extractTrendingNgrams(articles) {
           const ngram = pre + suffix;
           counts.set(ngram, (counts.get(ngram) ?? 0) + 1);
         }
-        idx += suffix.length;
       }
     }
   }
@@ -414,13 +494,27 @@ function extractTrendingNgrams(articles) {
 // 매체 신뢰도 점수 (높을수록 신뢰)
 // ─────────────────────────────────────────────────────────────
 const TRUSTED_PUBLISHERS = {
-  '연합뉴스': 30,
-  '뉴시스': 25,
-  'KBS': 20, 'MBC': 20, 'SBS': 20, 'YTN': 20,
-  '중앙일보': 18, '조선일보': 18, '동아일보': 18, '한겨레': 18, '경향신문': 18,
-  '한국경제': 15, '매일경제': 15, '서울경제': 15,
-  'JTBC': 15, 'TV조선': 12, '채널A': 12, 'MBN': 12,
-  '머니투데이': 12, '아시아경제': 10, '이데일리': 10,
+  연합뉴스: 30,
+  뉴시스: 25,
+  KBS: 20,
+  MBC: 20,
+  SBS: 20,
+  YTN: 20,
+  중앙일보: 18,
+  조선일보: 18,
+  동아일보: 18,
+  한겨레: 18,
+  경향신문: 18,
+  한국경제: 15,
+  매일경제: 15,
+  서울경제: 15,
+  JTBC: 15,
+  TV조선: 12,
+  채널A: 12,
+  MBN: 12,
+  머니투데이: 12,
+  아시아경제: 10,
+  이데일리: 10,
 };
 
 function publisherScore(link) {
@@ -437,14 +531,34 @@ function publisherScore(link) {
 // 임팩트 키워드 점수
 // ─────────────────────────────────────────────────────────────
 const IMPACT_KEYWORDS = {
-  '인상': 15, '확대': 15, '증액': 15, '상향': 12,
-  '신설': 18, '신규': 12, '도입': 12, '시행': 10,
-  '개편': 10, '확산': 8, '강화': 8, '추가': 8,
-  '특별': 10, '첫': 10, '최대': 8, '역대': 12,
-  '발표': 8, '결정': 8, '확정': 10,
+  인상: 15,
+  확대: 15,
+  증액: 15,
+  상향: 12,
+  신설: 18,
+  신규: 12,
+  도입: 12,
+  시행: 10,
+  개편: 10,
+  확산: 8,
+  강화: 8,
+  추가: 8,
+  특별: 10,
+  첫: 10,
+  최대: 8,
+  역대: 12,
+  발표: 8,
+  결정: 8,
+  확정: 10,
   // 시기성/긴급
-  '민생': 14, '긴급': 12, '재난': 10, '비상': 10,
-  '지급': 8, '출시': 10, '시작': 8, '개시': 8,
+  민생: 14,
+  긴급: 12,
+  재난: 10,
+  비상: 10,
+  지급: 8,
+  출시: 10,
+  시작: 8,
+  개시: 8,
 };
 
 function keywordScore(text) {
@@ -477,17 +591,64 @@ function recencyScore(pubDate) {
 // 단독 모호한 한자(청/서/시 등) 제외 — 멀티자 키워드만
 // ─────────────────────────────────────────────────────────────
 const GOV_CONTEXT_KEYWORDS = [
-  '정부', '부처', '지자체', '광역', '시청', '구청', '도청', '군청',
-  '보건복지부', '국토교통부', '고용노동부', '기획재정부', '교육부', '여성가족부',
-  '농림축산식품부', '중소벤처기업부', '산업통상자원부', '환경부', '문화체육관광부',
-  '청년정책', '복지로', '정부24', '보조금24',
-  '시도', '시군구', '국정',
-  '대통령실', '국회', '여당', '야당',
-  '시행', '공모', '모집', '신청', '접수',
-  '지원금', '지원사업', '보조금', '장려금', '수당', '급여', '바우처', '이용권',
-  '특별공급', '정책자금', '국가장학금', '국민취업', '국민연금', '기초생활',
-  '특별재난', '재난지원', '민생', '긴급생계',
-  '국세청', '통계청', '경찰청', '병무청', '검찰청',
+  '정부',
+  '부처',
+  '지자체',
+  '광역',
+  '시청',
+  '구청',
+  '도청',
+  '군청',
+  '보건복지부',
+  '국토교통부',
+  '고용노동부',
+  '기획재정부',
+  '교육부',
+  '여성가족부',
+  '농림축산식품부',
+  '중소벤처기업부',
+  '산업통상자원부',
+  '환경부',
+  '문화체육관광부',
+  '청년정책',
+  '복지로',
+  '정부24',
+  '보조금24',
+  '시도',
+  '시군구',
+  '국정',
+  '대통령실',
+  '국회',
+  '여당',
+  '야당',
+  '시행',
+  '공모',
+  '모집',
+  '신청',
+  '접수',
+  '지원금',
+  '지원사업',
+  '보조금',
+  '장려금',
+  '수당',
+  '급여',
+  '바우처',
+  '이용권',
+  '특별공급',
+  '정책자금',
+  '국가장학금',
+  '국민취업',
+  '국민연금',
+  '기초생활',
+  '특별재난',
+  '재난지원',
+  '민생',
+  '긴급생계',
+  '국세청',
+  '통계청',
+  '경찰청',
+  '병무청',
+  '검찰청',
 ];
 
 function govContextScore(text) {
@@ -501,13 +662,43 @@ function govContextScore(text) {
 
 // 상업/기업 뉴스 페널티 — 키워드 매칭 시 큰 음수
 const COMMERCIAL_KEYWORDS = [
-  '삼성', 'LG', '현대차', '기아', 'SK', '롯데', 'CJ', '한화', '신세계', 'GS',
-  '포스코', '두산', 'OCI', '대한항공', '아시아나',
-  '주가', '코스피', '코스닥', '주식', '증권', '시가총액', '실적', '영업이익', '매출액',
-  '브랜드 출시', '신차', '신모델', '신제품',
-  '광고', '마케팅', '프로모션',
-  '인수합병', 'M&A', 'IPO',
-  '특허', '히트펌프', '반도체',
+  '삼성',
+  'LG',
+  '현대차',
+  '기아',
+  'SK',
+  '롯데',
+  'CJ',
+  '한화',
+  '신세계',
+  'GS',
+  '포스코',
+  '두산',
+  'OCI',
+  '대한항공',
+  '아시아나',
+  '주가',
+  '코스피',
+  '코스닥',
+  '주식',
+  '증권',
+  '시가총액',
+  '실적',
+  '영업이익',
+  '매출액',
+  '브랜드 출시',
+  '신차',
+  '신모델',
+  '신제품',
+  '광고',
+  '마케팅',
+  '프로모션',
+  '인수합병',
+  'M&A',
+  'IPO',
+  '특허',
+  '히트펌프',
+  '반도체',
 ];
 
 function commercialPenalty(text) {
@@ -631,7 +822,7 @@ async function main() {
   for (const [term, count] of ranked) {
     const matching = articles.filter((a) => a.title.includes(term));
     const scored = matching
-      .map((a) => scoreItem(a, deriveCategory(a.title + ' ' + a.description)))
+      .map((a) => scoreItem(a, deriveCategory(`${a.title} ${a.description}`)))
       .filter(Boolean)
       .sort((s1, s2) => s2.score - s1.score);
 
@@ -785,7 +976,7 @@ async function main() {
   };
 
   await mkdir(dirname(OUT_PATH), { recursive: true });
-  await writeFile(OUT_PATH, JSON.stringify(output, null, 2) + '\n', 'utf8');
+  await writeFile(OUT_PATH, `${JSON.stringify(output, null, 2)}\n`, 'utf8');
 
   console.log(`\n✅ 오늘의 이슈: [${topTrendTerm}] (${topTrendCount}회 언급, score ${top.score})`);
   console.log(`   카테고리: ${top.category}`);

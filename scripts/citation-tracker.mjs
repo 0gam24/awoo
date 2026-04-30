@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * AI 답변 엔진 인용 점유율 측정 — Perplexity API 기반.
  *
@@ -15,8 +16,8 @@
  * Cron 권장: 주 1회 (Sunday 23:00 UTC = 월요일 08:00 KST)
  */
 
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -217,7 +218,8 @@ async function main() {
   // 회차별 상세 저장
   await writeFile(
     join(OUT_DIR, `${today}.json`),
-    JSON.stringify({ date: today, model: MODEL, cited, total, failed, rate, results }, null, 2) + '\n',
+    JSON.stringify({ date: today, model: MODEL, cited, total, failed, rate, results }, null, 2) +
+      '\n',
     'utf-8',
   );
 
@@ -233,7 +235,7 @@ async function main() {
   if (summary.runs.length > 52) summary.runs = summary.runs.slice(-52);
   summary.lastRun = today;
   summary.latestRate = rate;
-  await writeFile(SUMMARY_PATH, JSON.stringify(summary, null, 2) + '\n', 'utf-8');
+  await writeFile(SUMMARY_PATH, `${JSON.stringify(summary, null, 2)}\n`, 'utf-8');
 
   // CI step summary
   if (process.env.GITHUB_STEP_SUMMARY) {
@@ -262,7 +264,7 @@ async function main() {
     ];
     try {
       const { appendFile } = await import('node:fs/promises');
-      await appendFile(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+      await appendFile(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
     } catch {}
   }
 }

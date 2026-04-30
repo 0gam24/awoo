@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
-import { errorJson, getClientIp, hashIp, isAllowedOrigin, json } from '@/lib/api/utils';
-import { checkRateLimit, rateLimitHeaders } from '@/lib/api/rate-limit';
 import { logError } from '@/lib/api/error-log';
+import { checkRateLimit, rateLimitHeaders } from '@/lib/api/rate-limit';
+import { errorJson, getClientIp, hashIp, isAllowedOrigin, json } from '@/lib/api/utils';
 import { feedbackSchema } from '@/lib/api/validation';
 
 export const prerender = false;
@@ -69,7 +69,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   });
   if (!rl.allowed) {
     return new Response(
-      JSON.stringify({ error: { code: 'rate_limited', detail: `${rl.retryAfterSeconds}초 후 재시도` } }),
+      JSON.stringify({
+        error: { code: 'rate_limited', detail: `${rl.retryAfterSeconds}초 후 재시도` },
+      }),
       {
         status: 429,
         headers: {

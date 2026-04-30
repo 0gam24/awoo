@@ -1,5 +1,5 @@
-import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
+import type { APIRoute } from 'astro';
 import { recentlyAddedSlugs } from '@/lib/subsidies-meta';
 
 const SITE = 'https://awoo.or.kr';
@@ -19,9 +19,14 @@ export const GET: APIRoute = async () => {
   // 최근 등록 30건
   const items = recentlyAddedSlugs(30)
     .map(({ slug, regDate }) => ({ s: bySlug.get(slug), regDate }))
-    .filter((x): x is { s: NonNullable<ReturnType<typeof bySlug.get>>; regDate: number } => x.s !== undefined);
+    .filter(
+      (x): x is { s: NonNullable<ReturnType<typeof bySlug.get>>; regDate: number } =>
+        x.s !== undefined,
+    );
 
-  const lastBuildISO = items[0]?.regDate ? new Date(items[0].regDate).toUTCString() : new Date().toUTCString();
+  const lastBuildISO = items[0]?.regDate
+    ? new Date(items[0].regDate).toUTCString()
+    : new Date().toUTCString();
 
   const xmlItems = items
     .map(({ s, regDate }) => {
@@ -39,7 +44,9 @@ export const GET: APIRoute = async () => {
     })
     .join('\n');
 
-  const lastBuildISOAtom = items[0]?.regDate ? new Date(items[0].regDate).toISOString() : new Date().toISOString();
+  const lastBuildISOAtom = items[0]?.regDate
+    ? new Date(items[0].regDate).toISOString()
+    : new Date().toISOString();
 
   // Cycle #4 P0-5: dc:creator + atom:updated 추가 — Google News·AI 큐레이터 author 메타
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

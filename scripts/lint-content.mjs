@@ -7,7 +7,7 @@
 //
 // 종료 코드: 0 (통과) / 1 (실패) — CI 게이트로 사용
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -20,8 +20,12 @@ const PERSONAS_FILE = path.join(ROOT, 'src/data/personas.json');
 const errors = [];
 const warnings = [];
 
-function err(msg) { errors.push(msg); }
-function warn(msg) { warnings.push(msg); }
+function err(msg) {
+  errors.push(msg);
+}
+function warn(msg) {
+  warnings.push(msg);
+}
 
 function readJson(file) {
   return JSON.parse(readFileSync(file, 'utf-8'));
@@ -51,12 +55,12 @@ function walkIssues(dir) {
       const dateName = entry.name;
       if (!/^\d{4}-\d{2}-\d{2}$/.test(dateName)) continue;
       for (const inner of readdirSync(full, { withFileTypes: true })) {
-        if (
-          inner.isFile() &&
-          inner.name.endsWith('.json') &&
-          !inner.name.startsWith('_')
-        ) {
-          out.push({ date: dateName, slug: inner.name.replace(/\.json$/, ''), file: path.join(full, inner.name) });
+        if (inner.isFile() && inner.name.endsWith('.json') && !inner.name.startsWith('_')) {
+          out.push({
+            date: dateName,
+            slug: inner.name.replace(/\.json$/, ''),
+            file: path.join(full, inner.name),
+          });
         }
       }
     }
@@ -296,16 +300,18 @@ for (const { date, slug, file } of issueFiles) {
 console.log('');
 if (warnings.length > 0) {
   console.log(`[lint] 경고 ${warnings.length}건:`);
-  warnings.forEach((w) => console.log(`  ⚠ ${w}`));
+  for (const w of warnings) console.log(`  ⚠ ${w}`);
 }
 if (errors.length > 0) {
   console.log('');
   console.log(`[lint] 에러 ${errors.length}건:`);
-  errors.forEach((e) => console.log(`  ✗ ${e}`));
+  for (const e of errors) console.log(`  ✗ ${e}`);
   console.log('');
   console.log('[lint] 빌드를 차단합니다.');
   process.exit(1);
 }
 
-console.log(`[lint] 통과 — 지원금 ${subsidyFiles.length}개 / 이슈 ${issueFiles.length}개 / 페르소나 ${personaIds.size}개`);
+console.log(
+  `[lint] 통과 — 지원금 ${subsidyFiles.length}개 / 이슈 ${issueFiles.length}개 / 페르소나 ${personaIds.size}개`,
+);
 process.exit(0);

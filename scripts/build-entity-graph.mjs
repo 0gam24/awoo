@@ -11,7 +11,7 @@
 //   - CrossRefRail 자동 주입 (P1, 향후 사이클)
 //   - llms-full.txt 섹션 헤더 graph 활용
 
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -219,7 +219,9 @@ const outPath = path.join(ROOT, 'src/data/entity-graph.json');
 writeFileSync(outPath, `${JSON.stringify(graph, null, 2)}\n`, 'utf8');
 
 console.log(`[entity-graph] 산출: ${outPath}`);
-console.log(`[entity-graph] entities: ${personas.length} personas / ${situations.length} situations / ${glossary.length} glossary / ${topics.length} topics / ${subsidies.length} subsidies`);
+console.log(
+  `[entity-graph] entities: ${personas.length} personas / ${situations.length} situations / ${glossary.length} glossary / ${topics.length} topics / ${subsidies.length} subsidies`,
+);
 console.log(`[entity-graph] stats:`, graph.stats);
 
 // dangling이 있어도 빌드는 통과 (정보성). schema-validate가 별도 가드.

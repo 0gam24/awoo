@@ -11,10 +11,10 @@
 //
 // 위반 시 process.exit(1) → CI 빌드 fail. 임계값 변경은 본 파일 + lighthouserc.json 동기.
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { gzipSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+import { gzipSync } from 'node:zlib';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -22,9 +22,9 @@ const DIST = path.join(ROOT, 'dist');
 const HTML_ROOT = existsSync(path.join(DIST, 'client')) ? path.join(DIST, 'client') : DIST;
 
 const THRESHOLDS = {
-  home_gzip_max: 50 * 1024,       // 50KB
-  page_gzip_max: 100 * 1024,      // 단일 페이지 100KB
-  page_gzip_avg_max: 70 * 1024,   // 평균 70KB
+  home_gzip_max: 50 * 1024, // 50KB
+  page_gzip_max: 100 * 1024, // 단일 페이지 100KB
+  page_gzip_avg_max: 70 * 1024, // 평균 70KB
 };
 
 if (!existsSync(HTML_ROOT)) {
@@ -95,8 +95,12 @@ const top10 = [...sizes].sort((a, b) => b.gzip - a.gzip).slice(0, 10);
 
 console.log('[bundle-size] HTML gzip size 검사');
 console.log(`  총 페이지: ${sizes.length}`);
-console.log(`  홈: ${homeSize !== null ? (homeSize / 1024).toFixed(1) : '?'} KB (한도 ${(THRESHOLDS.home_gzip_max / 1024).toFixed(0)} KB)`);
-console.log(`  평균: ${(avg / 1024).toFixed(1)} KB (한도 ${(THRESHOLDS.page_gzip_avg_max / 1024).toFixed(0)} KB)`);
+console.log(
+  `  홈: ${homeSize !== null ? (homeSize / 1024).toFixed(1) : '?'} KB (한도 ${(THRESHOLDS.home_gzip_max / 1024).toFixed(0)} KB)`,
+);
+console.log(
+  `  평균: ${(avg / 1024).toFixed(1)} KB (한도 ${(THRESHOLDS.page_gzip_avg_max / 1024).toFixed(0)} KB)`,
+);
 console.log('  상위 10:');
 for (const p of top10) {
   console.log(`    ${(p.gzip / 1024).toFixed(1).padStart(6)} KB  ${p.route}`);

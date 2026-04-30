@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * IndexNow 자동 ping — Bing·Yandex 등 IndexNow 호환 검색엔진 즉시 색인 요청
  *
@@ -20,8 +21,8 @@
  * Cloudflare 호환 — 빌드타임만 실행, 런타임 X.
  */
 
-import { readFile, writeFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -51,9 +52,7 @@ async function loadEnv() {
 async function findSitemaps(dir) {
   if (!existsSync(dir)) return [];
   const entries = await readdir(dir);
-  return entries
-    .filter((e) => /^sitemap.*\.xml$/.test(e))
-    .map((e) => join(dir, e));
+  return entries.filter((e) => /^sitemap.*\.xml$/.test(e)).map((e) => join(dir, e));
 }
 
 async function parseSitemap(filePath) {
@@ -61,8 +60,7 @@ async function parseSitemap(filePath) {
   const urls = [];
   // <url><loc>...</loc>...
   const locRegex = /<loc>([^<]+)<\/loc>/g;
-  let m;
-  while ((m = locRegex.exec(xml)) !== null) {
+  for (let m = locRegex.exec(xml); m !== null; m = locRegex.exec(xml)) {
     urls.push(m[1].trim());
   }
   return urls;
@@ -78,7 +76,7 @@ async function readState() {
 }
 
 async function writeState(state) {
-  await writeFile(STATE_PATH, JSON.stringify(state, null, 2) + '\n', 'utf-8');
+  await writeFile(STATE_PATH, `${JSON.stringify(state, null, 2)}\n`, 'utf-8');
 }
 
 async function pingIndexNow(key, urls) {
@@ -158,7 +156,9 @@ async function main() {
   for (const [i, batch] of batches.entries()) {
     const result = await pingIndexNow(key, batch);
     results.push(result);
-    console.log(`  · batch ${i + 1}/${batches.length}: ${result.count}건 → ${result.ok ? '✓' : '✗'} (status ${result.status})`);
+    console.log(
+      `  · batch ${i + 1}/${batches.length}: ${result.count}건 → ${result.ok ? '✓' : '✗'} (status ${result.status})`,
+    );
   }
 
   const okBatches = results.filter((r) => r.ok).length;
@@ -185,7 +185,7 @@ async function main() {
     ];
     try {
       const { appendFile } = await import('node:fs/promises');
-      await appendFile(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+      await appendFile(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
     } catch {}
   }
 }
