@@ -19,3 +19,23 @@
 # HTML — 엣지 캐시 + stale-while-revalidate
 /*.html
   Cache-Control: public, max-age=0, s-maxage=86400, stale-while-revalidate=604800
+
+# Cycle #34: SEO 핵심 파일 캐시 — sitemap·llms·feed (1시간 엣지 캐시 + SWR)
+/sitemap-index.xml
+  Cache-Control: public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400
+/sitemap-0.xml
+  Cache-Control: public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400
+/sitemap-news.xml
+  Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
+/llms.txt
+  Cache-Control: public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400
+/llms-full.txt
+  Cache-Control: public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400
+/feed.xml
+  Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
+/feed-issues.xml
+  Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
+/robots.txt
+  Cache-Control: public, max-age=86400
+/manifest.webmanifest
+  Cache-Control: public, max-age=86400
