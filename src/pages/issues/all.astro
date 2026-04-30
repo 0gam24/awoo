@@ -53,11 +53,13 @@ function readingTimeMin(post: PostMeta): number {
 }
 
 // CollectionPage + ItemList JSON-LD
+// Cycle #10 P2-14: Google rich result 권장 ItemList ≤ 100건 — 초과 시 schema는 100건만 노출 (페이지엔 전체 표시)
+const SCHEMA_ITEM_CAP = 100;
 const collectionSchema = buildCollectionPage({
   name: `오늘의 이슈 — 영구 포스트 ${posts.length}건`,
   description: `정부 지원금 정책 분석 포스트 ${posts.length}건 전체 아카이브`,
   pageUrl: '/issues/all/',
-  items: posts.map((p) => ({
+  items: posts.slice(0, SCHEMA_ITEM_CAP).map((p) => ({
     url: `/issues/${p.date}/${p.slug}/`,
     name: p.data.title,
   })),
@@ -88,11 +90,11 @@ const collectionSchema = buildCollectionPage({
 
       {sortedCats.length >= 2 && (
         <div class="cat-filter" data-cat-filter>
-          <span class="cat-filter-label">카테고리</span>
-          <div class="cat-filter-chips">
-            <button type="button" class="cf-chip active" data-cf-cat="">전체 {posts.length}</button>
+          <span class="cat-filter-label" id="cat-filter-label">카테고리</span>
+          <div class="cat-filter-chips" role="group" aria-labelledby="cat-filter-label">
+            <button type="button" class="cf-chip active" data-cf-cat="" aria-pressed="true">전체 {posts.length}</button>
             {sortedCats.map(([cat, n]) => (
-              <button type="button" class="cf-chip" data-cf-cat={cat}>{cat} {n}</button>
+              <button type="button" class="cf-chip" data-cf-cat={cat} aria-pressed="false">{cat} {n}</button>
             ))}
           </div>
         </div>
@@ -145,8 +147,12 @@ const collectionSchema = buildCollectionPage({
       filterEl.querySelectorAll('[data-cf-cat]').forEach((btn) => {
         btn.addEventListener('click', () => {
           const cat = btn.getAttribute('data-cf-cat');
-          filterEl.querySelectorAll('[data-cf-cat]').forEach((b) => b.classList.remove('active'));
+          filterEl.querySelectorAll('[data-cf-cat]').forEach((b) => {
+            b.classList.remove('active');
+            b.setAttribute('aria-pressed', 'false');
+          });
           btn.classList.add('active');
+          btn.setAttribute('aria-pressed', 'true');
           listEl.querySelectorAll<HTMLElement>('li[data-post-cat]').forEach((li) => {
             const liCat = li.getAttribute('data-post-cat');
             li.hidden = !!cat && liCat !== cat;

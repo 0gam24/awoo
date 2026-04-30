@@ -143,24 +143,27 @@ const webAppSchema = buildWebApplication({
             <h2 class="q">현재 상황과 가장 가까운 것은?</h2>
             <p class="q-sub">하나만 선택해주세요 · 매칭 정확도 가장 큰 영향</p>
           </div>
-          <div class="persona-grid">
-            {
-              compactPersonas.map((p) => (
-                <label class="persona-card" data-persona-card>
-                  <input type="radio" name="persona" value={p.id} />
-                  <div class={`p-icon bg-${p.bg}`}>
-                    <Icon name={p.icon} size={28} strokeWidth={1.5} />
-                  </div>
-                  <div class="p-text">
-                    <div class="p-label">{p.label}</div>
-                    <div class="p-sub">{p.sub}</div>
-                  </div>
-                  <span class="p-check" aria-hidden="true">✓</span>
-                </label>
-              ))
-            }
-          </div>
-          <div class="error-msg" data-error-msg hidden>페르소나를 하나 선택해주세요</div>
+          <fieldset class="persona-fieldset" aria-describedby="cf-persona-error">
+            <legend class="sr-only">페르소나 선택</legend>
+            <div class="persona-grid">
+              {
+                compactPersonas.map((p) => (
+                  <label class="persona-card" data-persona-card>
+                    <input type="radio" name="persona" value={p.id} />
+                    <div class={`p-icon bg-${p.bg}`}>
+                      <Icon name={p.icon} size={28} strokeWidth={1.5} />
+                    </div>
+                    <div class="p-text">
+                      <div class="p-label">{p.label}</div>
+                      <div class="p-sub">{p.sub}</div>
+                    </div>
+                    <span class="p-check" aria-hidden="true">✓</span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+          <div id="cf-persona-error" class="error-msg" data-error-msg hidden role="alert">페르소나를 하나 선택해주세요</div>
         </div>
 
         <!-- Step 2: 가구·소득 -->
@@ -413,6 +416,13 @@ const webAppSchema = buildWebApplication({
       btnSubmit.hidden = n !== TOTAL_STEPS;
     }
     window.scrollTo({ top: root.offsetTop - 80, behavior: 'smooth' });
+    // Cycle #10 P1-6: 키보드 사용자 단계 전환 인지 — 헤딩으로 포커스 이동
+    const sel = n === 'result' ? '[data-step="result"] .result-title' : `[data-step="${n}"] .q`;
+    const heading = root.querySelector(sel);
+    if (heading) {
+      heading.setAttribute('tabindex', '-1');
+      heading.focus({ preventScroll: true });
+    }
   }
 
   function validateStep(n) {
@@ -1304,6 +1314,14 @@ const webAppSchema = buildWebApplication({
     color: var(--accent);
     margin: 0 0 12px;
   }
+  /* fieldset 기본 스타일 무효화 (Cycle #10 P1-7 — aria 의미만 사용) */
+  .persona-fieldset {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+  }
+
   /* 결과 요약 — 4 stat grid (Cycle #8 P0-1) */
   .result-summary-grid {
     display: grid;
@@ -1345,6 +1363,8 @@ const webAppSchema = buildWebApplication({
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
+    /* Cycle #10 P1-4: 필터 chip 클릭 시 CLS 방지 */
+    min-height: 76px;
   }
   .result-filter-label {
     font-size: 12px;
@@ -1385,7 +1405,11 @@ const webAppSchema = buildWebApplication({
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 14px;
     margin-bottom: 24px;
+    /* Cycle #10 P1-4: 필터링 시 카드 수 감소해도 영역 유지 (CLS 방지) */
+    min-height: 320px;
   }
+  /* 카드 0개일 때 min-height 무효화 — empty state는 result-empty로 분기 */
+  .result-top3:empty { min-height: 0; }
   .result-hero {
     display: flex;
     flex-direction: column;
