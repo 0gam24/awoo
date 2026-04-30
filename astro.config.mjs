@@ -53,6 +53,8 @@ export default defineConfig({
     sitemap({
       changefreq: 'weekly',
       priority: 0.7,
+      // /issues/main/은 meta refresh redirect 라우트 — 인덱싱 노이즈 차단 (Cycle #2 P0-6)
+      filter: (page) => !page.endsWith('/issues/main/') && !page.endsWith('/demo/'),
       i18n: {
         defaultLocale: 'ko',
         locales: { ko: 'ko-KR' },
@@ -83,7 +85,7 @@ export default defineConfig({
           path === '/categories/' ||
           path === '/topics/'
         ) {
-          item.changefreq = 'daily';
+          item.changefreq = /** @type {any} */ ('daily');
           item.priority = 0.9;
           return item;
         }
@@ -98,7 +100,7 @@ export default defineConfig({
           /^\/topics\/[^/]+\/$/.test(path) ||
           /^\/subsidies\/category\/[^/]+\/persona\/[^/]+\/$/.test(path)
         ) {
-          item.changefreq = 'weekly';
+          item.changefreq = /** @type {any} */ ('weekly');
           item.priority = 0.8;
           return item;
         }
@@ -117,7 +119,7 @@ export default defineConfig({
           path === '/terms/' ||
           /^\/glossary\/[^/]+\/$/.test(path)
         ) {
-          item.changefreq = 'monthly';
+          item.changefreq = /** @type {any} */ ('monthly');
           item.priority = 0.5;
           return item;
         }

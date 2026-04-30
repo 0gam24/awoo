@@ -142,6 +142,8 @@ import Container from '@/components/Container.astro';
       uh-word-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
       uh-pulse-glow 1.6s ease-in-out 1.4s infinite;
     animation-delay: calc(0.25s + var(--i, 0) * 0.07s), 1.4s;
+    /* text-shadow 펄스 paint 격리 — LCP 직후 메인 스레드 reflow 비용 0 */
+    contain: layout style;
   }
 
   @keyframes uh-fade-in {

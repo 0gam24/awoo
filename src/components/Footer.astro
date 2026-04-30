@@ -1,4 +1,6 @@
 ---
+import { CATEGORIES } from '@/data/site-data';
+
 const SITE = {
   name: '지원금가이드',
   legalName: '스마트데이터샵',
@@ -8,14 +10,22 @@ const SITE = {
   email: 'contact@awoo.or.kr',
 };
 
+// CATEGORIES에서 'all' 제외한 7종 — Footer 분야별 hub 진입점
+const categoryLinks = CATEGORIES.filter((c) => c.id !== 'all').map((c) => ({
+  href: `/categories/${encodeURIComponent(c.id)}/`,
+  label: c.id, // 짧은 라벨 (주거·자산 등)
+}));
+
 const links = [
-  // 카테고리 4종 (TopBar 와 일관)
+  // 메인 메뉴 (TopBar 와 일관)
   [
     { href: '/', label: '홈' },
     { href: '/issues/', label: '오늘의 이슈' },
     { href: '/subsidies/', label: '지원금' },
     { href: '/guide/', label: '가이드' },
   ],
+  // 분야별 (카테고리 hub — 고립 페이지 7건 inbound 확보)
+  categoryLinks,
   // 사이트 정보
   [
     { href: '/about/', label: '사이트 소개' },
@@ -102,18 +112,24 @@ const year = new Date().getFullYear();
 
   .footer-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    gap: 40px;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 32px;
     margin-bottom: 40px;
   }
 
-  @media (max-width: 720px) {
+  @media (max-width: 960px) {
     .footer-grid {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 32px 24px;
     }
     .brand-block {
       grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
     }
   }
 

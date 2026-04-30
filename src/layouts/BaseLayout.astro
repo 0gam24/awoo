@@ -119,9 +119,14 @@ const siteName = '지원금가이드';
     <Footer />
     <HotkeyNav />
 
-    {/* Web Vitals beacon — 사용자 액션 후 sendBeacon 발송, PSI Lab 점수 무관 */}
+    {/* Web Vitals beacon — idle 시점에 import (TBT 측정창 안에 들어가지 않게) */}
     <script>
-      import('@/lib/vitals').then((m) => m.initVitals()).catch(() => {});
+      const _initVitals = () => import('@/lib/vitals').then((m) => m.initVitals()).catch(() => {});
+      if ('requestIdleCallback' in window) {
+        (window as Window).requestIdleCallback(_initVitals, { timeout: 3000 });
+      } else {
+        setTimeout(_initVitals, 2500);
+      }
     </script>
   </body>
 </html>

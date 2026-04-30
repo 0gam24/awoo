@@ -120,6 +120,8 @@ export function buildCollectionPage(opts: {
   pageUrl: string;
   items: ItemListEntry[];
 }) {
+  // 빈 ItemList는 Google rich-result 가이드라인 위반 가능 — null 반환으로 호출부 분기
+  if (opts.items.length === 0) return null;
   const absolute = (href: string) => (href.startsWith('http') ? href : `${SITE_URL}${href}`);
   return {
     '@context': 'https://schema.org',

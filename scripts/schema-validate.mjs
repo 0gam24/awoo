@@ -85,6 +85,7 @@ let totalLd = 0;
 let parseFails = 0;
 let pagesWithLd = 0;
 let pagesWithoutLd = 0;
+let duplicateIdCount = 0;
 
 for (const file of walkHtml(HTML_ROOT)) {
   const route = htmlPathToRoute(file);
@@ -101,6 +102,7 @@ for (const file of walkHtml(HTML_ROOT)) {
   pagesWithLd++;
 
   const routeTypes = [];
+  const idsInPage = new Map(); // @id -> count (페이지 내 @id 중복 가드)
   for (const b of blocks) {
     totalLd++;
     if (!b.ok) {
@@ -114,6 +116,10 @@ for (const file of walkHtml(HTML_ROOT)) {
       if (typeof it !== 'object' || !it) continue;
       const ctx = it['@context'];
       const type = it['@type'];
+      const id = it['@id'];
+      if (id) {
+        idsInPage.set(id, (idsInPage.get(id) || 0) + 1);
+      }
       if (!ctx) failures.push({ route, issue: 'missing_@context', type });
       if (!type) {
         failures.push({ route, issue: 'missing_@type' });
@@ -152,6 +158,14 @@ for (const file of walkHtml(HTML_ROOT)) {
     }
   }
 
+  // @id 중복 가드 (같은 페이지에 동일 @id 2회+ 출현 시)
+  for (const [id, count] of idsInPage) {
+    if (count > 1) {
+      duplicateIdCount++;
+      warnings.push({ route, issue: 'duplicate_@id', id, count });
+    }
+  }
+
   pages.push({ route, types: routeTypes });
 }
 
@@ -169,6 +183,7 @@ const result = {
   failures_sample: failures.slice(0, 30),
   warnings_count: warnings.length,
   warnings_sample: warnings.slice(0, 30),
+  duplicate_id_count: duplicateIdCount,
 };
 
 console.log(JSON.stringify(result, null, 2));
