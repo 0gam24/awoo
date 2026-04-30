@@ -324,14 +324,7 @@ const months = Object.keys(byMonth).sort().reverse();
     margin: 0;
   }
 
-  /* 카테고리 컬러 토큰 — 카드 좌측 4px 바 */
-  .cat-주거   { --cat-color: var(--accent); }
-  .cat-자산   { --cat-color: #0891b2; }
-  .cat-교육   { --cat-color: #8b5cf6; }
-  .cat-창업   { --cat-color: #ea580c; }
-  .cat-복지   { --cat-color: #ec4899; }
-  .cat-취업   { --cat-color: #10b981; }
-  .cat-농업   { --cat-color: #d97706; }
+  /* .cat-* 카테고리 토큰은 global.css에서 일괄 정의 (라이트/다크 양쪽) */
 
   /* 다층 hero — 1위 lg + 2·3위 sm grid */
   .hero-section {
