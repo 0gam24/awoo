@@ -39,9 +39,16 @@ function htmlPathToRoute(htmlPath) {
 const violations = [];
 let pagesChecked = 0;
 
+// sitemap filter로 제외된 redirect/demo 페이지는 본문 마크업이 다르므로 audit 제외
+const EXCLUDE_ROUTES = new Set(['/404', '/issues/main/', '/demo/']);
+const EXCLUDE_PATTERNS = [
+  /^\/naver[0-9a-f]{32}\/$/, // Naver Search Advisor 인증 파일
+];
+
 for (const file of walkHtml(HTML_ROOT)) {
   const route = htmlPathToRoute(file);
-  if (route === '/404' || route.startsWith('/api/')) continue;
+  if (EXCLUDE_ROUTES.has(route) || route.startsWith('/api/')) continue;
+  if (EXCLUDE_PATTERNS.some((re) => re.test(route))) continue;
 
   const html = readFileSync(file, 'utf8');
   pagesChecked++;
