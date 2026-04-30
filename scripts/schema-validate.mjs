@@ -27,6 +27,25 @@ if (!existsSync(HTML_ROOT)) {
   process.exit(1);
 }
 
+// Cycle #5 P0-1: entity-graph.json 로드 (dangling @id 가드용)
+const ENTITY_GRAPH_PATH = path.join(ROOT, 'src/data/entity-graph.json');
+let entityGraphIds = new Set();
+if (existsSync(ENTITY_GRAPH_PATH)) {
+  try {
+    const eg = JSON.parse(readFileSync(ENTITY_GRAPH_PATH, 'utf8'));
+    for (const groupKey of Object.keys(eg.entities ?? {})) {
+      for (const entity of Object.values(eg.entities[groupKey] ?? {})) {
+        if (entity['@id']) entityGraphIds.add(entity['@id']);
+      }
+    }
+    // 사이트와이드 @id (BaseLayout) 추가
+    entityGraphIds.add('https://awoo.or.kr/#organization');
+    entityGraphIds.add('https://awoo.or.kr/#website');
+  } catch {
+    console.warn('[schema-validate] entity-graph.json 파싱 실패 — dangling @id 검증 skip');
+  }
+}
+
 function* walkHtml(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
