@@ -1,6 +1,22 @@
 ---
 import Container from '@/components/Container.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+
+// Cycle #5 P0-4: Article schema — E-E-A-T 신호 (편집 정책 운영자 명시)
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  '@id': 'https://awoo.or.kr/editorial-policy/#article',
+  headline: '편집 정책 — 지원금가이드',
+  description: '지원금가이드의 콘텐츠 작성·검수·정정 정책. 1차 자료 인용, 정확성 우선, AI 단독 생성 금지.',
+  url: 'https://awoo.or.kr/editorial-policy/',
+  inLanguage: 'ko-KR',
+  datePublished: '2026-04-29',
+  dateModified: '2026-04-29',
+  author: { '@type': 'Person', name: '김준혁' },
+  publisher: { '@id': 'https://awoo.or.kr/#organization' },
+  about: '편집 정책·콘텐츠 출처·사실 확인 절차',
+};
 ---
 
 <BaseLayout
@@ -71,6 +87,12 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
       </section>
     </article>
   </Container>
+
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(articleSchema)}
+  />
 </BaseLayout>
 
 <style>

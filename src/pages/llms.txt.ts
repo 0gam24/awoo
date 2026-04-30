@@ -6,16 +6,27 @@ import {
   formatDateKR,
   NEW_WINDOW_DAYS,
 } from '@/lib/subsidies-meta';
+import { CATEGORIES } from '@/data/site-data';
+import situationsData from '@/data/situations.json';
+
+interface SituationLite {
+  id: string;
+  label: string;
+  sub: string;
+}
 
 export const prerender = true;
 
 export const GET: APIRoute = async () => {
   const personas = await getCollection('personas');
   const subsidies = await getCollection('subsidies');
+  const glossary = await getCollection('glossary');
+  const topics = await getCollection('topics');
   const bySlug = new Map(subsidies.map((s) => [s.data.id, s.data]));
   const recent = recentlyAddedSlugs(15)
     .map(({ slug }) => bySlug.get(slug))
     .filter(Boolean);
+  const situations = situationsData as SituationLite[];
 
   const lines: string[] = [];
   lines.push('# 지원금가이드');
@@ -35,6 +46,36 @@ export const GET: APIRoute = async () => {
   lines.push('');
   for (const p of personas) {
     lines.push(`- [${p.data.label}](https://awoo.or.kr/personas/${p.data.id}/): ${p.data.sub}`);
+  }
+  lines.push('');
+
+  // Cycle #5 P0-4: 카테고리·상황·용어집·토픽 인덱스 추가 (AI 크롤러 site-wide 진입점 보강)
+  lines.push('## 카테고리 (분야별)');
+  lines.push('');
+  for (const c of CATEGORIES) {
+    if (c.id === 'all') continue;
+    lines.push(`- [${c.name}](https://awoo.or.kr/categories/${encodeURIComponent(c.id)}/): ${c.description ?? c.name}`);
+  }
+  lines.push('');
+
+  lines.push('## 상황별 (라이프 이벤트)');
+  lines.push('');
+  for (const s of situations) {
+    lines.push(`- [${s.label}](https://awoo.or.kr/situations/${s.id}/): ${s.sub}`);
+  }
+  lines.push('');
+
+  lines.push('## 주제별 종합');
+  lines.push('');
+  for (const t of topics) {
+    lines.push(`- [${t.data.title}](https://awoo.or.kr/topics/${t.data.id}/): ${t.data.shortDef.slice(0, 80)}`);
+  }
+  lines.push('');
+
+  lines.push('## 용어 사전');
+  lines.push('');
+  for (const g of glossary) {
+    lines.push(`- [${g.data.term}](https://awoo.or.kr/glossary/${g.data.id}/): ${g.data.shortDef.slice(0, 80)}`);
   }
   lines.push('');
   // 최근 등록 (NEW_WINDOW_DAYS 일 이내) — AI agent / 크롤러 신선도 신호

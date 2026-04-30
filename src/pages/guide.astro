@@ -3,6 +3,7 @@ import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import FeedbackWidget from '@/components/FeedbackWidget.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildHowTo } from '@/lib/schema';
 
 const steps = [
   { n: 1, t: '내 페르소나 확인', d: '홈에서 본인과 가장 비슷한 그룹을 골라보세요. 입력 없이도 그 그룹이 받는 지원금을 한 번에 볼 수 있어요.' },
@@ -64,6 +65,19 @@ const faqSchema = {
     acceptedAnswer: { '@type': 'Answer', text: f.a },
   })),
 };
+
+// Cycle #5 P0-3: HowTo schema — Google rich result 단계 carousel 노출
+const howToSchema = buildHowTo({
+  name: '정부 지원금 신청하는 방법',
+  description: '페르소나 확인 → 서류 준비 → 공식 사이트 신청 → 결과 확인. 4단계 신청 흐름과 공식 채널 6곳.',
+  totalTime: 'PT5M',
+  pageUrl: '/guide/',
+  steps: steps.map((s) => ({
+    name: s.t,
+    text: s.d,
+  })),
+  tools: channels.map((c) => ({ name: c.name, sameAs: c.url })),
+});
 
 // breadcrumbs는 BaseLayout prop에서 직접 명시
 ---
@@ -183,6 +197,11 @@ const faqSchema = {
     is:inline
     type="application/ld+json"
     set:html={JSON.stringify(faqSchema)}
+  />
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(howToSchema)}
   />
 </BaseLayout>
 

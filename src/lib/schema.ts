@@ -104,6 +104,85 @@ export function buildBreadcrumb(items: BreadcrumbItem[], pageUrl?: string) {
   return base;
 }
 
+/**
+ * HowTo schema — 단계별 가이드 (Cycle #5 P0-3)
+ * Google rich result: 검색 결과에 단계 carousel 노출 가능.
+ *
+ * @example
+ *   buildHowTo({
+ *     name: '정부 지원금 신청하는 방법',
+ *     totalTime: 'PT5M',
+ *     steps: [{ name: '...', text: '...', url: '/guide/#step-1' }],
+ *     tools: [{ name: '정부24', sameAs: 'https://www.gov.kr' }],
+ *   })
+ */
+export function buildHowTo(opts: {
+  name: string;
+  description?: string;
+  totalTime?: string;
+  pageUrl: string;
+  steps: Array<{ name: string; text: string; url?: string }>;
+  tools?: Array<{ name: string; sameAs?: string }>;
+}) {
+  const absolute = (href: string) => (href.startsWith('http') ? href : `${SITE_URL}${href}`);
+  const result: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    '@id': `${absolute(opts.pageUrl)}#howto`,
+    name: opts.name,
+    inLanguage: 'ko-KR',
+    step: opts.steps.map((s, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+      ...(s.url ? { url: absolute(s.url) } : {}),
+    })),
+  };
+  if (opts.description) result.description = opts.description;
+  if (opts.totalTime) result.totalTime = opts.totalTime;
+  if (opts.tools && opts.tools.length > 0) {
+    result.tool = opts.tools.map((t) => ({
+      '@type': 'HowToTool',
+      name: t.name,
+      ...(t.sameAs ? { sameAs: t.sameAs } : {}),
+    }));
+  }
+  return result;
+}
+
+/**
+ * WebApplication schema — 인터랙티브 도구 (Cycle #5 P0-3)
+ * /quick 5분 진단처럼 클라이언트 계산 도구를 entity로 명시.
+ */
+export function buildWebApplication(opts: {
+  name: string;
+  description: string;
+  pageUrl: string;
+  applicationCategory?: string;
+  featureList?: string[];
+}) {
+  const absolute = (href: string) => (href.startsWith('http') ? href : `${SITE_URL}${href}`);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    '@id': `${absolute(opts.pageUrl)}#webapp`,
+    name: opts.name,
+    description: opts.description,
+    url: absolute(opts.pageUrl),
+    inLanguage: 'ko-KR',
+    applicationCategory: opts.applicationCategory ?? 'GovernmentApplication',
+    operatingSystem: 'Web',
+    browserRequirements: 'JavaScript',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: 0, priceCurrency: 'KRW' },
+    publisher: { '@id': `${SITE_URL}/#organization` },
+    ...(opts.featureList && opts.featureList.length > 0
+      ? { featureList: opts.featureList.join(', ') }
+      : {}),
+  };
+}
+
 export interface ItemListEntry {
   /** 절대 또는 상대 URL */
   url: string;
