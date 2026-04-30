@@ -40,15 +40,34 @@ jobs:
       - name: Verify content (lint)
         run: npm run lint:content
 
+      # Cycle #9 Step 4: 1일 1개 영구 포스트 자동 생성
+      # ANTHROPIC_API_KEY 미등록 시 graceful skip — sync 실패로 이어지지 않음.
+      # POSTS_PER_DAY=1 + 7일 primary subsidy dedup (Cycle #7) 적용.
+      - name: Generate permanent post
+        id: generate
+        if: ${{ env.ANTHROPIC_API_KEY != '' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        continue-on-error: true
+        run: npm run generate:issues
+
+      - name: Skip notice (no ANTHROPIC_API_KEY)
+        if: ${{ env.ANTHROPIC_API_KEY == '' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "::warning title=영구 포스트 생성 스킵::ANTHROPIC_API_KEY 미등록 — sync만 진행"
+
       - name: Check for changes
         id: diff
         run: |
-          if [ -n "$(git status --porcelain src/data/today-issue.json)" ]; then
+          # today-issue.json 또는 신규 영구 포스트(_history 포함) 변경 감지
+          if [ -n "$(git status --porcelain src/data/today-issue.json src/data/issues/)" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
             echo "Changes detected"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "No headline change — skipping commit"
+            echo "No data change — skipping commit"
           fi
 
       - name: Commit changes
@@ -56,7 +75,7 @@ jobs:
         run: |
           git config user.name "awoo-bot"
           git config user.email "noreply@awoo.or.kr"
-          git add src/data/today-issue.json
+          git add src/data/today-issue.json src/data/issues/
           DATE=$(date -u +"%Y-%m-%d")
           git commit -m "chore(data): 오늘의 이슈 자동 갱신 — ${DATE}
 
