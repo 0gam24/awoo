@@ -63,6 +63,7 @@ export const GET: APIRoute = async () => {
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${pubDate}</pubDate>
+      <dc:creator>김준혁</dc:creator>
       <category>${escapeXml(data.category)}</category>${categories
         .map((c) => `\n      <category>${escapeXml(c)}</category>`)
         .join('')}
@@ -71,15 +72,22 @@ export const GET: APIRoute = async () => {
     })
     .join('\n');
 
+  const lastBuildISOAtom = top[0]?.data.publishedAt
+    ? new Date(top[0].data.publishedAt).toISOString()
+    : new Date().toISOString();
+
+  // Cycle #4 P0-5: dc:creator + atom:updated 추가
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>지원금가이드 — 오늘의 정책 이슈</title>
     <link>${SITE}/issues/</link>
     <atom:link href="${SITE}/feed-issues.xml" rel="self" type="application/rss+xml" />
     <description>이번 주 가장 화제인 정부 지원금 정책 이슈. 자격·금액·신청 방법까지 한 페이지 요약.</description>
     <language>ko-KR</language>
+    <dc:creator>김준혁</dc:creator>
     <lastBuildDate>${lastBuildISO}</lastBuildDate>
+    <atom:updated>${lastBuildISOAtom}</atom:updated>
 ${xmlItems}
   </channel>
 </rss>`;

@@ -27,7 +27,9 @@ const {
   breadcrumbs,
 } = Astro.props;
 
-const breadcrumbSchema = breadcrumbs && breadcrumbs.length > 1 ? buildBreadcrumb(breadcrumbs) : null;
+// breadcrumbSchema에 @id 부여 (canonical URL + #breadcrumb) — entity 그래프 강화 (Cycle #4 P0-5)
+const canonicalPath = canonical ?? Astro.url.pathname;
+const breadcrumbSchema = breadcrumbs && breadcrumbs.length > 1 ? buildBreadcrumb(breadcrumbs, canonicalPath) : null;
 
 // 사이트와이드 entity — 모든 페이지에 1회 노출 (Organization + WebSite, @id 앵커로 다른 schema에서 참조)
 const orgSchema = buildOrganization();

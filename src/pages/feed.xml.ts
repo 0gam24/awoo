@@ -32,21 +32,27 @@ export const GET: APIRoute = async () => {
       <link>${url}</link>
       <guid isPermaLink="true">${url}</guid>
       <pubDate>${pubDate}</pubDate>
+      <dc:creator>김준혁</dc:creator>
       <category>${escapeXml(s.category)}</category>
       <description>${escapeXml(s.summary)}</description>
     </item>`;
     })
     .join('\n');
 
+  const lastBuildISOAtom = items[0]?.regDate ? new Date(items[0].regDate).toISOString() : new Date().toISOString();
+
+  // Cycle #4 P0-5: dc:creator + atom:updated 추가 — Google News·AI 큐레이터 author 메타
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
     <title>지원금가이드 — 신규 정부 지원금</title>
     <link>${SITE}/</link>
     <atom:link href="${SITE}/feed.xml" rel="self" type="application/rss+xml" />
     <description>최근 새로 등록된 정부 지원금을 한눈에 확인하세요.</description>
     <language>ko-KR</language>
+    <dc:creator>김준혁</dc:creator>
     <lastBuildDate>${lastBuildISO}</lastBuildDate>
+    <atom:updated>${lastBuildISOAtom}</atom:updated>
 ${xmlItems}
   </channel>
 </rss>`;
