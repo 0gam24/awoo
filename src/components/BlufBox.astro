@@ -35,13 +35,16 @@ interface Props {
 }
 
 const { summary, stats = [], basis } = Astro.props;
+
+// null/빈 값 자동 필터 — 데이터 누락 시 빈 칩 노출 방지 (Cycle #4 P0-1 회귀 가드)
+const cleanStats = stats.filter((s) => s.value && s.label && String(s.value).trim() !== '');
 ---
 
 <aside class="bluf" aria-label="페이지 요약">
   <p class="summary">{summary}</p>
-  {stats.length > 0 && (
+  {cleanStats.length > 0 && (
     <dl class="stats">
-      {stats.map((s) => (
+      {cleanStats.map((s) => (
         <div class="stat">
           <dt>{s.label}</dt>
           <dd>{s.value}</dd>

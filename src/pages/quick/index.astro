@@ -1,4 +1,5 @@
 ---
+import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -9,6 +10,7 @@ const subsidies = await getCollection('subsidies');
 const personas = await getCollection('personas');
 
 // 클라이언트 필터링용 압축 데이터 — 필수 필드만
+// Cycle #4 P0-4: summary를 80자로 미리 잘라 페이로드 감축 (~10KB 추정 절감)
 const compactSubsidies = subsidies.map((s) => ({
   id: s.data.id,
   title: s.data.title,
@@ -17,7 +19,8 @@ const compactSubsidies = subsidies.map((s) => ({
   amount: s.data.amount,
   amountLabel: s.data.amountLabel,
   status: s.data.status,
-  summary: s.data.summary,
+  // 결과 카드에 80자만 표시되므로 클라이언트에 80자만 전송
+  summary: (s.data.summary ?? '').slice(0, 80),
   targetPersonas: s.data.targetPersonas ?? [],
   tags: s.data.tags ?? [],
   isHot: !!s.data.isHot,
@@ -78,6 +81,17 @@ const EVENTS = [
           <span class="lead-pii">개인정보 저장 0 — 모든 결과는 브라우저에서만 계산</span>
         </p>
       </div>
+
+      <BlufBox
+        summary={`정부 지원금 ${subsidies.length}건을 페르소나·소득·관심분야 4질문으로 매칭합니다. 5분 내 본인 상황에 맞는 지원금을 자동 추천하며 개인정보는 저장되지 않습니다.`}
+        stats={[
+          { value: '5분', label: '평균 진단 시간' },
+          { value: '4질문', label: '입력 단계' },
+          { value: `${subsidies.length}건`, label: '매칭 후보' },
+          { value: '저장 0', label: '개인정보 처리' },
+        ]}
+        basis="브라우저 내 계산 · 서버 전송 X"
+      />
 
       <div class="quick-app" data-quick-app>
         <!-- 진행 스텝퍼 -->
@@ -646,7 +660,7 @@ const EVENTS = [
           '</div>' +
           '<div class="rc-agency">' + escapeHtml(s.agency) + '</div>' +
           '<div class="rc-title">' + escapeHtml(s.title) + '</div>' +
-          '<div class="rc-sum">' + escapeHtml(s.summary.slice(0, 80)) + '</div>' +
+          '<div class="rc-sum">' + escapeHtml(s.summary) + '</div>' +
           (reasonText ? '<div class="rc-reasons">' + reasonText + '</div>' : '') +
           '<div class="rc-amt">' + amtText + '</div>' +
           '</div>' +

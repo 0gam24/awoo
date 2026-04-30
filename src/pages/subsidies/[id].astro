@@ -4,7 +4,7 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon, CATEGORY_FAQS } from '@/data/site-data';
-import { isNew, isStale, getRegDateISO, getLastVerifiedKR, STALE_THRESHOLD_DAYS } from '@/lib/subsidies-meta';
+import { isNew, isStale, getRegDateISO, getLastVerifiedISO, getLastVerifiedKR, STALE_THRESHOLD_DAYS } from '@/lib/subsidies-meta';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -56,6 +56,7 @@ const regDateISO = getRegDateISO(s.id);
 const isNewItem = isNew(s.id);
 const isStaleItem = isStale(s.id);
 const lastVerifiedKR = getLastVerifiedKR(s.id);
+const lastVerifiedISO = getLastVerifiedISO(s.id);
 
 // FAQ + rejectionReasons 매칭 — topics.json에서 (category 일치 + persona 교집합) 토픽 우선
 const allTopics = await getCollection('topics');
@@ -121,6 +122,8 @@ const govSchema = {
   // 사이트와이드 Organization을 publisher로 참조 (Cycle #1 P0-2 자산)
   publisher: { '@id': 'https://awoo.or.kr/#organization' },
   ...(regDateISO ? { dateCreated: regDateISO } : {}),
+  // 최신성 신호 — Cycle #4 P0-2 (E-E-A-T freshness)
+  ...(lastVerifiedISO ? { dateModified: lastVerifiedISO } : {}),
 };
 
 const breadcrumbs = [
@@ -190,7 +193,11 @@ const breadcrumbs = [
           {(lastVerifiedKR || isStaleItem) && (
             <p class={`verified-info ${isStaleItem ? 'stale' : ''}`}>
               {isStaleItem && <span class="verified-warn" aria-hidden="true">⚠</span>}
-              마지막 동기화: <strong>{lastVerifiedKR ?? '확인 필요'}</strong>
+              마지막 동기화: {lastVerifiedISO ? (
+                <time datetime={lastVerifiedISO}><strong>{lastVerifiedKR ?? '확인 필요'}</strong></time>
+              ) : (
+                <strong>{lastVerifiedKR ?? '확인 필요'}</strong>
+              )}
               {isStaleItem && (
                 <span class="verified-stale-msg">
                   · {STALE_THRESHOLD_DAYS}일 이상 미검증 — 공식 사이트 최신 정보 확인 권장
@@ -206,6 +213,11 @@ const breadcrumbs = [
   <section class="band alt">
     <Container size="wide">
       <BlufBox summary={blufSummarySubsidy} stats={blufStatsSubsidy} basis={lastVerifiedKR ? `마지막 동기화: ${lastVerifiedKR}` : '보조금24 + 큐레이션'} />
+
+      {personaLabels.length > 0 && (
+        <h2 class="cat-headline">{personaLabels[0]}이 자주 받는 {s.category} 지원금</h2>
+      )}
+
       <div class="two-col">
         <div>
           <h2 class="utility">지원 대상</h2>
@@ -854,6 +866,16 @@ const breadcrumbs = [
   .also-card:hover .also-arrow {
     transform: translateX(3px);
     color: var(--accent);
+  }
+
+  /* P0-2 (Cycle #4): 카테고리 자동 H2 — long-tail 키워드 */
+  .cat-headline {
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+    margin: 0 0 24px;
+    line-height: 1.4;
   }
 
   /* P0-7: FAQ + rejectionReasons */

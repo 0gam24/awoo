@@ -77,14 +77,17 @@ export interface BreadcrumbItem {
 /**
  * BreadcrumbList JSON-LD 생성.
  *
+ * @param items 브레드크럼 항목
+ * @param pageUrl 옵셔널 — 지정 시 `${pageUrl}#breadcrumb` @id 부여 (entity 그래프 강화, Cycle #4 P0-5)
+ *
  * @example
  *   buildBreadcrumb([
  *     { name: '홈', href: '/' },
  *     { name: '지원금', href: '/subsidies/' },
- *   ])
+ *   ], '/subsidies/')
  */
-export function buildBreadcrumb(items: BreadcrumbItem[]) {
-  return {
+export function buildBreadcrumb(items: BreadcrumbItem[], pageUrl?: string) {
+  const base: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: items.map((item, idx) => ({
@@ -94,6 +97,11 @@ export function buildBreadcrumb(items: BreadcrumbItem[]) {
       item: item.href.startsWith('http') ? item.href : `${SITE_URL}${item.href}`,
     })),
   };
+  if (pageUrl) {
+    const absolute = pageUrl.startsWith('http') ? pageUrl : `${SITE_URL}${pageUrl}`;
+    base['@id'] = `${absolute}#breadcrumb`;
+  }
+  return base;
 }
 
 export interface ItemListEntry {

@@ -42,10 +42,27 @@
   if (!help) {
     /* noop */
   } else {
+    const panel = help.querySelector<HTMLElement>('.hk-panel');
     const overlay = help.querySelector('[data-hk-overlay]');
     const close = help.querySelector('[data-hk-close]');
-    function show() { help!.hidden = false; }
-    function hide() { help!.hidden = true; }
+
+    // Cycle #4 P0-6: focus trap — modal 열림 시 키보드 포커스 가둠 (WCAG 2.4.3·2.4.11)
+    let trap: { activate(): void; deactivate(): void } | null = null;
+    function show() {
+      help!.hidden = false;
+      // dynamic import — modal 닫혀 있을 때 번들 부담 없음
+      import('../utils/focusTrap').then((m) => {
+        if (panel) {
+          trap = m.createFocusTrap(panel, { onEscape: hide, returnFocus: true });
+          trap.activate();
+        }
+      }).catch(() => {});
+    }
+    function hide() {
+      help!.hidden = true;
+      trap?.deactivate();
+      trap = null;
+    }
     overlay?.addEventListener('click', hide);
     close?.addEventListener('click', hide);
 
@@ -65,7 +82,7 @@
         return;
       }
 
-      // Esc — 도움말 닫기
+      // Esc — 도움말 닫기 (focusTrap이 우선 처리하지만 fallback)
       if (k === 'Escape' && !help.hidden) {
         e.preventDefault();
         hide();

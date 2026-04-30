@@ -96,8 +96,16 @@ async function main() {
   const files = await walk(SUBSIDIES_DIR);
   const records = [];
   let skippedHost = 0;
-  // SSRF 가드 — https + 정부·공공 TLD만 허용 (Cycle #3 P0-7)
+  // SSRF 가드 — https + 정부·공공 TLD/위탁기관만 허용 (Cycle #3 P0-7, Cycle #4 hostname 정규화 + 위탁기관 추가)
+  // hostname 사용 (포트 제거), .go.kr / .gov.kr / .or.kr / 정부 위탁기관 화이트리스트
   const allowedHostRe = /\.(go|gov|or)\.kr$/;
+  const allowedExactHosts = new Set([
+    'korea.kr',
+    'nts.kr',
+    'epeople.kr',
+    'data.go.kr',
+    'open.go.kr',
+  ]);
   for (const file of files) {
     try {
       const data = JSON.parse(await readFile(file, 'utf-8'));
@@ -112,16 +120,18 @@ async function main() {
         skippedHost++;
         continue;
       }
-      if (!allowedHostRe.test(parsed.host)) {
+      // hostname (포트·사용자 정보 제거)
+      const host = parsed.hostname.toLowerCase();
+      if (!allowedHostRe.test(host) && !allowedExactHosts.has(host)) {
         skippedHost++;
-        console.warn(`[check-apply-urls] 호스트 화이트리스트 미통과: ${data.id} → ${parsed.host}`);
+        console.warn(`[check-apply-urls] 호스트 화이트리스트 미통과: ${data.id} → ${host}`);
         continue;
       }
       records.push({ id: data.id, applyUrl: data.applyUrl });
     } catch {}
   }
   if (skippedHost > 0) {
-    console.warn(`[check-apply-urls] 호스트 가드로 ${skippedHost}건 스킵 (정부 TLD 외 또는 http)`);
+    console.warn(`[check-apply-urls] 호스트 가드로 ${skippedHost}건 스킵 (정부 TLD/위탁기관 외 또는 http)`);
   }
 
   let prev = { lastRun: null, items: {} };

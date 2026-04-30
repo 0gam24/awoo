@@ -166,6 +166,13 @@ export const GET: APIRoute = async () => {
     lines.push(`- 마감: ${s.data.deadline} · 상태: ${s.data.status}`);
     lines.push(`- 요약: ${s.data.summary}`);
     lines.push('');
+    // Cycle #4 P0-3: coreFacts 키-값 블록 — issuePosts와 일치 포맷, AI 인용 일관성
+    lines.push('**핵심 사실 (Core Facts)**');
+    lines.push(`- 대상: ${s.data.eligibility[0] ?? '확인 필요'}`);
+    lines.push(`- 금액: ${formatWon(s.data.amount)} ${s.data.amountLabel}`);
+    lines.push(`- 마감: ${s.data.deadline}`);
+    lines.push(`- 신청처: ${s.data.applyUrl}`);
+    lines.push('');
     lines.push('**지원 대상**');
     for (const e of s.data.eligibility) lines.push(`- ${e}`);
     lines.push('');

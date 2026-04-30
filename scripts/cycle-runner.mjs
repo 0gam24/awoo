@@ -119,6 +119,31 @@ if (cmd === 'advance') {
   newMeta.last_completed_at = nowKST();
   newMeta.phase = next;
 
+  // Cycle #4 P0-7: OPERATE → OBSERVE 전이 시 fact-check 7일 합계 ≥3 알림
+  if (completed === 'OPERATE' && next === 'OBSERVE') {
+    try {
+      const historyPath = join(ROOT, 'src/data/issues/_history.json');
+      const history = JSON.parse(readFileSync(historyPath, 'utf8'));
+      const fcFails = history.factCheckFails ?? {};
+      const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      let total = 0;
+      for (const [date, n] of Object.entries(fcFails)) {
+        if (new Date(date).getTime() >= cutoff) total += Number(n) || 0;
+      }
+      if (total >= 3) {
+        const msg = `[cycle-runner] ⚠️ Fact-check 7일 합계 ${total}건 (≥3 임계 초과) — generate-issue-posts 결과 검토 필요`;
+        console.warn(msg);
+        if (process.env.GITHUB_STEP_SUMMARY) {
+          console.log(`::warning title=Fact-check 7d≥3::sum=${total}`);
+        }
+      } else if (total > 0) {
+        console.log(`[cycle-runner] fact-check 7일: ${total}건 (정상 범위)`);
+      }
+    } catch {
+      // _history.json 없거나 파싱 실패는 무시 (초기 상태)
+    }
+  }
+
   // OBSERVE → PLAN 전이 시 cycle_no +1
   if (completed === 'OBSERVE' && next === 'PLAN') {
     newMeta.cycle_no = (Number(meta.cycle_no) || 0) + 1;

@@ -39,7 +39,8 @@
     "audit:links": "node scripts/internal-link-audit.mjs",
     "audit:schema": "node scripts/schema-validate.mjs",
     "audit:llms": "node scripts/llms-freshness.mjs",
-    "audit:keywords": "node scripts/keyword-coverage.mjs"
+    "audit:keywords": "node scripts/keyword-coverage.mjs",
+    "audit:headings": "node scripts/audit-headings.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",

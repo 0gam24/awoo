@@ -211,12 +211,13 @@ async function callClaude(systemPrompt, userPrompt, apiKey) {
   const json = await res.json();
   const content = json.content?.[0]?.text;
   if (!content) throw new Error('Empty Claude response');
-  // 캐시 통계 console 로그 (운영 모니터링 — _fail-{date}.json 옆 _cache-{date}.json 누적은 P1)
+  // 캐시 통계 console 로그 + 영속 로깅 (Cycle #4 P0-8)
   const usage = json.usage ?? {};
   if (usage.cache_creation_input_tokens || usage.cache_read_input_tokens) {
     console.log(`[claude-cache] create=${usage.cache_creation_input_tokens ?? 0} read=${usage.cache_read_input_tokens ?? 0} input=${usage.input_tokens ?? 0} output=${usage.output_tokens ?? 0}`);
   }
-  return content;
+  // 영속 로깅 — _cache-{date}.json (운영자 주간 리뷰: cache hit ratio, 비용 절감)
+  return { content, usage };
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -348,6 +349,8 @@ async function main() {
   let success = 0;
   let failed = 0;
   const failures = [];
+  // Cycle #4 P0-8: cache 통계 영속 로깅 — 1주 hit ratio 측정
+  const cacheLog = [];
   // GitHub Actions 환경 감지 — annotation 출력
   const isCI = !!process.env.GITHUB_ACTIONS;
 
@@ -414,8 +417,23 @@ ${JSON.stringify(userInput, null, 2)}
 
     // 4. Claude 호출
     let post;
+    let callUsage = null;
     try {
-      const raw = await callClaude(systemPrompt, userPrompt, apiKey);
+      const result = await callClaude(systemPrompt, userPrompt, apiKey);
+      // Cycle #4 P0-8: callClaude 반환 구조 변경 — 하위호환 (string도 처리)
+      const raw = typeof result === 'string' ? result : result.content;
+      callUsage = typeof result === 'string' ? null : result.usage;
+      if (callUsage) {
+        cacheLog.push({
+          term,
+          rank: idx + 1,
+          cache_creation: callUsage.cache_creation_input_tokens ?? 0,
+          cache_read: callUsage.cache_read_input_tokens ?? 0,
+          input: callUsage.input_tokens ?? 0,
+          output: callUsage.output_tokens ?? 0,
+          at: new Date().toISOString(),
+        });
+      }
       post = parseJsonFromResponse(raw);
     } catch (e) {
       const reason = e?.message ?? String(e);
@@ -457,6 +475,10 @@ ${JSON.stringify(userInput, null, 2)}
         unmatched: fc.unmatched,
         at: new Date().toISOString(),
       });
+      // Cycle #4 P0-7: factCheckFails 누적 카운터 — OBSERVE phase에서 7일 추세 모니터링
+      const today = new Date().toISOString().slice(0, 10);
+      history.factCheckFails ??= {};
+      history.factCheckFails[today] = (history.factCheckFails[today] ?? 0) + 1;
       failed++;
       continue;
     }
@@ -485,6 +507,42 @@ ${JSON.stringify(userInput, null, 2)}
   // 8. _history.json 저장
   await saveHistory(history);
   console.log(`\n📊 ${success} 성공 / ${failed} 실패 — 히스토리 갱신`);
+
+  // 8-1. Cycle #4 P0-8: Claude API cache 통계 영속 로깅 (_cache-{date}.json)
+  if (cacheLog.length > 0) {
+    const totalCreate = cacheLog.reduce((s, e) => s + e.cache_creation, 0);
+    const totalRead = cacheLog.reduce((s, e) => s + e.cache_read, 0);
+    const totalInput = cacheLog.reduce((s, e) => s + e.input, 0);
+    const totalOutput = cacheLog.reduce((s, e) => s + e.output, 0);
+    const cachePath = join(ISSUES_OUT_DIR, date, `_cache-${date}.json`);
+    try {
+      await mkdir(dirname(cachePath), { recursive: true });
+      await writeFile(
+        cachePath,
+        JSON.stringify(
+          {
+            date,
+            model: MODEL,
+            calls: cacheLog.length,
+            totals: {
+              cache_creation: totalCreate,
+              cache_read: totalRead,
+              input: totalInput,
+              output: totalOutput,
+              cache_hit_ratio: totalRead > 0 ? (totalRead / (totalCreate + totalRead)).toFixed(3) : '0',
+            },
+            calls_detail: cacheLog,
+          },
+          null,
+          2,
+        ) + '\n',
+        'utf8',
+      );
+      console.log(`📝 Cache 로그 저장: ${cachePath} (read=${totalRead} create=${totalCreate})`);
+    } catch (e) {
+      console.warn(`⚠️ Cache 로그 저장 실패: ${e.message}`);
+    }
+  }
 
   // 9. 실패 로그 — .fail.json (운영 모니터링용)
   if (failures.length > 0) {

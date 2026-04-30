@@ -105,8 +105,10 @@ const peakDay = dailyEntries.reduce(
   { date: '', count: 0 },
 );
 
-// BLUF 자동 통계 (Cycle #3 P0-6)
-const blufSummaryTopic = `"${term}"는 ${entry.firstSeen}부터 ${entry.lastSeen}까지 ${entry.daysActive}일 동안 ${entry.totalCount}건의 보도가 있던 정부 지원금 키워드입니다. 관련 지원금 ${matchedSubsidies.length}건을 한 페이지에 정리했습니다.`;
+// BLUF 자동 통계 (Cycle #3 P0-6, Cycle #4 P0-1 firstSeen/lastSeen null 가드)
+const firstSeenLabel = entry.firstSeen ?? '최근';
+const lastSeenLabel = entry.lastSeen ?? '오늘';
+const blufSummaryTopic = `"${term}"는 ${firstSeenLabel}부터 ${lastSeenLabel}까지 ${entry.daysActive}일 동안 ${entry.totalCount}건의 보도가 있던 정부 지원금 키워드입니다. 관련 지원금 ${matchedSubsidies.length}건을 한 페이지에 정리했습니다.`;
 const blufStatsTopic = [
   { value: `${entry.totalCount}건`, label: '누적 보도' },
   { value: `${entry.daysActive}일`, label: '화제 일수' },
