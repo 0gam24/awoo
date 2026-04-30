@@ -54,7 +54,7 @@ const collectionSchema = buildCollectionPage({
   ]}
 >
   <script type="application/ld+json" set:html={JSON.stringify(definedTermSetSchema)} />
-  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  {collectionSchema && <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
 
   <section class="band">
     <Container size="wide">

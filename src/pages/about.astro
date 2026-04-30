@@ -2,6 +2,8 @@
 import FeedbackWidget from '@/components/FeedbackWidget.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
+// Organization JSON-LD는 BaseLayout이 사이트와이드로 출력 (Cycle #1 P0-2)
+// → 본 페이지 inline orgSchema 제거 (duplicate_@id 회피, Cycle #2 OBSERVE 발견)
 const SITE = {
   name: '지원금가이드',
   legalName: '스마트데이터샵',
@@ -10,27 +12,6 @@ const SITE = {
   address: '인천광역시 계양구 새벌로 88, 효성동',
   email: 'contact@awoo.or.kr',
   url: 'https://awoo.or.kr',
-};
-
-const orgSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: SITE.name,
-  legalName: SITE.legalName,
-  url: SITE.url,
-  email: SITE.email,
-  taxID: SITE.taxId,
-  founder: {
-    '@type': 'Person',
-    name: SITE.founder,
-  },
-  address: {
-    '@type': 'PostalAddress',
-    addressCountry: 'KR',
-    addressRegion: '인천광역시',
-    addressLocality: '계양구',
-    streetAddress: '새벌로 88',
-  },
 };
 ---
 
@@ -93,12 +74,6 @@ const orgSchema = {
 
     <FeedbackWidget />
   </section>
-
-  <script
-    is:inline
-    type="application/ld+json"
-    set:html={JSON.stringify(orgSchema)}
-  />
 </BaseLayout>
 
 <style>

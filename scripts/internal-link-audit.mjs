@@ -58,9 +58,15 @@ function extractLinks(html) {
     if (!href) continue;
     if (href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) continue;
     if (/^https?:\/\//.test(href)) continue;
-    const clean = href.split('#')[0].split('?')[0];
+    let clean = href.split('#')[0].split('?')[0];
     if (!clean) continue;
     if (!clean.startsWith('/')) continue;
+    // URL 인코딩 정규화 — `/categories/주거/` vs `/categories/%EC%A3%BC%EA%B1%B0/` 동일 취급
+    try {
+      clean = decodeURIComponent(clean);
+    } catch {
+      // 잘못된 % 시퀀스는 원본 유지
+    }
     out.add(clean);
   }
   return [...out];

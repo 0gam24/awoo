@@ -60,7 +60,7 @@ const collectionSchema = buildCollectionPage({
     { name: '분야별', href: '/categories/' },
   ]}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  {collectionSchema && <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
 
   <section class="band">
     <Container size="wide">

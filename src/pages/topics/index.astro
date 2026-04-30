@@ -39,7 +39,7 @@ const collectionSchema = buildCollectionPage({
     { name: '주제별 종합', href: '/topics/' },
   ]}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  {collectionSchema && <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
 
   <section class="band">
     <Container size="wide">

@@ -115,17 +115,8 @@ const articleSchema = {
       url: 'https://awoo.or.kr/editorial-policy/',
     },
   ],
-  publisher: {
-    '@type': 'Organization',
-    name: '스마트데이터샵',
-    url: 'https://awoo.or.kr',
-    logo: {
-      '@type': 'ImageObject',
-      url: 'https://awoo.or.kr/og-default.png',
-      width: 1200,
-      height: 630,
-    },
-  },
+  // 사이트와이드 Organization @id 참조 (Cycle #1 P0-2 자산) — entity 일관성 + 중복 제거
+  publisher: { '@id': 'https://awoo.or.kr/#organization' },
   image: ['https://awoo.or.kr/og-default.png'],
   isAccessibleForFree: true,
 };
