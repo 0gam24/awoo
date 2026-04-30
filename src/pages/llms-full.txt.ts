@@ -197,14 +197,36 @@ export const GET: APIRoute = async () => {
   lines.push('---');
   lines.push('');
 
-  // 카테고리
-  lines.push('## 분야 카테고리');
+  // Cycle #6 P0-4: 카테고리 섹션 확장 — commonEligibility + 매칭 subsidy 수 + 대표 3건
+  lines.push('## 분야 카테고리 7종');
   lines.push('');
   for (const c of CATEGORIES) {
     if (c.id === 'all') continue;
-    lines.push(`- **${c.name}** (${c.count}개)`);
+    const inCat = subsidies.filter((s) => s.data.category === c.id);
+    const top3 = [...inCat]
+      .sort((a, b) => (b.data.amount ?? 0) - (a.data.amount ?? 0))
+      .slice(0, 3);
+    lines.push(`### ${c.name} (${inCat.length}건)`);
+    lines.push('');
+    if (c.description) {
+      lines.push(c.description);
+      lines.push('');
+    }
+    if (c.commonEligibility && c.commonEligibility.length > 0) {
+      lines.push('**일반 자격 요건**');
+      for (const e of c.commonEligibility) lines.push(`- ${e}`);
+      lines.push('');
+    }
+    if (top3.length > 0) {
+      lines.push('**대표 지원금**');
+      for (const s of top3) {
+        lines.push(`- [${s.data.title}](https://awoo.or.kr/subsidies/${s.data.id}/) · ${s.data.agency}`);
+      }
+      lines.push('');
+    }
+    lines.push(`- 분야 hub: https://awoo.or.kr/categories/${encodeURIComponent(c.id)}/`);
+    lines.push('');
   }
-  lines.push('');
   lines.push('---');
   lines.push('');
 

@@ -119,6 +119,28 @@ const articleSchema = {
   publisher: { '@id': 'https://awoo.or.kr/#organization' },
   image: ['https://awoo.or.kr/og-default.png'],
   isAccessibleForFree: true,
+  // Cycle #6 P0-4: audience + mentions — 페르소나 매칭 + glossary entity 그래프 연결
+  ...(relatedPersonas.length > 0
+    ? {
+        audience: {
+          '@type': 'PeopleAudience',
+          audienceType: relatedPersonas.map((p) => p.data.label).join(', '),
+        },
+      }
+    : {}),
+  ...(relatedSubsidies.length > 0
+    ? {
+        mentions: relatedSubsidies.map((s) => ({
+          '@type': 'GovernmentService',
+          '@id': `https://awoo.or.kr/subsidies/${s.data.id}/#govservice`,
+          name: s.data.title,
+        })),
+      }
+    : {}),
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': `https://awoo.or.kr/issues/${date}/${slug}/`,
+  },
 };
 
 const faqSchema = post.faq.length > 0 ? {
