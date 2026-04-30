@@ -48,7 +48,15 @@ function readCycle() {
 }
 
 function writeCycle(meta, body) {
-  const fmKeys = ['phase', 'cycle_no', 'last_completed', 'last_completed_at', 'next_command', 'trigger', 'goal'];
+  const fmKeys = [
+    'phase',
+    'cycle_no',
+    'last_completed',
+    'last_completed_at',
+    'next_command',
+    'trigger',
+    'goal',
+  ];
   const lines = ['---'];
   for (const k of fmKeys) {
     const v = meta[k];
@@ -150,12 +158,18 @@ if (cmd === 'advance') {
   }
 
   writeCycle(newMeta, body);
-  console.log(JSON.stringify({
-    completed_phase: completed,
-    new_phase: next,
-    new_cycle_no: newMeta.cycle_no,
-    skip_execute: skip,
-  }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        completed_phase: completed,
+        new_phase: next,
+        new_cycle_no: newMeta.cycle_no,
+        skip_execute: skip,
+      },
+      null,
+      2,
+    ),
+  );
   process.exit(0);
 }
 

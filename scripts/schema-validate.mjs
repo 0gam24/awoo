@@ -13,7 +13,7 @@
 //
 // 출력: stdout JSON, 정상 종료 0, 산출물 없으면 1
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -29,7 +29,7 @@ if (!existsSync(HTML_ROOT)) {
 
 // Cycle #5 P0-1: entity-graph.json 로드 (dangling @id 가드용)
 const ENTITY_GRAPH_PATH = path.join(ROOT, 'src/data/entity-graph.json');
-let entityGraphIds = new Set();
+const entityGraphIds = new Set();
 if (existsSync(ENTITY_GRAPH_PATH)) {
   try {
     const eg = JSON.parse(readFileSync(ENTITY_GRAPH_PATH, 'utf8'));
@@ -69,7 +69,11 @@ function extractJsonLd(html) {
     const text = m[2].trim();
     // null literal 검출 — buildCollectionPage 빈 가드 누락 잠복 누수 차단
     if (text === 'null') {
-      out.push({ ok: false, error: 'null_literal', snippet: 'JSON-LD null literal — falsy 가드 누락' });
+      out.push({
+        ok: false,
+        error: 'null_literal',
+        snippet: 'JSON-LD null literal — falsy 가드 누락',
+      });
       continue;
     }
     try {
@@ -135,7 +139,11 @@ for (const file of walkHtml(HTML_ROOT)) {
       continue;
     }
     // @graph 또는 단일 객체
-    const items = Array.isArray(b.parsed) ? b.parsed : (b.parsed['@graph'] ? b.parsed['@graph'] : [b.parsed]);
+    const items = Array.isArray(b.parsed)
+      ? b.parsed
+      : b.parsed['@graph']
+        ? b.parsed['@graph']
+        : [b.parsed];
     for (const it of items) {
       if (typeof it !== 'object' || !it) continue;
       const ctx = it['@context'];
@@ -156,7 +164,11 @@ for (const file of walkHtml(HTML_ROOT)) {
         const reqs = REQUIRED_BY_TYPE[t];
         if (reqs) {
           for (const f of reqs) {
-            if (it[f] === undefined || it[f] === null || (Array.isArray(it[f]) && it[f].length === 0)) {
+            if (
+              it[f] === undefined ||
+              it[f] === null ||
+              (Array.isArray(it[f]) && it[f].length === 0)
+            ) {
               failures.push({ route, issue: 'missing_field', type: t, field: f });
             }
           }
@@ -206,9 +218,7 @@ const result = {
   pages_without_jsonld: pagesWithoutLd,
   jsonld_blocks_total: totalLd,
   jsonld_parse_failures: parseFails,
-  type_distribution: Object.fromEntries(
-    [...typeCount.entries()].sort((a, b) => b[1] - a[1])
-  ),
+  type_distribution: Object.fromEntries([...typeCount.entries()].sort((a, b) => b[1] - a[1])),
   failures_count: failures.length,
   failures_sample: failures.slice(0, 30),
   warnings_count: warnings.length,

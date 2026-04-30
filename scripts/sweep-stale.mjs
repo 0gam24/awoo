@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * 마감 지난 지원금 자동 정리
  *
@@ -14,8 +15,8 @@
  * Idempotent — 여러 번 실행해도 안전.
  */
 
-import { readFile, writeFile, mkdir, rename, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { mkdir, readdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -47,7 +48,7 @@ function parseDeadline(raw, fallbackPeriod = '') {
   if (m) return new Date(+m[1], +m[2] - 1, +m[3]).getTime();
 
   // ~MM.DD 또는 MM.DD까지 → 올해 기준
-  m = text.match(/(\d{1,2})[.\/](\d{1,2})/);
+  m = text.match(/(\d{1,2})[./](\d{1,2})/);
   if (m) {
     const now = new Date();
     return new Date(now.getFullYear(), +m[1] - 1, +m[2]).getTime();
@@ -81,9 +82,7 @@ async function main() {
     }
   }
 
-  const files = (await readdir(GOV24_DIR)).filter(
-    (f) => f.endsWith('.json') && !f.startsWith('_'),
-  );
+  const files = (await readdir(GOV24_DIR)).filter((f) => f.endsWith('.json') && !f.startsWith('_'));
 
   const cutoffMs = Date.now() - GRACE_DAYS * 24 * 3600 * 1000;
   const toArchive = [];
@@ -109,11 +108,17 @@ async function main() {
       continue;
     }
     if (dl <= cutoffMs) {
-      toArchive.push({ slug: data.id, file: fp, deadline: new Date(dl).toISOString().slice(0, 10) });
+      toArchive.push({
+        slug: data.id,
+        file: fp,
+        deadline: new Date(dl).toISOString().slice(0, 10),
+      });
     }
   }
 
-  console.log(`[sweep] 검사: ${files.length}건 / 활성: ${active} / 파싱불가: ${unparseable} / 아카이브 대상: ${toArchive.length}`);
+  console.log(
+    `[sweep] 검사: ${files.length}건 / 활성: ${active} / 파싱불가: ${unparseable} / 아카이브 대상: ${toArchive.length}`,
+  );
 
   if (toArchive.length === 0) {
     console.log('[sweep] 아카이브할 항목 없음');
@@ -156,7 +161,7 @@ async function main() {
   // manifest 갱신 (atomic)
   manifest.lastSweep = archivedAt;
   const tmpPath = `${MANIFEST_PATH}.next`;
-  await writeFile(tmpPath, JSON.stringify(manifest, null, 2) + '\n', 'utf-8');
+  await writeFile(tmpPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf-8');
   await rename(tmpPath, MANIFEST_PATH);
 
   console.log(`[sweep] ${moved}건 → _archived/ 이동 완료`);

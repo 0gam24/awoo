@@ -10,11 +10,7 @@
  */
 
 interface AnalyticsBinding {
-  writeDataPoint?: (data: {
-    blobs?: string[];
-    doubles?: number[];
-    indexes?: string[];
-  }) => void;
+  writeDataPoint?: (data: { blobs?: string[]; doubles?: number[]; indexes?: string[] }) => void;
 }
 
 export interface ErrorEvent {
@@ -34,7 +30,9 @@ const MAX_DETAIL_CHARS = 100;
 
 export function logError(env: { ANALYTICS?: AnalyticsBinding } | undefined, evt: ErrorEvent): void {
   // 콘솔 출력 (Cloudflare Workers 로그)
-  console.error(`[err] ${evt.route} ${evt.kind}${evt.status ? ` ${evt.status}` : ''}${evt.detail ? `: ${evt.detail.slice(0, 200)}` : ''}`);
+  console.error(
+    `[err] ${evt.route} ${evt.kind}${evt.status ? ` ${evt.status}` : ''}${evt.detail ? `: ${evt.detail.slice(0, 200)}` : ''}`,
+  );
 
   // Analytics Engine 기록 (있을 때만)
   const ae = env?.ANALYTICS;
@@ -42,12 +40,7 @@ export function logError(env: { ANALYTICS?: AnalyticsBinding } | undefined, evt:
 
   try {
     ae.writeDataPoint({
-      blobs: [
-        evt.route,
-        evt.kind,
-        (evt.detail ?? '').slice(0, MAX_DETAIL_CHARS),
-        evt.ipHash ?? '',
-      ],
+      blobs: [evt.route, evt.kind, (evt.detail ?? '').slice(0, MAX_DETAIL_CHARS), evt.ipHash ?? ''],
       doubles: [evt.status ?? 0],
       // indexes는 검색·sampling 친화 — 라우트 단위로 그루핑
       indexes: [evt.route],

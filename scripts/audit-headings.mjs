@@ -10,7 +10,7 @@
 // 출력: stdout 요약, 위반 시 exit 0 (warn) — 빌드 차단 아님 (점진 도입)
 // 빌드 fail 정책으로 전환하려면 process.exit(violations > 0 ? 1 : 0)
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 

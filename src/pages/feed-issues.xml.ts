@@ -25,18 +25,18 @@ const escapeXml = (s: string): string =>
     .replace(/'/g, '&apos;');
 
 export const GET: APIRoute = async () => {
-  const issueModules = import.meta.glob<{ default: PostMeta }>(
-    '/src/data/issues/*/*.json',
-    { eager: true },
-  );
+  const issueModules = import.meta.glob<{ default: PostMeta }>('/src/data/issues/*/*.json', {
+    eager: true,
+  });
 
   const posts: Array<{ date: string; slug: string; data: PostMeta }> = [];
   for (const [path, mod] of Object.entries(issueModules)) {
     const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
     if (!m) continue;
-    const slug = m[2]!;
-    if (slug.startsWith('_')) continue;
-    posts.push({ date: m[1]!, slug, data: mod.default });
+    const date = m[1];
+    const slug = m[2];
+    if (!date || !slug || slug.startsWith('_')) continue;
+    posts.push({ date, slug, data: mod.default });
   }
 
   // 최신순 정렬 — date desc, 같은 날이면 publishedAt desc

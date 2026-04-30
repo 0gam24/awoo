@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * applyUrl 외부 링크 헬스 체크 (샘플링)
  *
@@ -14,8 +15,8 @@
  * Idempotent. 실패 항목은 다음 회차에 재시도 누적 카운트 증가.
  */
 
-import { readFile, writeFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -131,7 +132,9 @@ async function main() {
     } catch {}
   }
   if (skippedHost > 0) {
-    console.warn(`[check-apply-urls] 호스트 가드로 ${skippedHost}건 스킵 (정부 TLD/위탁기관 외 또는 http)`);
+    console.warn(
+      `[check-apply-urls] 호스트 가드로 ${skippedHost}건 스킵 (정부 TLD/위탁기관 외 또는 http)`,
+    );
   }
 
   let prev = { lastRun: null, items: {} };
@@ -150,13 +153,13 @@ async function main() {
     .filter((r) => !failingPrevSet.has(r.id))
     .filter(() => Math.random() < SAMPLE_RATE)
     .map((r) => r.id);
-  const sampleIds = ALL
-    ? records.map((r) => r.id)
-    : [...new Set([...failingPrev, ...newSample])];
+  const sampleIds = ALL ? records.map((r) => r.id) : [...new Set([...failingPrev, ...newSample])];
 
   const sample = records.filter((r) => sampleIds.includes(r.id));
 
-  console.log(`[link-health] 전체 ${records.length}건 중 ${sample.length}건 점검 (직전 실패 ${failingPrev.length}건 + 신규 샘플)`);
+  console.log(
+    `[link-health] 전체 ${records.length}건 중 ${sample.length}건 점검 (직전 실패 ${failingPrev.length}건 + 신규 샘플)`,
+  );
 
   const checked = await pool(
     sample,
@@ -187,7 +190,7 @@ async function main() {
 
   await writeFile(
     REPORT_PATH,
-    JSON.stringify(
+    `${JSON.stringify(
       {
         lastRun: new Date().toISOString(),
         sampleSize: sample.length,
@@ -197,7 +200,7 @@ async function main() {
       },
       null,
       2,
-    ) + '\n',
+    )}\n`,
     'utf-8',
   );
 
@@ -207,7 +210,9 @@ async function main() {
     console.log('');
     console.log('[link-health] 실패 항목:');
     for (const f of failed.slice(0, 20)) {
-      console.log(`  ✗ ${f.id} (status: ${f.status || 'fetch-error'}, streak: ${f.failStreak}) — ${f.error ?? ''}`);
+      console.log(
+        `  ✗ ${f.id} (status: ${f.status || 'fetch-error'}, streak: ${f.failStreak}) — ${f.error ?? ''}`,
+      );
     }
     if (failed.length > 20) console.log(`  ... 외 ${failed.length - 20}건`);
 
@@ -220,11 +225,13 @@ async function main() {
         '',
         '| ID | status | streak |',
         '|---|---|---|',
-        ...failed.slice(0, 30).map((f) => `| \`${f.id}\` | ${f.status || 'err'} | ${f.failStreak} |`),
+        ...failed
+          .slice(0, 30)
+          .map((f) => `| \`${f.id}\` | ${f.status || 'err'} | ${f.failStreak} |`),
       ];
       try {
         const { appendFile } = await import('node:fs/promises');
-        await appendFile(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+        await appendFile(process.env.GITHUB_STEP_SUMMARY, `${lines.join('\n')}\n`);
       } catch {}
     }
 

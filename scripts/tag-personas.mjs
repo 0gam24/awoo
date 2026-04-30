@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * 지원금 → 페르소나 자동 태깅 (휴리스틱 backfill)
  *
@@ -15,8 +16,8 @@
  * Idempotent.
  */
 
-import { readFile, writeFile, readdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -30,42 +31,110 @@ const APPLY = process.argv.includes('--apply');
 // ─────────────────────────────────────────────────────────────
 const PERSONA_KEYWORDS = {
   'office-rookie': [
-    '청년', '만 19', '만19', '만 24', '만24', '만 34', '만34', '19~34', '19∼34',
-    '대학생', '취업준비', '구직', '신입', '직장인', '근로자', '신규채용',
+    '청년',
+    '만 19',
+    '만19',
+    '만 24',
+    '만24',
+    '만 34',
+    '만34',
+    '19~34',
+    '19∼34',
+    '대학생',
+    '취업준비',
+    '구직',
+    '신입',
+    '직장인',
+    '근로자',
+    '신규채용',
   ],
   'self-employed': [
-    '소상공인', '자영업', '예비창업', '창업기업', '창업자', '사업자', '중소기업',
-    '벤처', '스타트업', '1인 사업', '사업장',
+    '소상공인',
+    '자영업',
+    '예비창업',
+    '창업기업',
+    '창업자',
+    '사업자',
+    '중소기업',
+    '벤처',
+    '스타트업',
+    '1인 사업',
+    '사업장',
   ],
   'newlywed-family': [
-    '신혼', '결혼 7년', '결혼7년', '예비부부',
-    '출산', '임산부', '임신', '난임', '산모',
-    '육아', '영유아', '아동', '아이', '자녀', '다자녀', '미성년',
-    '키움', '꿈 수당', // 육아·아동수당 패턴
+    '신혼',
+    '결혼 7년',
+    '결혼7년',
+    '예비부부',
+    '출산',
+    '임산부',
+    '임신',
+    '난임',
+    '산모',
+    '육아',
+    '영유아',
+    '아동',
+    '아이',
+    '자녀',
+    '다자녀',
+    '미성년',
+    '키움',
+    '꿈 수당', // 육아·아동수당 패턴
   ],
-  'senior': [
-    '65세', '70세', '60세', '노인', '어르신', '고령', '기초연금', '장년',
-    '경로', '시니어', '중장년',
+  senior: [
+    '65세',
+    '70세',
+    '60세',
+    '노인',
+    '어르신',
+    '고령',
+    '기초연금',
+    '장년',
+    '경로',
+    '시니어',
+    '중장년',
   ],
   'low-income': [
-    '기초생활', '수급자', '차상위', '저소득', '중위소득 50', '중위소득50',
-    '중위소득 60', '중위소득60', '생계급여', '의료급여', '주거급여', '교육급여',
-    '취약계층', '한부모',
+    '기초생활',
+    '수급자',
+    '차상위',
+    '저소득',
+    '중위소득 50',
+    '중위소득50',
+    '중위소득 60',
+    '중위소득60',
+    '생계급여',
+    '의료급여',
+    '주거급여',
+    '교육급여',
+    '취약계층',
+    '한부모',
   ],
-  'farmer': [
-    '농업인', '농어민', '귀농', '귀촌', '영농', '농촌', '어민', '어업',
-    '청년농', '귀농귀촌', '농지', '축산', '임업',
+  farmer: [
+    '농업인',
+    '농어민',
+    '귀농',
+    '귀촌',
+    '영농',
+    '농촌',
+    '어민',
+    '어업',
+    '청년농',
+    '귀농귀촌',
+    '농지',
+    '축산',
+    '임업',
   ],
 };
 
 const CATEGORY_FALLBACK = {
-  '창업': ['self-employed'],
-  '농업': ['farmer'],
-  '취업': ['office-rookie'],
-  '주거': ['office-rookie', 'newlywed-family'],
-  '교육': ['office-rookie', 'newlywed-family'],
-  '자산': ['office-rookie', 'self-employed'],
-  '복지': [], // text-based only — 너무 광범위
+  창업: ['self-employed'],
+  농업: ['farmer'],
+  취업: ['office-rookie'],
+  주거: ['office-rookie', 'newlywed-family'],
+  교육: ['office-rookie', 'newlywed-family'],
+  자산: ['office-rookie', 'self-employed'],
+  복지: [], // text-based only — 너무 광범위
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -79,7 +148,9 @@ function inferPersonas(data) {
     ...(data.eligibility ?? []),
     ...(data.benefits ?? []),
     ...(data.tags ?? []),
-  ].join(' ').toLowerCase();
+  ]
+    .join(' ')
+    .toLowerCase();
 
   const matched = new Set();
   for (const [pid, kws] of Object.entries(PERSONA_KEYWORDS)) {
@@ -111,9 +182,7 @@ async function main() {
     return;
   }
 
-  const files = (await readdir(GOV24_DIR)).filter(
-    (f) => f.endsWith('.json') && !f.startsWith('_'),
-  );
+  const files = (await readdir(GOV24_DIR)).filter((f) => f.endsWith('.json') && !f.startsWith('_'));
 
   let scanned = 0;
   let alreadyTagged = 0;
@@ -159,17 +228,21 @@ async function main() {
 
     if (APPLY) {
       data.targetPersonas = inferred;
-      await writeFile(fp, JSON.stringify(data, null, 2) + '\n', 'utf-8');
+      await writeFile(fp, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
     }
     updated++;
   }
 
-  console.log(`[tag] 검사 ${scanned} / 기존 태깅 ${alreadyTagged} / 추론 성공 ${updated} / 추론 불가 ${stillEmpty}`);
+  console.log(
+    `[tag] 검사 ${scanned} / 기존 태깅 ${alreadyTagged} / 추론 성공 ${updated} / 추론 불가 ${stillEmpty}`,
+  );
   console.log('[tag] 페르소나별 추가 분포:', JSON.stringify(distribution));
   console.log('');
   console.log('[tag] 샘플 (최대 5건):');
   for (const s of samples) {
-    console.log(`  · ${s.id} [${s.category}] "${s.title.slice(0, 40)}…" → ${s.inferred.join(', ')}`);
+    console.log(
+      `  · ${s.id} [${s.category}] "${s.title.slice(0, 40)}…" → ${s.inferred.join(', ')}`,
+    );
   }
 
   if (!APPLY) {

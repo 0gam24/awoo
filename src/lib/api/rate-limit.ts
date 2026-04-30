@@ -32,7 +32,7 @@ function gc(): void {
   const sorted = [...buckets.entries()].sort((a, b) => a[1].resetAt - b[1].resetAt);
   const removeCount = Math.floor(buckets.size / 2);
   for (let i = 0; i < removeCount; i++) {
-    buckets.delete(sorted[i]![0]);
+    buckets.delete(sorted[i]?.[0]);
   }
 }
 
@@ -67,11 +67,7 @@ function checkMemory(key: string, max: number, windowSeconds: number): RateLimit
 // ─────────────────────────────────────────────────────────────
 export interface KVNamespaceLike {
   get: (key: string, options?: { type?: 'json' | 'text' }) => Promise<unknown>;
-  put: (
-    key: string,
-    value: string,
-    options?: { expirationTtl?: number },
-  ) => Promise<void>;
+  put: (key: string, value: string, options?: { expirationTtl?: number }) => Promise<void>;
 }
 
 async function checkKV(

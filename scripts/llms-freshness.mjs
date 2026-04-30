@@ -15,7 +15,7 @@
 //
 // 출력: stdout JSON, 산출물 없으면 1
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -79,7 +79,10 @@ const result = {
   llms_full_txt: null,
 };
 
-for (const [key, p] of [['llms_txt', llmsPath], ['llms_full_txt', llmsFullPath]]) {
+for (const [key, p] of [
+  ['llms_txt', llmsPath],
+  ['llms_full_txt', llmsFullPath],
+]) {
   if (!existsSync(p)) {
     result[key] = { exists: false };
     continue;

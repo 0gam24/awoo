@@ -7,7 +7,7 @@
 //
 // 출력: stdout JSON, 위반 시 exit 1 (strict from day 1 — Cycle #4 마크업 일관성 확인됨)
 
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -63,8 +63,9 @@ for (const file of walkHtml(HTML_ROOT)) {
 
   // skip-link 검증 (첫 200자 안에 있어야)
   const head200 = bodyContent.slice(0, 500);
-  const skipLinkMatch = head200.match(/<a\s+href=("|')#main\1[^>]*class=("|')[^"']*skip-link/i)
-    || head200.match(/<a\s+[^>]*class=("|')[^"']*skip-link[^"']*\1[^>]*href=("|')#main\2/i);
+  const skipLinkMatch =
+    head200.match(/<a\s+href=("|')#main\1[^>]*class=("|')[^"']*skip-link/i) ||
+    head200.match(/<a\s+[^>]*class=("|')[^"']*skip-link[^"']*\1[^>]*href=("|')#main\2/i);
   if (!skipLinkMatch) {
     violations.push({ route, issue: 'skip_link_missing' });
     continue;

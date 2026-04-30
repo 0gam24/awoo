@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * 정부 지원금 동기화 — data.go.kr 보조금24 (gov24/v3/serviceList)
  *
@@ -29,8 +30,8 @@
  *      스크립트는 키 값을 절대 출력하지 않음.
  */
 
-import { readFile, writeFile, mkdir, readdir, unlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
+import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -67,25 +68,50 @@ async function loadEnv() {
 // 카테고리 매핑
 // ─────────────────────────────────────────────────────────────
 const CATEGORY_MAP = {
-  '주거': '주거', '주거·자립': '주거',
-  '서민금융': '자산', '금융': '자산', '서민·소상공인': '자산',
-  '교육': '교육', '보육·교육': '교육', '문화': '교육',
-  '창업': '창업', '취업·창업': '창업', '소상공인': '창업',
-  '취업': '취업', '고용': '취업',
-  '복지': '복지', '보건·의료': '복지', '아동·청소년': '복지',
-  '서민': '복지', '저소득': '복지', '장애인': '복지', '노인': '복지',
-  '농업': '농업', '농림축산식품': '농업', '농림': '농업', '귀농': '농업',
+  주거: '주거',
+  주거·자립: '주거',
+  서민금융: '자산',
+  금융: '자산',
+  서민·소상공인: '자산',
+  교육: '교육',
+  보육·교육: '교육',
+  문화: '교육',
+  창업: '창업',
+  취업·창업: '창업',
+  소상공인: '창업',
+  취업: '취업',
+  고용: '취업',
+  복지: '복지',
+  보건·의료: '복지',
+  아동·청소년: '복지',
+  서민: '복지',
+  저소득: '복지',
+  장애인: '복지',
+  노인: '복지',
+  농업: '농업',
+  농림축산식품: '농업',
+  농림: '농업',
+  귀농: '농업',
 };
 
 const CATEGORY_BG = {
-  '주거': 'bg-1', '자산': 'bg-2', '창업': 'bg-3',
-  '교육': 'bg-4', '복지': 'bg-5', '취업': 'bg-6', '농업': 'bg-7',
+  주거: 'bg-1',
+  자산: 'bg-2',
+  창업: 'bg-3',
+  교육: 'bg-4',
+  복지: 'bg-5',
+  취업: 'bg-6',
+  농업: 'bg-7',
 };
 
 const CATEGORY_ICON = {
-  '주거': 'cat-housing', '자산': 'cat-wealth', '창업': 'cat-startup',
-  '교육': 'cat-education', '복지': 'cat-welfare', '취업': 'cat-employment',
-  '농업': 'cat-farm',
+  주거: 'cat-housing',
+  자산: 'cat-wealth',
+  창업: 'cat-startup',
+  교육: 'cat-education',
+  복지: 'cat-welfare',
+  취업: 'cat-employment',
+  농업: 'cat-farm',
 };
 
 function mapCategory(field) {
@@ -100,39 +126,113 @@ function mapCategory(field) {
 // SEO 슬러그 — 한국어 정부 용어 → 영문 키워드
 // ─────────────────────────────────────────────────────────────
 const TERM_MAP = {
-  '청년': 'youth', '신혼부부': 'newlywed-couple', '신혼': 'newlywed', '부부': 'couple',
-  '아동': 'child', '영유아': 'infant', '유아': 'preschool', '영아': 'infant',
-  '청소년': 'teen', '학생': 'student', '대학생': 'undergrad',
-  '노인': 'senior', '고령자': 'elderly', '중장년': 'midlife',
-  '장애인': 'disability', '장애아동': 'disabled-child',
-  '한부모': 'single-parent', '다문화': 'multicultural', '여성': 'women',
-  '저소득': 'low-income', '기초': 'basic', '차상위': 'near-poor',
-  '소상공인': 'smb', '자영업': 'self-employed', '기업': 'enterprise',
-  '근로자': 'worker', '농어민': 'farmer-fisher', '농민': 'farmer', '어민': 'fisher',
-  '국민': 'national',
-  '주거': 'housing', '주택': 'housing', '임대': 'rental', '월세': 'rent',
-  '전세': 'jeonse', '분양': 'sale', '특별공급': 'special-supply', '특공': 'special-supply',
-  '보육': 'childcare', '양육': 'parenting', '육아': 'parenting', '출산': 'maternity',
-  '교육': 'education', '학비': 'tuition', '장학': 'scholarship', '훈련': 'training',
-  '직업': 'vocational', '내일배움': 'work-training',
-  '취업': 'employment', '고용': 'employment', '구직': 'job-seeker', '근로': 'work',
-  '창업': 'startup', '사업': 'business', '예비창업': 'pre-startup',
-  '대출': 'loan', '융자': 'loan', '자금': 'funds',
-  '저축': 'savings', '계좌': 'account', '자산': 'assets', '도약': 'leap',
-  '복지': 'welfare', '돌봄': 'care', '보건': 'health', '의료': 'medical', '건강': 'health',
-  '연금': 'pension', '생계': 'livelihood',
-  '농업': 'agriculture', '농어촌': 'rural', '귀농': 'returning-farm', '영농': 'farming',
-  '에너지': 'energy', '난방': 'heating', '환경': 'environment',
-  '문화': 'culture', '관광': 'tourism', '체육': 'sports',
-  '안전': 'safety', '재난': 'disaster',
-  '지원금': 'grant', '보조금': 'subsidy', '장려금': 'incentive', '위문금': 'comfort-payment',
-  '급여': 'allowance', '수당': 'allowance', '바우처': 'voucher', '이용권': 'voucher',
-  '감면': 'reduction', '면제': 'exemption', '할인': 'discount',
-  '정착': 'settlement', '특별': 'special', '맞춤': 'customized', '통합': 'integrated',
-  '특별지원': 'special-support', '확대': 'expansion', '인상': 'increase',
-  '지원': 'support',
-  '국가': 'national', '정부': 'gov', '지방': 'local', '지역': 'regional',
-  '도시': 'urban', '시도': 'province', '시군구': 'city',
+  청년: 'youth',
+  신혼부부: 'newlywed-couple',
+  신혼: 'newlywed',
+  부부: 'couple',
+  아동: 'child',
+  영유아: 'infant',
+  유아: 'preschool',
+  영아: 'infant',
+  청소년: 'teen',
+  학생: 'student',
+  대학생: 'undergrad',
+  노인: 'senior',
+  고령자: 'elderly',
+  중장년: 'midlife',
+  장애인: 'disability',
+  장애아동: 'disabled-child',
+  한부모: 'single-parent',
+  다문화: 'multicultural',
+  여성: 'women',
+  저소득: 'low-income',
+  기초: 'basic',
+  차상위: 'near-poor',
+  소상공인: 'smb',
+  자영업: 'self-employed',
+  기업: 'enterprise',
+  근로자: 'worker',
+  농어민: 'farmer-fisher',
+  농민: 'farmer',
+  어민: 'fisher',
+  국민: 'national',
+  주거: 'housing',
+  주택: 'housing',
+  임대: 'rental',
+  월세: 'rent',
+  전세: 'jeonse',
+  분양: 'sale',
+  특별공급: 'special-supply',
+  특공: 'special-supply',
+  보육: 'childcare',
+  양육: 'parenting',
+  육아: 'parenting',
+  출산: 'maternity',
+  교육: 'education',
+  학비: 'tuition',
+  장학: 'scholarship',
+  훈련: 'training',
+  직업: 'vocational',
+  내일배움: 'work-training',
+  취업: 'employment',
+  고용: 'employment',
+  구직: 'job-seeker',
+  근로: 'work',
+  창업: 'startup',
+  사업: 'business',
+  예비창업: 'pre-startup',
+  대출: 'loan',
+  융자: 'loan',
+  자금: 'funds',
+  저축: 'savings',
+  계좌: 'account',
+  자산: 'assets',
+  도약: 'leap',
+  복지: 'welfare',
+  돌봄: 'care',
+  보건: 'health',
+  의료: 'medical',
+  건강: 'health',
+  연금: 'pension',
+  생계: 'livelihood',
+  농업: 'agriculture',
+  농어촌: 'rural',
+  귀농: 'returning-farm',
+  영농: 'farming',
+  에너지: 'energy',
+  난방: 'heating',
+  환경: 'environment',
+  문화: 'culture',
+  관광: 'tourism',
+  체육: 'sports',
+  안전: 'safety',
+  재난: 'disaster',
+  지원금: 'grant',
+  보조금: 'subsidy',
+  장려금: 'incentive',
+  위문금: 'comfort-payment',
+  급여: 'allowance',
+  수당: 'allowance',
+  바우처: 'voucher',
+  이용권: 'voucher',
+  감면: 'reduction',
+  면제: 'exemption',
+  할인: 'discount',
+  정착: 'settlement',
+  특별: 'special',
+  맞춤: 'customized',
+  통합: 'integrated',
+  특별지원: 'special-support',
+  확대: 'expansion',
+  인상: 'increase',
+  지원: 'support',
+  국가: 'national',
+  정부: 'gov',
+  지방: 'local',
+  지역: 'regional',
+  도시: 'urban',
+  시도: 'province',
+  시군구: 'city',
 };
 
 const TERM_KEYS = Object.keys(TERM_MAP).sort((a, b) => b.length - a.length);
@@ -151,7 +251,11 @@ function makeSlug(title, srcId) {
       remaining = remaining.split(ko).join(' ');
     }
   }
-  const idShort = String(srcId).toLowerCase().replace(/[^a-z0-9]/g, '').slice(-6) || 'unknown';
+  const idShort =
+    String(srcId)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')
+      .slice(-6) || 'unknown';
   if (matches.length === 0) return `subsidy-${idShort}`;
   return `${matches.slice(0, 6).join('-')}-${idShort}`;
 }
@@ -216,15 +320,15 @@ function deriveStatus(deadline) {
 
 function deriveTags(item, category) {
   const tags = new Set([category]);
-  if (item['사용자구분']) {
-    const u = item['사용자구분'];
+  if (item.사용자구분) {
+    const u = item.사용자구분;
     if (u.includes('개인')) tags.add('개인');
     if (u.includes('가구')) tags.add('가구');
     if (u.includes('소상공인')) tags.add('소상공인');
     if (u.includes('기업')) tags.add('기업');
   }
-  if (item['지원유형']) {
-    const t = item['지원유형'];
+  if (item.지원유형) {
+    const t = item.지원유형;
     if (t.includes('현금')) tags.add('현금지원');
     if (t.includes('감면')) tags.add('감면');
     if (t.includes('대출')) tags.add('대출');
@@ -239,21 +343,110 @@ function deriveTags(item, category) {
 // 백필 스크립트(scripts/tag-personas.mjs)와 동일 사전 — 동기화 필요 시 함께 수정.
 // ─────────────────────────────────────────────────────────────
 const PERSONA_KEYWORDS = {
-  'office-rookie': ['청년', '만 19', '만19', '만 24', '만24', '만 34', '만34', '19~34', '19∼34', '대학생', '취업준비', '구직', '신입', '직장인', '근로자', '신규채용'],
-  'self-employed': ['소상공인', '자영업', '예비창업', '창업기업', '창업자', '사업자', '중소기업', '벤처', '스타트업', '1인 사업', '사업장'],
-  'newlywed-family': ['신혼', '결혼 7년', '결혼7년', '예비부부', '출산', '임산부', '임신', '난임', '산모', '육아', '영유아', '아동', '아이', '자녀', '다자녀', '미성년', '키움', '꿈 수당'],
-  'senior': ['65세', '70세', '60세', '노인', '어르신', '고령', '기초연금', '장년', '경로', '시니어', '중장년'],
-  'low-income': ['기초생활', '수급자', '차상위', '저소득', '중위소득 50', '중위소득50', '중위소득 60', '중위소득60', '생계급여', '의료급여', '주거급여', '교육급여', '취약계층', '한부모'],
-  'farmer': ['농업인', '농어민', '귀농', '귀촌', '영농', '농촌', '어민', '어업', '청년농', '귀농귀촌', '농지', '축산', '임업'],
+  'office-rookie': [
+    '청년',
+    '만 19',
+    '만19',
+    '만 24',
+    '만24',
+    '만 34',
+    '만34',
+    '19~34',
+    '19∼34',
+    '대학생',
+    '취업준비',
+    '구직',
+    '신입',
+    '직장인',
+    '근로자',
+    '신규채용',
+  ],
+  'self-employed': [
+    '소상공인',
+    '자영업',
+    '예비창업',
+    '창업기업',
+    '창업자',
+    '사업자',
+    '중소기업',
+    '벤처',
+    '스타트업',
+    '1인 사업',
+    '사업장',
+  ],
+  'newlywed-family': [
+    '신혼',
+    '결혼 7년',
+    '결혼7년',
+    '예비부부',
+    '출산',
+    '임산부',
+    '임신',
+    '난임',
+    '산모',
+    '육아',
+    '영유아',
+    '아동',
+    '아이',
+    '자녀',
+    '다자녀',
+    '미성년',
+    '키움',
+    '꿈 수당',
+  ],
+  senior: [
+    '65세',
+    '70세',
+    '60세',
+    '노인',
+    '어르신',
+    '고령',
+    '기초연금',
+    '장년',
+    '경로',
+    '시니어',
+    '중장년',
+  ],
+  'low-income': [
+    '기초생활',
+    '수급자',
+    '차상위',
+    '저소득',
+    '중위소득 50',
+    '중위소득50',
+    '중위소득 60',
+    '중위소득60',
+    '생계급여',
+    '의료급여',
+    '주거급여',
+    '교육급여',
+    '취약계층',
+    '한부모',
+  ],
+  farmer: [
+    '농업인',
+    '농어민',
+    '귀농',
+    '귀촌',
+    '영농',
+    '농촌',
+    '어민',
+    '어업',
+    '청년농',
+    '귀농귀촌',
+    '농지',
+    '축산',
+    '임업',
+  ],
 };
 const CATEGORY_PERSONA_FALLBACK = {
-  '창업': ['self-employed'],
-  '농업': ['farmer'],
-  '취업': ['office-rookie'],
-  '주거': ['office-rookie', 'newlywed-family'],
-  '교육': ['office-rookie', 'newlywed-family'],
-  '자산': ['office-rookie', 'self-employed'],
-  '복지': [],
+  창업: ['self-employed'],
+  농업: ['farmer'],
+  취업: ['office-rookie'],
+  주거: ['office-rookie', 'newlywed-family'],
+  교육: ['office-rookie', 'newlywed-family'],
+  자산: ['office-rookie', 'self-employed'],
+  복지: [],
 };
 
 function inferPersonas(category, corpus) {
@@ -275,37 +468,32 @@ function inferPersonas(category, corpus) {
 }
 
 function mapToSchema(item, slug) {
-  const category = mapCategory(item['서비스분야']);
-  const eligibility = splitLines(item['지원대상']).slice(0, 6);
-  const benefits = splitLines(item['지원내용']).slice(0, 6);
-  const { amount, label: amountLabel } = extractAmount(item['지원내용']);
-  const status = deriveStatus(item['신청기한']);
+  const category = mapCategory(item.서비스분야);
+  const eligibility = splitLines(item.지원대상).slice(0, 6);
+  const benefits = splitLines(item.지원내용).slice(0, 6);
+  const { amount, label: amountLabel } = extractAmount(item.지원내용);
+  const status = deriveStatus(item.신청기한);
   const tags = deriveTags(item, category);
-  const title = (item['서비스명'] || '제목 미정').slice(0, 80);
-  const summary = (item['서비스목적요약'] || item['서비스명'] || '').slice(0, 280);
-  const corpus = [
-    title,
-    summary,
-    item['지원대상'] ?? '',
-    item['지원내용'] ?? '',
-    ...tags,
-  ].join(' ');
+  const title = (item.서비스명 || '제목 미정').slice(0, 80);
+  const summary = (item.서비스목적요약 || item.서비스명 || '').slice(0, 280);
+  const corpus = [title, summary, item.지원대상 ?? '', item.지원내용 ?? '', ...tags].join(' ');
   const targetPersonas = inferPersonas(category, corpus);
   return {
     id: slug,
-    applyUrl: item['상세조회URL'] || 'https://www.gov.kr',
+    applyUrl: item.상세조회URL || 'https://www.gov.kr',
     title,
-    agency: item['소관기관명'] || '미상',
+    agency: item.소관기관명 || '미상',
     category,
     icon: CATEGORY_ICON[category] || 'cat-welfare',
     bg: CATEGORY_BG[category] || 'bg-5',
     amount,
     amountLabel,
     period: '',
-    deadline: (item['신청기한'] || '상시신청').slice(0, 40),
+    deadline: (item.신청기한 || '상시신청').slice(0, 40),
     summary,
-    eligibility: eligibility.length > 0 ? eligibility : [item['지원대상']?.slice(0, 200) || '대상 확인 필요'],
-    benefits: benefits.length > 0 ? benefits : [item['지원내용']?.slice(0, 200) || '내용 확인 필요'],
+    eligibility:
+      eligibility.length > 0 ? eligibility : [item.지원대상?.slice(0, 200) || '대상 확인 필요'],
+    benefits: benefits.length > 0 ? benefits : [item.지원내용?.slice(0, 200) || '내용 확인 필요'],
     documents: [],
     status,
     tags,
@@ -328,8 +516,13 @@ async function fetchAllServices(key) {
       // 응답 본문에서 키가 echo 되지 않도록 키 마스킹
       let body = await res.text().catch(() => '');
       body = body.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '***');
-      body = body.replace(new RegExp(encodeURIComponent(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '***');
-      throw new Error(`API ${res.status} (page=${page}, keyLen=${key.length}): ${body.slice(0, 300)}`);
+      body = body.replace(
+        new RegExp(encodeURIComponent(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+        '***',
+      );
+      throw new Error(
+        `API ${res.status} (page=${page}, keyLen=${key.length}): ${body.slice(0, 300)}`,
+      );
     }
     const json = await res.json();
     if (!Array.isArray(json.data)) throw new Error('Unexpected response shape');
@@ -377,7 +570,7 @@ async function writeManifest(manifest) {
   // 부분 쓰기 도중 프로세스 중단 시 기존 manifest 보존
   const tmpPath = `${MANIFEST_PATH}.next`;
   const bakPath = `${MANIFEST_PATH}.bak`;
-  const data = JSON.stringify(manifest, null, 2) + '\n';
+  const data = `${JSON.stringify(manifest, null, 2)}\n`;
 
   // 1. 임시 파일에 쓰기
   await writeFile(tmpPath, data, 'utf8');
@@ -442,7 +635,9 @@ async function cleanLegacyApiFiles() {
 function uniqueSlug(title, srcId, used) {
   let slug = makeSlug(title, srcId);
   if (used.has(slug)) {
-    slug = `subsidy-${String(srcId).toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    slug = `subsidy-${String(srcId)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '')}`;
   }
   used.add(slug);
   return slug;
@@ -460,7 +655,7 @@ async function runBootstrap(items) {
   const legacy = await cleanLegacyApiFiles();
   if (legacy > 0) console.log(`🧹 (legacy) api-*.json ${legacy}개 정리`);
 
-  const sorted = [...items].sort((a, b) => (b['조회수'] || 0) - (a['조회수'] || 0));
+  const sorted = [...items].sort((a, b) => (b.조회수 || 0) - (a.조회수 || 0));
   const top = sorted.slice(0, TOP_N);
 
   const used = new Set();
@@ -471,14 +666,18 @@ async function runBootstrap(items) {
 
   for (const item of top) {
     try {
-      const srcId = item['서비스ID'];
-      const slug = uniqueSlug(item['서비스명'] || '', srcId, used);
+      const srcId = item.서비스ID;
+      const slug = uniqueSlug(item.서비스명 || '', srcId, used);
       const mapped = mapToSchema(item, slug);
-      await writeFile(join(OUT_DIR, `${slug}.json`), JSON.stringify(mapped, null, 2) + '\n', 'utf8');
+      await writeFile(
+        join(OUT_DIR, `${slug}.json`),
+        `${JSON.stringify(mapped, null, 2)}\n`,
+        'utf8',
+      );
       manifestItems[srcId] = {
         slug,
-        regDate: item['등록일시'] || '',
-        modDate: item['수정일시'] || '',
+        regDate: item.등록일시 || '',
+        modDate: item.수정일시 || '',
         lastVerifiedAt: bootstrapAt,
       };
       written++;
@@ -498,7 +697,9 @@ async function runBootstrap(items) {
     },
   });
 
-  console.log(`✅ ${written}개 시드 (스킵 ${skipped}) — manifest ${Object.keys(manifestItems).length}건`);
+  console.log(
+    `✅ ${written}개 시드 (스킵 ${skipped}) — manifest ${Object.keys(manifestItems).length}건`,
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -512,9 +713,9 @@ async function runNew(items) {
   const cutoff = Date.now() - NEW_WINDOW_DAYS * 24 * 3600 * 1000;
 
   const candidates = items.filter((item) => {
-    const id = item['서비스ID'];
+    const id = item.서비스ID;
     if (!id || seenIds.has(id)) return false;
-    const regTs = parseGovDate(item['등록일시']);
+    const regTs = parseGovDate(item.등록일시);
     return regTs && regTs >= cutoff;
   });
 
@@ -548,14 +749,18 @@ async function runNew(items) {
 
   for (const item of candidates) {
     try {
-      const srcId = item['서비스ID'];
-      const slug = uniqueSlug(item['서비스명'] || '', srcId, used);
+      const srcId = item.서비스ID;
+      const slug = uniqueSlug(item.서비스명 || '', srcId, used);
       const mapped = mapToSchema(item, slug);
-      await writeFile(join(OUT_DIR, `${slug}.json`), JSON.stringify(mapped, null, 2) + '\n', 'utf8');
+      await writeFile(
+        join(OUT_DIR, `${slug}.json`),
+        `${JSON.stringify(mapped, null, 2)}\n`,
+        'utf8',
+      );
       updatedItems[srcId] = {
         slug,
-        regDate: item['등록일시'] || '',
-        modDate: item['수정일시'] || '',
+        regDate: item.등록일시 || '',
+        modDate: item.수정일시 || '',
         lastVerifiedAt: runAt,
       };
       batchSlugs.push(slug);
@@ -576,7 +781,9 @@ async function runNew(items) {
     },
   });
 
-  console.log(`✅ +${written}건 추가 (스킵 ${skipped}) — manifest ${Object.keys(updatedItems).length}건`);
+  console.log(
+    `✅ +${written}건 추가 (스킵 ${skipped}) — manifest ${Object.keys(updatedItems).length}건`,
+  );
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -594,7 +801,14 @@ async function main() {
   // 모드 선택
   const arg = (process.argv[2] || '').toLowerCase();
   const manifestExists = existsSync(MANIFEST_PATH);
-  const mode = arg === 'bootstrap' ? 'bootstrap' : arg === 'new' ? 'new' : manifestExists ? 'new' : 'bootstrap';
+  const mode =
+    arg === 'bootstrap'
+      ? 'bootstrap'
+      : arg === 'new'
+        ? 'new'
+        : manifestExists
+          ? 'new'
+          : 'bootstrap';
   console.log(`▶ 모드: ${mode}${arg ? '' : ' (자동 감지)'}`);
 
   const { items, total } = await fetchAllServices(key);

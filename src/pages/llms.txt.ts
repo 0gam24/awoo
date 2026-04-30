@@ -1,13 +1,13 @@
 import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
-import {
-  recentlyAddedSlugs,
-  lastBatchAtISO,
-  formatDateKR,
-  NEW_WINDOW_DAYS,
-} from '@/lib/subsidies-meta';
 import { CATEGORIES } from '@/data/site-data';
 import situationsData from '@/data/situations.json';
+import {
+  formatDateKR,
+  lastBatchAtISO,
+  NEW_WINDOW_DAYS,
+  recentlyAddedSlugs,
+} from '@/lib/subsidies-meta';
 
 interface SituationLite {
   id: string;
@@ -54,7 +54,9 @@ export const GET: APIRoute = async () => {
   lines.push('');
   for (const c of CATEGORIES) {
     if (c.id === 'all') continue;
-    lines.push(`- [${c.name}](https://awoo.or.kr/categories/${encodeURIComponent(c.id)}/): ${c.description ?? c.name}`);
+    lines.push(
+      `- [${c.name}](https://awoo.or.kr/categories/${encodeURIComponent(c.id)}/): ${c.description ?? c.name}`,
+    );
   }
   lines.push('');
 
@@ -68,20 +70,26 @@ export const GET: APIRoute = async () => {
   lines.push('## 주제별 종합');
   lines.push('');
   for (const t of topics) {
-    lines.push(`- [${t.data.title}](https://awoo.or.kr/topics/${t.data.id}/): ${t.data.shortDef.slice(0, 80)}`);
+    lines.push(
+      `- [${t.data.title}](https://awoo.or.kr/topics/${t.data.id}/): ${t.data.shortDef.slice(0, 80)}`,
+    );
   }
   lines.push('');
 
   lines.push('## 용어 사전');
   lines.push('');
   for (const g of glossary) {
-    lines.push(`- [${g.data.term}](https://awoo.or.kr/glossary/${g.data.id}/): ${g.data.shortDef.slice(0, 80)}`);
+    lines.push(
+      `- [${g.data.term}](https://awoo.or.kr/glossary/${g.data.id}/): ${g.data.shortDef.slice(0, 80)}`,
+    );
   }
   lines.push('');
   // 최근 등록 (NEW_WINDOW_DAYS 일 이내) — AI agent / 크롤러 신선도 신호
   if (recent.length > 0) {
     const dateLabel = formatDateKR(lastBatchAtISO);
-    lines.push(`## 신규 등록 (최근 ${NEW_WINDOW_DAYS}일${dateLabel ? `, 마지막 동기화 ${dateLabel}` : ''})`);
+    lines.push(
+      `## 신규 등록 (최근 ${NEW_WINDOW_DAYS}일${dateLabel ? `, 마지막 동기화 ${dateLabel}` : ''})`,
+    );
     lines.push('');
     for (const s of recent) {
       if (!s) continue;
