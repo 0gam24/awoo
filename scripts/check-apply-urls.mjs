@@ -95,12 +95,33 @@ async function pool(items, fn, concurrency) {
 async function main() {
   const files = await walk(SUBSIDIES_DIR);
   const records = [];
+  let skippedHost = 0;
+  // SSRF 가드 — https + 정부·공공 TLD만 허용 (Cycle #3 P0-7)
+  const allowedHostRe = /\.(go|gov|or)\.kr$/;
   for (const file of files) {
     try {
       const data = JSON.parse(await readFile(file, 'utf-8'));
-      if (!data.applyUrl || !/^https?:\/\//.test(data.applyUrl)) continue;
+      if (!data.applyUrl) continue;
+      let parsed;
+      try {
+        parsed = new URL(data.applyUrl);
+      } catch {
+        continue;
+      }
+      if (parsed.protocol !== 'https:') {
+        skippedHost++;
+        continue;
+      }
+      if (!allowedHostRe.test(parsed.host)) {
+        skippedHost++;
+        console.warn(`[check-apply-urls] 호스트 화이트리스트 미통과: ${data.id} → ${parsed.host}`);
+        continue;
+      }
       records.push({ id: data.id, applyUrl: data.applyUrl });
     } catch {}
+  }
+  if (skippedHost > 0) {
+    console.warn(`[check-apply-urls] 호스트 가드로 ${skippedHost}건 스킵 (정부 TLD 외 또는 http)`);
   }
 
   let prev = { lastRun: null, items: {} };

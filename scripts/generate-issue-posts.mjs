@@ -368,6 +368,12 @@ async function main() {
       const fromCandidates = (todayIssue.candidates ?? []).filter((c) => c.title?.includes(term));
       articlesForTopic = [topArticle, ...fromCandidates].filter(Boolean).slice(0, 8);
     }
+    // Cycle #3 P0-7: 입력 캡 — N≤10 + JSON 직렬화 30KB 초과 시 뒤에서부터 잘라냄
+    // (토큰·비용 폭주 + prompt injection 표면 동시 차단)
+    articlesForTopic = articlesForTopic.slice(0, 10);
+    while (articlesForTopic.length > 1 && JSON.stringify(articlesForTopic).length > 30000) {
+      articlesForTopic.pop();
+    }
 
     // 3. user prompt 빌드
     const userInput = {
