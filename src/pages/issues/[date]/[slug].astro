@@ -176,6 +176,7 @@ const articleSchema = {
     : {}),
 };
 
+// Cycle #26: speakable schema — FAQ를 음성 검색 (Google Assistant, Bixby 등) 친화적으로 마킹
 const faqSchema = post.faq.length > 0 ? {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -187,6 +188,10 @@ const faqSchema = post.faq.length > 0 ? {
       text: f.a,
     },
   })),
+  speakable: {
+    '@type': 'SpeakableSpecification',
+    cssSelector: ['.tldr', '.faq-section'],
+  },
 } : null;
 
 const breadcrumbs = [
