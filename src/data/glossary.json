@@ -32,7 +32,7 @@
     "shortDef": "본인·배우자·세대원 모두 주택을 소유하지 않은 상태. 청년 월세지원·특공 등 주거 지원의 핵심 자격.",
     "longDef": "분양권·입주권도 주택으로 간주됨에 주의. 상속받은 농어촌 단독주택 등 일부 예외 인정. 무주택 기간이 길수록 청약 가점 ↑.",
     "category": "주거",
-    "related": ["youth-housing", "newlywed-special-supply", "subscription-points"],
+    "related": ["youth-housing-criteria", "newlywed-special-supply", "subscription-points"],
     "synonyms": ["주택 미보유"]
   },
   {
@@ -41,7 +41,7 @@
     "shortDef": "만 19~34세 무주택 청년이 부모와 별거하며 월 60만원 이하 임대 거주 시 월 20만원(2026년 30만원으로 인상)을 12개월 지원.",
     "longDef": "본인 소득 중위 60% 이하 + 부모 소득 중위 100% 이하. 보증금 5천만원 이하 주택 한정. 신청은 복지로(bokjiro.go.kr).",
     "category": "주거",
-    "related": ["youth-housing", "homeless", "median-income"],
+    "related": ["homeless", "subscription-points", "median-income"],
     "synonyms": ["청년 월세지원"]
   },
   {
@@ -50,7 +50,7 @@
     "shortDef": "만 19~34세 청년이 5년간 매월 70만원 적립 시 정부 매칭 + 비과세로 5천만원 가까이 적립할 수 있는 자산형성 상품.",
     "longDef": "본인 소득 7천5백만원 이하 + 가구 중위 180% 이하. 매월 정부 기여금 최대 6%. 중도 해지 시 정부지원금 환수. 가입은 9개 시중은행.",
     "category": "자산",
-    "related": ["youth-savings", "median-income", "asset-formation"],
+    "related": ["youth-savings", "median-income", "eitc"],
     "synonyms": ["도약계좌"]
   },
   {
@@ -68,7 +68,7 @@
     "shortDef": "결혼 7년 이내 신혼부부에게 신축 아파트 분양 물량 일부를 우선 공급. 자녀 수·청약저축 가입기간으로 가점 결정.",
     "longDef": "공공·민간 모두 일정 비율 할당. 소득 기준: 도시근로자 평균 130%(공공) / 160%(민간 맞벌이). 무주택 필수. 신청은 청약홈.",
     "category": "주거",
-    "related": ["homeless", "subscription-points", "newlywed-housing-loan"],
+    "related": ["homeless", "subscription-points", "youth-housing-criteria"],
     "synonyms": ["신혼 특공"]
   },
   {
@@ -113,7 +113,7 @@
     "shortDef": "만 65세 이상 중 소득 하위 70% 노인에게 월 최대 33만원(2026년 기준)을 매월 지급.",
     "longDef": "본인·배우자 소득인정액(소득 + 재산 환산)이 선정기준액 이하. 자동 가입 X — 만 65세 직전 월에 신청. 신청은 국민연금공단·주민센터.",
     "category": "복지",
-    "related": ["senior-care", "low-income-support"],
+    "related": ["low-income-support", "median-income"],
     "synonyms": ["노령연금"]
   },
   {
@@ -158,7 +158,7 @@
     "shortDef": "고용보험 가입 18개월 이상 + 비자발적 실직자에게 평균임금 60%를 120~270일 지급.",
     "longDef": "최저 6만 4천원/일 ~ 최고 6만 6천원/일. 만 50세 이상·장애인은 더 길게. 7일 대기일 후 지급 시작. 매 1~4주 실업인정 의무.",
     "category": "취업",
-    "related": ["national-employment-support", "social-insurance"],
+    "related": ["national-employment-support", "training-card"],
     "synonyms": ["고용보험 실업급여"]
   },
   {
@@ -176,7 +176,7 @@
     "shortDef": "소상공인진흥공단이 운영하는 저금리 융자. 일반·청년·재도전 등 종류별 한도 5천만~7천만원.",
     "longDef": "사업자등록 + 상시근로자 5인 이하(제조·건설·운수는 10인). 신용평가 후 금리 결정 (연 2~4%대). 신청은 소상공인 정책자금 포털.",
     "category": "창업",
-    "related": ["startup-package", "credit-recovery"],
+    "related": ["startup-package", "youth-startup"],
     "synonyms": ["소진공 융자"]
   },
   {
@@ -230,7 +230,7 @@
     "shortDef": "만 18~39세 영농경력 3년 이하 청년농에게 월 80~110만원을 최대 3년간 지급.",
     "longDef": "농지 소유·임차 1천㎡ 이상 + 농업경영체 등록 필수. 2단계 평가(서류·면접). 신청은 농림축산식품부 산하 지자체 농정과.",
     "category": "농업",
-    "related": ["return-farming", "rural-experience"],
+    "related": ["return-farming"],
     "synonyms": ["청년농 정착"]
   },
   {
