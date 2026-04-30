@@ -5,7 +5,11 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 
 <BaseLayout
   title="쿠키 정책 — 지원금가이드"
-  description="지원금가이드의 쿠키 사용 현황. 현재 추적 쿠키를 사용하지 않습니다."
+  description="지원금가이드의 쿠키 사용 현황. 현재 추적 쿠키를 사용하지 않으며 익명 설정 저장에만 localStorage를 사용합니다. 외부 분석 도구 사용 범위 안내."
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '쿠키 정책', href: '/cookies/' },
+  ]}
 >
   <Container size="narrow">
     <article class="page">
