@@ -7,6 +7,10 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 <BaseLayout
   title="문의 — 지원금가이드"
   description="지원금가이드 문의처. 콘텐츠 정정·제보·제휴 문의 안내."
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '문의', href: '/contact/' },
+  ]}
 >
   <Container size="narrow">
     <article class="page">
