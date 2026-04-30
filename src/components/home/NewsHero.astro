@@ -377,6 +377,8 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     border-radius: 50%;
     background: var(--accent);
     animation: tr-pulse 1.6s ease-in-out infinite;
+    /* paint 영역 격리 — 무한 keyframe이 부모 reflow 무효화하지 않게 */
+    contain: layout style paint;
   }
 
   @keyframes tr-pulse {
@@ -787,6 +789,8 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     background: rgb(255 255 255 / 0.95);
     color: #003875;
     animation: trend-rank1-pulse 1.8s ease-in-out infinite;
+    /* box-shadow 펄스 paint 격리 → 부모 카드 reflow 비용 0 */
+    contain: layout style paint;
   }
 
   @keyframes trend-rank1-pulse {
