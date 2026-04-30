@@ -105,6 +105,14 @@ const relatedPersonas = post.relatedPersonas
   .map((id) => personaById.get(id))
   .filter((x): x is NonNullable<ReturnType<typeof personaById.get>> => x !== undefined);
 
+// Cycle #31: history.byTerm — dateModified를 트렌딩 lastSeen으로 갱신 (freshness 신호)
+interface HistoryEntry { firstSeen: string; lastSeen: string; totalCount: number; daysActive: number }
+const histModules = import.meta.glob<{ default: { byTerm?: Record<string, HistoryEntry> } }>(
+  '/src/data/issues/_history.json',
+  { eager: true },
+);
+const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
+
 // JSON-LD — NewsArticle 강화 (mainEntityOfPage·articleSection·inLanguage 등)
 const canonicalUrl = `https://awoo.or.kr/issues/${date}/${slug}/`;
 // Cycle #11 P0-1: wordCount — AI 인용 confidence 신호 (콘텐츠 depth 명시)
@@ -126,7 +134,11 @@ const articleSchema = {
   url: canonicalUrl,
   inLanguage: 'ko-KR',
   datePublished: post.publishedAt,
-  dateModified: post.publishedAt,
+  // Cycle #31: dateModified — history.lastSeen 우선 (트렌딩 재등장 시 freshness 갱신)
+  dateModified:
+    post.freshness?.trendingTerm && historyByTerm[post.freshness.trendingTerm]?.lastSeen
+      ? `${historyByTerm[post.freshness.trendingTerm]!.lastSeen}T00:00:00.000Z`
+      : post.publishedAt,
   articleSection: post.category,
   keywords: post.tags.join(', '),
   about: post.freshness?.trendingTerm ?? post.tags[0],
