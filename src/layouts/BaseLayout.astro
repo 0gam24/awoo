@@ -15,6 +15,16 @@ interface Props {
   activeNav?: string;
   /** 페이지별 breadcrumb — 명시 시 BreadcrumbList JSON-LD 자동 출력 */
   breadcrumbs?: BreadcrumbItem[];
+  /** Cycle #18: og:type override — 'article' for 영구 포스트, 'website' default */
+  ogType?: 'website' | 'article' | 'profile';
+  /** og:type=article 시 추가 메타 (article:published_time, author 등) */
+  ogArticle?: {
+    publishedTime?: string;
+    modifiedTime?: string;
+    author?: string;
+    section?: string;
+    tags?: string[];
+  };
 }
 
 const {
@@ -25,6 +35,8 @@ const {
   noindex = false,
   activeNav = '',
   breadcrumbs,
+  ogType = 'website',
+  ogArticle,
 } = Astro.props;
 
 // breadcrumbSchema에 @id 부여 (canonical URL + #breadcrumb) — entity 그래프 강화 (Cycle #4 P0-5)
@@ -76,13 +88,24 @@ const siteName = '지원금가이드';
     )}
 
     {/* Open Graph */}
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={ogImageURL} />
     <meta property="og:locale" content="ko_KR" />
+
+    {/* Cycle #18 P0: og:type=article 시 Article 전용 메타 (영구 포스트) */}
+    {ogType === 'article' && ogArticle && (
+      <Fragment>
+        {ogArticle.publishedTime && <meta property="article:published_time" content={ogArticle.publishedTime} />}
+        {ogArticle.modifiedTime && <meta property="article:modified_time" content={ogArticle.modifiedTime} />}
+        {ogArticle.author && <meta property="article:author" content={ogArticle.author} />}
+        {ogArticle.section && <meta property="article:section" content={ogArticle.section} />}
+        {ogArticle.tags?.map((tag) => <meta property="article:tag" content={tag} />)}
+      </Fragment>
+    )}
 
     {/* Twitter */}
     <meta name="twitter:card" content="summary_large_image" />

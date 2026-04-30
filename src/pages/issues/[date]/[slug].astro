@@ -189,6 +189,14 @@ const readMin = readingTimeMinutes();
   description={post.metaDescription}
   activeNav="/issues/"
   breadcrumbs={breadcrumbs}
+  ogType="article"
+  ogArticle={{
+    publishedTime: post.publishedAt,
+    modifiedTime: post.publishedAt,
+    author: '김준혁',
+    section: post.category,
+    tags: post.tags,
+  }}
 >
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
