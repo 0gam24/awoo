@@ -1,4 +1,5 @@
 ---
+import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -104,6 +105,15 @@ const peakDay = dailyEntries.reduce(
   { date: '', count: 0 },
 );
 
+// BLUF 자동 통계 (Cycle #3 P0-6)
+const blufSummaryTopic = `"${term}"는 ${entry.firstSeen}부터 ${entry.lastSeen}까지 ${entry.daysActive}일 동안 ${entry.totalCount}건의 보도가 있던 정부 지원금 키워드입니다. 관련 지원금 ${matchedSubsidies.length}건을 한 페이지에 정리했습니다.`;
+const blufStatsTopic = [
+  { value: `${entry.totalCount}건`, label: '누적 보도' },
+  { value: `${entry.daysActive}일`, label: '화제 일수' },
+  { value: `${matchedSubsidies.length}건`, label: '관련 지원금' },
+  ...(peakDay.count > 0 ? [{ value: `${peakDay.count}건`, label: `최다 보도 (${peakDay.date})` }] : []),
+];
+
 ---
 
 <BaseLayout
@@ -133,6 +143,8 @@ const peakDay = dailyEntries.reduce(
           관련 지원금 <strong>{matchedSubsidies.length}건</strong>을 한 페이지에 모았습니다.
         </p>
       </div>
+
+      <BlufBox summary={blufSummaryTopic} stats={blufStatsTopic} basis="네이버 뉴스 트렌딩 + 보조금24 매칭" />
 
       <div class="stats">
         <div class="stat">
