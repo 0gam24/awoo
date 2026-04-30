@@ -10,6 +10,7 @@ const subsidies = await getCollection('subsidies');
 const personas = await getCollection('personas');
 
 // 클라이언트 필터링용 압축 데이터 — 필수 필드만
+// Cycle #4 P0-4: summary를 80자로 미리 잘라 페이로드 감축 (~10KB 추정 절감)
 const compactSubsidies = subsidies.map((s) => ({
   id: s.data.id,
   title: s.data.title,
@@ -18,7 +19,8 @@ const compactSubsidies = subsidies.map((s) => ({
   amount: s.data.amount,
   amountLabel: s.data.amountLabel,
   status: s.data.status,
-  summary: s.data.summary,
+  // 결과 카드에 80자만 표시되므로 클라이언트에 80자만 전송
+  summary: (s.data.summary ?? '').slice(0, 80),
   targetPersonas: s.data.targetPersonas ?? [],
   tags: s.data.tags ?? [],
   isHot: !!s.data.isHot,
@@ -658,7 +660,7 @@ const EVENTS = [
           '</div>' +
           '<div class="rc-agency">' + escapeHtml(s.agency) + '</div>' +
           '<div class="rc-title">' + escapeHtml(s.title) + '</div>' +
-          '<div class="rc-sum">' + escapeHtml(s.summary.slice(0, 80)) + '</div>' +
+          '<div class="rc-sum">' + escapeHtml(s.summary) + '</div>' +
           (reasonText ? '<div class="rc-reasons">' + reasonText + '</div>' : '') +
           '<div class="rc-amt">' + amtText + '</div>' +
           '</div>' +
