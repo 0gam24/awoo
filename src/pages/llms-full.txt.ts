@@ -73,6 +73,9 @@ export const GET: APIRoute = async () => {
   const personas = await getCollection('personas');
   const subsidies = await getCollection('subsidies');
   const issues = await getCollection('issues');
+  // Cycle #13 P0-3: glossary + topics 본문 합본 (AI 인용 confidence 신호)
+  const glossary = await getCollection('glossary');
+  const topics = await getCollection('topics');
 
   const lines: string[] = [];
 
@@ -220,7 +223,7 @@ export const GET: APIRoute = async () => {
       }
       lines.push('');
     }
-    lines.push(`- 분야 hub: https://awoo.or.kr/categories/${encodeURIComponent(c.id)}/`);
+    lines.push(`- 분야 hub: https://awoo.or.kr/categories/${c.id}/`);
     lines.push('');
   }
   lines.push('---');
@@ -307,6 +310,76 @@ export const GET: APIRoute = async () => {
       lines.push('');
     }
   }
+
+  // Cycle #13 P0-3: 용어 사전 본문 (AI 인용 핵심 — 정책 용어 정의 풀)
+  if (glossary.length > 0) {
+    lines.push(`## 용어 사전 (${glossary.length}건)`);
+    lines.push('');
+    lines.push(
+      '정부 지원금·복지 정책 용어 정의. AI 답변 엔진이 사용자 질문 컨텍스트를 정확히 매핑할 수 있도록 단어별 풀이.',
+    );
+    lines.push('');
+    for (const g of glossary) {
+      const url = `https://awoo.or.kr/glossary/${g.data.id}/`;
+      lines.push(`### ${g.data.term}`);
+      lines.push('');
+      if (g.data.synonyms?.length) {
+        lines.push(`- 동의어/유사 표현: ${g.data.synonyms.join(', ')}`);
+      }
+      lines.push(`- 분야: ${g.data.category}`);
+      lines.push(`- 출처: ${url}`);
+      lines.push('');
+      lines.push(g.data.shortDef);
+      lines.push('');
+      if (g.data.longDef) {
+        lines.push(g.data.longDef);
+        lines.push('');
+      }
+      lines.push('---');
+      lines.push('');
+    }
+  }
+
+  // Cycle #13 P0-3: 주제별 종합 본문
+  if (topics.length > 0) {
+    lines.push(`## 주제별 종합 (${topics.length}건)`);
+    lines.push('');
+    lines.push(
+      '생애 단계·상황별로 묶은 종합 가이드. 여러 지원금이 함께 작동하는 조합·우선순위·결정 트리 제공.',
+    );
+    lines.push('');
+    for (const t of topics) {
+      const url = `https://awoo.or.kr/topics/${t.data.id}/`;
+      lines.push(`### ${t.data.title}`);
+      lines.push('');
+      lines.push(`- 분야: ${t.data.category}`);
+      lines.push(`- 출처: ${url}`);
+      lines.push('');
+      lines.push(t.data.shortDef);
+      lines.push('');
+      if (t.data.longDef) {
+        lines.push(t.data.longDef);
+        lines.push('');
+      }
+      lines.push('---');
+      lines.push('');
+    }
+  }
+
+  // Cycle #13 P0-3: 사이트 정책 / about / 가이드 인덱스 (사이트 권위 신호)
+  lines.push('## 사이트 정보');
+  lines.push('');
+  lines.push('- [사이트 소개](https://awoo.or.kr/about/): 운영 주체·콘텐츠 정책·신뢰성');
+  lines.push('- [편집 정책](https://awoo.or.kr/editorial-policy/): AI 보조·사람 검수·정정 절차');
+  lines.push('- [신청 가이드](https://awoo.or.kr/guide/): 정부 지원금 신청 흐름·공식 사이트·FAQ');
+  lines.push(
+    '- [개인정보처리방침](https://awoo.or.kr/privacy/): 회원가입·로그인 X, 개인정보 수집 X',
+  );
+  lines.push('- [이용약관](https://awoo.or.kr/terms/): 콘텐츠 정확성·신청 대행 미수행·책임 제한');
+  lines.push('- [문의](https://awoo.or.kr/contact/): 정정·제보·제휴 24~48시간 답변');
+  lines.push('');
+  lines.push('---');
+  lines.push('');
 
   // 운영 주체
   lines.push('## 운영 주체 / 편집 정책');

@@ -42,6 +42,24 @@ export const GET: APIRoute = async () => {
   );
   lines.push('분류해 매칭합니다.');
   lines.push('');
+
+  // Cycle #13 P0-2: 핵심 인덱스 페이지 사이트맵 (AI 크롤러 site-wide 진입점)
+  lines.push('## 핵심 진입점');
+  lines.push('');
+  lines.push('- [홈](https://awoo.or.kr/): 페르소나·상황·이슈 종합 hub');
+  lines.push('- [5분 진단](https://awoo.or.kr/quick/): 4질문 매칭 도구');
+  lines.push('- [전체 지원금](https://awoo.or.kr/subsidies/): 카테고리·소득·신청기한 필터');
+  lines.push('- [신규 지원금](https://awoo.or.kr/subsidies/new/): 최근 등록');
+  lines.push('- [페르소나 인덱스](https://awoo.or.kr/personas/): 6개 생애 단계');
+  lines.push('- [상황별 인덱스](https://awoo.or.kr/situations/): 출산·이사·실직 등 라이프 이벤트');
+  lines.push('- [분야별 인덱스](https://awoo.or.kr/categories/): 7개 카테고리');
+  lines.push('- [주제별 인덱스](https://awoo.or.kr/topics/): 종합 주제 hub');
+  lines.push('- [용어 사전 인덱스](https://awoo.or.kr/glossary/): 정책 용어 해설');
+  lines.push('- [오늘의 이슈](https://awoo.or.kr/issues/): 트렌딩 정책 + 매주 화제');
+  lines.push('- [전체 분석 포스트](https://awoo.or.kr/issues/all/): 영구 포스트 아카이브');
+  lines.push('- [신청 가이드](https://awoo.or.kr/guide/): 신청 흐름·FAQ');
+  lines.push('');
+
   lines.push('## 페르소나');
   lines.push('');
   for (const p of personas) {
@@ -49,14 +67,12 @@ export const GET: APIRoute = async () => {
   }
   lines.push('');
 
-  // Cycle #5 P0-4: 카테고리·상황·용어집·토픽 인덱스 추가 (AI 크롤러 site-wide 진입점 보강)
+  // Cycle #5 P0-4 / Cycle #13 P0-1: 카테고리 — 한글 raw URL (sitemap 정합)
   lines.push('## 카테고리 (분야별)');
   lines.push('');
   for (const c of CATEGORIES) {
     if (c.id === 'all') continue;
-    lines.push(
-      `- [${c.name}](https://awoo.or.kr/categories/${encodeURIComponent(c.id)}/): ${c.description ?? c.name}`,
-    );
+    lines.push(`- [${c.name}](https://awoo.or.kr/categories/${c.id}/): ${c.description ?? c.name}`);
   }
   lines.push('');
 
@@ -108,11 +124,62 @@ export const GET: APIRoute = async () => {
     );
   }
   lines.push('');
+  // Cycle #13 P0-2: 영구 분석 포스트 + 토픽 hub (이미 핵심 진입점에 인덱스 있음, 여기선 개별)
+  const issueModules = import.meta.glob<{
+    default: { title: string; slug: string; metaDescription: string; date: string };
+  }>('/src/data/issues/*/*.json', { eager: true });
+  type IssuePost = { date: string; slug: string; title: string; metaDescription: string };
+  const issuePosts: IssuePost[] = [];
+  for (const [path, mod] of Object.entries(issueModules)) {
+    const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
+    if (!m) continue;
+    const date = m[1];
+    const slug = m[2];
+    if (!date || !slug || slug.startsWith('_')) continue;
+    issuePosts.push({
+      date,
+      slug,
+      title: mod.default.title,
+      metaDescription: mod.default.metaDescription,
+    });
+  }
+  issuePosts.sort((a, b) => (a.date < b.date ? 1 : -1));
+
+  if (issuePosts.length > 0) {
+    lines.push('## 오늘의 이슈 — 분석 포스트');
+    lines.push('');
+    for (const p of issuePosts.slice(0, 30)) {
+      lines.push(
+        `- [${p.title}](https://awoo.or.kr/issues/${p.date}/${p.slug}/): ${p.metaDescription.slice(0, 100)}`,
+      );
+    }
+    lines.push('');
+  }
+
+  // 토픽 hub (history.byTerm totalCount ≥ 1)
+  const historyModules = import.meta.glob<{
+    default: { byTerm?: Record<string, { totalCount: number; daysActive: number }> };
+  }>('/src/data/issues/_history.json', { eager: true });
+  const history = Object.values(historyModules)[0]?.default ?? { byTerm: {} };
+  const activeTopics = Object.entries(history.byTerm ?? {})
+    .filter(([, e]) => e.totalCount >= 1)
+    .sort((a, b) => b[1].totalCount - a[1].totalCount);
+  if (activeTopics.length > 0) {
+    lines.push('## 트렌딩 토픽 hub');
+    lines.push('');
+    for (const [term, e] of activeTopics) {
+      lines.push(
+        `- [${term}](https://awoo.or.kr/issues/topics/${term}/): ${e.totalCount}건 보도, ${e.daysActive}일 화제`,
+      );
+    }
+    lines.push('');
+  }
+
   lines.push('## 가이드');
   lines.push('');
   lines.push('- [신청 흐름·공식 사이트·FAQ](https://awoo.or.kr/guide/)');
   lines.push('- [전체 지원금 둘러보기](https://awoo.or.kr/subsidies/)');
-  lines.push('- [오늘의 이슈 상세](https://awoo.or.kr/issues/main/)');
+  lines.push('- [오늘의 이슈](https://awoo.or.kr/issues/)');
   lines.push('');
   lines.push('## 정책 및 운영');
   lines.push('');
