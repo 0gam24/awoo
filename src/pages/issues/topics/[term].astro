@@ -5,6 +5,7 @@ import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
+import { buildCollectionPage } from '@/lib/schema';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -142,6 +143,30 @@ const blufStatsTopic = [
   { value: `${matchedSubsidies.length}건`, label: '관련 지원금' },
   ...(peakDay.count > 0 ? [{ value: `${peakDay.count}건`, label: `최다 보도 (${peakDay.date})` }] : []),
 ];
+
+// Cycle #22: 토픽 hub CollectionPage + ItemList — entity 누락 회복
+// thin은 noindex이므로 schema도 미주입 (낭비 방지)
+const collectionSchema = !isThin
+  ? buildCollectionPage({
+      name: `${term} 정부 지원금 ${matchedSubsidies.length}건`,
+      description: `'${term}' 트렌딩 키워드 관련 정부 지원금 + 보도 ${entry.totalCount}건 (${entry.daysActive}일 화제)`,
+      pageUrl: `/issues/topics/${term}/`,
+      items: [
+        ...matchedSubsidies.map(({ s }) => ({
+          url: `/subsidies/${s.data.id}/`,
+          name: s.data.title,
+        })),
+        ...(post
+          ? [
+              {
+                url: `/issues/${entry.firstSeen ?? entry.lastSeen}/${post.slug}/`,
+                name: post.title,
+              },
+            ]
+          : []),
+      ],
+    })
+  : null;
 
 ---
 
@@ -313,6 +338,8 @@ const blufStatsTopic = [
       )}
     </Container>
   </section>
+
+  {collectionSchema && <script is:inline type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
 </BaseLayout>
 
 <style>
