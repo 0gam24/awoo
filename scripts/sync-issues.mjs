@@ -620,6 +620,8 @@ async function main() {
   }
 
   // 3. 트렌딩 토픽별 매칭 기사 전체 수집 + 대표 기사 선정
+  // Cycle #7: 매체 다양성 가중 — `mediaCount * 2 + articleCount` 로 재정렬.
+  //   같은 자료를 여러 매체가 다룬 토픽이 단일 매체 반복 보도보다 신호↑.
   const trendingWithArticles = [];
   for (const [term, count] of ranked) {
     const matching = articles.filter((a) => a.title.includes(term));
@@ -629,21 +631,34 @@ async function main() {
       .sort((s1, s2) => s2.score - s1.score);
 
     if (scored.length > 0) {
+      const mediaSet = new Set();
+      for (const a of scored) {
+        const pub = extractPublisher(a.link);
+        if (pub) mediaSet.add(pub);
+      }
+      const mediaCount = mediaSet.size;
+      const articleCount = scored.length;
       trendingWithArticles.push({
         term,
         count,
+        mediaCount,
+        articleCount,
+        rankScore: mediaCount * 2 + articleCount,
         topArticle: scored[0],
         allArticles: scored, // 다중 소스 종합용 (sync 결과에는 압축, post 생성엔 전체 전달)
       });
     }
   }
 
+  // rankScore desc — count 동률 시 매체 다양성이 높은 토픽이 상위
+  trendingWithArticles.sort((a, b) => b.rankScore - a.rankScore);
+
   if (trendingWithArticles.length === 0) {
     console.error('❌ 모든 트렌딩 토픽이 필터 통과 못함');
     process.exit(1);
   }
 
-  // 1위 = 최다 언급 트렌딩의 대표 기사
+  // 1위 = 매체×기사 가중점수 최상위
   const top = trendingWithArticles[0].topArticle;
   const topTrendTerm = trendingWithArticles[0].term;
   const topTrendCount = trendingWithArticles[0].count;
@@ -704,11 +719,12 @@ async function main() {
     daysActive,
     totalCount,
     matchedSubsidies: matched,
-    // 사이드바용 — Top 5 트렌딩 + 각각 대표 기사 + 매칭 기사 수
+    // 사이드바용 — Top 5 트렌딩 + 각각 대표 기사 + 매체수·기사수
     trending: trendingWithArticles.slice(0, 5).map((t) => ({
       term: t.term,
       count: t.count,
-      articleCount: t.allArticles?.length ?? 1,
+      mediaCount: t.mediaCount,
+      articleCount: t.articleCount,
       topArticle: {
         title: t.topArticle.title,
         link: t.topArticle.link,
@@ -727,6 +743,28 @@ async function main() {
       publisher: extractPublisher(a.link) ?? '',
       category: a.category,
     })),
+    // Cycle #7: 사이드바 클릭 시 토픽 페이지에서 표시할 term별 원문 보도 — 매체 다양성 우선 5건
+    trendingArticlesByTerm: Object.fromEntries(
+      trendingWithArticles.slice(0, 10).map((t) => {
+        // 매체 다양성 우선: 매체별로 가장 점수 높은 1건씩 → 부족하면 점수 desc 채움
+        const byPub = new Map();
+        for (const a of t.allArticles) {
+          const pub = extractPublisher(a.link) ?? a.link;
+          if (!byPub.has(pub)) byPub.set(pub, a);
+        }
+        const diverse = [...byPub.values()].sort((x, y) => y.score - x.score).slice(0, 5);
+        return [
+          t.term,
+          diverse.map((a) => ({
+            title: a.title,
+            link: a.link,
+            pubDate: a.pubDate,
+            pubDateKR: formatDateKR(a.pubDate),
+            publisher: extractPublisher(a.link) ?? '',
+          })),
+        ];
+      }),
+    ),
     // 디버그용 — 모든 트렌딩 N-gram 빈도 (Top 10)
     trendingAll: ranked.slice(0, 10).map(([term, count]) => ({ term, count })),
   };

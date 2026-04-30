@@ -38,7 +38,11 @@ const PERSONAS_PATH = join(ROOT, 'src', 'data', 'personas.json');
 const ISSUES_OUT_DIR = join(ROOT, 'src', 'data', 'issues');
 const HISTORY_PATH = join(ROOT, 'src', 'data', 'issues', '_history.json');
 
-const TOP_N = 3; // 매일 상위 3개 트렌딩에 대해 포스트 생성
+// Cycle #7 — 1일 1개 고정 (사용자 요청). 단 콘텐츠 중복·생성 실패 시 다음 트렌딩 키워드로 fallback.
+// trending Top FALLBACK_CANDIDATES 개 후보로 순회하되, 성공한 첫 1건이 채택되면 즉시 stop.
+const POSTS_PER_DAY = 1;
+const FALLBACK_CANDIDATES = 5;
+const TOP_N = FALLBACK_CANDIDATES; // 호환 alias
 const MODEL = 'claude-sonnet-4-6'; // 한국어 정책 글의 자연스러움·뉘앙스 우선
 const MAX_TOKENS = 4096;
 
@@ -145,6 +149,35 @@ async function loadHistory() {
   } catch {
     return { byTerm: {} };
   }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Cycle #7 — 최근 7일 primary subsidy 집합 (콘텐츠 중복 방지)
+//   동일 지원금이 단기간 반복 포스팅되는 것을 차단.
+//   primary = matchedSubsidies[0].id
+// ─────────────────────────────────────────────────────────────
+async function loadRecentPrimaries(days = 7) {
+  const set = new Set();
+  try {
+    const dateDirs = await readdir(ISSUES_OUT_DIR);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    for (const dir of dateDirs) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dir)) continue;
+      if (new Date(dir) < cutoff) continue;
+      const dirPath = join(ISSUES_OUT_DIR, dir);
+      const files = await readdir(dirPath).catch(() => []);
+      for (const f of files) {
+        if (!f.endsWith('.json') || f.startsWith('_')) continue;
+        try {
+          const post = JSON.parse(await readFile(join(dirPath, f), 'utf8'));
+          const primary = post.matchedSubsidies?.[0]?.id ?? post.relatedSubsidies?.[0]?.id;
+          if (primary) set.add(primary);
+        } catch {}
+      }
+    }
+  } catch {}
+  return set;
 }
 
 async function saveHistory(history) {
@@ -396,9 +429,16 @@ async function main() {
   const date = todayDateStr();
   await mkdir(join(ISSUES_OUT_DIR, date), { recursive: true });
 
+  // Cycle #7: 최근 7일에 1순위로 다뤘던 지원금은 중복으로 간주 → fallback 후보로 넘어감
+  const recentPrimaries = await loadRecentPrimaries(7);
+  if (recentPrimaries.size > 0) {
+    console.log(`🛡️  최근 7일 primary subsidy ${recentPrimaries.size}건 중복 차단 대상`);
+  }
+
   let success = 0;
   let failed = 0;
   const failures = [];
+  const skippedDuplicates = [];
   // Cycle #4 P0-8: cache 통계 영속 로깅 — 1주 hit ratio 측정
   const cacheLog = [];
   // GitHub Actions 환경 감지 — annotation 출력
@@ -416,6 +456,13 @@ async function main() {
 
     // 매칭 지원금
     const matchedSubsidies = matchSubsidies(headline, term, category, allSubsidies, 6);
+    // Cycle #7: 콘텐츠 중복 방지 — primary subsidy가 7일 내 이미 포스팅됐으면 fallback
+    const primaryId = matchedSubsidies[0]?.id;
+    if (primaryId && recentPrimaries.has(primaryId)) {
+      console.log(`  ⤳ 중복 차단: primary "${primaryId}" 7일 내 포스팅됨 → 다음 후보로`);
+      skippedDuplicates.push({ rank: idx + 1, term, primaryId });
+      continue;
+    }
     // 매칭 페르소나
     const personaIds = CAT_TO_PERSONAS[category] ?? ['office-rookie'];
     const matchedPersonas = personas.filter((p) => personaIds.includes(p.id));
@@ -542,6 +589,10 @@ ${JSON.stringify(userInput, null, 2)}
     post.date = date;
     // factCheck 점수도 메타에 저장 — 운영자 모니터링용
     post.factCheckScore = fc.score;
+    // Cycle #7: primary subsidy ID 보존 — 미래 7일 dedup 안정성
+    if (!post.matchedSubsidies && matchedSubsidies.length > 0) {
+      post.matchedSubsidies = matchedSubsidies;
+    }
 
     // 7. 저장
     const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
@@ -552,11 +603,37 @@ ${JSON.stringify(userInput, null, 2)}
     updateHistory(history, term, count, finalSlug);
 
     success++;
+
+    // Cycle #7: 1일 1개 고정 — POSTS_PER_DAY 도달 시 즉시 break (fallback 후보 더 시도하지 않음)
+    if (success >= POSTS_PER_DAY) {
+      console.log(`\n✓ POSTS_PER_DAY=${POSTS_PER_DAY} 도달 — 다음 후보 trending 처리 중단`);
+      break;
+    }
   }
 
   // 8. _history.json 저장
   await saveHistory(history);
-  console.log(`\n📊 ${success} 성공 / ${failed} 실패 — 히스토리 갱신`);
+  console.log(`\n📊 ${success} 성공 / ${failed} 실패 / ${skippedDuplicates.length} 중복스킵 — 히스토리 갱신`);
+
+  // Cycle #7: 모든 후보가 중복이라 0건 성공 → 포스팅 자체 스킵 (사용자 요청: 다른 화제로도 안 만듦)
+  if (success === 0 && skippedDuplicates.length > 0 && failed === 0) {
+    console.log(`📭 ${skippedDuplicates.length}개 후보 모두 7일 내 primary 중복 — 오늘 포스팅 없음`);
+    if (isCI && process.env.GITHUB_STEP_SUMMARY) {
+      const lines = [
+        `## 📭 오늘의 이슈 포스팅 없음 (전 후보 중복)`,
+        '',
+        `최근 7일 내 primary subsidy 중복으로 ${skippedDuplicates.length}건 모두 스킵.`,
+        '',
+        '| 순위 | 토픽 | primary subsidy |',
+        '|---|---|---|',
+        ...skippedDuplicates.map((s) => `| ${s.rank} | ${s.term} | \`${s.primaryId}\` |`),
+      ];
+      try {
+        const { appendFile } = await import('node:fs/promises');
+        await appendFile(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
+      } catch {}
+    }
+  }
 
   // 8-1. Cycle #4 P0-8: Claude API cache 통계 영속 로깅 (_cache-{date}.json)
   if (cacheLog.length > 0) {

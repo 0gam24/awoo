@@ -319,7 +319,7 @@ export const GET: APIRoute = async () => {
   lines.push('- 사업자등록번호: 406-06-34485');
   lines.push('- 대표자: 김준혁 (편집책임자)');
   lines.push('- 소재지: 인천광역시 계양구 새벌로 88, 효성동');
-  lines.push('- 이메일: contact@awoo.or.kr');
+  lines.push('- 이메일: smartdatashop@gmail.com');
   lines.push('- 본 사이트는 정보 안내 사이트로 신청 대행은 하지 않습니다.');
   lines.push('- 정부 부처 공식 발표를 1차 자료로 작성하며 분기마다 전체 재검토합니다.');
   lines.push('- AI 단독 생성 후 무편집 발행은 금지합니다 (AI 보조는 사람의 사실 확인 후 사용).');
