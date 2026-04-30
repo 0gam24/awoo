@@ -90,8 +90,7 @@ export const GET: APIRoute = async ({ locals }) => {
   });
 };
 
-export const HEAD: APIRoute = async ({ locals }) => {
-  const _env = (locals as { runtime?: { env?: Env } }).runtime?.env ?? {};
+export const HEAD: APIRoute = async () => {
   let ok = true;
   try {
     await getCollection('subsidies');

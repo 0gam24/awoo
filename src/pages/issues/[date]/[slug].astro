@@ -59,7 +59,7 @@ export const getStaticPaths = (() => {
     if (!m) continue;
     const date = m[1];
     const slug = m[2];
-    if (slug.startsWith('_')) continue; // _history.json 등 메타 파일 제외
+    if (!date || !slug || slug.startsWith('_')) continue; // _history.json 등 메타 파일 제외
     paths.push({ params: { date, slug }, props: { post: mod.default } });
   }
   return paths;
@@ -82,6 +82,15 @@ const relatedPersonas = post.relatedPersonas
 
 // JSON-LD — NewsArticle 강화 (mainEntityOfPage·articleSection·inLanguage 등)
 const canonicalUrl = `https://awoo.or.kr/issues/${date}/${slug}/`;
+// Cycle #11 P0-1: wordCount — AI 인용 confidence 신호 (콘텐츠 depth 명시)
+const articleWordCount =
+  (post.metaDescription?.length ?? 0) +
+  (post.tldr ?? []).reduce((s, t) => s + t.length, 0) +
+  (post.sections ?? []).reduce(
+    (s, sec) => s + (sec.heading?.length ?? 0) + (sec.lead?.length ?? 0) + (sec.body?.length ?? 0),
+    0,
+  ) +
+  (post.faq ?? []).reduce((s, f) => s + (f.q?.length ?? 0) + (f.a?.length ?? 0), 0);
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'NewsArticle',
@@ -119,6 +128,8 @@ const articleSchema = {
   publisher: { '@id': 'https://awoo.or.kr/#organization' },
   image: ['https://awoo.or.kr/og-default.png'],
   isAccessibleForFree: true,
+  // Cycle #11 P0-1: AI 답변 엔진 인용 confidence 신호
+  wordCount: articleWordCount,
   // Cycle #6 P0-4: audience + mentions — 페르소나 매칭 + glossary entity 그래프 연결
   // relatedPersonas/relatedSubsidies는 이미 .data 객체 추출됨 (Map.get 결과)
   ...(relatedPersonas.length > 0
@@ -138,10 +149,6 @@ const articleSchema = {
         })),
       }
     : {}),
-  mainEntityOfPage: {
-    '@type': 'WebPage',
-    '@id': `https://awoo.or.kr/issues/${date}/${slug}/`,
-  },
 };
 
 const faqSchema = post.faq.length > 0 ? {
@@ -381,7 +388,7 @@ const readMin = readingTimeMinutes();
                   <span class="na-arrow" aria-hidden="true">→</span>
                 </a>
               </li>
-              {relatedSubsidies.length > 0 && (
+              {relatedSubsidies[0] && (
                 <li>
                   <a class="na-card" href={`/subsidies/${relatedSubsidies[0].id}/`}>
                     <div class="na-step">2</div>
@@ -393,7 +400,7 @@ const readMin = readingTimeMinutes();
                   </a>
                 </li>
               )}
-              {relatedPersonas.length > 0 && (
+              {relatedPersonas[0] && (
                 <li>
                   <a class="na-card" href={`/personas/${relatedPersonas[0].id}/`}>
                     <div class="na-step">3</div>

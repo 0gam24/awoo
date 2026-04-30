@@ -2,6 +2,7 @@
 import Container from '@/components/Container.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildCollectionPage } from '@/lib/schema';
+import type { GetStaticPaths } from 'astro';
 
 interface PostMeta {
   title: string;
@@ -17,26 +18,33 @@ interface PostMeta {
   tldr?: unknown[];
 }
 
-// 빌드타임 — 모든 영구 포스트 로드
-const issueModules = import.meta.glob<{ default: PostMeta }>(
-  '/src/data/issues/*/*.json',
-  { eager: true },
-);
+interface PostEntry { date: string; slug: string; data: PostMeta }
 
-const posts: Array<{ date: string; slug: string; data: PostMeta }> = [];
-for (const [path, mod] of Object.entries(issueModules)) {
-  const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
-  if (!m) continue;
-  const date = m[1];
-  const slug = m[2];
-  if (!date || !slug || slug.startsWith('_')) continue;
-  posts.push({ date, slug, data: mod.default });
-}
+// Cycle #11 P1-5: 50건/페이지 페이지네이션 (Astro paginate)
+const PAGE_SIZE = 50;
 
-// 날짜 desc 정렬
-posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+export const getStaticPaths = (async ({ paginate }) => {
+  const issueModules = import.meta.glob<{ default: PostMeta }>(
+    '/src/data/issues/*/*.json',
+    { eager: true },
+  );
+  const all: PostEntry[] = [];
+  for (const [path, mod] of Object.entries(issueModules)) {
+    const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
+    if (!m) continue;
+    const date = m[1];
+    const slug = m[2];
+    if (!date || !slug || slug.startsWith('_')) continue;
+    all.push({ date, slug, data: mod.default });
+  }
+  all.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  return paginate(all, { pageSize: 50 });
+}) satisfies GetStaticPaths;
 
-// 카테고리 빈도 — 필터 chips
+const { page } = Astro.props;
+const posts = page.data as PostEntry[];
+
+// 카테고리 빈도 — 필터 chips (현재 페이지만)
 const catCounts = new Map<string, number>();
 for (const p of posts) {
   catCounts.set(p.data.category, (catCounts.get(p.data.category) ?? 0) + 1);
@@ -52,13 +60,14 @@ function readingTimeMin(post: PostMeta): number {
   return Math.max(2, Math.round(chars / 500));
 }
 
-// CollectionPage + ItemList JSON-LD
-// Cycle #10 P2-14: Google rich result 권장 ItemList ≤ 100건 — 초과 시 schema는 100건만 노출 (페이지엔 전체 표시)
+// CollectionPage + ItemList JSON-LD — 현재 페이지 분량만 (각 페이지 별도 schema)
 const SCHEMA_ITEM_CAP = 100;
+const isFirstPage = page.currentPage === 1;
+const pageUrl = isFirstPage ? '/issues/all/' : `/issues/all/${page.currentPage}/`;
 const collectionSchema = buildCollectionPage({
-  name: `오늘의 이슈 — 영구 포스트 ${posts.length}건`,
-  description: `정부 지원금 정책 분석 포스트 ${posts.length}건 전체 아카이브`,
-  pageUrl: '/issues/all/',
+  name: `전체 분석 포스트 — ${page.currentPage}/${page.lastPage} 페이지`,
+  description: `정부 지원금 정책 분석 포스트 ${page.total}건 전체 아카이브 (페이지 ${page.currentPage})`,
+  pageUrl,
   items: posts.slice(0, SCHEMA_ITEM_CAP).map((p) => ({
     url: `/issues/${p.date}/${p.slug}/`,
     name: p.data.title,
@@ -67,13 +76,16 @@ const collectionSchema = buildCollectionPage({
 ---
 
 <BaseLayout
-  title={`전체 분석 포스트 ${posts.length}건 — 오늘의 이슈 | 지원금가이드`}
-  description={`정부 지원금 정책 분석 포스트 ${posts.length}건 전체 아카이브. 카테고리별·시간별로 모든 포스트를 확인하세요.`}
+  title={isFirstPage
+    ? `전체 분석 포스트 ${page.total}건 — 오늘의 이슈 | 지원금가이드`
+    : `전체 분석 포스트 ${page.currentPage}페이지 — 오늘의 이슈 | 지원금가이드`}
+  description={`정부 지원금 정책 분석 포스트 ${page.total}건 전체 아카이브. 카테고리별·시간별로 모든 포스트를 확인하세요.`}
   activeNav="/issues/"
+  noindex={!isFirstPage}
   breadcrumbs={[
     { name: '홈', href: '/' },
     { name: '오늘의 이슈', href: '/issues/' },
-    { name: '전체 보기', href: '/issues/all/' },
+    { name: isFirstPage ? '전체 보기' : `전체 보기 ${page.currentPage}페이지`, href: pageUrl },
   ]}
 >
   <section class="band">
@@ -81,10 +93,10 @@ const collectionSchema = buildCollectionPage({
       <a class="back-link" href="/issues/">← 오늘의 이슈로</a>
 
       <div class="head">
-        <h1 class="title">전체 분석 포스트</h1>
+        <h1 class="title">전체 분석 포스트{!isFirstPage && ` — ${page.currentPage}페이지`}</h1>
         <p class="lead">
-          정부 지원금 정책을 다각도로 분석한 영구 포스트 <strong>{posts.length}건</strong>입니다.
-          카테고리·시간 순으로 한 페이지에서 확인하세요.
+          정부 지원금 정책을 다각도로 분석한 영구 포스트 <strong>{page.total}건</strong>입니다.
+          {page.lastPage > 1 && <> ({page.currentPage}/{page.lastPage} 페이지)</>}
         </p>
       </div>
 
@@ -133,6 +145,22 @@ const collectionSchema = buildCollectionPage({
             </li>
           ))}
         </ul>
+      )}
+
+      {page.lastPage > 1 && (
+        <nav class="page-nav" aria-label="페이지 네비게이션">
+          {page.url.prev ? (
+            <a class="pn-link" href={page.url.prev} rel="prev">← 이전 페이지</a>
+          ) : (
+            <span class="pn-link disabled">← 이전 페이지</span>
+          )}
+          <span class="pn-current">{page.currentPage} / {page.lastPage}</span>
+          {page.url.next ? (
+            <a class="pn-link" href={page.url.next} rel="next">다음 페이지 →</a>
+          ) : (
+            <span class="pn-link disabled">다음 페이지 →</span>
+          )}
+        </nav>
       )}
     </Container>
   </section>
@@ -363,5 +391,46 @@ const collectionSchema = buildCollectionPage({
   .post-card:hover .pc-arrow {
     transform: translateY(-50%) translateX(4px);
     color: var(--accent);
+  }
+
+  /* 페이지네이션 (Cycle #11 P1-5) */
+  .page-nav {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .pn-link {
+    padding: 10px 18px;
+    background: var(--surface);
+    color: var(--accent-link);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .pn-link:hover {
+    border-color: var(--accent);
+    background: var(--surface-2);
+    text-decoration: none;
+  }
+  .pn-link.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .pn-current {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
   }
 </style>

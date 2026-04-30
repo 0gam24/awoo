@@ -45,7 +45,7 @@ const inlineGlossaryEntries = allGlossary
     id: g.data.id,
     term: g.data.term,
     shortDef: g.data.shortDef,
-    synonyms: g.data.synonyms,
+    synonyms: g.data.synonyms ?? [],
   }));
 
 const breadcrumbs = [
@@ -142,17 +142,22 @@ const faqSchema = t.faq.length > 0 ? {
             <h2>내 상황에 맞는 답 찾기</h2>
             <p class="section-lead">아래 질문 중 하나라도 해당되면 그 줄을 보세요.</p>
             <ol class="dt-list">
-              {t.decisionTree.map((node) => (
+              {t.decisionTree.map((node) => {
+                const blocks = paragraphsAndLists(node.a);
+                const firstBlock = blocks[0];
+                const dtAHtml = firstBlock?.type === 'p' ? firstBlock.html : node.a;
+                const linkedTerm = node.linkSlug ? glossaryById.get(node.linkSlug) : undefined;
+                return (
                 <li class="dt-node">
                   <div class="dt-q">{node.q}</div>
-                  <div class="dt-a" set:html={paragraphsAndLists(node.a)[0]?.type === 'p' ? paragraphsAndLists(node.a)[0].html : node.a} />
-                  {node.linkSlug && glossaryById.has(node.linkSlug) && (
+                  <div class="dt-a" set:html={dtAHtml} />
+                  {linkedTerm && (
                     <a class="dt-link" href={`/glossary/${node.linkSlug}/`}>
-                      “{glossaryById.get(node.linkSlug)!.term}” 정의 보기 →
+                      “{linkedTerm.term}” 정의 보기 →
                     </a>
                   )}
                 </li>
-              ))}
+              );})}
             </ol>
           </section>
 

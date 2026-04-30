@@ -39,9 +39,12 @@ const PERSONAS_PATH = join(ROOT, 'src', 'data', 'personas.json');
 const ISSUES_OUT_DIR = join(ROOT, 'src', 'data', 'issues');
 const HISTORY_PATH = join(ROOT, 'src', 'data', 'issues', '_history.json');
 
-// Cycle #7 — 1일 1개 고정 (사용자 요청). 단 콘텐츠 중복·생성 실패 시 다음 트렌딩 키워드로 fallback.
-// trending Top FALLBACK_CANDIDATES 개 후보로 순회하되, 성공한 첫 1건이 채택되면 즉시 stop.
+// Cycle #7 — 1일 1개 고정 메인. + Cycle #11 P0-2 보너스: 신규 키워드 + 지속성 게이트.
+// 메인 1건 후, 트렌딩 중 (totalCount ≥ 2 AND 영구 포스트 0건 AND primary subsidy dedup 통과) 추가 생성.
+// 1일 캡 BONUS_MAX_PER_DAY (단발 노이즈·비용 방어).
 const POSTS_PER_DAY = 1;
+const BONUS_MAX_PER_DAY = 2; // 1일 최대 메인 1 + 보너스 2 = 3
+const BONUS_TOTAL_COUNT_MIN = 2; // 신규 키워드 지속성 게이트 (1일치 단발 차단)
 const FALLBACK_CANDIDATES = 5;
 const TOP_N = FALLBACK_CANDIDATES; // 호환 alias
 const MODEL = 'claude-sonnet-4-6'; // 한국어 정책 글의 자연스러움·뉘앙스 우선
@@ -449,9 +452,12 @@ async function main() {
   }
 
   let success = 0;
+  let mainSuccess = 0;
+  let bonusSuccess = 0;
   let failed = 0;
   const failures = [];
   const skippedDuplicates = [];
+  const bonusSkipped = [];
   // Cycle #4 P0-8: cache 통계 영속 로깅 — 1주 hit ratio 측정
   const cacheLog = [];
   // GitHub Actions 환경 감지 — annotation 출력
@@ -466,6 +472,31 @@ async function main() {
     const category = topArticle?.category ?? '복지';
 
     console.log(`\n[${idx + 1}/${TOP_N}] ${term} (${count}회) — ${headline.slice(0, 50)}...`);
+
+    // Cycle #11 P0-2: 보너스 포스팅 게이트 — 메인 1건 이미 성공 시 추가 조건 검사
+    const isBonusCandidate = mainSuccess >= POSTS_PER_DAY;
+    if (isBonusCandidate) {
+      // Gate 1: 지속성 (단발 노이즈 차단)
+      if (count < BONUS_TOTAL_COUNT_MIN) {
+        console.log(`  ⤳ 보너스 스킵: count ${count} < ${BONUS_TOTAL_COUNT_MIN} (지속성 부족)`);
+        bonusSkipped.push({ rank: idx + 1, term, reason: 'count_below_min' });
+        continue;
+      }
+      // Gate 2: 1:1 매핑 보장 — 이미 영구 포스트 있는 키워드 skip
+      if (history.byTerm?.[term]?.postSlug) {
+        console.log(
+          `  ⤳ 보너스 스킵: "${term}" 이미 영구 포스트 존재 (${history.byTerm[term].postSlug})`,
+        );
+        bonusSkipped.push({ rank: idx + 1, term, reason: 'has_existing_post' });
+        continue;
+      }
+      // Gate 3: 일일 보너스 캡
+      if (bonusSuccess >= BONUS_MAX_PER_DAY) {
+        console.log(`  ⤳ 보너스 캡 도달 (${BONUS_MAX_PER_DAY}건) — 종료`);
+        break;
+      }
+      console.log(`  🎁 보너스 후보 — count ${count} ≥ ${BONUS_TOTAL_COUNT_MIN}, 신규 키워드`);
+    }
 
     // 매칭 지원금
     const matchedSubsidies = matchSubsidies(headline, term, category, allSubsidies, 6);
@@ -623,10 +654,16 @@ ${JSON.stringify(userInput, null, 2)}
     updateHistory(history, term, count, finalSlug);
 
     success++;
+    if (isBonusCandidate) {
+      bonusSuccess++;
+      console.log(`  🎁 보너스 ${bonusSuccess}/${BONUS_MAX_PER_DAY}`);
+    } else {
+      mainSuccess++;
+    }
 
-    // Cycle #7: 1일 1개 고정 — POSTS_PER_DAY 도달 시 즉시 break (fallback 후보 더 시도하지 않음)
-    if (success >= POSTS_PER_DAY) {
-      console.log(`\n✓ POSTS_PER_DAY=${POSTS_PER_DAY} 도달 — 다음 후보 trending 처리 중단`);
+    // Cycle #11: 메인 + 보너스 캡 도달 시 종료 (메인 1 + 보너스 ≤ BONUS_MAX_PER_DAY)
+    if (mainSuccess >= POSTS_PER_DAY && bonusSuccess >= BONUS_MAX_PER_DAY) {
+      console.log(`\n✓ 메인 ${mainSuccess} + 보너스 ${bonusSuccess} 캡 도달 — 처리 종료`);
       break;
     }
   }
@@ -634,7 +671,7 @@ ${JSON.stringify(userInput, null, 2)}
   // 8. _history.json 저장
   await saveHistory(history);
   console.log(
-    `\n📊 ${success} 성공 / ${failed} 실패 / ${skippedDuplicates.length} 중복스킵 — 히스토리 갱신`,
+    `\n📊 메인 ${mainSuccess} + 보너스 ${bonusSuccess} = ${success} 성공 / ${failed} 실패 / ${skippedDuplicates.length} 중복스킵 / ${bonusSkipped.length} 보너스조건불충족 — 히스토리 갱신`,
   );
 
   // Cycle #7: 모든 후보가 중복이라 0건 성공 → 포스팅 자체 스킵 (사용자 요청: 다른 화제로도 안 만듦)

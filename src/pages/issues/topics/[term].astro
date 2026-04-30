@@ -93,14 +93,27 @@ const { term, entry, post, otherTopics } = Astro.props as {
   otherTopics: Array<{ term: string; totalCount: number; daysActive: number }>;
 };
 
-// term이 포함된 지원금 매칭 (제목 / 태그 / 요약)
+// term이 포함된 지원금 매칭 — Cycle #11 P1-6: 매칭 점수 산정 (배지용)
+// 제목 매칭 +20, 태그 양방향 +8 (각), 요약 매칭 +5
 const allSubsidies = await getCollection('subsidies');
+function scoreSubsidy(s: typeof allSubsidies[number]['data']): number {
+  let score = 0;
+  if (s.title?.includes(term)) score += 20;
+  for (const tag of s.tags ?? []) {
+    if (tag.includes(term) || term.includes(tag)) score += 8;
+  }
+  if (s.summary?.includes(term)) score += 5;
+  return score;
+}
+function fitLabel(score: number): { label: string; cls: string } {
+  if (score >= 25) return { label: '매우 적합', cls: 'fit-strong' };
+  if (score >= 12) return { label: '적합', cls: 'fit-good' };
+  return { label: '관련', cls: 'fit-soft' };
+}
 const matchedSubsidies = allSubsidies
-  .filter((s) => {
-    const text = `${s.data.title} ${s.data.summary} ${(s.data.tags ?? []).join(' ')}`;
-    return text.includes(term);
-  })
-  .sort((a, b) => (b.data.amount ?? 0) - (a.data.amount ?? 0))
+  .map((s) => ({ s, score: scoreSubsidy(s.data) }))
+  .filter((x) => x.score > 0)
+  .sort((a, b) => b.score - a.score || (b.s.data.amount ?? 0) - (a.s.data.amount ?? 0))
   .slice(0, 9);
 
 // Cycle #7: 트렌딩 토픽별 원문 보도 (today-issue.json의 trendingArticlesByTerm)
@@ -210,7 +223,9 @@ const blufStatsTopic = [
         <section class="matched">
           <h2>관련 지원금 {matchedSubsidies.length}건</h2>
           <ul class="grid">
-            {matchedSubsidies.map((s) => (
+            {matchedSubsidies.map(({ s, score }) => {
+              const fit = fitLabel(score);
+              return (
               <li>
                 <a class="card" href={`/subsidies/${s.data.id}/`}>
                   <div class={`media tint-${s.data.category}`}>
@@ -218,6 +233,7 @@ const blufStatsTopic = [
                   </div>
                   <div class="body">
                     <div class="meta-row">
+                      <span class={`badge ${fit.cls}`} title={`매칭 점수 ${score}`}>{fit.label}</span>
                       <span class="badge neutral">{s.data.category}</span>
                       {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
                     </div>
@@ -231,7 +247,7 @@ const blufStatsTopic = [
                   </div>
                 </a>
               </li>
-            ))}
+            );})}
           </ul>
         </section>
       )}
@@ -549,6 +565,21 @@ const blufStatsTopic = [
   .badge.warning {
     background: rgb(247 195 96 / 0.18);
     color: var(--color-warning);
+  }
+  /* Cycle #11 P1-6: 매칭 점수 배지 */
+  .badge.fit-strong {
+    background: color-mix(in oklch, var(--color-success), transparent 82%);
+    color: var(--color-success);
+    font-weight: 700;
+  }
+  .badge.fit-good {
+    background: color-mix(in oklch, var(--accent), transparent 86%);
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .badge.fit-soft {
+    background: var(--surface-2);
+    color: var(--text-2);
   }
 
   .agency {

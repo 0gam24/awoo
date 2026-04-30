@@ -1,6 +1,6 @@
 // @ts-check
 
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -28,6 +28,40 @@ try {
   }
 } catch {
   // manifest 없으면 lastmod 미주입 (정적 fallback)
+}
+
+// Cycle #11 P2-8: 영구 포스트 publishedAt → lastmod (sitemap freshness)
+// 트렌딩 토픽 hub의 lastSeen → lastmod 보강 (auto-curation 신호)
+const issuePostLastmod = new Map(); // /issues/{date}/{slug}/ → ISO
+const topicHubLastmod = new Map(); // {term} → ISO (lastSeen)
+try {
+  const issuesDir = join(__dirname, 'src/data/issues');
+  const dateDirs = readdirSync(issuesDir, { withFileTypes: true });
+  for (const dirent of dateDirs) {
+    if (!dirent.isDirectory()) continue;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dirent.name)) continue;
+    const dayPath = join(issuesDir, dirent.name);
+    for (const f of readdirSync(dayPath)) {
+      if (!f.endsWith('.json') || f.startsWith('_')) continue;
+      try {
+        const post = JSON.parse(readFileSync(join(dayPath, f), 'utf8'));
+        const slug = f.replace(/\.json$/, '');
+        const iso = post.publishedAt || `${dirent.name}T00:00:00.000Z`;
+        issuePostLastmod.set(`/issues/${dirent.name}/${slug}/`, iso);
+      } catch {}
+    }
+  }
+  // History — 토픽 hub freshness
+  const history = JSON.parse(
+    readFileSync(join(__dirname, 'src/data/issues/_history.json'), 'utf8'),
+  );
+  for (const [term, entry] of Object.entries(history.byTerm ?? {})) {
+    if (entry?.lastSeen && /^\d{4}-\d{2}-\d{2}$/.test(entry.lastSeen)) {
+      topicHubLastmod.set(term, `${entry.lastSeen}T00:00:00.000Z`);
+    }
+  }
+} catch {
+  // graceful fallback
 }
 
 // https://astro.build/config
@@ -64,6 +98,21 @@ export default defineConfig({
         const subsidyMatch = item.url.match(/\/subsidies\/([^/]+)\/?$/);
         if (subsidyMatch && slugToLastmod.has(subsidyMatch[1])) {
           item.lastmod = slugToLastmod.get(subsidyMatch[1]);
+        }
+
+        // Cycle #11 P2-8: 영구 포스트 publishedAt → lastmod (freshness 신호)
+        const postPath = item.url.replace(/^https?:\/\/[^/]+/, '');
+        if (issuePostLastmod.has(postPath)) {
+          item.lastmod = issuePostLastmod.get(postPath);
+        }
+
+        // Cycle #11 P2-8: 토픽 hub lastSeen → lastmod
+        const topicMatch = postPath.match(/^\/issues\/topics\/([^/]+)\/$/);
+        if (topicMatch) {
+          const term = decodeURIComponent(topicMatch[1]);
+          if (topicHubLastmod.has(term)) {
+            item.lastmod = topicHubLastmod.get(term);
+          }
         }
 
         // 2) 페이지 타입별 priority/changefreq 차등화
