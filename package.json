@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/check-bundle-size.mjs",
     "preview": "npm run build && wrangler dev",
     "astro": "astro",
     "check": "astro check && tsc --noEmit",
