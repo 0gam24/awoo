@@ -45,7 +45,9 @@
     "audit:skip-link": "node scripts/audit-skip-link.mjs",
     "audit:a11y": "npm run audit:headings && npm run audit:skip-link",
     "audit:rss": "node scripts/audit-rss.mjs",
-    "audit:titles": "node scripts/audit-titles.mjs"
+    "audit:titles": "node scripts/audit-titles.mjs",
+    "audit:specificity": "node scripts/audit-specificity.mjs",
+    "audit:content-depth": "node scripts/audit-content-depth.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",
