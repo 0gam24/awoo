@@ -85,7 +85,7 @@ export default defineConfig({
           path === '/categories/' ||
           path === '/topics/'
         ) {
-          item.changefreq = 'daily';
+          item.changefreq = /** @type {any} */ ('daily');
           item.priority = 0.9;
           return item;
         }
@@ -100,7 +100,7 @@ export default defineConfig({
           /^\/topics\/[^/]+\/$/.test(path) ||
           /^\/subsidies\/category\/[^/]+\/persona\/[^/]+\/$/.test(path)
         ) {
-          item.changefreq = 'weekly';
+          item.changefreq = /** @type {any} */ ('weekly');
           item.priority = 0.8;
           return item;
         }
@@ -119,7 +119,7 @@ export default defineConfig({
           path === '/terms/' ||
           /^\/glossary\/[^/]+\/$/.test(path)
         ) {
-          item.changefreq = 'monthly';
+          item.changefreq = /** @type {any} */ ('monthly');
           item.priority = 0.5;
           return item;
         }
