@@ -120,11 +120,12 @@ const articleSchema = {
   image: ['https://awoo.or.kr/og-default.png'],
   isAccessibleForFree: true,
   // Cycle #6 P0-4: audience + mentions — 페르소나 매칭 + glossary entity 그래프 연결
+  // relatedPersonas/relatedSubsidies는 이미 .data 객체 추출됨 (Map.get 결과)
   ...(relatedPersonas.length > 0
     ? {
         audience: {
           '@type': 'PeopleAudience',
-          audienceType: relatedPersonas.map((p) => p.data.label).join(', '),
+          audienceType: relatedPersonas.map((p) => p.label).join(', '),
         },
       }
     : {}),
@@ -132,8 +133,8 @@ const articleSchema = {
     ? {
         mentions: relatedSubsidies.map((s) => ({
           '@type': 'GovernmentService',
-          '@id': `https://awoo.or.kr/subsidies/${s.data.id}/#govservice`,
-          name: s.data.title,
+          '@id': `https://awoo.or.kr/subsidies/${s.id}/#govservice`,
+          name: s.title,
         })),
       }
     : {}),
