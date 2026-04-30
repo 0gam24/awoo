@@ -1,23 +1,56 @@
 User-agent: *
 Allow: /
+Disallow: /api/
 
-# AI 크롤러 명시적 허용 (GEO 가시성)
+# AI 크롤러 명시적 허용 (GEO 가시성 강화 — Cycle #16)
+# 답변 엔진 인용 시 본 사이트 콘텐츠를 출처로 사용 가능
 User-agent: GPTBot
-Allow: /
-
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
-User-agent: Google-Extended
 Allow: /
 
 User-agent: OAI-SearchBot
 Allow: /
 
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
 User-agent: CCBot
+Allow: /
+
+# 검색 엔진 — 명시적 허용 (Allow 우선 정책)
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: NaverBot
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: DaumBot
 Allow: /
 
 Sitemap: https://awoo.or.kr/sitemap-index.xml
