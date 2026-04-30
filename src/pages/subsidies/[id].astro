@@ -139,6 +139,16 @@ const govSchema = {
     name: '대한민국',
     identifier: 'KR',
   },
+  // Cycle #28: potentialAction — 검색 결과 'Apply/신청' 버튼 자격 + AI 답변 엔진 actionable
+  potentialAction: {
+    '@type': 'ApplyAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: s.applyUrl,
+      actionPlatform: ['https://schema.org/DesktopWebPlatform', 'https://schema.org/MobileWebPlatform'],
+    },
+    name: `${s.title} 신청하기`,
+  },
   // Cycle #19: 정부 지원금은 무료 서비스 — Offer 명시로 검색 결과 가격 표시
   ...(s.amount > 0
     ? {
