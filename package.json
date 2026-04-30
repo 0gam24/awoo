@@ -32,7 +32,14 @@
     "check:apply-urls": "node scripts/check-apply-urls.mjs",
     "check:apply-urls:all": "node scripts/check-apply-urls.mjs --all",
     "indexnow:ping": "node scripts/indexnow-ping.mjs",
-    "citations:track": "node scripts/citation-tracker.mjs"
+    "citations:track": "node scripts/citation-tracker.mjs",
+    "cycle:status": "node scripts/cycle-runner.mjs status",
+    "cycle:advance": "node scripts/cycle-runner.mjs advance",
+    "cycle:reset": "node scripts/cycle-runner.mjs reset",
+    "audit:links": "node scripts/internal-link-audit.mjs",
+    "audit:schema": "node scripts/schema-validate.mjs",
+    "audit:llms": "node scripts/llms-freshness.mjs",
+    "audit:keywords": "node scripts/keyword-coverage.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",
