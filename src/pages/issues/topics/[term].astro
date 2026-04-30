@@ -4,8 +4,17 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
+import todayIssue from '@/data/today-issue.json';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
+
+interface SourceArticle {
+  title: string;
+  link: string;
+  pubDate?: string;
+  pubDateKR?: string;
+  publisher?: string;
+}
 
 interface HistoryEntry {
   firstSeen: string;
@@ -93,6 +102,11 @@ const matchedSubsidies = allSubsidies
   })
   .sort((a, b) => (b.data.amount ?? 0) - (a.data.amount ?? 0))
   .slice(0, 9);
+
+// Cycle #7: 트렌딩 토픽별 원문 보도 (today-issue.json의 trendingArticlesByTerm)
+type TrendingArticlesByTerm = Record<string, SourceArticle[]>;
+const articlesByTerm = ((todayIssue as { trendingArticlesByTerm?: TrendingArticlesByTerm }).trendingArticlesByTerm) ?? {};
+const sourceArticles: SourceArticle[] = articlesByTerm[term] ?? [];
 
 // thin content 보호 — 매칭 지원금이 0개이고 매칭 포스트도 없으면 noindex
 const isThin = matchedSubsidies.length === 0 && !post;
@@ -215,6 +229,27 @@ const blufStatsTopic = [
                       </div>
                     )}
                   </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {sourceArticles.length > 0 && (
+        <section class="sources">
+          <h2>원문 보도 {sourceArticles.length}개</h2>
+          <p class="sources-sub">매체별로 핵심 보도 1건씩 모았습니다. 클릭 시 외부 사이트로 이동합니다.</p>
+          <ul class="sources-list">
+            {sourceArticles.map((a) => (
+              <li>
+                <a class="source-card" href={a.link} rel="nofollow noopener" target="_blank">
+                  <div class="src-meta">
+                    {a.publisher && <span class="src-pub">{a.publisher}</span>}
+                    {a.pubDateKR && <span class="src-date">{a.pubDateKR}</span>}
+                  </div>
+                  <div class="src-title">{a.title}</div>
+                  <span class="src-cta">원문 보기 →</span>
                 </a>
               </li>
             ))}
@@ -540,6 +575,76 @@ const blufStatsTopic = [
     color: var(--text-2);
     font-weight: 500;
     margin-left: 3px;
+  }
+
+  .sources {
+    margin-bottom: 40px;
+  }
+  .sources h2 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .sources-sub {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 0 0 16px;
+  }
+  .sources-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .source-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .source-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .src-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 11px;
+  }
+  .src-pub {
+    padding: 2px 8px;
+    background: var(--surface-2);
+    color: var(--text);
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+  }
+  .src-date {
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .src-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .src-cta {
+    font-size: 12px;
+    color: var(--accent-link);
+    font-weight: 600;
+    margin-top: auto;
   }
 
   .timeline-list {

@@ -261,11 +261,13 @@ const months = Object.keys(byMonth).sort().reverse();
             {trending.length > 0 ? (
               <ol class="trend-list">
                 {trending.slice(0, 5).map((t, i) => {
-                  // Cycle #7 — 실제 포스트가 있을 때만 링크. 없으면 dead text (사용자 요청)
+                  // Cycle #7 — 3단계 우선순위: 포스트 > 토픽 페이지(totalCount≥3) > dead text
                   const matchedPost = findPost(t.term);
+                  const tHref = topicHref(t.term);
                   const href = matchedPost
                     ? `/issues/${matchedPost.date}/${matchedPost.slug}/`
-                    : null;
+                    : tHref;
+                  const tier = matchedPost ? 'post' : tHref ? 'topic' : 'dead';
                   const inner = (
                     <>
                       <span class="rk">{i + 1}</span>
@@ -275,7 +277,9 @@ const months = Object.keys(byMonth).sort().reverse();
                   );
                   return (
                     <li class={i === 0 ? 'hot' : ''}>
-                      {href ? <a class="trend-link" href={href}>{inner}</a> : <span class="trend-link inert">{inner}</span>}
+                      {href
+                        ? <a class={`trend-link tier-${tier}`} href={href}>{inner}</a>
+                        : <span class="trend-link inert">{inner}</span>}
                     </li>
                   );
                 })}
