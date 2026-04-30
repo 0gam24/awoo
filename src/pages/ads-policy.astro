@@ -1,0 +1,157 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="광고 정책 — 지원금가이드"
+  description="지원금가이드의 광고 운영 정책. Google AdSense·제휴 마케팅 사용 범위, 사용자 정보 보호 정책, 콘텐츠와 광고 분리 원칙을 명시합니다."
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '광고 정책', href: '/ads-policy/' },
+  ]}
+>
+  <Container size="narrow">
+    <article class="page">
+      <h1>광고 정책</h1>
+      <p class="meta">시행일: 2026-05-01</p>
+
+      <section>
+        <h2>1. 광고 게재 원칙</h2>
+        <p>
+          본 사이트는 운영 비용 충당을 위해 광고를 게재할 수 있습니다. 다음 원칙을 따릅니다:
+        </p>
+        <ul>
+          <li><strong>콘텐츠와 광고의 명확한 분리</strong>: 본문 텍스트와 광고는 시각적·구조적으로 구분합니다.</li>
+          <li><strong>편집 독립성</strong>: 광고 수익은 콘텐츠 작성·검수에 영향을 주지 않습니다.</li>
+          <li><strong>사용자 신뢰 우선</strong>: 정확하지 않거나 사용자에게 해를 끼칠 수 있는 광고는 게재하지 않습니다.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>2. Google AdSense</h2>
+        <p>
+          본 사이트는 Google AdSense를 통해 광고를 게재할 수 있습니다. AdSense는 다음 데이터를 처리할 수 있습니다:
+        </p>
+        <ul>
+          <li>방문자의 IP 주소·브라우저·기기 정보 (광고 빈도 조절·통계)</li>
+          <li>쿠키 기반 광고 개인화 (Google 광고 설정에서 비활성화 가능)</li>
+        </ul>
+        <p>
+          상세 처리 방침: <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">Google 광고 정책</a> ·
+          광고 개인화 비활성화: <a href="https://adssettings.google.com/" target="_blank" rel="noopener noreferrer">Google 광고 설정</a>
+        </p>
+      </section>
+
+      <section>
+        <h2>3. 광고가 게재되지 않는 영역</h2>
+        <ul>
+          <li>운영 정책 페이지 (개인정보처리방침·이용약관·편집 정책 등)</li>
+          <li>편집책임자 프로필 페이지</li>
+          <li>404·검색 결과 페이지</li>
+          <li>thin content로 자동 분류된 페이지</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. 제휴 마케팅 (Affiliate)</h2>
+        <p>
+          현재 본 사이트는 제휴 마케팅을 운영하지 않습니다.
+          향후 도입 시 본 페이지에 명시하고, 제휴 링크는 시각적으로 구분하여 표시합니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>5. 정부 지원금 신청 대행 미수행</h2>
+        <p>
+          본 사이트는 <strong>정보 안내</strong>만 합니다. 어떤 지원금에 대해서도 신청 대행 서비스를 제공하지 않으며,
+          이에 대한 광고도 게재하지 않습니다. 신청은 정부 공식 사이트(예: <a href="https://www.gov.kr" target="_blank" rel="noopener noreferrer">정부24</a>,
+          <a href="https://www.bokjiro.go.kr" target="_blank" rel="noopener noreferrer">복지로</a>)에서 직접 진행하셔야 합니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. 사용자 의견 수렴</h2>
+        <p>
+          광고 관련 불만·제보는 <a href="/contact/">문의 페이지</a>를 통해 보내주세요.
+          24~48시간 내 검토 후 회신드립니다.
+        </p>
+      </section>
+
+      <section>
+        <h2>7. 정책 변경</h2>
+        <p>
+          본 정책은 사전 고지 후 변경할 수 있습니다. 변경 시 본 페이지의 시행일과 변경 내용을 명시합니다.
+        </p>
+      </section>
+
+      <section class="biz">
+        <h2>운영 주체</h2>
+        <dl>
+          <dt>상호</dt><dd>스마트데이터샵</dd>
+          <dt>대표자</dt><dd>김준혁 (편집책임자)</dd>
+          <dt>사업자등록번호</dt><dd>406-06-34485</dd>
+          <dt>이메일</dt><dd><a href="mailto:smartdatashop@gmail.com">smartdatashop@gmail.com</a></dd>
+        </dl>
+      </section>
+    </article>
+  </Container>
+</BaseLayout>
+
+<style>
+  .page {
+    padding: 32px 0 80px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 8px;
+  }
+  .meta {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 0 0 32px;
+  }
+  section {
+    margin-bottom: 32px;
+  }
+  h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: var(--text);
+  }
+  p,
+  ul,
+  ol {
+    color: var(--text);
+    line-height: 1.7;
+    margin: 0 0 12px;
+  }
+  ul,
+  ol {
+    padding-left: 20px;
+  }
+  li {
+    margin-bottom: 6px;
+  }
+  a {
+    color: var(--accent-link);
+  }
+  .biz dl {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 8px 16px;
+    margin: 0;
+    font-size: 14px;
+  }
+  .biz dt {
+    color: var(--text-2);
+  }
+  .biz dd {
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,255 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const SITE_URL = 'https://awoo.or.kr';
+const PROFILE_URL = `${SITE_URL}/editor/jjh/`;
+
+// ProfilePage + Person schema — E-E-A-T 'Experience' 신호 강화
+// AdSense 평가 핵심: "실제 사람이 이 콘텐츠에 붙어 있는가, 배경·전문성이 있는가"
+const profileSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  '@id': `${PROFILE_URL}#profilepage`,
+  url: PROFILE_URL,
+  inLanguage: 'ko-KR',
+  name: '김준혁 편집책임자 프로필',
+  description: '지원금가이드 편집책임자 김준혁의 약력·전문 분야·검수 정책.',
+  mainEntity: {
+    '@type': 'Person',
+    '@id': `${PROFILE_URL}#person`,
+    name: '김준혁',
+    jobTitle: '편집책임자',
+    description: '정부 지원금·복지 정책 콘텐츠 편집·검수. 스마트데이터샵 대표.',
+    url: PROFILE_URL,
+    email: 'smartdatashop@gmail.com',
+    worksFor: {
+      '@type': 'Organization',
+      '@id': `${SITE_URL}/#organization`,
+      name: '스마트데이터샵',
+    },
+    knowsAbout: [
+      '정부 지원금',
+      '복지 제도',
+      '청년 정책',
+      '주거 지원',
+      'AI 보조 콘텐츠 검수',
+    ],
+    address: {
+      '@type': 'PostalAddress',
+      addressCountry: 'KR',
+      addressLocality: '인천광역시 계양구',
+    },
+  },
+  about: { '@id': `${SITE_URL}/#organization` },
+};
+---
+
+<BaseLayout
+  title="김준혁 편집책임자 프로필 — 지원금가이드"
+  description="지원금가이드 편집책임자 김준혁의 약력·전문 분야·콘텐츠 검수 절차. 정부 지원금·복지 정책을 페르소나 단위로 정리해 안내합니다."
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '사이트 소개', href: '/about/' },
+    { name: '편집책임자 프로필', href: '/editor/jjh/' },
+  ]}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(profileSchema)} />
+
+  <article class="band">
+    <Container size="narrow">
+      <a class="back-link" href="/about/">← 사이트 소개로</a>
+
+      <header class="head">
+        <div class="eyebrow">편집책임자 프로필</div>
+        <h1 class="title">김준혁</h1>
+        <p class="role">편집책임자 · 스마트데이터샵 대표</p>
+      </header>
+
+      <section class="card">
+        <h2>역할</h2>
+        <ul>
+          <li><strong>편집·검수</strong>: 본 사이트의 모든 콘텐츠를 사람 검수합니다 (AI 단독 발행 없음).</li>
+          <li><strong>운영</strong>: 사이트 기획·개발·운영 (개인사업자 스마트데이터샵).</li>
+          <li><strong>정정 책임</strong>: 사용자 제보 및 정책 변경 시 24~48시간 내 검토·반영.</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>전문 영역</h2>
+        <ul>
+          <li>정부 지원금·복지 정책 정보 정리 (자격·금액·신청 절차)</li>
+          <li>페르소나 기반 정책 매칭 (생애 단계·가구 유형·소득 구간)</li>
+          <li>AI 보조 콘텐츠 검수 (편집 정책: AI 단독 생성 금지, 사람 검수 후 발행)</li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>콘텐츠 검수 절차</h2>
+        <ol>
+          <li>1차 자료 확보: 보건복지부·국토교통부·고용노동부 등 정부 부처 공식 공고·보도자료</li>
+          <li>1차 안 작성: AI 보조 또는 직접 작성</li>
+          <li>2차 검수: 1차 자료 대조 (금액·기간·자격 정확도)</li>
+          <li>3차 자동 검증: 사실 일치 점수 ≥ 70% (Fact-check 자동화)</li>
+          <li>발행: 위 모두 통과한 콘텐츠만 게시</li>
+          <li>정정: 정책 변경·사용자 제보 시 즉시 반영</li>
+        </ol>
+        <p class="meta">
+          상세 정책: <a href="/editorial-policy/">편집 정책 페이지</a> · 정정 제보: <a href="/contact/">문의</a>
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>운영 책임</h2>
+        <dl>
+          <dt>운영 법인</dt><dd>스마트데이터샵 (개인사업자)</dd>
+          <dt>대표자</dt><dd>김준혁</dd>
+          <dt>사업자등록번호</dt><dd>406-06-34485</dd>
+          <dt>소재지</dt><dd>인천광역시 계양구 새벌로 88, 효성동</dd>
+          <dt>이메일</dt><dd><a href="mailto:smartdatashop@gmail.com">smartdatashop@gmail.com</a></dd>
+        </dl>
+      </section>
+
+      <section class="card disclosure">
+        <h2>AI 활용 명시</h2>
+        <p>
+          본 사이트는 정부 지원금 정보 정리에 <strong>AI 보조 도구를 활용</strong>합니다 (Claude, GPT 등).
+          모든 콘텐츠는 발행 전 편집책임자 김준혁의 검수를 거치며, AI 단독으로 생성된 글은 발행하지 않습니다.
+          AI 사용 여부는 글 단위로도 표시됩니다.
+        </p>
+      </section>
+
+      <nav class="related" aria-label="관련 페이지">
+        <h2>함께 보기</h2>
+        <ul>
+          <li><a href="/about/">사이트 소개</a></li>
+          <li><a href="/editorial-policy/">편집 정책</a></li>
+          <li><a href="/contact/">문의·정정 제보</a></li>
+          <li><a href="/privacy/">개인정보처리방침</a></li>
+        </ul>
+      </nav>
+    </Container>
+  </article>
+</BaseLayout>
+
+<style>
+  .band {
+    padding: 32px 0 80px;
+  }
+  .back-link {
+    display: inline-block;
+    color: var(--text-2);
+    font-size: 14px;
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+  .head {
+    margin-bottom: 28px;
+  }
+  .eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+  .title {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin: 0 0 8px;
+  }
+  .role {
+    font-size: 16px;
+    color: var(--text-2);
+    margin: 0;
+  }
+  .card {
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+  }
+  .card h2 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 12px;
+  }
+  .card ul,
+  .card ol {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .card li {
+    margin-bottom: 6px;
+  }
+  .card.disclosure {
+    background: color-mix(in oklch, var(--accent), transparent 92%);
+    border-color: color-mix(in oklch, var(--accent), transparent 78%);
+  }
+  .card.disclosure p {
+    margin: 0;
+    line-height: 1.65;
+    color: var(--text);
+  }
+  dl {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 8px 16px;
+    margin: 0;
+    font-size: 14px;
+  }
+  dt {
+    color: var(--text-2);
+  }
+  dd {
+    margin: 0;
+    color: var(--text);
+  }
+  .meta {
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .meta a {
+    color: var(--accent-link);
+  }
+  .related {
+    margin-top: 24px;
+  }
+  .related h2 {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    color: var(--text-2);
+  }
+  .related ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .related a {
+    display: inline-flex;
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--accent-link);
+    font-size: 14px;
+    text-decoration: none;
+  }
+  .related a:hover {
+    border-color: var(--accent);
+    background: var(--surface-2);
+  }
+</style>
