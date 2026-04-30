@@ -1,6 +1,3 @@
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
 import {
@@ -10,11 +7,6 @@ import {
   MEDIAN_INCOME,
 } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
-
-// 빌드타임 issues/{date}/{slug}.json 본문 합본 — Claude 생성 SEO/GEO 포스트
-// AI 답변 엔진(GPTBot/ClaudeBot/PerplexityBot)이 본문 청크 단위로 정확 인용
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ISSUES_DIR = path.resolve(__dirname, '../../src/data/issues');
 
 interface IssuePostSection {
   heading: string;
@@ -37,32 +29,29 @@ interface IssuePostFile {
   faq?: IssuePostFAQ[];
 }
 
+// 빌드타임 issues/{date}/{slug}.json 본문 합본 — Claude 생성 SEO/GEO 포스트.
+// import.meta.glob로 Vite 정적 import (Cloudflare prerender 환경 호환 — node:fs 미사용).
+// AI 답변 엔진(GPTBot/ClaudeBot/PerplexityBot)이 본문 청크 단위로 정확 인용 가능.
+const issuePostModules = import.meta.glob<{ default: IssuePostFile }>(
+  '/src/data/issues/*/*.json',
+  { eager: true },
+);
+
 function loadRecentIssuePosts(maxDays = 30): Array<{ date: string; slug: string; data: IssuePostFile }> {
   const out: Array<{ date: string; slug: string; data: IssuePostFile }> = [];
-  if (!existsSync(ISSUES_DIR)) return out;
-
   const cutoffMs = Date.now() - maxDays * 24 * 60 * 60 * 1000;
 
-  for (const dateEntry of readdirSync(ISSUES_DIR, { withFileTypes: true })) {
-    if (!dateEntry.isDirectory()) continue;
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateEntry.name)) continue;
-    const dateMs = new Date(dateEntry.name).getTime();
+  for (const [filePath, mod] of Object.entries(issuePostModules)) {
+    const m = filePath.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
+    if (!m) continue;
+    const date = m[1];
+    const slug = m[2];
+    if (slug.startsWith('_')) continue;
+    const dateMs = new Date(date).getTime();
     if (Number.isNaN(dateMs) || dateMs < cutoffMs) continue;
-
-    const dateDir = path.join(ISSUES_DIR, dateEntry.name);
-    for (const f of readdirSync(dateDir)) {
-      if (!f.endsWith('.json') || f.startsWith('_')) continue;
-      const slug = f.replace(/\.json$/, '');
-      try {
-        const data = JSON.parse(readFileSync(path.join(dateDir, f), 'utf8')) as IssuePostFile;
-        out.push({ date: dateEntry.name, slug, data });
-      } catch {
-        // skip malformed file
-      }
-    }
+    out.push({ date, slug, data: mod.default });
   }
 
-  // 최신순
   return out.sort((a, b) => b.date.localeCompare(a.date) || b.slug.localeCompare(a.slug));
 }
 
