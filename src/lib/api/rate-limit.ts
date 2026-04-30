@@ -32,7 +32,8 @@ function gc(): void {
   const sorted = [...buckets.entries()].sort((a, b) => a[1].resetAt - b[1].resetAt);
   const removeCount = Math.floor(buckets.size / 2);
   for (let i = 0; i < removeCount; i++) {
-    buckets.delete(sorted[i]?.[0]);
+    const key = sorted[i]?.[0];
+    if (key) buckets.delete(key);
   }
 }
 
@@ -117,7 +118,7 @@ export interface RateLimitResult {
 
 export interface RateLimitOptions {
   /** KV namespace (optional). 없으면 in-memory 사용. */
-  kv?: KVNamespaceLike;
+  kv?: KVNamespaceLike | undefined;
 }
 
 /**

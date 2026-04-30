@@ -59,7 +59,7 @@ const collectionSchema = buildCollectionPage({
               <div class="tile-body">
                 <div class="tile-title">{t.data.title}</div>
                 <div class="tile-def">{t.data.shortDef}</div>
-                {topicCounts[t.data.id] > 0 && (
+                {(topicCounts[t.data.id] ?? 0) > 0 && (
                   <div class="tile-meta">관련 지원금 {topicCounts[t.data.id]}건 안내</div>
                 )}
               </div>

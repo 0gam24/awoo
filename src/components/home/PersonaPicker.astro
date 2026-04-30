@@ -20,12 +20,13 @@ const personaContext = personas.reduce<Record<string, { count: number; flagship?
       if (ah !== bh) return bh - ah;
       return (b.data.amount ?? 0) - (a.data.amount ?? 0);
     });
-    acc[p.data.id] = {
+    const entry: { count: number; flagship?: { title: string; agency: string } } = {
       count: matched.length,
-      flagship: sorted[0]
-        ? { title: sorted[0].data.title, agency: sorted[0].data.agency }
-        : undefined,
     };
+    if (sorted[0]) {
+      entry.flagship = { title: sorted[0].data.title, agency: sorted[0].data.agency };
+    }
+    acc[p.data.id] = entry;
     return acc;
   },
   {},

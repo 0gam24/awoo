@@ -23,7 +23,6 @@ export const feedbackSchema = z.object({
   helpful: z.boolean(),
   comment: z.string().max(2000).optional(),
   // honeypot — 봇이 이 필드를 채우면 거부
-  // biome-ignore lint/style/useNamingConvention: form field name
   _hp: z.string().max(0).optional(),
 });
 
@@ -38,10 +37,8 @@ export const contactSchema = z.object({
   subject: z.string().min(2).max(120),
   message: z.string().min(10).max(4000),
   // Turnstile token (선택 — 환경변수에 secret 있을 때만 검증)
-  // biome-ignore lint/style/useNamingConvention: Cloudflare Turnstile 표준 필드명
   'cf-turnstile-response': z.string().min(1).max(2048).optional(),
   // honeypot
-  // biome-ignore lint/style/useNamingConvention: form field name
   _hp: z.string().max(0).optional(),
 });
 

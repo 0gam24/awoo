@@ -11,8 +11,9 @@ const items = (await getCollection('glossary')).sort((a, b) =>
 
 // 카테고리별 그루핑
 const byCategory = items.reduce<Record<string, typeof items>>((acc, item) => {
-  acc[item.data.category] = acc[item.data.category] ?? [];
-  acc[item.data.category].push(item);
+  const cat = item.data.category;
+  if (!acc[cat]) acc[cat] = [];
+  acc[cat].push(item);
   return acc;
 }, {});
 
@@ -70,7 +71,7 @@ const collectionSchema = buildCollectionPage({
         <section class="cat-block">
           <h2 class="cat-title">{cat}</h2>
           <ul class="grid">
-            {byCategory[cat].map((item) => (
+            {(byCategory[cat] ?? []).map((item) => (
               <li>
                 <a class="card" href={`/glossary/${item.data.id}/`}>
                   <div class="card-term">{item.data.term}</div>

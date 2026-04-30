@@ -28,9 +28,10 @@ export const getStaticPaths = (() => {
   const paths = [];
   for (const [path, mod] of Object.entries(modules)) {
     const m = path.match(/_archived\/([^/]+)\.json$/);
-    if (!m || m[1].startsWith('_')) continue;
+    const slug = m?.[1];
+    if (!slug || slug.startsWith('_')) continue;
     paths.push({
-      params: { slug: m[1] },
+      params: { slug },
       props: { subsidy: mod.default },
     });
   }
