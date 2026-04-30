@@ -9,10 +9,10 @@ const histModules = import.meta.glob<{ default: { byTerm?: Record<string, Histor
   { eager: true },
 );
 const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
-// totalCount ≥ 3 인 term만 토픽 페이지가 생성됨 — 일치 여부로 링크 활성화 결정
+// Cycle #9: 모든 트렌딩 키워드(totalCount ≥ 1) 토픽 hub 보장 — 1:1 매핑
 function topicHref(term: string): string | null {
   const entry = historyByTerm[term];
-  if (!entry || entry.totalCount < 3) return null;
+  if (!entry || entry.totalCount < 1) return null;
   return `/issues/topics/${encodeURIComponent(term)}/`;
 }
 
@@ -59,6 +59,7 @@ for (const [path, mod] of Object.entries(issueModules)) {
 posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
 
 // today-issue 의 트렌딩 → 매칭 포스트로 다층 hero 구성
+type MatchedSubsidy = { id: string; title: string; agency: string; category: string };
 type TodayIssue = {
   trending?: Array<{
     term: string;
@@ -71,7 +72,8 @@ type TodayIssue = {
   summary?: { headline: string; subhead: string };
   daysActive?: number;
   totalCount?: number;
-  matchedSubsidies?: Array<{ id: string; title: string; agency: string; category: string }>;
+  matchedSubsidies?: MatchedSubsidy[];
+  matchedSubsidiesByTerm?: Record<string, MatchedSubsidy[]>;
 };
 const today = todayIssue as TodayIssue;
 const trending = today.trending ?? [];
@@ -129,6 +131,9 @@ const months = Object.keys(byMonth).sort().reverse();
           이번 주 가장 화제인 정부 지원금을 한 페이지에서 확인하세요.<br />
           핵심 요약·자격 조건·관련 지원금까지 함께 정리했습니다.
         </p>
+        {posts.length > 0 && (
+          <a class="head-all-link" href="/issues/all/">전체 분석 포스트 {posts.length}건 보기 →</a>
+        )}
       </div>
 
       {heroCards.length > 0 && (
@@ -197,21 +202,55 @@ const months = Object.keys(byMonth).sort().reverse();
 
       <div class="body-grid">
         <main class="body">
-          {posts.length < 3 && today.matchedSubsidies && today.matchedSubsidies.length > 0 && (
-            <section class="matched-section">
-              <h2 class="section-title">이번 주 화제 — 관련 지원금 {today.matchedSubsidies.length}건</h2>
-              <p class="section-sub">바로 확인할 수 있는 매칭 지원금을 모았습니다.</p>
-              <ul class="matched-list">
-                {today.matchedSubsidies.slice(0, 6).map((s) => (
-                  <li>
-                    <a class={`matched-card cat-${s.category}`} href={`/subsidies/${s.id}/`}>
-                      <div class="m-cat">{s.category}</div>
-                      <div class="m-title">{s.title}</div>
-                      <div class="m-agency">{s.agency}</div>
-                    </a>
-                  </li>
-                ))}
-              </ul>
+          {/* Cycle #9 Step 5c: 트렌딩 키워드별 1:1 매칭 — 사이드바 5개 키워드와 시각 동기화 */}
+          {trending.length > 0 && today.matchedSubsidiesByTerm && (
+            <section class="matched-by-term">
+              <h2 class="section-title">이번 주 화제 키워드별 관련 지원금</h2>
+              <p class="section-sub">우측 트렌딩 키워드 순서와 동일하게 정렬됩니다.</p>
+              <ol class="term-groups">
+                {trending.slice(0, 5).map((t, i) => {
+                  const matches = today.matchedSubsidiesByTerm?.[t.term] ?? [];
+                  const tHref = topicHref(t.term);
+                  const post = findPost(t.term);
+                  const groupHref = post
+                    ? `/issues/${post.date}/${post.slug}/`
+                    : tHref;
+                  return (
+                    <li class="term-group">
+                      <div class="tg-head">
+                        <span class="tg-rank">{i + 1}</span>
+                        <span class="tg-term">{t.term}</span>
+                        <span class="tg-count">
+                          {t.count}회
+                          {t.mediaCount && t.mediaCount >= 2 && <> · {t.mediaCount}곳</>}
+                        </span>
+                        {groupHref && (
+                          <a class="tg-go" href={groupHref}>
+                            {post ? '포스트 보기 →' : '토픽 페이지 →'}
+                          </a>
+                        )}
+                      </div>
+                      {matches.length > 0 ? (
+                        <ul class="tg-matches">
+                          {matches.map((s) => (
+                            <li>
+                              <a class={`matched-card cat-${s.category}`} href={`/subsidies/${s.id}/`}>
+                                <div class="m-cat">{s.category}</div>
+                                <div class="m-title">{s.title}</div>
+                                <div class="m-agency">{s.agency}</div>
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p class="tg-empty">
+                          매칭 지원금 없음 — {tHref ? <a href={tHref}>토픽 페이지</a> : '곧 업데이트'}에서 원문 보도를 확인하세요.
+                        </p>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
             </section>
           )}
 
@@ -295,6 +334,11 @@ const months = Object.keys(byMonth).sort().reverse();
           </div>
 
           <div class="rail-card">
+            <div class="rail-eyebrow">아카이브</div>
+            <div class="rail-title">분석 포스트 {posts.length}건 전체 보기</div>
+            <a class="rail-cta" href="/issues/all/">아카이브 열기 →</a>
+          </div>
+          <div class="rail-card">
             <div class="rail-eyebrow">5분 진단</div>
             <div class="rail-title">내가 받을 수 있는 지원금 찾기</div>
             <a class="rail-cta" href="/quick/">진단 시작하기 →</a>
@@ -339,6 +383,25 @@ const months = Object.keys(byMonth).sort().reverse();
     color: var(--text-2);
     line-height: 1.65;
     margin: 0;
+  }
+  .head-all-link {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 12px;
+    padding: 8px 16px;
+    background: var(--surface-2);
+    color: var(--accent-link);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .head-all-link:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+    text-decoration: none;
   }
 
   /* .cat-* 카테고리 토큰은 global.css에서 일괄 정의 (라이트/다크 양쪽) */
@@ -585,6 +648,94 @@ const months = Object.keys(byMonth).sort().reverse();
   .m-agency {
     font-size: 12px;
     color: var(--text-2);
+  }
+
+  /* Cycle #9 Step 5c: 트렌딩 키워드별 1:1 매핑 그룹 */
+  .matched-by-term {
+    margin-bottom: 36px;
+    padding: 24px 28px;
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .term-groups {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .term-group {
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .term-group:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .tg-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .tg-rank {
+    width: 24px;
+    height: 24px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .tg-term {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .tg-count {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 600;
+  }
+  .tg-go {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--accent-link);
+    font-weight: 600;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .tg-go:hover {
+    text-decoration: underline;
+  }
+  .tg-matches {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+  }
+  .tg-empty {
+    font-size: 13px;
+    color: var(--text-3);
+    margin: 0;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .tg-empty a {
+    color: var(--accent-link);
+    font-weight: 600;
   }
 
   .empty {

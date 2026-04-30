@@ -60,16 +60,16 @@ export const getStaticPaths = (() => {
     postsByDate[date]!.push(mod.default);
   }
 
-  // 활성 term (totalCount ≥ 3) 정렬 — 페이지마다 "다른 토픽 보기" nav에 사용
+  // 활성 term (totalCount ≥ 1) 정렬 — Cycle #9: 1:1 매핑 보장
   const activeTopics = Object.entries(byTerm)
-    .filter(([, e]) => e.totalCount >= 3)
+    .filter(([, e]) => e.totalCount >= 1)
     .sort((a, b) => b[1].totalCount - a[1].totalCount)
     .map(([t, e]) => ({ term: t, totalCount: e.totalCount, daysActive: e.daysActive }));
 
-  // term 별 페이지 생성 (totalCount ≥ 3 인 term만 — thinness 방지)
+  // term 별 페이지 생성 — Cycle #9: 모든 트렌딩 키워드 hub 보장 (thin은 noindex)
   const paths = [];
   for (const [term, entry] of Object.entries(byTerm)) {
-    if (entry.totalCount < 3) continue;
+    if (entry.totalCount < 1) continue;
     // 매칭 포스트 찾기 (postSlug 우선)
     let post: PostData | undefined;
     if (entry.postSlug) {

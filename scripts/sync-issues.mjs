@@ -676,6 +676,14 @@ async function main() {
 
   const matched = matchSubsidies(top.title, topTrendTerm, top.category, allSubsidies, 4);
 
+  // Cycle #9 Step 5a: 트렌딩 키워드별 매칭 지원금 — 1:1 매핑 UI 데이터.
+  // 각 트렌드 term × Top 3 매칭 → 사이드바 5개 키워드 모두 시각적 매칭 노출.
+  const matchedByTerm = {};
+  for (const t of trendingWithArticles.slice(0, 5)) {
+    const a = t.topArticle;
+    matchedByTerm[t.term] = matchSubsidies(a.title, t.term, a.category, allSubsidies, 3);
+  }
+
   const histEntry = history.byTerm?.[topTrendTerm];
   const daysActive = (histEntry?.daysActive ?? 0) + 1;
   const totalCount = (histEntry?.totalCount ?? 0) + topTrendCount;
@@ -724,6 +732,8 @@ async function main() {
     daysActive,
     totalCount,
     matchedSubsidies: matched,
+    // Cycle #9: 트렌딩 키워드별 Top 3 매칭 지원금 (1:1 매핑 UI 데이터)
+    matchedSubsidiesByTerm: matchedByTerm,
     // 사이드바용 — Top 5 트렌딩 + 각각 대표 기사 + 매체수·기사수
     trending: trendingWithArticles.slice(0, 5).map((t) => ({
       term: t.term,

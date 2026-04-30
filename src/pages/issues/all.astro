@@ -1,0 +1,361 @@
+---
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildCollectionPage } from '@/lib/schema';
+
+interface PostMeta {
+  title: string;
+  slug: string;
+  metaDescription: string;
+  category: string;
+  tags: string[];
+  freshness?: { trendingTerm: string; daysActive: number; totalCount: number };
+  date: string;
+  publishedAt: string;
+  sections?: unknown[];
+  faq?: unknown[];
+  tldr?: unknown[];
+}
+
+// 빌드타임 — 모든 영구 포스트 로드
+const issueModules = import.meta.glob<{ default: PostMeta }>(
+  '/src/data/issues/*/*.json',
+  { eager: true },
+);
+
+const posts: Array<{ date: string; slug: string; data: PostMeta }> = [];
+for (const [path, mod] of Object.entries(issueModules)) {
+  const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
+  if (!m) continue;
+  const date = m[1];
+  const slug = m[2];
+  if (!date || !slug || slug.startsWith('_')) continue;
+  posts.push({ date, slug, data: mod.default });
+}
+
+// 날짜 desc 정렬
+posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+
+// 카테고리 빈도 — 필터 chips
+const catCounts = new Map<string, number>();
+for (const p of posts) {
+  catCounts.set(p.data.category, (catCounts.get(p.data.category) ?? 0) + 1);
+}
+const sortedCats = [...catCounts.entries()].sort((a, b) => b[1] - a[1]);
+
+// 한국어 분당 500자 기준
+function readingTimeMin(post: PostMeta): number {
+  const sectionsLen = (post.sections?.length ?? 0) * 250;
+  const faqLen = (post.faq?.length ?? 0) * 100;
+  const tldrLen = (post.tldr?.length ?? 0) * 80;
+  const chars = sectionsLen + faqLen + tldrLen + (post.metaDescription?.length ?? 0);
+  return Math.max(2, Math.round(chars / 500));
+}
+
+// CollectionPage + ItemList JSON-LD
+const collectionSchema = buildCollectionPage({
+  name: `오늘의 이슈 — 영구 포스트 ${posts.length}건`,
+  description: `정부 지원금 정책 분석 포스트 ${posts.length}건 전체 아카이브`,
+  pageUrl: '/issues/all/',
+  items: posts.map((p) => ({
+    url: `/issues/${p.date}/${p.slug}/`,
+    name: p.data.title,
+  })),
+});
+---
+
+<BaseLayout
+  title={`전체 분석 포스트 ${posts.length}건 — 오늘의 이슈 | 지원금가이드`}
+  description={`정부 지원금 정책 분석 포스트 ${posts.length}건 전체 아카이브. 카테고리별·시간별로 모든 포스트를 확인하세요.`}
+  activeNav="/issues/"
+  breadcrumbs={[
+    { name: '홈', href: '/' },
+    { name: '오늘의 이슈', href: '/issues/' },
+    { name: '전체 보기', href: '/issues/all/' },
+  ]}
+>
+  <section class="band">
+    <Container size="wide">
+      <a class="back-link" href="/issues/">← 오늘의 이슈로</a>
+
+      <div class="head">
+        <h1 class="title">전체 분석 포스트</h1>
+        <p class="lead">
+          정부 지원금 정책을 다각도로 분석한 영구 포스트 <strong>{posts.length}건</strong>입니다.
+          카테고리·시간 순으로 한 페이지에서 확인하세요.
+        </p>
+      </div>
+
+      {sortedCats.length >= 2 && (
+        <div class="cat-filter" data-cat-filter>
+          <span class="cat-filter-label">카테고리</span>
+          <div class="cat-filter-chips">
+            <button type="button" class="cf-chip active" data-cf-cat="">전체 {posts.length}</button>
+            {sortedCats.map(([cat, n]) => (
+              <button type="button" class="cf-chip" data-cf-cat={cat}>{cat} {n}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {posts.length === 0 ? (
+        <div class="empty">
+          <p>아직 영구 포스트가 없습니다. 곧 첫 분석 글이 올라옵니다.</p>
+          <a class="empty-link" href="/issues/">오늘의 이슈로 →</a>
+        </div>
+      ) : (
+        <ul class="all-list" data-all-list>
+          {posts.map((p) => (
+            <li data-post-cat={p.data.category}>
+              <a class={`post-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
+                <div class="pc-meta">
+                  {p.data.freshness && p.data.freshness.daysActive >= 3 && (
+                    <span class="freshness">
+                      <span class="dot" aria-hidden="true" />
+                      {p.data.freshness.daysActive}일 연속 화제
+                    </span>
+                  )}
+                  <span class="cat">{p.data.category}</span>
+                  <span class="date">{p.date}</span>
+                  <span class="read-time">📖 {readingTimeMin(p.data)}분</span>
+                </div>
+                <div class="pc-title">{p.data.title}</div>
+                <div class="pc-desc">{p.data.metaDescription}</div>
+                {p.data.tags && p.data.tags.length > 0 && (
+                  <div class="pc-tags">
+                    {p.data.tags.slice(0, 3).map((tag) => <span class="pc-tag">#{tag}</span>)}
+                  </div>
+                )}
+                <span class="pc-arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Container>
+  </section>
+
+  {collectionSchema && <script is:inline type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
+
+  <script>
+    // 클라이언트 카테고리 필터 — 카드 hide/show
+    const filterEl = document.querySelector('[data-cat-filter]');
+    const listEl = document.querySelector('[data-all-list]');
+    if (filterEl && listEl) {
+      filterEl.querySelectorAll('[data-cf-cat]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const cat = btn.getAttribute('data-cf-cat');
+          filterEl.querySelectorAll('[data-cf-cat]').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          listEl.querySelectorAll<HTMLElement>('li[data-post-cat]').forEach((li) => {
+            const liCat = li.getAttribute('data-post-cat');
+            li.hidden = !!cat && liCat !== cat;
+          });
+        });
+      });
+    }
+  </script>
+</BaseLayout>
+
+<style>
+  .band {
+    padding: 32px 0 80px;
+  }
+
+  .back-link {
+    display: inline-block;
+    color: var(--text-2);
+    font-size: 14px;
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .head {
+    margin-bottom: 28px;
+    max-width: 720px;
+  }
+  .title {
+    font-size: clamp(28px, 3.6vw, 44px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+  }
+  .lead {
+    font-size: 16px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  /* 카테고리 필터 */
+  .cat-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .cat-filter-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-2);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .cat-filter-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .cf-chip {
+    padding: 6px 14px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 32px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .cf-chip:hover {
+    border-color: var(--accent);
+  }
+  .cf-chip.active {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
+
+  .empty {
+    text-align: center;
+    padding: 80px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .empty p { color: var(--text-2); }
+  .empty-link {
+    display: inline-block;
+    margin-top: 12px;
+    color: var(--accent-link);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .empty-link:hover { text-decoration: underline; }
+
+  /* 포스트 카드 — issues/index.astro 동일 스타일 */
+  .all-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .post-card {
+    position: relative;
+    display: block;
+    padding: 18px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--cat-color, var(--border-2));
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s;
+  }
+  .post-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    border-left-color: var(--cat-color, var(--accent));
+    text-decoration: none;
+  }
+  .pc-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .freshness {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
+  .cat {
+    padding: 2px 8px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .date { color: var(--text-3); font-size: 12px; }
+  .read-time {
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .pc-title {
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.35;
+    margin-bottom: 4px;
+  }
+  .pc-desc {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .pc-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pc-tag {
+    font-size: 11px;
+    color: var(--text-2);
+    padding: 2px 8px;
+    background: var(--surface-2);
+    border-radius: var(--radius-pill);
+  }
+  .pc-arrow {
+    position: absolute;
+    top: 50%;
+    right: 18px;
+    transform: translateY(-50%);
+    color: var(--text-3);
+    font-size: 18px;
+    transition: transform 0.18s var(--ease-standard), color 0.18s;
+  }
+  .post-card:hover .pc-arrow {
+    transform: translateY(-50%) translateX(4px);
+    color: var(--accent);
+  }
+</style>

@@ -21,13 +21,41 @@ function findTopicPostUrl(term: string | undefined): string | null {
   return `/issues/${entry.firstSeen}/${entry.postSlug}/`;
 }
 
-// 트렌딩 term → /issues/topics/[term]/ (totalCount ≥ 3 일 때만 활성 페이지 존재)
+// Cycle #9: thinness 가드 완화 — 모든 트렌딩 키워드(totalCount ≥ 1) 에 토픽 hub 생성됨.
+// /issues/ 폴백 제거하여 사이드바 dead text 방지 + 1:1 매핑 보장.
 function findTopicHubUrl(term: string | undefined): string | null {
   if (!term) return null;
   const entry = history.byTerm?.[term];
-  if (!entry || entry.totalCount < 3) return null;
+  if (!entry || entry.totalCount < 1) return null;
   return `/issues/topics/${encodeURIComponent(term)}/`;
 }
+
+// Cycle #9 Step 1: 최근 영구 포스트 Top 3 — 홈페이지 가시성
+type PostMeta = {
+  title: string;
+  slug: string;
+  metaDescription?: string;
+  category?: string;
+  date?: string;
+  publishedAt?: string;
+  freshness?: { trendingTerm?: string; daysActive?: number };
+};
+const postModules = import.meta.glob<{ default: PostMeta }>(
+  '/src/data/issues/*/*.json',
+  { eager: true },
+);
+const allPosts: Array<{ date: string; slug: string; data: PostMeta }> = [];
+for (const [path, mod] of Object.entries(postModules)) {
+  const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
+  if (!m) continue;
+  const date = m[1];
+  const slug = m[2];
+  if (!date || !slug || slug.startsWith('_')) continue;
+  allPosts.push({ date, slug, data: mod.default });
+}
+allPosts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+const recentPosts = allPosts.slice(0, 3);
+const totalPostCount = allPosts.length;
 
 // 자동 큐레이션 데이터 — today-issue.json (단일 소스)
 interface AutoTrendItem {
@@ -303,6 +331,33 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
         ))
       }
     </div>
+
+    {recentPosts.length > 0 && (
+      <section class="recent-posts" aria-label="최근 영구 포스트">
+        <div class="recent-posts-head">
+          <h2 class="recent-posts-title">최근 분석 포스트 {totalPostCount}건</h2>
+          <a class="recent-posts-all" href="/issues/all/">전체 보기 →</a>
+        </div>
+        <ul class="recent-posts-list">
+          {recentPosts.map((p) => (
+            <li>
+              <a class={`rp-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
+                <div class="rp-meta">
+                  <span class="rp-cat">{p.data.category}</span>
+                  <span class="rp-date">{p.date}</span>
+                  {p.data.freshness?.daysActive && p.data.freshness.daysActive >= 3 && (
+                    <span class="rp-fresh">{p.data.freshness.daysActive}일 연속</span>
+                  )}
+                </div>
+                <div class="rp-title">{p.data.title}</div>
+                {p.data.metaDescription && <div class="rp-desc">{p.data.metaDescription}</div>}
+                <span class="rp-arrow" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
   </Container>
 </section>
 
@@ -1021,5 +1076,112 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
   }
   .tone-warning .value {
     color: var(--color-warning);
+  }
+
+  /* Cycle #9 Step 1: 최근 영구 포스트 row — 홈페이지 가시성 */
+  .recent-posts {
+    margin-top: 36px;
+  }
+  .recent-posts-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .recent-posts-title {
+    font-size: clamp(18px, 2vw, 22px);
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  .recent-posts-all {
+    color: var(--accent-link);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .recent-posts-all:hover {
+    text-decoration: underline;
+  }
+  .recent-posts-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .rp-card {
+    position: relative;
+    display: block;
+    padding: 18px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--cat-color, var(--accent));
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s;
+  }
+  .rp-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-2);
+    text-decoration: none;
+  }
+  .rp-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+    font-size: 11px;
+  }
+  .rp-cat {
+    padding: 2px 8px;
+    background: var(--surface-2);
+    color: var(--cat-color, var(--text-2));
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+  }
+  .rp-date {
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .rp-fresh {
+    padding: 2px 8px;
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+  }
+  .rp-title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.35;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .rp-desc {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.55;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .rp-arrow {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    color: var(--text-3);
+    font-size: 16px;
+    transition: transform 0.18s var(--ease-standard), color 0.18s;
+  }
+  .rp-card:hover .rp-arrow {
+    transform: translateX(3px);
+    color: var(--accent);
   }
 </style>
