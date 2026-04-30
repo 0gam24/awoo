@@ -129,6 +129,25 @@ const govSchema = {
   ...(regDateISO ? { dateCreated: regDateISO } : {}),
   // 최신성 신호 — Cycle #4 P0-2 (E-E-A-T freshness)
   ...(lastVerifiedISO ? { dateModified: lastVerifiedISO } : {}),
+  // Cycle #19: areaServed — 한국 전국 (지자체 한정 시 주소 추출 향후 보강)
+  areaServed: {
+    '@type': 'Country',
+    name: '대한민국',
+    identifier: 'KR',
+  },
+  // Cycle #19: 정부 지원금은 무료 서비스 — Offer 명시로 검색 결과 가격 표시
+  ...(s.amount > 0
+    ? {
+        offers: {
+          '@type': 'Offer',
+          name: s.amountLabel || '지원 금액',
+          price: s.amount,
+          priceCurrency: 'KRW',
+          availability: s.status === '신청 가능' ? 'https://schema.org/InStock' : 'https://schema.org/LimitedAvailability',
+          url: s.applyUrl,
+        },
+      }
+    : {}),
 };
 
 const breadcrumbs = [
