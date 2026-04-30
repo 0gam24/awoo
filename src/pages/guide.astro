@@ -83,6 +83,33 @@ const howToSchema = buildHowTo({
   tools: channels.map((c) => ({ name: c.name, sameAs: c.url })),
 });
 
+// Cycle #32: LearningResource schema — 가이드 콘텐츠 educational 분류
+// AI 답변 엔진 + 검색 결과에서 'how-to learn' 영역 노출 자격
+const learningSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LearningResource',
+  '@id': 'https://awoo.or.kr/guide/#learning',
+  name: '정부 지원금 신청 가이드',
+  description: '정부 지원금 신청 흐름·공식 사이트·자주 묻는 질문. 4단계 학습.',
+  url: 'https://awoo.or.kr/guide/',
+  inLanguage: 'ko-KR',
+  educationalLevel: 'beginner',
+  learningResourceType: 'Guide',
+  teaches: [
+    '정부 지원금 페르소나 매칭',
+    '신청 서류 준비',
+    '공식 신청 채널 (복지로·고용24·K-스타트업·정부24)',
+    '신청 결과 확인',
+  ],
+  audience: {
+    '@type': 'Audience',
+    audienceType: '정부 지원금을 처음 신청하는 일반 시민',
+  },
+  educationalUse: 'instruction',
+  timeRequired: 'PT5M',
+  provider: { '@id': 'https://awoo.or.kr/#organization' },
+};
+
 // breadcrumbs는 BaseLayout prop에서 직접 명시
 ---
 
@@ -206,6 +233,11 @@ const howToSchema = buildHowTo({
     is:inline
     type="application/ld+json"
     set:html={JSON.stringify(howToSchema)}
+  />
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(learningSchema)}
   />
 </BaseLayout>
 
