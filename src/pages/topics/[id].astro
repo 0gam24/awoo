@@ -5,6 +5,7 @@ import CrossRefRail from '@/components/CrossRefRail.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { paragraphsAndLists } from '@/lib/inline-markdown';
+import { injectGlossaryAnchors } from '@/lib/inline-glossary';
 import situationsData from '@/data/situations.json';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -35,6 +36,17 @@ const glossaryById = new Map(allGlossary.map((g) => [g.data.id, g.data]));
 const relatedGlossaryItems = (t.relatedGlossary ?? [])
   .map((id) => glossaryById.get(id))
   .filter((x): x is NonNullable<typeof x> => x !== undefined);
+
+// Cycle #6 P0-1: inline-glossary anchor — 본문에서 첫 등장 1회만 자동 anchor
+// relatedGlossary 매칭 + topic 카테고리 일치 glossary로 후보 좁힘
+const inlineGlossaryEntries = allGlossary
+  .filter((g) => (t.relatedGlossary ?? []).includes(g.data.id) || g.data.category === t.category)
+  .map((g) => ({
+    id: g.data.id,
+    term: g.data.term,
+    shortDef: g.data.shortDef,
+    synonyms: g.data.synonyms,
+  }));
 
 const breadcrumbs = [
   { name: '홈', href: '/' },
@@ -118,9 +130,9 @@ const faqSchema = t.faq.length > 0 ? {
             <div class="long-def">
               {paragraphsAndLists(t.longDef).map((block) =>
                 block.type === 'p' ? (
-                  <p set:html={block.html} />
+                  <p set:html={injectGlossaryAnchors(block.html, inlineGlossaryEntries)} />
                 ) : (
-                  <ul>{block.items.map((item) => <li set:html={item} />)}</ul>
+                  <ul>{block.items.map((item) => <li set:html={injectGlossaryAnchors(item, inlineGlossaryEntries)} />)}</ul>
                 ),
               )}
             </div>

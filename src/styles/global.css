@@ -188,6 +188,19 @@ html {
   }
 }
 
+/* Cycle #6 P0-1: inline-glossary anchor — 본문 자동 링크 시각 구분 */
+.gloss-link {
+  border-bottom: 1px dotted var(--text-2);
+  text-decoration: none;
+  color: inherit;
+  cursor: help;
+  transition: border-color 0.15s, color 0.15s;
+}
+.gloss-link:hover {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
 /* Cycle #5 P0-6: prefers-contrast: more — WCAG 1.4.6 AAA 옵트인 사용자 대응
  * Cycle #6 P0-8: light/dark 분기 명시 (이전 :root:not([data-theme='light']) 가 light + auto 모두 매치 위험) */
 @media (prefers-contrast: more) {
