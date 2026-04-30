@@ -32,18 +32,34 @@ const matched = subsidies
   .slice(0, 6);
 
 // DefinedTerm schema — AI 답변 엔진 인용 친화 1문단 정의
-const definedTermSchema = {
+// Cycle #21: longDef 본문 + relatedTerms cross-link 보강
+const longDef = (term as { longDef?: string }).longDef;
+const definedTermSchema: Record<string, unknown> = {
   '@context': 'https://schema.org',
   '@type': 'DefinedTerm',
   '@id': `https://awoo.or.kr/glossary/${term.id}/#term`,
   name: term.term,
-  description: term.shortDef,
+  description: longDef && longDef.length > term.shortDef.length ? longDef : term.shortDef,
   url: `https://awoo.or.kr/glossary/${term.id}/`,
   inLanguage: 'ko-KR',
   inDefinedTermSet: { '@id': 'https://awoo.or.kr/glossary/#dts' },
   alternateName: term.synonyms,
   termCode: term.id,
 };
+// related — 동의어·관련 용어 cross-link (entity 그래프 강화)
+if (term.related && term.related.length > 0) {
+  definedTermSchema.sameAs = term.related.map(
+    (rid: string) => `https://awoo.or.kr/glossary/${rid}/#term`,
+  );
+}
+// 본 용어가 적용되는 GovernmentService cross-link
+if (matched.length > 0) {
+  definedTermSchema.subjectOf = matched.slice(0, 5).map((s) => ({
+    '@type': 'GovernmentService',
+    '@id': `https://awoo.or.kr/subsidies/${s.data.id}/#govservice`,
+    name: s.data.title,
+  }));
+}
 
 const breadcrumbs = [
   { name: '홈', href: '/' },
