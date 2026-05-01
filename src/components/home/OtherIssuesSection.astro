@@ -156,8 +156,8 @@ const recommendedPersonas = personas
       </div>
     )}
 
-    {/* 다층 진입점 — 사이트 내 체류 유도 */}
-    <div class="entry-grid">
+    {/* 다층 진입점 — 사이트 내 체류 유도. Cycle #53: 모바일에서 primary만 항상 표시, 나머지는 toggle */}
+    <div class="entry-grid" data-entry-grid>
       {/* 1. 영구 포스트 (가장 풍부) */}
       {topPostUrl && (
         <a class="entry-card primary" href={topPostUrl}>
@@ -179,7 +179,7 @@ const recommendedPersonas = personas
       )}
 
       {/* 3. 5분 진단 (개인 매칭) */}
-      <a class="entry-card" href="/quick/">
+      <a class="entry-card" data-entry-extra href="/quick/">
         <div class="ec-eyebrow">개인 매칭</div>
         <div class="ec-title">5분 진단으로 내 자격 확인</div>
         <div class="ec-sub">4질문 · 개인정보 저장 X</div>
@@ -188,14 +188,40 @@ const recommendedPersonas = personas
 
       {/* 4. 추천 페르소나 */}
       {recommendedPersonas[0] && (
-        <a class="entry-card" href={`/personas/${recommendedPersonas[0].data.id}/`}>
+        <a class="entry-card" data-entry-extra href={`/personas/${recommendedPersonas[0].data.id}/`}>
           <div class="ec-eyebrow">페르소나</div>
           <div class="ec-title">{recommendedPersonas[0].data.label} 전체 지원금</div>
           <div class="ec-sub">{recommendedPersonas[0].data.sub}</div>
           <span class="ec-cta">보기 →</span>
         </a>
       )}
+
+      {/* 모바일 토글 버튼 — 데스크톱에서는 hide */}
+      <button type="button" class="entry-toggle" data-entry-toggle aria-expanded="false">
+        <span class="et-label">다른 진입점 보기</span>
+        <span class="et-icon" aria-hidden="true">▾</span>
+      </button>
     </div>
+
+    <script is:inline>
+      (() => {
+        const grid = document.querySelector('[data-entry-grid]');
+        const toggle = document.querySelector('[data-entry-toggle]');
+        if (!grid || !toggle) return;
+        toggle.addEventListener('click', () => {
+          const expanded = grid.hasAttribute('data-expanded');
+          if (expanded) {
+            grid.removeAttribute('data-expanded');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.querySelector('.et-label').textContent = '다른 진입점 보기';
+          } else {
+            grid.setAttribute('data-expanded', '');
+            toggle.setAttribute('aria-expanded', 'true');
+            toggle.querySelector('.et-label').textContent = '진입점 접기';
+          }
+        });
+      })();
+    </script>
 
     {/* 매칭 지원금 카드 grid (즉시 신청 검토 가능) */}
     {topTermMatched.length > 0 && (
@@ -373,6 +399,47 @@ const recommendedPersonas = personas
     gap: 12px;
     margin-bottom: 32px;
   }
+
+  /* Cycle #53: 모바일 진입점 토글 버튼 — 데스크톱에서는 hide */
+  .entry-toggle {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+  }
+  .et-icon {
+    color: var(--text-2);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+  [data-entry-grid][data-expanded] .et-icon {
+    transform: rotate(180deg);
+  }
+
+  /* 데스크톱 (≥641px): toggle hide, 모든 카드 grid로 표시 (원래 동작) */
+  /* 모바일 (≤640px): toggle 표시, [data-entry-extra] 카드는 [data-expanded] 시에만 표시 */
+  @media (max-width: 640px) {
+    .entry-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .entry-toggle {
+      display: flex;
+    }
+    [data-entry-grid]:not([data-expanded]) [data-entry-extra] {
+      display: none;
+    }
+  }
+
   .entry-card {
     display: flex;
     flex-direction: column;
@@ -512,6 +579,33 @@ const recommendedPersonas = personas
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
+  }
+  /* Cycle #53: 모바일 화면에서는 horizontal scroll snap — 한 줄로 압축 + 터치 영역 확대 */
+  @media (max-width: 640px) {
+    .st-list {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 4px;
+      /* Firefox/모던 브라우저 가시성 위해 스크롤바 슬림 */
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+    }
+    .st-list::-webkit-scrollbar {
+      height: 4px;
+    }
+    .st-list::-webkit-scrollbar-thumb {
+      background: var(--border-2);
+      border-radius: 2px;
+    }
+    .st-list > li {
+      scroll-snap-align: start;
+      flex-shrink: 0;
+    }
+    .st-chip {
+      padding: 8px 14px;
+      min-height: 36px;
+    }
   }
   .st-chip {
     display: inline-flex;
