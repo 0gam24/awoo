@@ -252,6 +252,36 @@ const breadcrumbs = [
     <Container size="wide">
       <BlufBox summary={blufSummarySubsidy} stats={blufStatsSubsidy} basis={lastVerifiedKR ? `마지막 동기화: ${lastVerifiedKR}` : '보조금24 + 큐레이션'} />
 
+      {s.fitNotes && Object.keys(s.fitNotes).length > 0 && (
+        <div class="fit-notes">
+          <div class="fn-head">
+            <h2 class="utility">당신과 비슷한 사람의 신청 팁</h2>
+            <p class="fn-lead">실제 신청자 후기와 정부 부처 안내를 토대로, 페르소나별 핵심 포인트만 정리했습니다.</p>
+          </div>
+          <ul class="fn-list">
+            {Object.entries(s.fitNotes).map(([pid, note]) => {
+              const p = personas.find((x) => x.data.id === pid)?.data;
+              if (!p) return null;
+              return (
+                <li class="fn-card">
+                  <a class="fn-link" href={`/personas/${p.id}/`} aria-label={`${p.label} 페르소나 보기`}>
+                    <span class="fn-icon" aria-hidden="true">
+                      <Icon name={p.icon} size={18} strokeWidth={1.8} />
+                    </span>
+                    <div class="fn-meta">
+                      <div class="fn-label">{p.label}</div>
+                      <div class="fn-sub">{p.sub}</div>
+                    </div>
+                    <span class="fn-arrow" aria-hidden="true">→</span>
+                  </a>
+                  <p class="fn-note">{note}</p>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+
       {personaLabels.length > 0 && (
         <h2 class="cat-headline">{personaLabels[0]}이 자주 받는 {s.category} 지원금</h2>
       )}
@@ -981,6 +1011,105 @@ const breadcrumbs = [
   .also-card:hover .also-arrow {
     transform: translateX(3px);
     color: var(--accent);
+  }
+
+  /* Cycle #48: 페르소나별 신청 팁 (fitNotes) — data만 있고 UI 미노출 자산 활성화 */
+  .fit-notes {
+    margin: 24px 0 28px;
+  }
+  .fn-head {
+    margin-bottom: 14px;
+  }
+  .fn-lead {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.55;
+    margin: 6px 0 0;
+    max-width: 640px;
+  }
+  .fn-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+  }
+  .fn-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .fn-card:hover {
+    border-color: var(--border-2);
+    border-left-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .fn-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    margin-bottom: 8px;
+  }
+  .fn-link:hover {
+    text-decoration: none;
+  }
+  .fn-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  :global([data-theme='dark']) .fn-icon {
+    background: rgb(41 151 255 / 0.16);
+  }
+  .fn-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  .fn-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .fn-sub {
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.3;
+    margin-top: 2px;
+  }
+  .fn-arrow {
+    color: var(--text-3);
+    font-size: 14px;
+    flex-shrink: 0;
+    transition: transform 0.15s, color 0.15s;
+  }
+  .fn-card:hover .fn-arrow {
+    transform: translateX(2px);
+    color: var(--accent);
+  }
+  .fn-note {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.6;
+    margin: 0;
+    padding-left: 42px;
+  }
+  @media (max-width: 480px) {
+    .fn-note {
+      padding-left: 0;
+    }
   }
 
   /* P0-2 (Cycle #4): 카테고리 자동 H2 — long-tail 키워드 */
