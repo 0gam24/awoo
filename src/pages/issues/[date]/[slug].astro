@@ -639,6 +639,19 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
       )}
     </Container>
   </article>
+
+  {/* Cycle #46: 모바일 하단 sticky CTA — 사용자가 글 끝까지 안 읽어도 전환 가능 */}
+  <div class="mobile-sticky-cta" aria-label="다음 행동">
+    <a class="msc-primary" href="/quick/">
+      <span class="msc-icon" aria-hidden="true">⚡</span>
+      <span class="msc-text">5분 진단으로 내 자격 확인</span>
+    </a>
+    {relatedSubsidies[0] && (
+      <a class="msc-secondary" href={`/subsidies/${relatedSubsidies[0].id}/`} aria-label="관련 지원금">
+        →
+      </a>
+    )}
+  </div>
 </BaseLayout>
 
 <style>
@@ -694,6 +707,64 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
   }
   .toc-text {
     flex: 1;
+  }
+
+  /* Cycle #46: 모바일 하단 sticky CTA */
+  .mobile-sticky-cta {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    padding: 10px 14px;
+    background: color-mix(in oklch, var(--bg), transparent 8%);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    gap: 8px;
+  }
+  .msc-primary {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    min-height: 48px;
+    box-shadow: 0 4px 16px color-mix(in oklch, var(--accent), transparent 70%);
+  }
+  .msc-icon {
+    font-size: 18px;
+  }
+  .msc-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--surface);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    font-size: 22px;
+    font-weight: 700;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  @media (max-width: 720px) {
+    .mobile-sticky-cta {
+      display: flex;
+    }
+    /* 마지막 콘텐츠가 sticky CTA에 가려지지 않도록 padding 보강 */
+    article.band {
+      padding-bottom: 80px;
+    }
   }
 
   /* Cycle #44: reading progress bar */
