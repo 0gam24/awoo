@@ -60,6 +60,26 @@ function findTopicHubUrl(term: string): string | null {
 const topPostUrl = topTerm ? findPostUrl(topTerm) : null;
 const topHubUrl = topTerm ? findTopicHubUrl(topTerm) : null;
 
+// Cycle #42 (사용자 요청): 뉴스 RSS 크롤링 업데이트 시각 표기 (사이트 신선도 신호)
+function formatSyncedAt(iso: string | undefined): string {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    // KST (UTC+9)
+    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+    const yyyy = kst.getUTCFullYear();
+    const mm = String(kst.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(kst.getUTCDate()).padStart(2, '0');
+    const hh = String(kst.getUTCHours()).padStart(2, '0');
+    const mi = String(kst.getUTCMinutes()).padStart(2, '0');
+    return `${yyyy}.${mm}.${dd} ${hh}:${mi} KST`;
+  } catch {
+    return iso;
+  }
+}
+const syncedAtLabel = formatSyncedAt(auto?.syncedAt);
+
 // 페르소나 cross-link (1위 키워드 매칭 카테고리 기반)
 const personas = await getCollection('personas');
 const topCategory = topTermMatched[0]?.category;
@@ -85,8 +105,16 @@ const recommendedPersonas = personas
 <section class="band alt">
   <Container size="wide">
     <div class="section-head">
-      <div class="eyebrow">
-        <span class="dot" aria-hidden="true" />이번 주 화제
+      <div class="eyebrow-row">
+        <span class="eyebrow">
+          <span class="dot" aria-hidden="true" />이번 주 화제
+        </span>
+        {syncedAtLabel && (
+          <span class="synced-pill" title="네이버 뉴스 통합 검색 API 기준">
+            <Icon name="arrow-up-right" size={11} strokeWidth={2} />
+            뉴스 RSS 업데이트 · <time datetime={auto?.syncedAt}>{syncedAtLabel}</time>
+          </span>
+        )}
       </div>
       <h2 class="display">{summary?.headline ?? `${topTerm} — 이번 주 화제`}</h2>
       {summary?.subhead && <p class="subhead">{summary.subhead}</p>}
@@ -224,6 +252,14 @@ const recommendedPersonas = personas
   .section-head {
     margin-bottom: 24px;
   }
+  /* Cycle #42 (사용자 요청): eyebrow + 뉴스 RSS 크롤링 시각 한 줄 */
+  .eyebrow-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
   .eyebrow {
     display: inline-flex;
     align-items: center;
@@ -233,7 +269,22 @@ const recommendedPersonas = personas
     color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 10px;
+  }
+  .synced-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .synced-pill time {
+    color: var(--text);
+    font-weight: 700;
   }
   .dot {
     width: 8px;
