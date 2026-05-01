@@ -424,8 +424,85 @@ const breadcrumbs = [
       set:html={JSON.stringify(faqSchema)}
     />
   )}
+
+  {/* Cycle #47: 모바일 하단 sticky CTA — 신청 즉시 도달 + 5분 진단 보조 */}
+  <div class="mobile-sticky-cta" aria-label="신청 행동">
+    <a class="msc-primary" href={s.applyUrl} target="_blank" rel="noopener noreferrer">
+      <span class="msc-icon" aria-hidden="true">✓</span>
+      <span class="msc-text">{s.agency}에서 신청하기</span>
+    </a>
+    <a class="msc-secondary" href="/quick/" aria-label="5분 진단으로 자격 확인">
+      ⚡
+    </a>
+  </div>
 </BaseLayout>
 
+<style>
+  /* Cycle #47: 모바일 하단 sticky CTA */
+  .mobile-sticky-cta {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 90;
+    padding: 10px 14px;
+    background: color-mix(in oklch, var(--bg), transparent 8%);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    gap: 8px;
+  }
+  .msc-primary {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 18px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: var(--radius-pill);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    min-height: 48px;
+    box-shadow: 0 4px 16px color-mix(in oklch, var(--accent), transparent 70%);
+  }
+  .msc-icon {
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255 255 255 / 0.95);
+    color: var(--accent);
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .msc-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .msc-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--surface);
+    color: var(--accent);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    font-size: 18px;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  @media (max-width: 720px) {
+    .mobile-sticky-cta { display: flex; }
+  }
+</style>
 <style>
   .detail-hero {
     padding: 56px 0 48px;
