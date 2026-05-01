@@ -16,38 +16,48 @@ const categoryLinks = CATEGORIES.filter((c) => c.id !== 'all').map((c) => ({
   label: c.id, // 짧은 라벨 (주거·자산 등)
 }));
 
-const links = [
-  // 메인 메뉴 (TopBar 와 일관)
-  [
-    { href: '/', label: '홈' },
-    { href: '/issues/', label: '오늘의 이슈' },
-    { href: '/issues/all/', label: '분석 포스트 전체' },
-    { href: '/subsidies/', label: '지원금' },
-    { href: '/guide/', label: '가이드' },
-  ],
-  // 탐색 hub (Cycle #15 P0-1 / Cycle #40: 심층 가이드 추가)
-  [
-    { href: '/personas/', label: '페르소나별' },
-    { href: '/situations/', label: '상황별' },
-    { href: '/topics/', label: '주제별' },
-    { href: '/guides/', label: '심층 가이드' },
-    { href: '/glossary/', label: '용어 사전' },
-    { href: '/quick/', label: '5분 진단' },
-  ],
-  // 분야별 (카테고리 hub — 고립 페이지 7건 inbound 확보)
-  categoryLinks,
-  // 사이트 정보
-  [
-    { href: '/about/', label: '사이트 소개' },
-    { href: '/editorial-policy/', label: '편집 정책' },
-    { href: '/contact/', label: '문의' },
-  ],
-  // 법적 고지
-  [
-    { href: '/privacy/', label: '개인정보처리방침' },
-    { href: '/terms/', label: '이용약관' },
-    { href: '/cookies/', label: '쿠키 정책' },
-  ],
+// Cycle #52: 그룹 레이블 추가 — 정보 위계 명시화
+const linkGroups: Array<{ label: string; items: Array<{ href: string; label: string }> }> = [
+  {
+    label: '메인',
+    items: [
+      { href: '/', label: '홈' },
+      { href: '/issues/', label: '오늘의 이슈' },
+      { href: '/issues/all/', label: '분석 포스트 전체' },
+      { href: '/subsidies/', label: '지원금 둘러보기' },
+      { href: '/guide/', label: '신청 가이드' },
+    ],
+  },
+  {
+    label: '내 상황으로 찾기',
+    items: [
+      { href: '/personas/', label: '페르소나별' },
+      { href: '/situations/', label: '상황별' },
+      { href: '/topics/', label: '주제별' },
+      { href: '/guides/', label: '심층 가이드' },
+      { href: '/glossary/', label: '용어 사전' },
+    ],
+  },
+  {
+    label: '분야별 지원금',
+    items: categoryLinks,
+  },
+  {
+    label: '사이트',
+    items: [
+      { href: '/about/', label: '사이트 소개' },
+      { href: '/editorial-policy/', label: '편집 정책' },
+      { href: '/contact/', label: '문의' },
+    ],
+  },
+  {
+    label: '법적 고지',
+    items: [
+      { href: '/privacy/', label: '개인정보처리방침' },
+      { href: '/terms/', label: '이용약관' },
+      { href: '/cookies/', label: '쿠키 정책' },
+    ],
+  },
 ];
 
 const year = new Date().getFullYear();
@@ -65,17 +75,29 @@ const year = new Date().getFullYear();
           정부 지원금을 페르소나별로 정리한 정보 안내 사이트.
           신청 대행은 하지 않으며 정부 공식 사이트로 안내합니다.
         </p>
+        {/* Cycle #52: 5분 진단을 Footer 강조 CTA로 격상 — 사이트 어디서든 1-click 도달 */}
+        <a class="footer-quick-cta" href="/quick/">
+          <span class="fqc-icon" aria-hidden="true">⚡</span>
+          <span class="fqc-text">
+            <span class="fqc-title">5분 진단으로 빠른 매칭</span>
+            <span class="fqc-sub">개인정보 저장 0 · 브라우저 내 계산</span>
+          </span>
+          <span class="fqc-arrow" aria-hidden="true">→</span>
+        </a>
       </div>
 
       {
-        links.map((group) => (
-          <ul class="link-col">
-            {group.map((l) => (
-              <li>
-                <a href={l.href}>{l.label}</a>
-              </li>
-            ))}
-          </ul>
+        linkGroups.map((g) => (
+          <div class="link-col">
+            <h3 class="link-col-label">{g.label}</h3>
+            <ul>
+              {g.items.map((l) => (
+                <li>
+                  <a href={l.href}>{l.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
         ))
       }
     </div>
@@ -174,6 +196,23 @@ const year = new Date().getFullYear();
   }
 
   .link-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Cycle #52: 그룹 레이블 — 정보 위계 명시 */
+  .link-col-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+    margin: 0;
+    padding-bottom: 4px;
+  }
+
+  .link-col ul {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -196,6 +235,66 @@ const year = new Date().getFullYear();
   .link-col a:hover {
     color: var(--text);
     text-decoration: underline;
+  }
+
+  /* Cycle #52: Footer 5분 진단 강조 CTA */
+  .footer-quick-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgb(0 113 227 / 0.08);
+    border: 1px solid rgb(0 113 227 / 0.18);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  }
+  :global([data-theme='dark']) .footer-quick-cta {
+    background: rgb(41 151 255 / 0.1);
+    border-color: rgb(41 151 255 / 0.22);
+  }
+  .footer-quick-cta:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .fqc-icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+  }
+  .fqc-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+  }
+  .fqc-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .fqc-sub {
+    font-size: 12px;
+    color: var(--text-2);
+    margin-top: 2px;
+  }
+  .fqc-arrow {
+    margin-left: auto;
+    color: var(--accent);
+    font-size: 16px;
+    transition: transform 0.15s;
+  }
+  .footer-quick-cta:hover .fqc-arrow {
+    transform: translateX(3px);
   }
 
   .legal {

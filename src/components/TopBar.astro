@@ -51,6 +51,19 @@ const isActive = (href: string) => {
     </nav>
 
     <div class="actions">
+      {/* Cycle #52: 5분 진단 진입점 — 사이트 어디서든 1-click 매칭 도달 */}
+      <a
+        href="/quick/"
+        class:list={['quick-cta', isActive('/quick/') && 'quick-cta-active']}
+        aria-label="5분 진단으로 지원금 매칭"
+        aria-current={isActive('/quick/') ? 'page' : undefined}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M13 2L3 14h7l-1 8 11-12h-7l1-8z"></path>
+        </svg>
+        <span>5분 진단</span>
+      </a>
+
       <button
         type="button"
         class="theme-toggle nav-link"
@@ -82,6 +95,17 @@ const isActive = (href: string) => {
   </div>
 
   <nav class="mobile-nav" id="mobile-nav" hidden aria-label="모바일 메뉴">
+    {/* Cycle #52: 모바일 메뉴 상단에 5분 진단 강조 항목 */}
+    <a
+      href="/quick/"
+      class:list={['mobile-nav-link mobile-quick-cta', isActive('/quick/') && 'mobile-nav-active']}
+      aria-current={isActive('/quick/') ? 'page' : undefined}
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M13 2L3 14h7l-1 8 11-12h-7l1-8z"></path>
+      </svg>
+      5분 진단으로 매칭
+    </a>
     {
       items.map((it) => (
         <a
@@ -216,6 +240,64 @@ const isActive = (href: string) => {
     display: flex;
     align-items: center;
     gap: 4px;
+  }
+
+  /* Cycle #52: 5분 진단 진입점 — accent-tinted 강조 버튼 */
+  .quick-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-right: 4px;
+    transition: background 0.15s, transform 0.15s;
+  }
+  :global([data-theme='dark']) .quick-cta {
+    background: rgb(41 151 255 / 0.16);
+  }
+  .quick-cta:hover {
+    text-decoration: none;
+    background: rgb(0 113 227 / 0.18);
+    transform: translateY(-1px);
+  }
+  :global([data-theme='dark']) .quick-cta:hover {
+    background: rgb(41 151 255 / 0.24);
+  }
+  .quick-cta-active {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .quick-cta-active:hover {
+    background: var(--accent);
+  }
+
+  /* 모바일에서 5분 진단을 nav 영역에서 hide (모바일 메뉴 상단으로 이동) */
+  @media (max-width: 720px) {
+    .quick-cta {
+      display: none;
+    }
+  }
+
+  /* 모바일 메뉴 상단 강조 5분 진단 항목 */
+  .mobile-quick-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  :global([data-theme='dark']) .mobile-quick-cta {
+    background: rgb(41 151 255 / 0.16);
+  }
+  .mobile-quick-cta:hover {
+    background: rgb(0 113 227 / 0.18);
   }
 
   .theme-toggle {
