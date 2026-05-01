@@ -107,6 +107,14 @@ const byMonth = posts.reduce<Record<string, typeof posts>>((acc, p) => {
   return acc;
 }, {});
 const months = Object.keys(byMonth).sort().reverse();
+
+// Cycle #55: 동적 필터용 카테고리 카운트
+const categoryPostCounts = posts.reduce<Record<string, number>>((acc, p) => {
+  const c = p.data.category;
+  if (c) acc[c] = (acc[c] ?? 0) + 1;
+  return acc;
+}, {});
+const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] - a[1]);
 ---
 
 <BaseLayout
@@ -260,12 +268,27 @@ const months = Object.keys(byMonth).sort().reverse();
                 <h2 class="archive-title">분석 포스트 {posts.length}건 (최신순)</h2>
                 <a class="archive-all" href="/issues/all/">전체 아카이브 →</a>
               </div>
+
+              {/* Cycle #55: 카테고리 동적 필터 — 클라이언트 JS 토글 */}
+              {filterCategories.length > 1 && (
+                <div class="archive-filters" data-archive-filters role="group" aria-label="분야 필터">
+                  <button class="af-chip active" type="button" data-af-cat="">
+                    전체 <span class="af-cnt">{posts.length}</span>
+                  </button>
+                  {filterCategories.map(([cat, n]) => (
+                    <button class="af-chip" type="button" data-af-cat={cat}>
+                      {cat} <span class="af-cnt">{n}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {months.map((ym) => (
-                <section class="month-block">
+                <section class="month-block" data-month-block={ym}>
                   <h2 class="month-title">{ym.replace('-', '년 ')}월</h2>
                 <ul class="post-list">
                   {(byMonth[ym] ?? []).map((p) => (
-                    <li>
+                    <li data-post-cat={p.data.category}>
                       <a class={`post-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
                         <div class="pc-meta">
                           {p.data.freshness && p.data.freshness.daysActive >= 3 && (
@@ -363,6 +386,34 @@ const months = Object.keys(byMonth).sort().reverse();
       </div>
     </Container>
   </section>
+
+  <script is:inline>
+    /* Cycle #55: 카테고리 필터 — post-list 클라이언트 토글, month-block 0건이면 숨김 */
+    (() => {
+      const filters = document.querySelectorAll('[data-af-cat]');
+      if (filters.length === 0) return;
+      function applyFilter(cat) {
+        const monthBlocks = document.querySelectorAll('[data-month-block]');
+        monthBlocks.forEach((mb) => {
+          const items = mb.querySelectorAll('[data-post-cat]');
+          let visible = 0;
+          items.forEach((li) => {
+            const matches = !cat || li.getAttribute('data-post-cat') === cat;
+            li.hidden = !matches;
+            if (matches) visible++;
+          });
+          mb.hidden = visible === 0;
+        });
+      }
+      filters.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const cat = btn.getAttribute('data-af-cat') || '';
+          filters.forEach((b) => b.classList.toggle('active', b === btn));
+          applyFilter(cat);
+        });
+      });
+    })();
+  </script>
 </BaseLayout>
 
 <style>
@@ -762,10 +813,53 @@ const months = Object.keys(byMonth).sort().reverse();
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     padding-bottom: 12px;
     border-bottom: 2px solid var(--border);
     flex-wrap: wrap;
+  }
+
+  /* Cycle #55: 카테고리 필터 chips */
+  .archive-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .af-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: var(--surface);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .af-chip:hover {
+    border-color: var(--border-2);
+    color: var(--text);
+  }
+  .af-chip.active {
+    background: var(--accent);
+    color: var(--on-accent);
+    border-color: var(--accent);
+  }
+  .af-cnt {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
+    background: var(--surface-2);
+    color: var(--text-2);
+    border-radius: var(--radius-pill);
+  }
+  .af-chip.active .af-cnt {
+    background: rgb(255 255 255 / 0.2);
+    color: var(--on-accent);
   }
   .archive-title {
     font-size: clamp(18px, 2vw, 22px);
