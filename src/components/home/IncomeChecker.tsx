@@ -132,6 +132,11 @@ export const IncomeChecker = () => {
               <div className="ic-eligible-body">
                 <div className="ic-eligible-name">{t.name}</div>
                 <div className="ic-eligible-desc">{t.desc}</div>
+                {t.link && t.linkLabel && (
+                  <a className="ic-eligible-link" href={t.link}>
+                    {t.linkLabel} →
+                  </a>
+                )}
               </div>
             </div>
           ))}

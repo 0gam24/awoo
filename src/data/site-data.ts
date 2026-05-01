@@ -19,32 +19,76 @@ export interface IncomeThreshold {
   name: string;
   color: string;
   desc: string;
+  // Cycle #61: 자격 항목 → 가장 관련 깊은 페이지로 직링크
+  link?: string;
+  linkLabel?: string;
 }
 
 export const INCOME_THRESHOLDS: IncomeThreshold[] = [
-  { pct: 30, name: '생계급여', color: '#dc2626', desc: '기초생활보장 생계급여 수급권' },
-  { pct: 40, name: '의료급여', color: '#ea580c', desc: '기초생활보장 의료급여 수급권' },
-  { pct: 47, name: '주거급여', color: '#d97706', desc: '기초생활보장 주거급여 수급권' },
+  {
+    pct: 30,
+    name: '생계급여',
+    color: '#dc2626',
+    desc: '기초생활보장 생계급여 수급권',
+    link: '/categories/복지/',
+    linkLabel: '복지 지원금 보기',
+  },
+  {
+    pct: 40,
+    name: '의료급여',
+    color: '#ea580c',
+    desc: '기초생활보장 의료급여 수급권',
+    link: '/categories/복지/',
+    linkLabel: '복지 지원금 보기',
+  },
+  {
+    pct: 47,
+    name: '주거급여',
+    color: '#d97706',
+    desc: '기초생활보장 주거급여 수급권',
+    link: '/categories/주거/',
+    linkLabel: '주거 지원금 보기',
+  },
   {
     pct: 50,
     name: '교육급여 · 차상위',
     color: '#ca8a04',
     desc: '교육급여 + 차상위계층 (각종 감면·지원 대상)',
+    link: '/personas/low-income/',
+    linkLabel: '저소득 페르소나 페이지',
   },
   {
     pct: 60,
     name: '청년월세지원·근로장려금',
     color: '#16a34a',
     desc: '청년 월세, EITC, 일부 복지 지원',
+    link: '/personas/office-rookie/',
+    linkLabel: '사회초년생 페이지',
   },
   {
     pct: 75,
     name: '청년도약계좌·반값등록금',
     color: '#0891b2',
     desc: '청년 자산형성, 국가장학금 II유형',
+    link: '/categories/자산/',
+    linkLabel: '자산형성 지원금 보기',
   },
-  { pct: 100, name: '중위소득 100%', color: '#2563eb', desc: '신혼부부 특공 (소득기준 100%)' },
-  { pct: 150, name: '중위소득 150%', color: '#7c3aed', desc: '신혼부부 특공 맞벌이 등 일부' },
+  {
+    pct: 100,
+    name: '중위소득 100%',
+    color: '#2563eb',
+    desc: '신혼부부 특공 (소득기준 100%)',
+    link: '/personas/newlywed-family/',
+    linkLabel: '신혼·육아 페이지',
+  },
+  {
+    pct: 150,
+    name: '중위소득 150%',
+    color: '#7c3aed',
+    desc: '신혼부부 특공 맞벌이 등 일부',
+    link: '/categories/주거/',
+    linkLabel: '주거 지원금 보기',
+  },
 ];
 
 export interface Category {
