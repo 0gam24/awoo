@@ -296,6 +296,39 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
     }
   </script>
 
+  {/* Cycle #44: reading progress bar — 사용자 체류·dwell time ↑ + 시각 피드백 */}
+  <div class="reading-progress" aria-hidden="true">
+    <div class="rp-bar" data-reading-progress></div>
+  </div>
+  <script is:inline>
+    (() => {
+      const bar = document.querySelector('[data-reading-progress]');
+      if (!bar) return;
+      const article = document.querySelector('article.band');
+      if (!article) return;
+      function update() {
+        const rect = article.getBoundingClientRect();
+        const total = rect.height - window.innerHeight;
+        if (total <= 0) {
+          bar.style.width = '100%';
+          return;
+        }
+        const scrolled = -rect.top;
+        const pct = Math.max(0, Math.min(100, (scrolled / total) * 100));
+        bar.style.width = pct + '%';
+      }
+      let raf = 0;
+      window.addEventListener('scroll', () => {
+        if (raf) return;
+        raf = requestAnimationFrame(() => {
+          update();
+          raf = 0;
+        });
+      }, { passive: true });
+      update();
+    })();
+  </script>
+
   <article class="band">
     <Container size="wide">
       <a class="back-link" href="/">← 홈으로</a>
@@ -574,6 +607,25 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
 </BaseLayout>
 
 <style>
+  /* Cycle #44: reading progress bar */
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: transparent;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .rp-bar {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), color-mix(in oklch, var(--accent), white 25%));
+    transition: width 0.05s linear;
+    will-change: width;
+  }
+
   .band {
     padding: 32px 0 80px;
   }
