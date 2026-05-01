@@ -1,13 +1,6 @@
 ---
 import Container from '@/components/Container.astro';
 import todayIssue from '@/data/today-issue.json';
-import { getCollection } from 'astro:content';
-import {
-  recentlyAddedSlugs,
-  lastBatchAtISO,
-  formatDateKR,
-  NEW_WINDOW_DAYS,
-} from '@/lib/subsidies-meta';
 
 // 메인 NewsHero — 자동 큐레이션 today-issue.json 기반.
 // 데이터 없으면 graceful empty (CTA 만 노출), 트렌딩 차트·하드코드 fallback 제거.
@@ -217,23 +210,9 @@ function formatSyncedAt(iso: string): string {
 // CTA — 1위 토픽 포스트 + /issues/ 인덱스 둘 다 노출 (시청자 선택권)
 const topicPostUrl = isAuto ? findTopicPostUrl(auto?.trendingTopic) : null;
 
-// 핵심 사실 4박스 + 훅 카피
+// 핵심 사실 4박스 + 훅 카피 (현재 hero에서는 사용 안 함, 데이터만 유지)
 const coreFacts = auto?.summary?.coreFacts ?? [];
 const hookCopy = auto?.summary?.hookCopy ?? null;
-
-// Cycle #40 (사용자 요청): 메인 hero를 신규 지원금 API 기준 최신순으로 변경
-// 정부24 manifest의 regDate 기반 — recentlyAddedSlugs(8)
-const allSubsidiesForHero = await getCollection('subsidies');
-const heroSubsidyMap = new Map(allSubsidiesForHero.map((s) => [s.data.id, s.data]));
-const recentSubsidiesRaw = recentlyAddedSlugs(8);
-const recentSubsidiesForHero = recentSubsidiesRaw
-  .map(({ slug, regDate }) => {
-    const data = heroSubsidyMap.get(slug);
-    if (!data) return null;
-    return { ...data, regDate };
-  })
-  .filter((x): x is NonNullable<typeof x> => x !== null);
-const lastBatchDateLabel = formatDateKR(lastBatchAtISO);
 ---
 
 <section class="news-band">
@@ -254,43 +233,40 @@ const lastBatchDateLabel = formatDateKR(lastBatchAtISO);
     <div class="news-grid">
       <div class="news-big-card">
         <div class="news-big-head">
-          {/* Cycle #40 (사용자 요청): 메인 hero = 정부24 API 최신 등록 지원금 최신순 */}
-          <h1 class="news-headline">이번 주 새로 등록된 정부 지원금</h1>
-          <p class="news-subhead">
-            정부24 공식 API 기준 최근 {NEW_WINDOW_DAYS}일 이내 등록 {recentSubsidiesForHero.length}건
-            {lastBatchDateLabel && <> · 마지막 동기화 {lastBatchDateLabel}</>}
-          </p>
+          <h1 class="news-headline">{auto?.trendingTopic ?? displayHeadline}</h1>
+          {/* Cycle #40 #6: 단일 매체 표기·관련 지원금·훅 카피 제거. 키워드 + 매체 다양성만 표시 */}
+          {isAuto && (auto?.trendingTopicCount || (auto?.aggregate?.publisherCount ?? 0) > 0) && (
+            <p class="news-subhead">
+              {auto?.aggregate?.publisherCount && auto.aggregate.publisherCount > 0 && (
+                <>매체 {auto.aggregate.publisherCount}곳 · </>
+              )}
+              {auto?.trendingTopicCount && (
+                <>총 {auto.trendingTopicCount}건 보도</>
+              )}
+              {daysActive >= 2 && <> · {daysActive}일 연속</>}
+            </p>
+          )}
+          {/* Cycle #40 #6: 매체명 직접 노출 — 통합 검색 다양성 신뢰성 */}
+          {isAuto && auto?.aggregate?.publishers && auto.aggregate.publishers.length > 0 && (
+            <p class="news-publishers">
+              <span class="np-label">취재 매체</span>
+              <span class="np-list">
+                {auto.aggregate.publishers.slice(0, 6).join(' · ')}
+                {auto.aggregate.publishers.length > 6 && ` 외 ${auto.aggregate.publishers.length - 6}곳`}
+              </span>
+            </p>
+          )}
         </div>
 
-        {recentSubsidiesForHero.length > 0 && (
-          <ul class="hero-subsidies">
-            {recentSubsidiesForHero.slice(0, 6).map((s) => (
-              <li>
-                <a class={`hs-card tint-${s.category}`} href={`/subsidies/${s.id}/`}>
-                  <div class="hs-meta">
-                    <span class="hs-cat">{s.category}</span>
-                    <span class="hs-agency">{s.agency}</span>
-                  </div>
-                  <div class="hs-title">{s.title}</div>
-                  {s.amount > 0 && (
-                    <div class="hs-amount">
-                      {s.amountLabel ? `${s.amountLabel} ` : ''}
-                      {s.amount >= 100_000_000
-                        ? `${(s.amount / 100_000_000).toFixed(1)}억원`
-                        : s.amount >= 10_000
-                          ? `${Math.round(s.amount / 10_000).toLocaleString('ko-KR')}만원`
-                          : `${s.amount.toLocaleString('ko-KR')}원`}
-                    </div>
-                  )}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-
         <div class="news-actions">
-          <a class="cta-primary" href="/subsidies/new/">전체 신규 지원금 보기 →</a>
-          <a class="cta-ghost" href="/issues/">오늘의 이슈 보기</a>
+          {topicPostUrl ? (
+            <>
+              <a class="cta-primary" href={topicPostUrl}>이 이슈 자세히 보기 →</a>
+              <a class="cta-ghost" href="/issues/">오늘의 이슈 모두 보기</a>
+            </>
+          ) : (
+            <a class="cta-primary" href="/issues/">오늘의 이슈 모두 보기 →</a>
+          )}
         </div>
       </div>
 
