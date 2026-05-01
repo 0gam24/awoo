@@ -2,6 +2,7 @@
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import { getCollection } from 'astro:content';
+import { getDeadlineBadge } from '@/lib/deadline-format';
 import { lastBatchSlugs, lastBatchAtISO, formatDateKR, recentlyAddedSlugs } from '@/lib/subsidies-meta';
 
 const subsidies = await getCollection('subsidies');
@@ -38,21 +39,31 @@ const dateLabel = formatDateKR(lastBatchAtISO);
         </div>
 
         <ul class="grid">
-          {limited.map((s) => (
-            <li>
-              <a class={`tile tint-${s.category}`} href={`/subsidies/${s.id}/`}>
-                <div class="tile-icon">
-                  <Icon name={s.icon} size={22} strokeWidth={1.7} />
-                </div>
-                <div class="tile-body">
-                  <div class="tile-cat">{s.category}</div>
-                  <div class="tile-title">{s.title}</div>
-                  <div class="tile-agency">{s.agency}</div>
-                </div>
-                <span class="tile-arrow" aria-hidden="true">→</span>
-              </a>
-            </li>
-          ))}
+          {limited.map((s) => {
+            const dl = getDeadlineBadge(s.deadline);
+            return (
+              <li>
+                <a class={`tile tint-${s.category}`} href={`/subsidies/${s.id}/`}>
+                  <div class="tile-icon">
+                    <Icon name={s.icon} size={22} strokeWidth={1.7} />
+                  </div>
+                  <div class="tile-body">
+                    <div class="tile-meta-row">
+                      <span class="tile-cat">{s.category}</span>
+                      {(dl.tone === 'urgent' || dl.tone === 'soon') && (
+                        <span class={`tile-dl tile-dl-${dl.tone}`} title={`마감: ${s.deadline}`}>
+                          {dl.label}
+                        </span>
+                      )}
+                    </div>
+                    <div class="tile-title">{s.title}</div>
+                    <div class="tile-agency">{s.agency}</div>
+                  </div>
+                  <span class="tile-arrow" aria-hidden="true">→</span>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </Container>
     </section>
@@ -178,7 +189,32 @@ const dateLabel = formatDateKR(lastBatchAtISO);
   .tile-cat {
     font-size: 12px;
     color: var(--text-3);
+  }
+
+  /* Cycle #56: 신규 + 마감 D-day 동시 노출 */
+  .tile-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     margin-bottom: 2px;
+  }
+  .tile-dl {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: var(--radius-pill);
+    line-height: 1.4;
+  }
+  .tile-dl-urgent {
+    background: rgb(214 44 26 / 0.14);
+    color: var(--color-danger);
+  }
+  .tile-dl-soon {
+    background: rgb(247 195 96 / 0.2);
+    color: var(--color-warning);
+  }
+  :global([data-theme='dark']) .tile-dl-urgent {
+    background: rgb(255 75 75 / 0.18);
   }
 
   .tile-title {
