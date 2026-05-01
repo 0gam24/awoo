@@ -224,6 +224,11 @@ const breadcrumbs = [
             공식 신청처로 이동
             <Icon name="arrow-up-right" size={16} />
           </a>
+          {alsoSeen.length > 0 && (
+            <a class="rail-compare-link" href="#also-seen">
+              ↓ 같은 페르소나의 다른 {alsoSeen.length}건 비교
+            </a>
+          )}
           <p class="disclaimer">
             지원금가이드는 정보 안내 사이트로, 신청 대행은 하지 않습니다.
             실제 신청은 정부24·복지로 등 공식 사이트에서 진행됩니다.
@@ -406,7 +411,7 @@ const breadcrumbs = [
 
   {
     alsoSeen.length > 0 && (
-      <section class="band">
+      <section class="band" id="also-seen">
         <Container size="wide">
           <div class="display-row">
             <h2 class="display">이 지원금 받는 분들이 또 보는 것</h2>
@@ -719,6 +724,24 @@ const breadcrumbs = [
   }
   .btn-primary:hover {
     background: color-mix(in oklch, var(--accent), black 8%);
+    text-decoration: none;
+  }
+
+  /* Cycle #63: apply-rail에서 alsoSeen 섹션으로 anchor 점프 — 비교 옵션 즉시 인지 */
+  .rail-compare-link {
+    display: block;
+    margin-top: 10px;
+    padding: 8px 14px;
+    text-align: center;
+    color: var(--accent-link);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: var(--radius-pill);
+    transition: background 0.15s;
+  }
+  .rail-compare-link:hover {
+    background: var(--surface);
     text-decoration: none;
   }
 
