@@ -91,6 +91,13 @@ const collectionSchema = buildCollectionPage({
         lead={`전 국민 대상 정부 지원금 <strong>${subsidies.length}개</strong>를 분야·페르소나별로 살펴보세요.`}
       />
 
+      {/* Cycle #64: 활성 검색어 표시 — 클라이언트 JS가 q 파라미터 있을 때 unhide */}
+      <div class="active-search" data-active-search hidden>
+        <span class="as-label">검색어:</span>
+        <span class="as-q" data-active-q></span>
+        <a class="as-clear" href={`/subsidies/`} aria-label="검색어 초기화">×</a>
+      </div>
+
       {/* Cycle #54: filter + sort를 sticky 컨테이너로 묶음 — 카드 스크롤 중에도 재선택 가능 */}
       <div class="filter-sticky">
         <div class="filter-rail" aria-label="분야 필터">
@@ -123,12 +130,14 @@ const collectionSchema = buildCollectionPage({
         {
           sorted.map((s) => {
             const dl = getDeadlineBadge(s.data.deadline);
+            const searchText = `${s.data.title} ${(s.data.tags ?? []).join(' ')} ${s.data.agency} ${s.data.category} ${(s.data.summary ?? '').slice(0, 80)}`.toLowerCase();
             return (
             <li
               data-cat={s.data.category}
               data-amount={s.data.amount ?? 0}
               data-deadline-rank={deadlineRank(s.data)}
               data-popularity-rank={popularityRank(s.data)}
+              data-search-text={searchText}
             >
               <a class={`subsidy-card cat-${s.data.category}`} href={`/subsidies/${s.data.id}/`}>
                 <div class={`media tint-${s.data.category}`}>
@@ -208,10 +217,14 @@ const collectionSchema = buildCollectionPage({
   const apply = () => {
     const params = new URLSearchParams(window.location.search);
     const active = params.get('category') || 'all';
+    const q = (params.get('q') || '').trim().toLowerCase();
     let visible = 0;
     document.querySelectorAll<HTMLLIElement>('.subsidy-grid li').forEach((li) => {
       const cat = li.dataset.cat;
-      const show = active === 'all' || cat === active;
+      const text = li.dataset.searchText || '';
+      const catMatch = active === 'all' || cat === active;
+      const qMatch = !q || text.includes(q);
+      const show = catMatch && qMatch;
       li.hidden = !show;
       if (show) visible++;
     });
@@ -219,7 +232,23 @@ const collectionSchema = buildCollectionPage({
       chip.classList.toggle('active', chip.dataset.chipCat === active);
     });
     const empty = document.getElementById('empty-msg');
-    if (empty) empty.hidden = visible !== 0;
+    if (empty) {
+      empty.hidden = visible !== 0;
+      empty.textContent = q
+        ? `"${q}" 검색 결과가 없습니다. 다른 키워드를 시도해 보세요.`
+        : '해당 분야의 지원금이 없습니다.';
+    }
+    // Cycle #64: 활성 검색어 표시 영역 갱신
+    const qEl = document.querySelector<HTMLElement>('[data-active-search]');
+    const qLabel = document.querySelector<HTMLElement>('[data-active-q]');
+    if (qEl && qLabel) {
+      if (q) {
+        qLabel.textContent = q;
+        qEl.hidden = false;
+      } else {
+        qEl.hidden = true;
+      }
+    }
   };
 
   // Intercept chip clicks to use history.pushState (no full reload)
@@ -255,6 +284,50 @@ const collectionSchema = buildCollectionPage({
 <style>
   .band {
     padding: 48px 0 80px;
+  }
+
+  /* Cycle #64: 활성 검색어 영역 */
+  .active-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 8px 14px;
+    background: rgb(0 113 227 / 0.08);
+    border: 1px solid rgb(0 113 227 / 0.2);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+  }
+  :global([data-theme='dark']) .active-search {
+    background: rgb(41 151 255 / 0.12);
+    border-color: rgb(41 151 255 / 0.24);
+  }
+  .as-label {
+    font-weight: 700;
+    color: var(--text-2);
+  }
+  .as-q {
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .as-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .as-clear:hover {
+    background: var(--accent);
+    color: var(--on-accent);
+    text-decoration: none;
   }
 
   /* Cycle #54: filter + sort sticky 컨테이너 — 카드 스크롤 중에도 재선택 */
