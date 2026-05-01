@@ -2,14 +2,28 @@
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import { CATEGORIES } from '@/data/site-data';
+import { getDeadlineBadge } from '@/lib/deadline-format';
 import { getCollection } from 'astro:content';
 
 const subsidies = await getCollection('subsidies');
-const counts = subsidies.reduce<Record<string, number>>((acc, s) => {
-  acc[s.data.category] = (acc[s.data.category] ?? 0) + 1;
+
+// Cycle #60: 카테고리별 매칭 + 마감 임박 카운트 (D-30 이내)
+type CatStat = { count: number; urgentCount: number; hotCount: number };
+const stats = subsidies.reduce<Record<string, CatStat>>((acc, s) => {
+  const c = s.data.category;
+  if (!acc[c]) acc[c] = { count: 0, urgentCount: 0, hotCount: 0 };
+  acc[c].count++;
+  const dl = getDeadlineBadge(s.data.deadline);
+  if (dl.tone === 'urgent' || dl.tone === 'soon') acc[c].urgentCount++;
+  if (s.data.isHot) acc[c].hotCount++;
   return acc;
 }, {});
-const cats = CATEGORIES.slice(1).map((c) => ({ ...c, count: counts[c.id] ?? 0 }));
+const cats = CATEGORIES.slice(1).map((c) => ({
+  ...c,
+  count: stats[c.id]?.count ?? 0,
+  urgentCount: stats[c.id]?.urgentCount ?? 0,
+  hotCount: stats[c.id]?.hotCount ?? 0,
+}));
 ---
 
 <section class="band">
@@ -26,7 +40,14 @@ const cats = CATEGORIES.slice(1).map((c) => ({ ...c, count: counts[c.id] ?? 0 })
               <Icon name={c.icon} size={28} strokeWidth={1.6} />
             </div>
             <div class="cat-name">{c.name}</div>
-            <div class="cat-count">{c.count}개</div>
+            <div class="cat-count">
+              {c.count}개
+              {c.urgentCount > 0 && (
+                <span class="cat-urgent" title={`마감 D-30 이내 ${c.urgentCount}건`}>
+                  · 곧 마감 {c.urgentCount}
+                </span>
+              )}
+            </div>
           </a>
         ))
       }
@@ -143,5 +164,12 @@ const cats = CATEGORIES.slice(1).map((c) => ({ ...c, count: counts[c.id] ?? 0 })
     font-size: 13px;
     color: var(--text-2);
     font-weight: 500;
+  }
+
+  /* Cycle #60: 카테고리별 곧 마감 카운트 — 시급도 시각 신호 */
+  .cat-urgent {
+    color: var(--color-danger);
+    font-weight: 700;
+    margin-left: 2px;
   }
 </style>
