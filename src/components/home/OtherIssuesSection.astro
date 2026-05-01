@@ -1,55 +1,101 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
+import { recentlyAddedSlugs, formatDateKR, NEW_WINDOW_DAYS } from '@/lib/subsidies-meta';
 import { getCollection } from 'astro:content';
 
-const issues = await getCollection('issues');
+// Cycle #41 (사용자 정정): "이번 주 이슈" 섹션 = 정부24 공식 API 최신 등록 지원금
+// 기존 수동 큐레이션 issues.json → recentlyAddedSlugs() 정부24 manifest 기반으로 교체
+const allSubsidies = await getCollection('subsidies');
+const subsidyMap = new Map(allSubsidies.map((s) => [s.data.id, s.data]));
 const personas = await getCollection('personas');
+const personaMap = new Map(personas.map((p) => [p.data.id, p.data]));
+
+const recentRaw = recentlyAddedSlugs(8);
+const recentSubsidies = recentRaw
+  .map(({ slug, regDate }) => {
+    const data = subsidyMap.get(slug);
+    if (!data) return null;
+    return { ...data, regDate };
+  })
+  .filter((x): x is NonNullable<typeof x> => x !== null);
+
+function formatAmount(amount: number, label: string): string {
+  if (!amount) return '';
+  const labeled = label ? `${label} ` : '';
+  if (amount >= 100_000_000) return `${labeled}${(amount / 100_000_000).toFixed(1)}억원`;
+  if (amount >= 10_000) return `${labeled}${Math.round(amount / 10_000).toLocaleString('ko-KR')}만원`;
+  return `${labeled}${amount.toLocaleString('ko-KR')}원`;
+}
+
+function formatRegDate(ts: number): string {
+  const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return '';
+  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+}
 ---
 
 <section class="band alt">
   <Container size="wide">
     <div class="section-head">
       <div class="eyebrow">이번 주 이슈</div>
-      <h2 class="display">옆집은 300만 원 받았다는데, 설마 당신만 '자격 미달'인가요?</h2>
+      <h2 class="display">정부24에 새로 올라온 정부 지원금 — 최근 {NEW_WINDOW_DAYS}일</h2>
+      <p class="sub">공식 API 기준 최신 등록순. 자격 조건·금액·신청 기한은 각 상세 페이지에서 확인.</p>
     </div>
 
-    <ul class="issue-row-list">
-      {
-        issues.map((iss) => (
+    {recentSubsidies.length === 0 ? (
+      <div class="empty">
+        <p>최근 {NEW_WINDOW_DAYS}일 이내 새로 등록된 지원금이 없습니다.</p>
+        <a class="empty-link" href="/subsidies/">전체 지원금 보기 →</a>
+      </div>
+    ) : (
+      <ul class="issue-row-list">
+        {recentSubsidies.map((s) => (
           <li>
-            <a class={`issue-row issue-cat-${iss.data.badge}`} href={`/subsidies/${iss.data.related ?? ''}/`}>
-              <div class={`issue-row-glyph tint-${iss.data.badge}`}>
-                <Icon name={iss.data.icon} size={28} strokeWidth={1.7} />
+            <a class={`issue-row issue-cat-${s.category}`} href={`/subsidies/${s.id}/`}>
+              <div class={`issue-row-glyph tint-${s.category}`}>
+                <Icon name={s.icon} size={28} strokeWidth={1.7} />
               </div>
               <div class="issue-row-body">
                 <div class="issue-row-meta">
-                  <span class="badge neutral">{iss.data.badge}</span>
-                  <span class="meta-date">{iss.data.date}</span>
+                  <span class="badge neutral">{s.category}</span>
+                  <span class="meta-agency">{s.agency}</span>
+                  {s.regDate && <span class="meta-date">등록 {formatRegDate(s.regDate)}</span>}
                 </div>
-                <div class="issue-row-headline">{iss.data.headline}</div>
-                <div class="issue-row-summary">{iss.data.summary}</div>
-                <div class="issue-row-personas">
-                  <span class="meta-label">해당 페르소나</span>
-                  {iss.data.affectedPersonas.map((pid) => {
-                    const p = personas.find((x) => x.data.id === pid);
-                    return p ? (
-                      <span class="persona-mini">
-                        <Icon name={p.data.icon} size={14} strokeWidth={1.8} />
-                        {p.data.label}
-                      </span>
-                    ) : null;
-                  })}
+                <div class="issue-row-headline">{s.title}</div>
+                <div class="issue-row-summary">
+                  {s.amount > 0 && <strong class="amount">{formatAmount(s.amount, s.amountLabel)}</strong>}
+                  {s.summary && <span class="sum-text">{s.summary.slice(0, 120)}</span>}
                 </div>
+                {s.targetPersonas && s.targetPersonas.length > 0 && (
+                  <div class="issue-row-personas">
+                    <span class="meta-label">해당 페르소나</span>
+                    {s.targetPersonas.slice(0, 3).map((pid) => {
+                      const p = personaMap.get(pid);
+                      return p ? (
+                        <span class="persona-mini">
+                          <Icon name={p.icon} size={14} strokeWidth={1.8} />
+                          {p.label}
+                        </span>
+                      ) : null;
+                    })}
+                  </div>
+                )}
               </div>
               <span class="issue-row-arrow" aria-hidden="true">
                 <Icon name="arrow-right" size={18} />
               </span>
             </a>
           </li>
-        ))
-      }
-    </ul>
+        ))}
+      </ul>
+    )}
+
+    {recentSubsidies.length > 0 && (
+      <div class="more-row">
+        <a class="more-link" href="/subsidies/new/">전체 신규 지원금 보기 →</a>
+      </div>
+    )}
   </Container>
 </section>
 
@@ -76,12 +122,65 @@ const personas = await getCollection('personas');
   }
 
   .display {
-    font-size: clamp(24px, 3vw, 36px);
-    font-weight: 600;
+    font-size: clamp(22px, 2.6vw, 32px);
+    font-weight: 700;
     line-height: 1.25;
     letter-spacing: -0.018em;
+    margin: 0 0 8px;
+    max-width: 900px;
+  }
+  /* Cycle #41: section sub·empty·more-row */
+  .sub {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.55;
     margin: 0;
-    max-width: 800px;
+    max-width: 700px;
+  }
+  .empty {
+    text-align: center;
+    padding: 60px 16px;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+  }
+  .empty p {
+    color: var(--text-2);
+    margin: 0 0 8px;
+  }
+  .empty-link {
+    color: var(--accent-link);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .more-row {
+    margin-top: 20px;
+    text-align: right;
+  }
+  .more-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    color: var(--accent-link);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .more-link:hover {
+    text-decoration: underline;
+  }
+  .meta-agency {
+    color: var(--accent-link);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .amount {
+    color: var(--accent);
+    font-weight: 700;
+    margin-right: 6px;
+  }
+  .sum-text {
+    color: var(--text-2);
   }
 
   .issue-row-list {
