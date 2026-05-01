@@ -76,6 +76,8 @@ export const GET: APIRoute = async () => {
   // Cycle #13 P0-3: glossary + topics 본문 합본 (AI 인용 confidence 신호)
   const glossary = await getCollection('glossary');
   const topics = await getCollection('topics');
+  // Cycle #40: flagship guides 본문 합본 (markdown raw body 포함)
+  const guides = await getCollection('guides');
 
   const lines: string[] = [];
 
@@ -380,6 +382,56 @@ export const GET: APIRoute = async () => {
   lines.push('');
   lines.push('---');
   lines.push('');
+
+  // Cycle #40: flagship 가이드 본문 합본 (markdown raw body)
+  if (guides.length > 0) {
+    lines.push(`## 심층 가이드 (${guides.length}건)`);
+    lines.push('');
+    lines.push(
+      '정부 지원금을 페르소나·상황별로 정리한 사람 작성·검수 심층 가이드. 각 가이드는 자격·금액·신청 절차·자주 묻는 질문까지 한 페이지에서 정리.',
+    );
+    lines.push('');
+    // 시간 desc 정렬
+    const sortedGuides = [...guides].sort((a, b) => {
+      const ad = a.data.updatedAt ?? a.data.publishedAt;
+      const bd = b.data.updatedAt ?? b.data.publishedAt;
+      return ad < bd ? 1 : -1;
+    });
+    for (const g of sortedGuides) {
+      const url = `https://awoo.or.kr/guides/${g.id}/`;
+      lines.push(`### ${g.data.title}${g.data.isFlagship ? ' [flagship]' : ''}`);
+      lines.push('');
+      lines.push(`- 분야: ${g.data.category}`);
+      lines.push(
+        `- 발행: ${g.data.publishedAt}${g.data.updatedAt ? ` (수정 ${g.data.updatedAt})` : ''}`,
+      );
+      lines.push(`- 출처: ${url}`);
+      lines.push('');
+      lines.push(`> ${g.data.description}`);
+      lines.push('');
+      if (g.data.tldr.length > 0) {
+        lines.push('**핵심 요약**');
+        for (const t of g.data.tldr) lines.push(`- ${t}`);
+        lines.push('');
+      }
+      // markdown 본문 그대로 (g.body는 frontmatter 제거된 raw md)
+      if (g.body) {
+        lines.push(g.body.trim());
+        lines.push('');
+      }
+      if (g.data.faq && g.data.faq.length > 0) {
+        lines.push('**자주 묻는 질문**');
+        for (const f of g.data.faq) {
+          lines.push('');
+          lines.push(`**Q. ${f.q}**`);
+          lines.push(`A. ${f.a}`);
+        }
+        lines.push('');
+      }
+      lines.push('---');
+      lines.push('');
+    }
+  }
 
   // 운영 주체
   lines.push('## 운영 주체 / 편집 정책');

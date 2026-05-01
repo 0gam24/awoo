@@ -390,6 +390,31 @@ function parseJsonFromResponse(text) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Cycle #40: Title sanitizer — AI 클리셰 패턴 제거 (사용자 요청)
+// 콜론(:)·대시(- — – ―) + '대상·금액·신청 방법 총정리' 같은 클리셰 부분 제거.
+// ─────────────────────────────────────────────────────────────
+function sanitizeTitle(raw) {
+  if (!raw) return raw;
+  let t = String(raw).trim();
+  // 1. AI 클리셰 suffix 제거 — 'X: 대상·금액·신청 방법 총정리', 'X — Y 총정리' 등
+  const cliches = [
+    /\s*[:—–-]\s*대상[·\s]*금액[·\s]*신청\s*방법\s*총정리\s*$/,
+    /\s*[:—–-]\s*[가-힣\s·]*총정리\s*$/,
+    /\s*[:—–-]\s*[가-힣\s·]*완벽정리\s*$/,
+    /\s*[:—–-]\s*[가-힣\s·]*한눈에\s*$/,
+  ];
+  for (const re of cliches) t = t.replace(re, '');
+  // 2. 콜론·대시를 공백으로 (남은 것만)
+  t = t.replace(/\s*:\s*/g, ' ');
+  t = t.replace(/\s*[—–―]\s*/g, ' ');
+  // 일반 hyphen은 단어 일부 (예: K-스타트업)일 수 있어 보존 — 단 공백+- 형태만 제거
+  t = t.replace(/\s+-\s+/g, ' ');
+  // 3. 다중 공백 정리
+  t = t.replace(/\s+/g, ' ').trim();
+  return t;
+}
+
+// ─────────────────────────────────────────────────────────────
 // 슬러그 충돌 해결
 // ─────────────────────────────────────────────────────────────
 async function resolveSlug(date, slug) {
@@ -517,10 +542,14 @@ async function main() {
       (histEntry?.daysActive ?? 0) + (histEntry?.dailyCounts?.[date] === undefined ? 1 : 0);
     const totalCount = (histEntry?.totalCount ?? 0) + count;
 
-    // 다중 소스 종합 — Top 1 토픽이면 topTrendingArticles 전체 (10+건),
-    // Top 2,3 토픽이면 topArticle + candidates 중 매칭 키워드 포함된 것
+    // Cycle #40 (사용자 요청): 다중 소스 종합 강화 — 화제 키워드의 모든 매칭 기사 활용
+    // 우선순위: trendingArticlesByTerm[term] (Cycle #7 매체 다양성 12건) > topTrendingArticles(1위만) > 폴백
     let articlesForTopic;
-    if (
+    const fromTermMap = todayIssue.trendingArticlesByTerm?.[term];
+    if (Array.isArray(fromTermMap) && fromTermMap.length >= 2) {
+      // 신규 우선: 키워드별 매체 다양성 12건 (description 포함)
+      articlesForTopic = fromTermMap;
+    } else if (
       idx === 0 &&
       Array.isArray(todayIssue.topTrendingArticles) &&
       todayIssue.topTrendingArticles.length > 0
@@ -530,11 +559,29 @@ async function main() {
       const fromCandidates = (todayIssue.candidates ?? []).filter((c) => c.title?.includes(term));
       articlesForTopic = [topArticle, ...fromCandidates].filter(Boolean).slice(0, 8);
     }
-    // Cycle #3 P0-7: 입력 캡 — N≤10 + JSON 직렬화 30KB 초과 시 뒤에서부터 잘라냄
-    // (토큰·비용 폭주 + prompt injection 표면 동시 차단)
-    articlesForTopic = articlesForTopic.slice(0, 10);
+    // Cycle #3 P0-7 / Cycle #40: 입력 캡 — N≤12 + JSON 직렬화 30KB 초과 시 뒤에서부터 잘라냄
+    articlesForTopic = articlesForTopic.slice(0, 12);
     while (articlesForTopic.length > 1 && JSON.stringify(articlesForTopic).length > 30000) {
       articlesForTopic.pop();
+    }
+
+    // Cycle #40 (사용자 요청): 출처 다양성 게이트 — 단일 매체 재구성 thin content 차단
+    // 매체 ≥ 2개 + 기사 ≥ 3건 미만이면 skip (다른 후보로 fallback)
+    const uniquePublishers = new Set(
+      articlesForTopic.map((a) => {
+        try {
+          return new URL(a.link).hostname.replace(/^www\./, '');
+        } catch {
+          return a.publisher || a.link;
+        }
+      }),
+    );
+    if (uniquePublishers.size < 2 || articlesForTopic.length < 3) {
+      console.log(
+        `  ⤳ 다양성 미달: 매체 ${uniquePublishers.size}곳 / 기사 ${articlesForTopic.length}건 (요구 ≥2 매체 + ≥3건) — 다음 후보로`,
+      );
+      bonusSkipped.push({ rank: idx + 1, term, reason: 'source_diversity_below_min' });
+      continue;
     }
 
     // 3. user prompt 빌드
@@ -631,6 +678,11 @@ ${JSON.stringify(userInput, null, 2)}
       continue;
     }
     console.log(`  ✓ Fact-check: ${fc.matched}/${fc.totalClaims} (${fc.score})`);
+
+    // Cycle #40: title sanitize — AI 클리셰 패턴 제거 (사용자 요청: 콜론·대시 금지)
+    if (post.title) {
+      post.title = sanitizeTitle(post.title);
+    }
 
     // 6. 슬러그 충돌 해결
     if (!post.slug) post.slug = `issue-${idx + 1}`;

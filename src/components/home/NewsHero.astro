@@ -1,6 +1,13 @@
 ---
 import Container from '@/components/Container.astro';
 import todayIssue from '@/data/today-issue.json';
+import { getCollection } from 'astro:content';
+import {
+  recentlyAddedSlugs,
+  lastBatchAtISO,
+  formatDateKR,
+  NEW_WINDOW_DAYS,
+} from '@/lib/subsidies-meta';
 
 // 메인 NewsHero — 자동 큐레이션 today-issue.json 기반.
 // 데이터 없으면 graceful empty (CTA 만 노출), 트렌딩 차트·하드코드 fallback 제거.
@@ -99,6 +106,13 @@ const auto = todayIssue as {
   daysActive?: number;
   totalCount?: number;
   matchedSubsidies?: MatchedSubsidy[];
+  // Cycle #40: 매체 다양성 표기 — sync-issues.mjs aggregate 필드
+  aggregate?: {
+    publisherCount?: number;
+    publishers?: string[];
+    cities?: string[];
+    newestPubDate?: string | null;
+  };
 } | null;
 
 // 트렌딩 사이드바 — 자동 데이터 우선 (N-gram 빈도 + 대표 기사)
@@ -182,12 +196,44 @@ function extractSource(link: string | undefined): string {
 
 const sourceLabel = isAuto ? extractSource(externalLink) : '뉴스 매체';
 
+// Cycle #40 (사용자 요청): 뉴스 크롤링 시각 표기 (사이트 신선도 신호)
+function formatSyncedAt(iso: string): string {
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    // KST (UTC+9) 표기
+    const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+    const yyyy = kst.getUTCFullYear();
+    const mm = String(kst.getUTCMonth() + 1).padStart(2, '0');
+    const dd = String(kst.getUTCDate()).padStart(2, '0');
+    const hh = String(kst.getUTCHours()).padStart(2, '0');
+    const mi = String(kst.getUTCMinutes()).padStart(2, '0');
+    return `${yyyy}.${mm}.${dd} ${hh}:${mi} KST`;
+  } catch {
+    return iso;
+  }
+}
+
 // CTA — 1위 토픽 포스트 + /issues/ 인덱스 둘 다 노출 (시청자 선택권)
 const topicPostUrl = isAuto ? findTopicPostUrl(auto?.trendingTopic) : null;
 
 // 핵심 사실 4박스 + 훅 카피
 const coreFacts = auto?.summary?.coreFacts ?? [];
 const hookCopy = auto?.summary?.hookCopy ?? null;
+
+// Cycle #40 (사용자 요청): 메인 hero를 신규 지원금 API 기준 최신순으로 변경
+// 정부24 manifest의 regDate 기반 — recentlyAddedSlugs(8)
+const allSubsidiesForHero = await getCollection('subsidies');
+const heroSubsidyMap = new Map(allSubsidiesForHero.map((s) => [s.data.id, s.data]));
+const recentSubsidiesRaw = recentlyAddedSlugs(8);
+const recentSubsidiesForHero = recentSubsidiesRaw
+  .map(({ slug, regDate }) => {
+    const data = heroSubsidyMap.get(slug);
+    if (!data) return null;
+    return { ...data, regDate };
+  })
+  .filter((x): x is NonNullable<typeof x> => x !== null);
+const lastBatchDateLabel = formatDateKR(lastBatchAtISO);
 ---
 
 <section class="news-band">
@@ -208,62 +254,44 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     <div class="news-grid">
       <div class="news-big-card">
         <div class="news-big-head">
-          <h1 class="news-headline">{displayHeadline}</h1>
-          <p class="news-subhead">{displaySubhead}</p>
+          {/* Cycle #40 (사용자 요청): 메인 hero = 정부24 API 최신 등록 지원금 최신순 */}
+          <h1 class="news-headline">이번 주 새로 등록된 정부 지원금</h1>
+          <p class="news-subhead">
+            정부24 공식 API 기준 최근 {NEW_WINDOW_DAYS}일 이내 등록 {recentSubsidiesForHero.length}건
+            {lastBatchDateLabel && <> · 마지막 동기화 {lastBatchDateLabel}</>}
+          </p>
         </div>
 
-        {coreFacts.length > 0 && (
-          <ul class="core-facts">
-            {coreFacts.map((f) => (
-              <li class="core-fact">
-                <div class="cf-label">{f.label}</div>
-                <div class="cf-value">{f.value}</div>
-                {f.sub && <div class="cf-sub">{f.sub}</div>}
+        {recentSubsidiesForHero.length > 0 && (
+          <ul class="hero-subsidies">
+            {recentSubsidiesForHero.slice(0, 6).map((s) => (
+              <li>
+                <a class={`hs-card tint-${s.category}`} href={`/subsidies/${s.id}/`}>
+                  <div class="hs-meta">
+                    <span class="hs-cat">{s.category}</span>
+                    <span class="hs-agency">{s.agency}</span>
+                  </div>
+                  <div class="hs-title">{s.title}</div>
+                  {s.amount > 0 && (
+                    <div class="hs-amount">
+                      {s.amountLabel ? `${s.amountLabel} ` : ''}
+                      {s.amount >= 100_000_000
+                        ? `${(s.amount / 100_000_000).toFixed(1)}억원`
+                        : s.amount >= 10_000
+                          ? `${Math.round(s.amount / 10_000).toLocaleString('ko-KR')}만원`
+                          : `${s.amount.toLocaleString('ko-KR')}원`}
+                    </div>
+                  )}
+                </a>
               </li>
             ))}
           </ul>
         )}
 
-        {hookCopy && (
-          <div class="hook-copy">
-            <span class="hook-mark" aria-hidden="true">★</span>
-            <span class="hook-text">{hookCopy}</span>
-          </div>
-        )}
-
-        {matchedSubsidies.length > 0 && (
-          <div class="matched-row">
-            <div class="matched-label">관련 지원금 {matchedSubsidies.length}건</div>
-            <ul class="matched-list">
-              {matchedSubsidies.map((s) => (
-                <li>
-                  <a class={`matched-card tint-${s.category}`} href={`/subsidies/${s.id}/`}>
-                    <div class="m-cat">{s.category} · {s.agency}</div>
-                    <div class="m-title">{s.title}</div>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         <div class="news-actions">
-          {topicPostUrl ? (
-            <>
-              <a class="cta-primary" href={topicPostUrl}>이 이슈 자세히 보기 →</a>
-              <a class="cta-ghost" href="/issues/">오늘의 이슈 모두 보기</a>
-            </>
-          ) : (
-            <a class="cta-primary" href="/issues/">오늘의 이슈 모두 보기 →</a>
-          )}
-          <a class="cta-ghost" href="/quick/">5분 진단 →</a>
-          {isAuto && externalLink && (
-            <a class="cta-mini" href={externalLink} target="_blank" rel="noopener noreferrer">
-              원문: {sourceLabel}
-            </a>
-          )}
+          <a class="cta-primary" href="/subsidies/new/">전체 신규 지원금 보기 →</a>
+          <a class="cta-ghost" href="/issues/">오늘의 이슈 보기</a>
         </div>
-
       </div>
 
       {autoTrending && (
@@ -315,6 +343,12 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
 
           <div class="news-trend-card-foot">
             클릭하면 사이트 내 관련 포스트·지원금으로 이동합니다
+            {auto?.syncedAt && (
+              <div class="news-trend-synced">
+                <span class="dot-tr" aria-hidden="true" />
+                뉴스 수집 시각 · <time datetime={auto.syncedAt}>{formatSyncedAt(auto.syncedAt)}</time>
+              </div>
+            )}
           </div>
         </aside>
       )}
@@ -646,7 +680,92 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     font-size: 17px;
     color: var(--text-2);
     line-height: 1.55;
+    margin: 0 0 12px;
+  }
+  /* Cycle #40 (사용자 요청 #7): 메인 hero = 신규 지원금 API 최신순 */
+  .hero-subsidies {
+    list-style: none;
+    margin: 22px 0 24px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+  }
+  .hs-card {
+    display: block;
+    padding: 14px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--cat-color, var(--accent));
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s var(--ease-standard), border-color 0.18s, background 0.18s;
+  }
+  .hs-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    background: var(--surface);
+    text-decoration: none;
+  }
+  .hs-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 11px;
+  }
+  .hs-cat {
+    padding: 2px 8px;
+    background: var(--surface);
+    color: var(--cat-color, var(--text-2));
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+  }
+  .hs-agency {
+    color: var(--accent-link);
+    font-weight: 600;
+  }
+  .hs-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .hs-amount {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  /* Cycle #40 (사용자 요청): 취재 매체 목록 — (사이드바에서만 사용) */
+  .news-publishers {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
     margin: 0 0 24px;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+  }
+  .np-label {
+    color: var(--text-3);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+  .np-list {
+    color: var(--text-2);
+    line-height: 1.6;
   }
 
   .news-big-number-row {
@@ -908,6 +1027,22 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     border-top: 1px solid rgb(255 255 255 / 0.08);
     padding-top: 12px;
     margin-top: 4px;
+  }
+  /* Cycle #40 (사용자 요청): 뉴스 크롤링 시각 표기 */
+  .news-trend-synced {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: rgb(255 255 255 / 0.65);
+    font-variant-numeric: tabular-nums;
+  }
+  .news-trend-synced .dot-tr {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #6affd0;
   }
 
   /* ─── 자동 모드 트렌딩 사이드바 (옵션 B: 알약 위 + 제목 아래) ─── */
