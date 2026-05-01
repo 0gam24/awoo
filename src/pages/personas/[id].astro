@@ -46,7 +46,29 @@ const { persona, all, prev, next } = Astro.props as {
 const p = persona.data;
 
 const allSubsidies = await getCollection('subsidies');
-const matched = allSubsidies.filter((s) => s.data.targetPersonas.includes(p.id));
+// Cycle #62: 매칭 지원금 정렬 — HOT 우선 → 마감 임박순 → 금액 큰 순
+// 사용자가 본인 상황의 가장 시급/가치있는 지원금을 grid 상단에서 즉시 인지
+const matchedRaw = allSubsidies.filter((s) => s.data.targetPersonas.includes(p.id));
+function matchedSortKey(s: typeof matchedRaw[number]): { hot: number; deadlineRank: number; amount: number } {
+  const dl = getDeadlineBadge(s.data.deadline);
+  // dl tone → 정렬 점수 (작을수록 상위)
+  const toneRank: Record<string, number> = { urgent: 0, soon: 1, normal: 2, open: 3, unknown: 4 };
+  const baseRank = toneRank[dl.tone] ?? 4;
+  // urgent/soon 안에서 dDay 작을수록 (= 임박할수록) 더 상위
+  const dRank = dl.dDay !== undefined ? Math.max(0, dl.dDay) : 999;
+  return {
+    hot: s.data.isHot ? 1 : 0,
+    deadlineRank: baseRank * 1000 + Math.min(dRank, 999),
+    amount: s.data.amount ?? 0,
+  };
+}
+const matched = [...matchedRaw].sort((a, b) => {
+  const ka = matchedSortKey(a);
+  const kb = matchedSortKey(b);
+  if (ka.hot !== kb.hot) return kb.hot - ka.hot;
+  if (ka.deadlineRank !== kb.deadlineRank) return ka.deadlineRank - kb.deadlineRank;
+  return kb.amount - ka.amount;
+});
 
 // 카테고리별 카운트 + 대표 지원금 — cross-ref hub 가 존재하는 (≥2건) 카테고리만 노출
 const HUB_MIN = 2;
