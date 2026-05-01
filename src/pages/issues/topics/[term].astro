@@ -95,16 +95,30 @@ const { term, entry, post, otherTopics } = Astro.props as {
 };
 
 // term이 포함된 지원금 매칭 — Cycle #11 P1-6: 매칭 점수 산정 (배지용)
+// Cycle #58: 매칭 reason (제목/태그/요약) 명시 → 사용자가 "왜 매칭됐는지" 한눈에 인지
 // 제목 매칭 +20, 태그 양방향 +8 (각), 요약 매칭 +5
 const allSubsidies = await getCollection('subsidies');
-function scoreSubsidy(s: typeof allSubsidies[number]['data']): number {
+type MatchInfo = { score: number; reasons: string[]; matchedTags: string[] };
+function analyzeSubsidy(s: typeof allSubsidies[number]['data']): MatchInfo {
   let score = 0;
-  if (s.title?.includes(term)) score += 20;
-  for (const tag of s.tags ?? []) {
-    if (tag.includes(term) || term.includes(tag)) score += 8;
+  const reasons: string[] = [];
+  const matchedTags: string[] = [];
+  if (s.title?.includes(term)) {
+    score += 20;
+    reasons.push('제목');
   }
-  if (s.summary?.includes(term)) score += 5;
-  return score;
+  for (const tag of s.tags ?? []) {
+    if (tag.includes(term) || term.includes(tag)) {
+      score += 8;
+      matchedTags.push(tag);
+    }
+  }
+  if (matchedTags.length > 0) reasons.push('태그');
+  if (s.summary?.includes(term)) {
+    score += 5;
+    reasons.push('요약');
+  }
+  return { score, reasons, matchedTags };
 }
 function fitLabel(score: number): { label: string; cls: string } {
   if (score >= 25) return { label: '매우 적합', cls: 'fit-strong' };
@@ -112,7 +126,7 @@ function fitLabel(score: number): { label: string; cls: string } {
   return { label: '관련', cls: 'fit-soft' };
 }
 const matchedSubsidies = allSubsidies
-  .map((s) => ({ s, score: scoreSubsidy(s.data) }))
+  .map((s) => ({ s, ...analyzeSubsidy(s.data) }))
   .filter((x) => x.score > 0)
   .sort((a, b) => b.score - a.score || (b.s.data.amount ?? 0) - (a.s.data.amount ?? 0))
   .slice(0, 9);
@@ -247,9 +261,19 @@ const collectionSchema = !isThin
       {matchedSubsidies.length > 0 && (
         <section class="matched">
           <h2>관련 지원금 {matchedSubsidies.length}건</h2>
+          {/* Cycle #58: 매칭 알고리즘 설명 — 사용자가 "왜 이 지원금이 매칭됐는지" 즉시 인지 */}
+          <p class="matched-explain">
+            "{term}" 키워드가 지원금의 <strong>제목·태그·요약</strong> 중 하나라도 포함된 것을 매칭했습니다.
+            각 카드의 매칭 위치를 chip으로 표시했습니다.
+          </p>
           <ul class="grid">
-            {matchedSubsidies.map(({ s, score }) => {
+            {matchedSubsidies.map(({ s, score, reasons, matchedTags }) => {
               const fit = fitLabel(score);
+              const reasonText = reasons.length > 0
+                ? matchedTags.length > 0 && reasons.includes('태그')
+                  ? `${reasons.join('·')}: ${matchedTags.slice(0, 2).join(', ')}`
+                  : reasons.join('·')
+                : '';
               return (
               <li>
                 <a class="card" href={`/subsidies/${s.data.id}/`}>
@@ -262,6 +286,12 @@ const collectionSchema = !isThin
                       <span class="badge neutral">{s.data.category}</span>
                       {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
                     </div>
+                    {reasonText && (
+                      <div class="match-reason" title={`매칭 점수 ${score}점`}>
+                        <span class="mr-icon" aria-hidden="true">🔍</span>
+                        <span class="mr-text">{reasonText} 매칭</span>
+                      </div>
+                    )}
                     <div class="agency">{s.data.agency}</div>
                     <div class="t">{s.data.title}</div>
                     {s.data.amount > 0 && (
@@ -518,8 +548,39 @@ const collectionSchema = !isThin
   .timeline h2 {
     font-size: clamp(20px, 2.4vw, 26px);
     font-weight: 700;
-    margin: 0 0 16px;
+    margin: 0 0 8px;
     letter-spacing: -0.01em;
+  }
+
+  /* Cycle #58: 매칭 알고리즘 설명 + 카드 reason chip */
+  .matched-explain {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.55;
+    margin: 0 0 16px;
+    max-width: 720px;
+  }
+  .matched-explain strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+  .match-reason {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 4px;
+    margin-bottom: 6px;
+    padding: 3px 9px;
+    background: var(--surface-2);
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    color: var(--text-2);
+  }
+  .mr-icon {
+    font-size: 11px;
+  }
+  .mr-text {
+    font-weight: 500;
   }
 
   .grid {
