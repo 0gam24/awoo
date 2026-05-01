@@ -1,6 +1,7 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
+import { getDeadlineBadge } from '@/lib/deadline-format';
 import { getCollection } from 'astro:content';
 
 const personas = (await getCollection('personas')).sort((a, b) => {
@@ -11,26 +12,45 @@ const personas = (await getCollection('personas')).sort((a, b) => {
 const allSubsidies = await getCollection('subsidies');
 
 // 페르소나별 매칭 + 대표 지원금 (HOT > 금액 큰 순)
-const personaContext = personas.reduce<Record<string, { count: number; flagship?: { title: string; agency: string } }>>(
-  (acc, p) => {
-    const matched = allSubsidies.filter((s) => (s.data.targetPersonas ?? []).includes(p.data.id));
-    const sorted = [...matched].sort((a, b) => {
-      const ah = a.data.isHot ? 1 : 0;
-      const bh = b.data.isHot ? 1 : 0;
-      if (ah !== bh) return bh - ah;
-      return (b.data.amount ?? 0) - (a.data.amount ?? 0);
-    });
-    const entry: { count: number; flagship?: { title: string; agency: string } } = {
-      count: matched.length,
+// Cycle #59: flagship에 isHot + deadline 정보 추가 → 시급도 시각화
+type FlagshipInfo = {
+  title: string;
+  agency: string;
+  isHot: boolean;
+  dlTone: 'urgent' | 'soon' | 'normal' | 'open' | 'unknown';
+  dlLabel: string;
+};
+type PersonaCtx = { count: number; urgentCount: number; flagship?: FlagshipInfo };
+const personaContext = personas.reduce<Record<string, PersonaCtx>>((acc, p) => {
+  const matched = allSubsidies.filter((s) => (s.data.targetPersonas ?? []).includes(p.data.id));
+  const sorted = [...matched].sort((a, b) => {
+    const ah = a.data.isHot ? 1 : 0;
+    const bh = b.data.isHot ? 1 : 0;
+    if (ah !== bh) return bh - ah;
+    return (b.data.amount ?? 0) - (a.data.amount ?? 0);
+  });
+  // 곧 마감 카운트 — D-30 이내 (urgent + soon)
+  const urgentCount = matched.filter((s) => {
+    const dl = getDeadlineBadge(s.data.deadline);
+    return dl.tone === 'urgent' || dl.tone === 'soon';
+  }).length;
+  const entry: PersonaCtx = {
+    count: matched.length,
+    urgentCount,
+  };
+  if (sorted[0]) {
+    const dl = getDeadlineBadge(sorted[0].data.deadline);
+    entry.flagship = {
+      title: sorted[0].data.title,
+      agency: sorted[0].data.agency,
+      isHot: !!sorted[0].data.isHot,
+      dlTone: dl.tone,
+      dlLabel: dl.label,
     };
-    if (sorted[0]) {
-      entry.flagship = { title: sorted[0].data.title, agency: sorted[0].data.agency };
-    }
-    acc[p.data.id] = entry;
-    return acc;
-  },
-  {},
-);
+  }
+  acc[p.data.id] = entry;
+  return acc;
+}, {});
 ---
 
 <section class="band">
@@ -54,9 +74,16 @@ const personaContext = personas.reduce<Record<string, { count: number; flagship?
                 <div class="persona-glyph">
                   <Icon name={p.data.icon} size={32} strokeWidth={1.6} />
                 </div>
-                {ctx && ctx.count > 0 && (
-                  <span class="count-pill">매칭 {ctx.count}건</span>
-                )}
+                <div class="card-pills">
+                  {ctx && ctx.count > 0 && (
+                    <span class="count-pill">받을 수 있는 {ctx.count}건</span>
+                  )}
+                  {ctx && ctx.urgentCount > 0 && (
+                    <span class="urgent-pill" title={`마감 D-30 이내 ${ctx.urgentCount}건`}>
+                      ⚡ {ctx.urgentCount}건 곧 마감
+                    </span>
+                  )}
+                </div>
               </div>
               <div class="persona-label">{p.data.label}</div>
               <div class="persona-sub">{p.data.sub}</div>
@@ -69,6 +96,10 @@ const personaContext = personas.reduce<Record<string, { count: number; flagship?
                 <div class="flagship">
                   <span class="flag-label">대표</span>
                   <span class="flag-title">{ctx.flagship.title}</span>
+                  {ctx.flagship.isHot && <span class="flag-tag flag-hot">HOT</span>}
+                  {(ctx.flagship.dlTone === 'urgent' || ctx.flagship.dlTone === 'soon') && (
+                    <span class="flag-tag flag-deadline">{ctx.flagship.dlLabel}</span>
+                  )}
                 </div>
               )}
             </a>
@@ -173,12 +204,31 @@ const personaContext = personas.reduce<Record<string, { count: number; flagship?
     border-radius: var(--radius-md);
   }
 
+  /* Cycle #59: 카드 우측 상단 배지 영역 — count + urgent 두 줄 stack */
+  .card-pills {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
   .count-pill {
     padding: 4px 10px;
     background: rgb(255 255 255 / 0.22);
     color: #fff;
     border-radius: var(--radius-pill);
     font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  /* 곧 마감 카운트 — 시급도 시각 강조 */
+  .urgent-pill {
+    padding: 3px 9px;
+    background: rgb(255 90 90 / 0.85);
+    color: #fff;
+    border-radius: var(--radius-pill);
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.02em;
   }
@@ -234,6 +284,25 @@ const personaContext = personas.reduce<Record<string, { count: number; flagship?
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
+  }
+
+  /* Cycle #59: flagship 시급도 태그 */
+  .flag-tag {
+    flex-shrink: 0;
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    align-self: flex-start;
+  }
+  .flag-hot {
+    background: rgb(255 75 75 / 0.95);
+    color: #fff;
+  }
+  .flag-deadline {
+    background: rgb(255 200 80 / 0.95);
+    color: #5a3a00;
   }
 
   .persona-card::after {
