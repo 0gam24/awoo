@@ -22,6 +22,8 @@ export const GET: APIRoute = async () => {
   const subsidies = await getCollection('subsidies');
   const glossary = await getCollection('glossary');
   const topics = await getCollection('topics');
+  // Cycle #40: flagship guides 인덱스
+  const guides = await getCollection('guides');
   const bySlug = new Map(subsidies.map((s) => [s.data.id, s.data]));
   const recent = recentlyAddedSlugs(15)
     .map(({ slug }) => bySlug.get(slug))
@@ -91,6 +93,23 @@ export const GET: APIRoute = async () => {
     );
   }
   lines.push('');
+
+  // Cycle #40: flagship 가이드 인덱스 (있을 때만)
+  if (guides.length > 0) {
+    const sortedGuides = [...guides].sort((a, b) => {
+      const ad = a.data.updatedAt ?? a.data.publishedAt;
+      const bd = b.data.updatedAt ?? b.data.publishedAt;
+      return ad < bd ? 1 : -1;
+    });
+    lines.push(`## 심층 가이드 (${guides.length}건)`);
+    lines.push('');
+    for (const g of sortedGuides) {
+      lines.push(
+        `- [${g.data.title}](https://awoo.or.kr/guides/${g.id}/): ${g.data.description.slice(0, 100)}`,
+      );
+    }
+    lines.push('');
+  }
 
   lines.push('## 용어 사전');
   lines.push('');

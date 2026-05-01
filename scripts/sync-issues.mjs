@@ -949,20 +949,28 @@ async function main() {
       publisher: extractPublisher(a.link) ?? '',
       category: a.category,
     })),
-    // Cycle #7: 사이드바 클릭 시 토픽 페이지에서 표시할 term별 원문 보도 — 매체 다양성 우선 5건
+    // Cycle #7 / Cycle #40 (사용자 요청): term별 원문 보도 — 매체 다양성 + 점수 종합으로 최대 12건
+    // (이전 5건 → 12건 확장, generate-issue-posts에서 다중 출처 종합 강제)
     trendingArticlesByTerm: Object.fromEntries(
       trendingWithArticles.slice(0, 10).map((t) => {
-        // 매체 다양성 우선: 매체별로 가장 점수 높은 1건씩 → 부족하면 점수 desc 채움
+        // 매체 다양성 우선: 매체별로 가장 점수 높은 1건씩
         const byPub = new Map();
         for (const a of t.allArticles) {
           const pub = extractPublisher(a.link) ?? a.link;
           if (!byPub.has(pub)) byPub.set(pub, a);
         }
-        const diverse = [...byPub.values()].sort((x, y) => y.score - x.score).slice(0, 5);
+        const diverse = [...byPub.values()].sort((x, y) => y.score - x.score);
+        // 매체 다양 1건씩 + 잔여를 점수 desc로 같은 매체에서 추가 — 최대 12건
+        const seenLinks = new Set(diverse.map((a) => a.link));
+        const filler = t.allArticles
+          .filter((a) => !seenLinks.has(a.link))
+          .sort((x, y) => y.score - x.score);
+        const merged = [...diverse, ...filler].slice(0, 12);
         return [
           t.term,
-          diverse.map((a) => ({
+          merged.map((a) => ({
             title: a.title,
+            description: (a.description ?? '').slice(0, 280),
             link: a.link,
             pubDate: a.pubDate,
             pubDateKR: formatDateKR(a.pubDate),
