@@ -1,6 +1,7 @@
 ---
 import Container from '@/components/Container.astro';
 import todayIssue from '@/data/today-issue.json';
+import { formatWon } from '@/data/site-data';
 
 // 메인 NewsHero — 자동 큐레이션 today-issue.json 기반.
 // 데이터 없으면 graceful empty (CTA 만 노출), 트렌딩 차트·하드코드 fallback 제거.
@@ -257,6 +258,35 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
             </p>
           )}
         </div>
+
+        {matchedSubsidies.length > 0 && (
+          <div class="news-matched">
+            <div class="nm-label">
+              <span class="nm-icon" aria-hidden="true">⚡</span>
+              이 이슈와 관련해 지금 신청 가능한 지원금
+            </div>
+            <ul class="nm-list">
+              {matchedSubsidies.slice(0, 3).map((m) => (
+                <li>
+                  <a class="nm-card" href={`/subsidies/${m.id}/`}>
+                    <div class="nm-meta">
+                      <span class={`nm-cat tint-${m.category}`}>{m.category}</span>
+                      <span class="nm-agency">{m.agency}</span>
+                    </div>
+                    <div class="nm-title">{m.title}</div>
+                    {m.amount > 0 && (
+                      <div class="nm-amount">
+                        {formatWon(m.amount)}
+                        <span class="nm-unit">{m.amountLabel}</span>
+                      </div>
+                    )}
+                    <span class="nm-arrow" aria-hidden="true">→</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div class="news-actions">
           {topicPostUrl ? (
@@ -794,6 +824,122 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     border-radius: var(--radius-pill);
     font-size: 13px;
     font-weight: 700;
+  }
+
+  /* Cycle #50: 트렌딩 1위 카드 → 매칭 지원금 인라인 (data만 있고 UI 미노출이었음) */
+  .news-matched {
+    margin: 20px 0 4px;
+    padding: 14px 16px 16px;
+    background: rgb(0 113 227 / 0.04);
+    border: 1px solid rgb(0 113 227 / 0.14);
+    border-radius: var(--radius-md);
+  }
+  :global([data-theme='dark']) .news-matched {
+    background: rgb(41 151 255 / 0.06);
+    border-color: rgb(41 151 255 / 0.18);
+  }
+  .nm-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+    letter-spacing: 0.01em;
+  }
+  .nm-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border-radius: 50%;
+    font-size: 11px;
+  }
+  .nm-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px;
+  }
+  .nm-card {
+    position: relative;
+    display: block;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .nm-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .nm-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+    font-size: 11px;
+  }
+  .nm-cat {
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+  }
+  .nm-cat.tint-주거 { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .nm-cat.tint-자산 { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  .nm-cat.tint-교육 { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .nm-cat.tint-창업 { background: rgb(234 88 12 / 0.12); color: #ea580c; }
+  .nm-cat.tint-복지 { background: rgb(236 72 153 / 0.12); color: #ec4899; }
+  .nm-cat.tint-취업 { background: rgb(16 185 129 / 0.12); color: #10b981; }
+  .nm-cat.tint-농업 { background: rgb(217 119 6 / 0.12); color: #d97706; }
+  .nm-agency {
+    color: var(--accent-link);
+    font-weight: 600;
+  }
+  .nm-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .nm-amount {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .nm-unit {
+    font-size: 11px;
+    color: var(--text-2);
+    font-weight: 500;
+    margin-left: 4px;
+  }
+  .nm-arrow {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    color: var(--text-3);
+    font-size: 13px;
+    transition: transform 0.15s, color 0.15s;
+    opacity: 0;
+  }
+  .nm-card:hover .nm-arrow {
+    opacity: 1;
+    transform: translateX(2px);
+    color: var(--accent);
   }
 
   .news-actions {
