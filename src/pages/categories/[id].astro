@@ -51,6 +51,19 @@ const personaLabelMap: Record<string, string> = {
   'low-income': '저소득',
   'farmer': '농업',
 };
+
+// Cycle #63: 카테고리 페이지에서 페르소나로 cross-link
+// 매칭 카운트 desc 정렬, 1건 이상인 페르소나만
+const personaCrossLinks = Object.entries(personaCount)
+  .filter(([, n]) => n >= 1)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 6)
+  .map(([pid, n]) => ({
+    pid,
+    label: personaLabelMap[pid] ?? pid,
+    count: n,
+    href: `/subsidies/category/${encodeURIComponent(category.id)}/persona/${pid}/`,
+  }));
 const openCount = inCategory.filter((s) => s.data.status === '신청 가능').length;
 const blufStatsCategory = [
   { value: `${inCategory.length}건`, label: `${category.name} 지원금` },
@@ -98,6 +111,22 @@ const collectionSchema = buildCollectionPage({
       </header>
 
       <BlufBox summary={blufSummaryCategory} stats={blufStatsCategory} basis="2026년 4월 기준 · 보조금24 + 큐레이션" />
+
+      {personaCrossLinks.length > 0 && (
+        <div class="persona-crosslinks">
+          <span class="pcl-label">이 분야를 찾는 페르소나</span>
+          <ul class="pcl-list">
+            {personaCrossLinks.map((p) => (
+              <li>
+                <a class="pcl-chip" href={p.href}>
+                  <span class="pcl-name">{p.label}</span>
+                  <span class="pcl-cnt">{p.count}건</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div class="body-grid">
         <main class="body">
@@ -271,6 +300,65 @@ const collectionSchema = buildCollectionPage({
     color: var(--text-2);
     line-height: 1.7;
     margin: 0;
+  }
+
+  /* Cycle #63: 카테고리 → 페르소나 cross-link chips */
+  .persona-crosslinks {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin: 16px 0 28px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    flex-wrap: wrap;
+  }
+  .pcl-label {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+    text-transform: uppercase;
+  }
+  .pcl-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pcl-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+  }
+  .pcl-chip:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .pcl-name {
+    color: var(--text);
+  }
+  .pcl-cnt {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    padding: 1px 7px;
+    background: rgb(0 113 227 / 0.1);
+    border-radius: var(--radius-pill);
   }
 
   .body-grid {
