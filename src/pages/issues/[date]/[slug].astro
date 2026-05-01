@@ -386,6 +386,39 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
           <div class="fact"><div class="lbl">기간</div><div class="val">{post.coreFacts.deadline}</div></div>
           <div class="fact"><div class="lbl">신청</div><div class="val">{post.coreFacts.where}</div></div>
         </div>
+
+        {/* Cycle #45: 자동 ToC — 긴 글 네비 + AI 답변 엔진 page-outline 신호 */}
+        {post.sections.length >= 3 && (
+          <nav class="toc" aria-label="목차">
+            <div class="toc-label">목차</div>
+            <ol class="toc-list">
+              {post.sections.map((s, i) => (
+                <li>
+                  <a href={`#sec-${i + 1}`}>
+                    <span class="toc-num">{i + 1}.</span>
+                    <span class="toc-text">{s.heading}</span>
+                  </a>
+                </li>
+              ))}
+              {post.faq.length > 0 && (
+                <li>
+                  <a href="#faq">
+                    <span class="toc-num">★</span>
+                    <span class="toc-text">자주 묻는 질문 ({post.faq.length}건)</span>
+                  </a>
+                </li>
+              )}
+              {post.sources.length > 0 && (
+                <li>
+                  <a href="#sources">
+                    <span class="toc-num">★</span>
+                    <span class="toc-text">원문 출처 ({post.sources.length}건)</span>
+                  </a>
+                </li>
+              )}
+            </ol>
+          </nav>
+        )}
       </header>
 
       <div class="body-grid">
@@ -477,8 +510,10 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
           )}
 
           {post.faq.length > 0 && (
-            <section class="post-section">
-              <h2>자주 묻는 질문</h2>
+            <section class="post-section faq-section" id="faq">
+              <h2>
+                <a class="sec-anchor" href="#faq">자주 묻는 질문</a>
+              </h2>
               <div class="faq">
                 {post.faq.map((f) => (
                   <details class="faq-item">
@@ -607,6 +642,60 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
 </BaseLayout>
 
 <style>
+  /* Cycle #45: 자동 ToC */
+  .toc {
+    margin: 24px 0 8px;
+    padding: 16px 20px;
+    background: var(--surface-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+  .toc-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+  }
+  .toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .toc-list li {
+    margin: 0;
+  }
+  .toc-list a {
+    display: flex;
+    gap: 10px;
+    padding: 6px 8px;
+    margin: 0 -8px;
+    border-radius: 4px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    line-height: 1.45;
+    transition: background 0.15s;
+  }
+  .toc-list a:hover {
+    background: var(--surface);
+    text-decoration: none;
+  }
+  .toc-num {
+    flex-shrink: 0;
+    color: var(--accent);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    min-width: 24px;
+  }
+  .toc-text {
+    flex: 1;
+  }
+
   /* Cycle #44: reading progress bar */
   .reading-progress {
     position: fixed;
