@@ -4,6 +4,7 @@ import Icon from '@/components/Icon.astro';
 import PageHeader from '@/components/PageHeader.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CATEGORIES, formatWon } from '@/data/site-data';
+import { getDeadlineBadge } from '@/lib/deadline-format';
 import { isNew } from '@/lib/subsidies-meta';
 import { buildCollectionPage } from '@/lib/schema';
 import { getCollection } from 'astro:content';
@@ -90,34 +91,39 @@ const collectionSchema = buildCollectionPage({
         lead={`전 국민 대상 정부 지원금 <strong>${subsidies.length}개</strong>를 분야·페르소나별로 살펴보세요.`}
       />
 
-      <div class="filter-rail" aria-label="분야 필터">
-        {
-          categoriesWithCount.map((c) => (
-            <a
-              class="chip"
-              data-chip-cat={c.id}
-              href={c.id === 'all' ? '/subsidies/' : `/subsidies/?category=${encodeURIComponent(c.id)}`}
-            >
-              <Icon name={c.icon} size={14} />
-              {c.name}
-              <span class="cnt">{c.count}</span>
-            </a>
-          ))
-        }
-      </div>
+      {/* Cycle #54: filter + sort를 sticky 컨테이너로 묶음 — 카드 스크롤 중에도 재선택 가능 */}
+      <div class="filter-sticky">
+        <div class="filter-rail" aria-label="분야 필터">
+          {
+            categoriesWithCount.map((c) => (
+              <a
+                class="chip"
+                data-chip-cat={c.id}
+                href={c.id === 'all' ? '/subsidies/' : `/subsidies/?category=${encodeURIComponent(c.id)}`}
+              >
+                <Icon name={c.icon} size={14} />
+                {c.name}
+                <span class="cnt">{c.count}</span>
+              </a>
+            ))
+          }
+        </div>
 
-      <div class="sort-rail" aria-label="정렬">
-        <span class="sort-label">정렬</span>
-        <button class="sort-btn active" type="button" data-sort="popular">인기순</button>
-        <button class="sort-btn" type="button" data-sort="amount">금액 큰순</button>
-        <button class="sort-btn" type="button" data-sort="deadline">마감 임박순</button>
+        <div class="sort-rail" aria-label="정렬">
+          <span class="sort-label">정렬</span>
+          <button class="sort-btn active" type="button" data-sort="popular">인기순</button>
+          <button class="sort-btn" type="button" data-sort="amount">금액 큰순</button>
+          <button class="sort-btn" type="button" data-sort="deadline">마감 임박순</button>
+        </div>
       </div>
 
       <p class="empty-msg" id="empty-msg" hidden>해당 분야의 지원금이 없습니다.</p>
 
       <ul class="subsidy-grid" id="subsidy-grid">
         {
-          sorted.map((s) => (
+          sorted.map((s) => {
+            const dl = getDeadlineBadge(s.data.deadline);
+            return (
             <li
               data-cat={s.data.category}
               data-amount={s.data.amount ?? 0}
@@ -132,10 +138,15 @@ const collectionSchema = buildCollectionPage({
                   <div class="meta-row">
                     <span class="badge neutral">{s.data.category}</span>
                     {isNew(s.data.id) && <span class="badge new">NEW</span>}
-                    {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
+                    {/* Cycle #54: 마감 D-day 배지 — '곧 마감' 뱃지를 D-day로 통합 (정확한 일수 표시) */}
+                    {(dl.tone === 'urgent' || dl.tone === 'soon') && (
+                      <span class={`badge dl-${dl.tone}`} title={`마감: ${s.data.deadline}`}>
+                        {dl.label}
+                      </span>
+                    )}
                     {s.data.isHot && !isNew(s.data.id) && <span class="badge accent">HOT</span>}
-                    {s.data.status === '신청 가능' && !s.data.isHot && !isNew(s.data.id) && (
-                      <span class="badge open"><span class="open-dot" aria-hidden="true" />신청 가능</span>
+                    {dl.tone === 'open' && !s.data.isHot && !isNew(s.data.id) && (
+                      <span class="badge open"><span class="open-dot" aria-hidden="true" />상시 신청</span>
                     )}
                   </div>
                   <div class="agency">{s.data.agency}</div>
@@ -165,7 +176,8 @@ const collectionSchema = buildCollectionPage({
                 </div>
               </a>
             </li>
-          ))
+            );
+          })
         }
       </ul>
     </Container>
@@ -245,10 +257,29 @@ const collectionSchema = buildCollectionPage({
     padding: 48px 0 80px;
   }
 
+  /* Cycle #54: filter + sort sticky 컨테이너 — 카드 스크롤 중에도 재선택 */
+  .filter-sticky {
+    position: sticky;
+    top: 56px; /* TopBar 높이 보정 */
+    z-index: 10;
+    margin: 0 -16px 24px;
+    padding: 12px 16px 8px;
+    background: color-mix(in oklch, var(--bg), transparent 4%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  @media (max-width: 720px) {
+    .filter-sticky {
+      top: 0;
+      margin: 0 -16px 16px;
+    }
+  }
+
   .filter-rail {
     display: flex;
     gap: 8px;
-    margin-bottom: 14px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
   }
 
@@ -256,7 +287,7 @@ const collectionSchema = buildCollectionPage({
     display: flex;
     gap: 6px;
     align-items: center;
-    margin-bottom: 24px;
+    margin-bottom: 0;
     flex-wrap: wrap;
   }
 
@@ -431,6 +462,19 @@ const collectionSchema = buildCollectionPage({
   .badge.warning {
     background: rgb(247 195 96 / 0.18);
     color: var(--color-warning);
+  }
+
+  /* Cycle #54: 마감 D-day 배지 — 정확한 일수 표시 */
+  .badge.dl-urgent {
+    background: rgb(214 44 26 / 0.12);
+    color: var(--color-danger);
+  }
+  .badge.dl-soon {
+    background: rgb(247 195 96 / 0.18);
+    color: var(--color-warning);
+  }
+  :global([data-theme='dark']) .badge.dl-urgent {
+    background: rgb(255 75 75 / 0.18);
   }
   .badge.accent {
     background: rgb(220 38 38 / 0.16);
