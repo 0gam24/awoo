@@ -50,6 +50,22 @@ const isActive = (href: string) => {
       }
     </nav>
 
+    {/* Cycle #64: 글로벌 키워드 검색 — /subsidies/?q={value} 으로 SSG 클라이언트 필터링 */}
+    <form class="search-form" action="/subsidies/" method="get" role="search" aria-label="지원금 검색">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M21 21l-4.5-4.5"></path>
+      </svg>
+      <input
+        class="search-input"
+        type="search"
+        name="q"
+        placeholder="지원금 검색 (예: 월세, 신혼)"
+        aria-label="지원금 키워드 검색"
+        autocomplete="off"
+      />
+    </form>
+
     <div class="actions">
       {/* Cycle #52: 5분 진단 진입점 — 사이트 어디서든 1-click 매칭 도달 */}
       <a
@@ -95,6 +111,22 @@ const isActive = (href: string) => {
   </div>
 
   <nav class="mobile-nav" id="mobile-nav" hidden aria-label="모바일 메뉴">
+    {/* Cycle #64: 모바일 메뉴 상단 키워드 검색 */}
+    <form class="mobile-search-form" action="/subsidies/" method="get" role="search">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"></circle>
+        <path d="M21 21l-4.5-4.5"></path>
+      </svg>
+      <input
+        class="mobile-search-input"
+        type="search"
+        name="q"
+        placeholder="지원금 검색 (예: 월세, 신혼)"
+        aria-label="지원금 키워드 검색"
+        autocomplete="off"
+      />
+    </form>
+
     {/* Cycle #52: 모바일 메뉴 상단에 5분 진단 강조 항목 */}
     <a
       href="/quick/"
@@ -205,6 +237,76 @@ const isActive = (href: string) => {
     align-items: center;
     gap: 4px;
     margin-inline-start: auto;
+  }
+
+  /* Cycle #64: 글로벌 검색 폼 — TopBar 내 입력 + form submit으로 /subsidies/?q= */
+  .search-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    transition: border-color 0.15s, background 0.15s;
+    max-width: 200px;
+  }
+  .search-form:focus-within {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+  .search-icon {
+    color: var(--text-3);
+    flex-shrink: 0;
+  }
+  .search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    color: var(--text);
+    width: 100%;
+    padding: 0;
+  }
+  .search-input::placeholder {
+    color: var(--text-3);
+  }
+  .search-input:focus {
+    outline: none;
+  }
+  /* 모바일에서는 hide (메뉴 안에서 별도 표시) */
+  @media (max-width: 720px) {
+    .search-form {
+      display: none;
+    }
+  }
+
+  /* 모바일 메뉴 검색 폼 */
+  .mobile-search-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+  }
+  .mobile-search-form:focus-within {
+    border-color: var(--accent);
+  }
+  .mobile-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 15px;
+    color: var(--text);
+    width: 100%;
+    padding: 4px 0;
+    min-height: 32px;
+  }
+  .mobile-search-input::placeholder {
+    color: var(--text-3);
   }
 
   .nav-link {
