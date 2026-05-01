@@ -1,166 +1,498 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
-import { recentlyAddedSlugs, formatDateKR, NEW_WINDOW_DAYS } from '@/lib/subsidies-meta';
+import todayIssue from '@/data/today-issue.json';
 import { getCollection } from 'astro:content';
 
-// Cycle #41 (사용자 정정): "이번 주 이슈" 섹션 = 정부24 공식 API 최신 등록 지원금
-// 기존 수동 큐레이션 issues.json → recentlyAddedSlugs() 정부24 manifest 기반으로 교체
-const allSubsidies = await getCollection('subsidies');
-const subsidyMap = new Map(allSubsidies.map((s) => [s.data.id, s.data]));
+// Cycle #42 (사용자 요청): "이번 주 이슈" = 화제 키워드 hero + 체류 유도 다층 진입점
+// today-issue.json 기반 — 트렌딩 1위 + hookCopy + 매칭 지원금 + 토픽 hub + 영구 포스트 + 2-5위 mini chips
+type MatchedSubsidy = { id: string; title: string; agency: string; category: string };
+type TrendItem = {
+  term: string;
+  count: number;
+  mediaCount?: number;
+  topArticle?: { title: string; link?: string; category?: string };
+};
+const auto = todayIssue as {
+  syncedAt?: string;
+  trendingTopic?: string;
+  trendingTopicCount?: number;
+  trending?: TrendItem[];
+  summary?: {
+    headline?: string;
+    subhead?: string;
+    hookCopy?: string;
+  };
+  daysActive?: number;
+  totalCount?: number;
+  matchedSubsidies?: MatchedSubsidy[];
+  matchedSubsidiesByTerm?: Record<string, MatchedSubsidy[]>;
+  aggregate?: { publisherCount?: number; publishers?: string[]; cities?: string[] };
+};
+
+const topTerm = auto?.trendingTopic;
+const summary = auto?.summary;
+const hookCopy = summary?.hookCopy;
+const trending = auto?.trending ?? [];
+const subTrending = trending.slice(1, 5); // 2-5위
+const aggregate = auto?.aggregate;
+
+// 1위 키워드 매칭 지원금
+const topTermMatched = (topTerm && auto?.matchedSubsidiesByTerm?.[topTerm]) || auto?.matchedSubsidies || [];
+
+// 영구 포스트 백링크 (있으면)
+type HistoryEntry = { firstSeen: string; postSlug: string; totalCount: number };
+const histModules = import.meta.glob<{ default: { byTerm?: Record<string, HistoryEntry> } }>(
+  '/src/data/issues/_history.json',
+  { eager: true },
+);
+const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
+function findPostUrl(term: string): string | null {
+  const e = historyByTerm[term];
+  if (!e?.postSlug || !e?.firstSeen) return null;
+  return `/issues/${e.firstSeen}/${e.postSlug}/`;
+}
+function findTopicHubUrl(term: string): string | null {
+  const e = historyByTerm[term];
+  if (!e || e.totalCount < 1) return null;
+  return `/issues/topics/${encodeURIComponent(term)}/`;
+}
+const topPostUrl = topTerm ? findPostUrl(topTerm) : null;
+const topHubUrl = topTerm ? findTopicHubUrl(topTerm) : null;
+
+// 페르소나 cross-link (1위 키워드 매칭 카테고리 기반)
 const personas = await getCollection('personas');
-const personaMap = new Map(personas.map((p) => [p.data.id, p.data]));
-
-const recentRaw = recentlyAddedSlugs(8);
-const recentSubsidies = recentRaw
-  .map(({ slug, regDate }) => {
-    const data = subsidyMap.get(slug);
-    if (!data) return null;
-    return { ...data, regDate };
+const topCategory = topTermMatched[0]?.category;
+const recommendedPersonas = personas
+  .filter((p) => {
+    if (!topCategory) return false;
+    // 카테고리별 페르소나 매핑 (heuristic)
+    const map: Record<string, string[]> = {
+      주거: ['office-rookie', 'newlywed-family'],
+      취업: ['office-rookie'],
+      창업: ['self-employed', 'office-rookie'],
+      교육: ['newlywed-family'],
+      복지: ['low-income', 'senior'],
+      자산: ['office-rookie', 'self-employed'],
+      농업: ['farmer'],
+    };
+    return (map[topCategory] ?? []).includes(p.data.id);
   })
-  .filter((x): x is NonNullable<typeof x> => x !== null);
-
-function formatAmount(amount: number, label: string): string {
-  if (!amount) return '';
-  const labeled = label ? `${label} ` : '';
-  if (amount >= 100_000_000) return `${labeled}${(amount / 100_000_000).toFixed(1)}억원`;
-  if (amount >= 10_000) return `${labeled}${Math.round(amount / 10_000).toLocaleString('ko-KR')}만원`;
-  return `${labeled}${amount.toLocaleString('ko-KR')}원`;
-}
-
-function formatRegDate(ts: number): string {
-  const d = new Date(ts);
-  if (Number.isNaN(d.getTime())) return '';
-  return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-}
+  .slice(0, 2);
 ---
 
+{topTerm && (
 <section class="band alt">
   <Container size="wide">
     <div class="section-head">
-      <div class="eyebrow">이번 주 이슈</div>
-      <h2 class="display">정부24에 새로 올라온 정부 지원금 — 최근 {NEW_WINDOW_DAYS}일</h2>
-      <p class="sub">공식 API 기준 최신 등록순. 자격 조건·금액·신청 기한은 각 상세 페이지에서 확인.</p>
+      <div class="eyebrow">
+        <span class="dot" aria-hidden="true" />이번 주 화제
+      </div>
+      <h2 class="display">{summary?.headline ?? `${topTerm} — 이번 주 화제`}</h2>
+      {summary?.subhead && <p class="subhead">{summary.subhead}</p>}
+
+      {/* 사회적 증거 stat strip */}
+      <div class="stat-strip">
+        {auto?.trendingTopicCount && auto.trendingTopicCount > 0 && (
+          <div class="stat">
+            <div class="stat-val">{auto.trendingTopicCount}건</div>
+            <div class="stat-lbl">매체 보도</div>
+          </div>
+        )}
+        {aggregate?.publisherCount && aggregate.publisherCount > 0 && (
+          <div class="stat">
+            <div class="stat-val">{aggregate.publisherCount}곳</div>
+            <div class="stat-lbl">취재 매체</div>
+          </div>
+        )}
+        {auto?.daysActive && auto.daysActive >= 2 && (
+          <div class="stat">
+            <div class="stat-val">{auto.daysActive}일</div>
+            <div class="stat-lbl">연속 화제</div>
+          </div>
+        )}
+        {topTermMatched.length > 0 && (
+          <div class="stat">
+            <div class="stat-val">{topTermMatched.length}건</div>
+            <div class="stat-lbl">관련 지원금</div>
+          </div>
+        )}
+      </div>
     </div>
 
-    {recentSubsidies.length === 0 ? (
-      <div class="empty">
-        <p>최근 {NEW_WINDOW_DAYS}일 이내 새로 등록된 지원금이 없습니다.</p>
-        <a class="empty-link" href="/subsidies/">전체 지원금 보기 →</a>
+    {/* 훅 카피 — 사용자 행동 유도 */}
+    {hookCopy && (
+      <div class="hook">
+        <span class="hook-mark" aria-hidden="true">★</span>
+        <span class="hook-text">{hookCopy}</span>
       </div>
-    ) : (
-      <ul class="issue-row-list">
-        {recentSubsidies.map((s) => (
-          <li>
-            <a class={`issue-row issue-cat-${s.category}`} href={`/subsidies/${s.id}/`}>
-              <div class={`issue-row-glyph tint-${s.category}`}>
-                <Icon name={s.icon} size={28} strokeWidth={1.7} />
-              </div>
-              <div class="issue-row-body">
-                <div class="issue-row-meta">
-                  <span class="badge neutral">{s.category}</span>
-                  <span class="meta-agency">{s.agency}</span>
-                  {s.regDate && <span class="meta-date">등록 {formatRegDate(s.regDate)}</span>}
-                </div>
-                <div class="issue-row-headline">{s.title}</div>
-                <div class="issue-row-summary">
-                  {s.amount > 0 && <strong class="amount">{formatAmount(s.amount, s.amountLabel)}</strong>}
-                  {s.summary && <span class="sum-text">{s.summary.slice(0, 120)}</span>}
-                </div>
-                {s.targetPersonas && s.targetPersonas.length > 0 && (
-                  <div class="issue-row-personas">
-                    <span class="meta-label">해당 페르소나</span>
-                    {s.targetPersonas.slice(0, 3).map((pid) => {
-                      const p = personaMap.get(pid);
-                      return p ? (
-                        <span class="persona-mini">
-                          <Icon name={p.icon} size={14} strokeWidth={1.8} />
-                          {p.label}
-                        </span>
-                      ) : null;
-                    })}
-                  </div>
-                )}
-              </div>
-              <span class="issue-row-arrow" aria-hidden="true">
-                <Icon name="arrow-right" size={18} />
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
     )}
 
-    {recentSubsidies.length > 0 && (
-      <div class="more-row">
-        <a class="more-link" href="/subsidies/new/">전체 신규 지원금 보기 →</a>
+    {/* 다층 진입점 — 사이트 내 체류 유도 */}
+    <div class="entry-grid">
+      {/* 1. 영구 포스트 (가장 풍부) */}
+      {topPostUrl && (
+        <a class="entry-card primary" href={topPostUrl}>
+          <div class="ec-eyebrow">분석 포스트</div>
+          <div class="ec-title">{topTerm} 자세히 보기</div>
+          <div class="ec-sub">자격·금액·신청 절차·자주 묻는 질문 한 페이지 정리</div>
+          <span class="ec-cta">읽기 →</span>
+        </a>
+      )}
+
+      {/* 2. 토픽 hub (포스트 없을 때 차선) */}
+      {!topPostUrl && topHubUrl && (
+        <a class="entry-card primary" href={topHubUrl}>
+          <div class="ec-eyebrow">토픽 hub</div>
+          <div class="ec-title">{topTerm} 종합 페이지</div>
+          <div class="ec-sub">관련 지원금 + 원문 보도 모음</div>
+          <span class="ec-cta">열기 →</span>
+        </a>
+      )}
+
+      {/* 3. 5분 진단 (개인 매칭) */}
+      <a class="entry-card" href="/quick/">
+        <div class="ec-eyebrow">개인 매칭</div>
+        <div class="ec-title">5분 진단으로 내 자격 확인</div>
+        <div class="ec-sub">4질문 · 개인정보 저장 X</div>
+        <span class="ec-cta">진단 시작 →</span>
+      </a>
+
+      {/* 4. 추천 페르소나 */}
+      {recommendedPersonas[0] && (
+        <a class="entry-card" href={`/personas/${recommendedPersonas[0].data.id}/`}>
+          <div class="ec-eyebrow">페르소나</div>
+          <div class="ec-title">{recommendedPersonas[0].data.label} 전체 지원금</div>
+          <div class="ec-sub">{recommendedPersonas[0].data.sub}</div>
+          <span class="ec-cta">보기 →</span>
+        </a>
+      )}
+    </div>
+
+    {/* 매칭 지원금 카드 grid (즉시 신청 검토 가능) */}
+    {topTermMatched.length > 0 && (
+      <div class="matched-block">
+        <h3 class="matched-title">바로 확인하는 관련 지원금 {topTermMatched.length}건</h3>
+        <ul class="matched-grid">
+          {topTermMatched.slice(0, 6).map((s) => (
+            <li>
+              <a class={`matched-card cat-${s.category}`} href={`/subsidies/${s.id}/`}>
+                <div class="m-cat">{s.category} · {s.agency}</div>
+                <div class="m-title">{s.title}</div>
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     )}
+
+    {/* 2-5위 트렌딩 키워드 — 다양한 관심사 진입 */}
+    {subTrending.length > 0 && (
+      <div class="sub-trending">
+        <span class="st-label">함께 화제인 키워드</span>
+        <ul class="st-list">
+          {subTrending.map((t) => {
+            const url = findPostUrl(t.term) ?? findTopicHubUrl(t.term) ?? `/issues/`;
+            return (
+              <li>
+                <a class="st-chip" href={url}>
+                  <span class="st-term">{t.term}</span>
+                  <span class="st-count">{t.count}건</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    )}
+
+    <div class="more-row">
+      <a class="more-link" href="/issues/">오늘의 이슈 모두 보기 →</a>
+    </div>
   </Container>
 </section>
+)}
 
 <style>
   .band {
     padding: 64px 0;
   }
-
   .band.alt {
     background: var(--bg-alt);
   }
 
   .section-head {
-    margin-bottom: 28px;
+    margin-bottom: 24px;
   }
-
   .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--accent);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-dot 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.2); }
+  }
+  @media (prefers-reduced-motion: reduce) { .dot { animation: none; } }
 
   .display {
-    font-size: clamp(22px, 2.6vw, 32px);
+    font-size: clamp(26px, 3.4vw, 40px);
     font-weight: 700;
-    line-height: 1.25;
-    letter-spacing: -0.018em;
-    margin: 0 0 8px;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
     max-width: 900px;
   }
-  /* Cycle #41: section sub·empty·more-row */
-  .sub {
-    font-size: 14px;
+  .subhead {
+    font-size: 16px;
     color: var(--text-2);
-    line-height: 1.55;
-    margin: 0;
-    max-width: 700px;
+    line-height: 1.6;
+    margin: 0 0 18px;
   }
-  .empty {
-    text-align: center;
-    padding: 60px 16px;
+
+  /* 사회적 증거 stat strip */
+  .stat-strip {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
     background: var(--surface);
-    border: 1px dashed var(--border);
+    border: 1px solid var(--border);
     border-radius: var(--radius-md);
+    margin-bottom: 24px;
   }
-  .empty p {
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat-val {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+  .stat-lbl {
+    font-size: 12px;
     color: var(--text-2);
-    margin: 0 0 8px;
   }
-  .empty-link {
-    color: var(--accent-link);
-    font-weight: 600;
+
+  /* 훅 카피 */
+  .hook {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0 0 28px;
+    padding: 16px 20px;
+    background: color-mix(in oklch, var(--accent), transparent 92%);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  }
+  .hook-mark {
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .hook-text {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.6;
+    font-weight: 500;
+  }
+
+  /* 다층 진입점 grid */
+  .entry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .entry-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 18px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s, border-color 0.18s, background 0.18s;
+  }
+  .entry-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
     text-decoration: none;
   }
+  .entry-card.primary {
+    background: linear-gradient(135deg, var(--accent) 0%, #003875 100%);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .entry-card.primary:hover {
+    transform: translateY(-3px);
+    border-color: #fff;
+  }
+  .ec-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    margin-bottom: 2px;
+  }
+  .entry-card.primary .ec-eyebrow {
+    color: rgb(255 255 255 / 0.85);
+  }
+  .ec-title {
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--text);
+  }
+  .entry-card.primary .ec-title {
+    color: #fff;
+  }
+  .ec-sub {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+  }
+  .entry-card.primary .ec-sub {
+    color: rgb(255 255 255 / 0.78);
+  }
+  .ec-cta {
+    margin-top: auto;
+    padding-top: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-link);
+  }
+  .entry-card.primary .ec-cta {
+    color: #fff;
+  }
+
+  /* 매칭 지원금 carousel */
+  .matched-block {
+    margin-bottom: 28px;
+  }
+  .matched-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 12px;
+    letter-spacing: -0.01em;
+  }
+  .matched-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .matched-card {
+    display: block;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--cat-color, var(--accent));
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .matched-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
+  .m-cat {
+    font-size: 11px;
+    color: var(--accent-link);
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .m-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text);
+  }
+
+  /* 2-5위 트렌딩 chips */
+  .sub-trending {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .st-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .st-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .st-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .st-chip:hover {
+    border-color: var(--accent);
+    background: var(--surface);
+    text-decoration: none;
+  }
+  .st-term {
+    font-weight: 600;
+  }
+  .st-count {
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 11px;
+  }
+
   .more-row {
-    margin-top: 20px;
     text-align: right;
   }
   .more-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 16px;
     color: var(--accent-link);
     font-size: 14px;
     font-weight: 600;
@@ -168,154 +500,5 @@ function formatRegDate(ts: number): string {
   }
   .more-link:hover {
     text-decoration: underline;
-  }
-  .meta-agency {
-    color: var(--accent-link);
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .amount {
-    color: var(--accent);
-    font-weight: 700;
-    margin-right: 6px;
-  }
-  .sum-text {
-    color: var(--text-2);
-  }
-
-  .issue-row-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .issue-row {
-    display: grid;
-    grid-template-columns: 64px 1fr auto;
-    gap: 20px;
-    align-items: center;
-    padding: 20px 24px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.18s var(--ease-standard), border-color 0.18s var(--ease-standard);
-  }
-
-  @media (max-width: 720px) {
-    .issue-row {
-      grid-template-columns: 48px 1fr;
-      padding: 16px;
-    }
-    .issue-row-arrow {
-      display: none;
-    }
-  }
-
-  .issue-row:hover {
-    transform: translateY(-2px);
-    border-color: var(--border-2);
-    text-decoration: none;
-  }
-
-  .issue-row-glyph {
-    width: 64px;
-    height: 64px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-md);
-    background: var(--surface-2);
-    color: var(--accent);
-    flex-shrink: 0;
-  }
-
-  @media (max-width: 720px) {
-    .issue-row-glyph {
-      width: 48px;
-      height: 48px;
-    }
-  }
-
-  .tint-복지 {
-    background: rgb(236 72 153 / 0.12);
-    color: #ec4899;
-  }
-  .tint-창업 {
-    background: rgb(234 88 12 / 0.12);
-    color: #ea580c;
-  }
-  .tint-취업 {
-    background: rgb(16 185 129 / 0.12);
-    color: #10b981;
-  }
-  .tint-농업 {
-    background: rgb(217 119 6 / 0.12);
-    color: #d97706;
-  }
-
-  .issue-row-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-    flex-wrap: wrap;
-  }
-
-  .badge.neutral {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 6px;
-    background: var(--surface-2);
-    color: var(--text-2);
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .meta-date,
-  .meta-label {
-    font-size: 13px;
-    color: var(--text-3);
-  }
-
-  .issue-row-headline {
-    font-size: 17px;
-    font-weight: 600;
-    line-height: 1.4;
-    margin-bottom: 4px;
-    color: var(--text);
-  }
-
-  .issue-row-summary {
-    font-size: 14px;
-    color: var(--text-2);
-    line-height: 1.55;
-    margin-bottom: 10px;
-  }
-
-  .issue-row-personas {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .persona-mini {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 3px 10px;
-    background: var(--surface-2);
-    border-radius: var(--radius-pill);
-    font-size: 13px;
-    color: var(--text);
-  }
-
-  .issue-row-arrow {
-    color: var(--text-3);
   }
 </style>
