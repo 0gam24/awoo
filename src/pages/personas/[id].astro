@@ -6,6 +6,7 @@ import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
 import situationsData from '@/data/situations.json';
+import { getDeadlineBadge } from '@/lib/deadline-format';
 import { buildCollectionPage } from '@/lib/schema';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -206,27 +207,40 @@ const collectionSchema = buildCollectionPage({
       <h2 class="display">{p.label}이 받을 수 있는 지원금 {matched.length}개</h2>
       <ul class="subsidy-grid">
         {
-          matched.map((s) => (
-            <li>
-              <a class="subsidy-card" href={`/subsidies/${s.data.id}/`}>
-                <div class={`media tint-${s.data.category}`}>
-                  <Icon name={s.data.icon} size={44} strokeWidth={1.5} />
-                </div>
-                <div class="body">
-                  <div class="meta-row">
-                    <span class="badge neutral">{s.data.category}</span>
-                    {s.data.status === '곧 마감' && <span class="badge warning">곧 마감</span>}
+          matched.map((s) => {
+            const dl = getDeadlineBadge(s.data.deadline);
+            const eligibilityHint = s.data.eligibility?.[0];
+            return (
+              <li>
+                <a class="subsidy-card" href={`/subsidies/${s.data.id}/`}>
+                  <div class={`media tint-${s.data.category}`}>
+                    <Icon name={s.data.icon} size={44} strokeWidth={1.5} />
                   </div>
-                  <div class="agency">{s.data.agency}</div>
-                  <div class="title">{s.data.title}</div>
-                  <div class="summary">{s.data.summary.slice(0, 60)}{s.data.summary.length > 60 ? '…' : ''}</div>
-                  <div class="amount">
-                    {formatWon(s.data.amount)} <span class="unit">{s.data.amountLabel}</span>
+                  <div class="body">
+                    <div class="meta-row">
+                      <span class="badge neutral">{s.data.category}</span>
+                      {dl.tone !== 'unknown' && (
+                        <span class={`badge dl-${dl.tone}`} title={`마감: ${s.data.deadline}`}>
+                          {dl.label}
+                        </span>
+                      )}
+                    </div>
+                    <div class="agency">{s.data.agency}</div>
+                    <div class="title">{s.data.title}</div>
+                    {eligibilityHint && (
+                      <div class="elig-hint">
+                        <span class="elig-icon" aria-hidden="true">✓</span>
+                        {eligibilityHint.length > 32 ? `${eligibilityHint.slice(0, 32)}…` : eligibilityHint}
+                      </div>
+                    )}
+                    <div class="amount">
+                      {formatWon(s.data.amount)} <span class="unit">{s.data.amountLabel}</span>
+                    </div>
                   </div>
-                </div>
-              </a>
-            </li>
-          ))
+                </a>
+              </li>
+            );
+          })
         }
       </ul>
 
@@ -573,6 +587,49 @@ const collectionSchema = buildCollectionPage({
   .badge.warning {
     background: rgb(247 195 96 / 0.18);
     color: var(--color-warning);
+  }
+
+  /* Cycle #49: 마감 D-day 배지 — 톤별 색상 */
+  .badge.dl-urgent {
+    background: rgb(214 44 26 / 0.12);
+    color: var(--color-danger);
+  }
+  .badge.dl-soon {
+    background: rgb(247 195 96 / 0.18);
+    color: var(--color-warning);
+  }
+  .badge.dl-normal {
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+  }
+  .badge.dl-open {
+    background: rgb(16 185 129 / 0.12);
+    color: var(--color-success);
+  }
+  :global([data-theme='dark']) .badge.dl-urgent {
+    background: rgb(255 75 75 / 0.18);
+  }
+  :global([data-theme='dark']) .badge.dl-normal {
+    background: rgb(41 151 255 / 0.18);
+  }
+
+  /* Cycle #49: 자격 hint — eligibility[0] 첫 줄 */
+  .elig-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.45;
+    margin-top: 2px;
+    flex: 1;
+  }
+  .elig-icon {
+    flex-shrink: 0;
+    color: var(--color-success);
+    font-weight: 700;
+    font-size: 12px;
+    margin-top: 1px;
   }
 
   .agency {

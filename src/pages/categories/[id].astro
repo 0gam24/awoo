@@ -4,6 +4,7 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CATEGORIES, formatWon } from '@/data/site-data';
+import { getDeadlineBadge } from '@/lib/deadline-format';
 import { buildCollectionPage } from '@/lib/schema';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -118,36 +119,49 @@ const collectionSchema = buildCollectionPage({
             <h2>대표 지원금 {top.length}건</h2>
             <ul class="match-list">
               {
-                top.map((s) => (
-                  <li>
-                    <a class="match-card" href={`/subsidies/${s.data.id}/`}>
-                      <div class={`media tint-${s.data.category}`}>
-                        <Icon name={s.data.icon} size={26} strokeWidth={1.6} />
-                      </div>
-                      <div class="rc-body">
-                        <div class="rc-meta">
-                          <span class="b neutral">{s.data.category}</span>
-                          {s.data.status === '곧 마감' && <span class="b warn">곧 마감</span>}
-                          {s.data.isHot && <span class="b hot">HOT</span>}
+                top.map((s) => {
+                  const dl = getDeadlineBadge(s.data.deadline);
+                  const eligibilityHint = s.data.eligibility?.[0];
+                  return (
+                    <li>
+                      <a class="match-card" href={`/subsidies/${s.data.id}/`}>
+                        <div class={`media tint-${s.data.category}`}>
+                          <Icon name={s.data.icon} size={26} strokeWidth={1.6} />
                         </div>
-                        <div class="rc-agency">{s.data.agency}</div>
-                        <div class="rc-title">{s.data.title}</div>
-                        <div class="rc-sum">{(s.data.summary ?? '').slice(0, 80)}{(s.data.summary ?? '').length > 80 ? '…' : ''}</div>
-                        <div class="rc-amt">
-                          {s.data.amount > 0 ? (
-                            <>
-                              {formatWon(s.data.amount)}
-                              <span class="ru">{s.data.amountLabel}</span>
-                            </>
-                          ) : (
-                            <span class="amt-na">내용 확인</span>
+                        <div class="rc-body">
+                          <div class="rc-meta">
+                            <span class="b neutral">{s.data.category}</span>
+                            {s.data.isHot && <span class="b hot">HOT</span>}
+                            {dl.tone !== 'unknown' && (
+                              <span class={`b dl-${dl.tone}`} title={`마감: ${s.data.deadline}`}>
+                                {dl.label}
+                              </span>
+                            )}
+                          </div>
+                          <div class="rc-agency">{s.data.agency}</div>
+                          <div class="rc-title">{s.data.title}</div>
+                          {eligibilityHint && (
+                            <div class="rc-elig">
+                              <span class="rc-elig-icon" aria-hidden="true">✓</span>
+                              {eligibilityHint.length > 36 ? `${eligibilityHint.slice(0, 36)}…` : eligibilityHint}
+                            </div>
                           )}
+                          <div class="rc-amt">
+                            {s.data.amount > 0 ? (
+                              <>
+                                {formatWon(s.data.amount)}
+                                <span class="ru">{s.data.amountLabel}</span>
+                              </>
+                            ) : (
+                              <span class="amt-na">내용 확인</span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <span class="rc-arrow" aria-hidden="true">→</span>
-                    </a>
-                  </li>
-                ))
+                        <span class="rc-arrow" aria-hidden="true">→</span>
+                      </a>
+                    </li>
+                  );
+                })
               }
             </ul>
             <div class="more-row">
@@ -350,9 +364,19 @@ const collectionSchema = buildCollectionPage({
   .b.neutral { background: var(--surface-2); color: var(--text-2); }
   .b.warn { background: rgb(247 195 96 / 0.18); color: var(--color-warning); }
   .b.hot { background: rgb(220 38 38 / 0.16); color: #dc2626; }
+  /* Cycle #49: 마감 D-day 배지 */
+  .b.dl-urgent { background: rgb(214 44 26 / 0.12); color: var(--color-danger); }
+  .b.dl-soon { background: rgb(247 195 96 / 0.18); color: var(--color-warning); }
+  .b.dl-normal { background: rgb(0 113 227 / 0.1); color: var(--accent); }
+  .b.dl-open { background: rgb(16 185 129 / 0.12); color: var(--color-success); }
+  :global([data-theme='dark']) .b.dl-urgent { background: rgb(255 75 75 / 0.18); }
+  :global([data-theme='dark']) .b.dl-normal { background: rgb(41 151 255 / 0.18); }
   .rc-agency { font-size: 12px; color: var(--accent-link); font-weight: 500; }
   .rc-title { font-size: 14px; font-weight: 600; line-height: 1.35; margin: 2px 0; }
   .rc-sum { font-size: 12px; color: var(--text-2); line-height: 1.5; }
+  /* Cycle #49: 자격 hint */
+  .rc-elig { display: flex; align-items: flex-start; gap: 4px; font-size: 12px; color: var(--text-2); line-height: 1.45; margin-top: 2px; }
+  .rc-elig-icon { flex-shrink: 0; color: var(--color-success); font-weight: 700; font-size: 11px; margin-top: 1px; }
   .rc-amt { font-size: 16px; font-weight: 700; color: var(--accent); margin-top: 4px; }
   .rc-amt .ru { font-size: 11px; color: var(--text-2); font-weight: 500; margin-left: 4px; }
   .rc-amt .amt-na {
