@@ -18,7 +18,8 @@ jobs:
   sync:
     name: Fetch news + auto-curate today's issue
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Cycle #41: 5분 → 15분 — Claude API 5 후보 호출 + retry + IndexNow + build 여유
+    timeout-minutes: 15
     # job-level env hoisting — step-level if 조건에서 env.* 평가 가능
     env:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
