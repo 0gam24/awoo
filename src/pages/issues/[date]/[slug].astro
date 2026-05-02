@@ -381,6 +381,19 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
           </span>
         </aside>
 
+        {/* Cycle #70: sourceConfidence='low' 정보 제한 disclaimer — Top 3 보장 시 단일/소수 매체 보도 명시 */}
+        {(post as { sourceConfidence?: string }).sourceConfidence === 'low' && (
+          <aside class="source-disclaimer" aria-label="정보 제한 알림">
+            <span class="sd-icon" aria-hidden="true">ⓘ</span>
+            <span class="sd-text">
+              <strong>정보 제한 알림</strong> — 매체
+              <strong> {(post as { sourcePublisherCount?: number }).sourcePublisherCount ?? 1}곳</strong>의
+              제한된 보도 기반 정리. 정확한 자격·금액·신청 방법은 본문 하단 출처와
+              <strong> 정부 공식 사이트</strong>에서 반드시 확인하세요.
+            </span>
+          </aside>
+        )}
+
         {post.tldr.length > 0 && (
           <div class="tldr">
             <div class="tldr-label">핵심 요약</div>
@@ -964,6 +977,35 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
     font-size: 13px;
     color: var(--text-2);
     line-height: 1.5;
+  }
+
+  /* Cycle #70: sourceConfidence='low' disclaimer — 노란 강조 */
+  .source-disclaimer {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    margin: 0 0 20px;
+    background: rgb(247 195 96 / 0.12);
+    border: 1px solid rgb(247 195 96 / 0.32);
+    border-left: 3px solid var(--color-warning);
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  :global([data-theme='dark']) .source-disclaimer {
+    background: rgb(247 195 96 / 0.08);
+  }
+  .sd-icon {
+    flex-shrink: 0;
+    color: var(--color-warning);
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  .sd-text strong {
+    color: var(--text);
+    font-weight: 700;
   }
   .ai-icon {
     flex-shrink: 0;

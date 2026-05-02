@@ -3,7 +3,7 @@ import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { formatWon } from '@/data/site-data';
+import { CATEGORIES, formatWon } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
 import { buildCollectionPage } from '@/lib/schema';
 import { type GetStaticPaths } from 'astro';
@@ -131,6 +131,27 @@ const matchedSubsidies = allSubsidies
   .sort((a, b) => b.score - a.score || (b.s.data.amount ?? 0) - (a.s.data.amount ?? 0))
   .slice(0, 9);
 
+// Cycle #70 (Phase D): 영구 포스트 부재 시 매칭 지원금 기반 보강 섹션
+//   - 매칭 카테고리 1위 → commonEligibility 일반 자격 노출
+//   - 매칭 페르소나 빈도 desc Top 3 → 페르소나 cross-link
+const personasForFallback = await getCollection('personas');
+const categoryFreq: Record<string, number> = {};
+const personaFreq: Record<string, number> = {};
+for (const m of matchedSubsidies) {
+  const cat = m.s.data.category;
+  if (cat) categoryFreq[cat] = (categoryFreq[cat] ?? 0) + 1;
+  for (const pid of m.s.data.targetPersonas ?? []) {
+    personaFreq[pid] = (personaFreq[pid] ?? 0) + 1;
+  }
+}
+const topCategoryId = Object.entries(categoryFreq).sort((a, b) => b[1] - a[1])[0]?.[0];
+const topCategoryMeta = topCategoryId ? CATEGORIES.find((c) => c.id === topCategoryId) : null;
+const topPersonaIds = Object.entries(personaFreq)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 3)
+  .map(([pid]) => pid);
+const topPersonas = personasForFallback.filter((p) => topPersonaIds.includes(p.data.id));
+
 // Cycle #7: 트렌딩 토픽별 원문 보도 (today-issue.json의 trendingArticlesByTerm)
 type TrendingArticlesByTerm = Record<string, SourceArticle[]>;
 const articlesByTerm = ((todayIssue as { trendingArticlesByTerm?: TrendingArticlesByTerm }).trendingArticlesByTerm) ?? {};
@@ -255,6 +276,54 @@ const collectionSchema = !isThin
             )}
             <span class="plc-cta">자세히 보기 →</span>
           </a>
+        </section>
+      )}
+
+      {/* Cycle #70 (Phase D): 영구 포스트 부재 시 자동 보강 섹션 — Top 3 보장 백업 */}
+      {!post && (topCategoryMeta?.commonEligibility?.length || topPersonas.length > 0) && (
+        <section class="fallback-pack">
+          <div class="fp-eyebrow">자동 정리 — 매칭 지원금 기반</div>
+          <p class="fp-intro">
+            "{term}" 관련 영구 분석 포스트는 아직 없지만, 매칭 지원금
+            <strong> {matchedSubsidies.length}건</strong>의 공통 자격·관련 페르소나를
+            자동으로 정리했습니다.
+          </p>
+
+          {topCategoryMeta?.commonEligibility && topCategoryMeta.commonEligibility.length > 0 && (
+            <div class="fp-block">
+              <h3 class="fp-h3">{topCategoryMeta.name} 분야 일반 자격 요건</h3>
+              <ul class="fp-list">
+                {topCategoryMeta.commonEligibility.map((e) => (
+                  <li><span class="fp-check" aria-hidden="true">✓</span>{e}</li>
+                ))}
+              </ul>
+              <a class="fp-cta" href={`/categories/${encodeURIComponent(topCategoryMeta.id)}/`}>
+                {topCategoryMeta.name} 분야 전체 보기 →
+              </a>
+            </div>
+          )}
+
+          {topPersonas.length > 0 && (
+            <div class="fp-block">
+              <h3 class="fp-h3">이 키워드 관련 페르소나</h3>
+              <ul class="fp-personas">
+                {topPersonas.map((p) => (
+                  <li>
+                    <a class="fp-persona-card" href={`/personas/${p.data.id}/`}>
+                      <span class="fp-p-icon" aria-hidden="true">
+                        <Icon name={p.data.icon} size={18} strokeWidth={1.6} />
+                      </span>
+                      <div class="fp-p-meta">
+                        <div class="fp-p-label">{p.data.label}</div>
+                        <div class="fp-p-sub">{p.data.sub}</div>
+                      </div>
+                      <span class="fp-p-arrow" aria-hidden="true">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       )}
 
@@ -494,6 +563,143 @@ const collectionSchema = !isThin
     color: var(--accent);
     text-transform: uppercase;
     margin-bottom: 8px;
+  }
+
+  /* Cycle #70 (Phase D): fallback 보강 섹션 — 영구 포스트 부재 시 매칭 데이터 기반 자동 정리 */
+  .fallback-pack {
+    background: rgb(0 113 227 / 0.04);
+    border: 1px solid rgb(0 113 227 / 0.18);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+  :global([data-theme='dark']) .fallback-pack {
+    background: rgb(41 151 255 / 0.06);
+    border-color: rgb(41 151 255 / 0.22);
+  }
+  .fp-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .fp-intro {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.6;
+    margin: 0 0 18px;
+    max-width: 720px;
+  }
+  .fp-intro strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .fp-block {
+    margin-top: 18px;
+  }
+  .fp-h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
+  .fp-list {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 8px;
+  }
+  .fp-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .fp-check {
+    flex-shrink: 0;
+    color: var(--color-success);
+    font-weight: 700;
+    margin-top: 1px;
+  }
+  .fp-cta {
+    display: inline-block;
+    margin-top: 4px;
+    color: var(--accent-link);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .fp-cta:hover {
+    text-decoration: underline;
+  }
+  .fp-personas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 8px;
+  }
+  .fp-persona-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text);
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .fp-persona-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    text-decoration: none;
+  }
+  .fp-p-icon {
+    width: 32px;
+    height: 32px;
+    background: rgb(0 113 227 / 0.1);
+    color: var(--accent);
+    border-radius: var(--radius-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .fp-p-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  .fp-p-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .fp-p-sub {
+    font-size: 12px;
+    color: var(--text-2);
+    margin-top: 2px;
+  }
+  .fp-p-arrow {
+    color: var(--text-3);
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .fp-persona-card:hover .fp-p-arrow {
+    color: var(--accent);
   }
 
   .plc-link {

@@ -599,8 +599,9 @@ async function main() {
       articlesForTopic.pop();
     }
 
-    // Cycle #40 (사용자 요청): 출처 다양성 게이트 — 단일 매체 재구성 thin content 차단
-    // 매체 ≥ 2개 + 기사 ≥ 3건 미만이면 skip (다른 후보로 fallback)
+    // Cycle #69 (사용자 요청): Top 3 키워드 분석 리포트 보장 — 다양성 게이트 차등 적용
+    //   Top 3 (idx 0~2): ≥1매체 + ≥1건만 충족 → 시도 (정보 부족하면 sourceConfidence='low')
+    //   4-5위 보너스 (idx 3~4): 기존 ≥2매체 + ≥3건 유지 (잡음 차단)
     const uniquePublishers = new Set(
       articlesForTopic.map((a) => {
         try {
@@ -610,12 +611,25 @@ async function main() {
         }
       }),
     );
-    if (uniquePublishers.size < 2 || articlesForTopic.length < 3) {
+    const isTop3 = idx < 3;
+    const minPublishers = isTop3 ? 1 : 2;
+    const minArticles = isTop3 ? 1 : 3;
+    if (uniquePublishers.size < minPublishers || articlesForTopic.length < minArticles) {
       console.log(
-        `  ⤳ 다양성 미달: 매체 ${uniquePublishers.size}곳 / 기사 ${articlesForTopic.length}건 (요구 ≥2 매체 + ≥3건) — 다음 후보로`,
+        `  ⤳ 다양성 미달: 매체 ${uniquePublishers.size}곳 / 기사 ${articlesForTopic.length}건 (Top${idx + 1} 요구 ≥${minPublishers}매체 + ≥${minArticles}건) — skip`,
       );
       bonusSkipped.push({ rank: idx + 1, term, reason: 'source_diversity_below_min' });
       continue;
+    }
+
+    // Cycle #69: sourceConfidence — 출처 신뢰도 메타. UI에 disclaimer 표시 + 운영자 모니터링
+    let sourceConfidence;
+    if (uniquePublishers.size >= 3 && articlesForTopic.length >= 5) {
+      sourceConfidence = 'high';
+    } else if (uniquePublishers.size >= 2 && articlesForTopic.length >= 3) {
+      sourceConfidence = 'medium';
+    } else {
+      sourceConfidence = 'low';
     }
 
     // 3. user prompt 빌드
@@ -630,12 +644,24 @@ async function main() {
       // ★ 1건이 아닌 N건 전체 — Claude가 다중 소스 종합 분석
       sourceArticles: articlesForTopic,
       sourceCount: articlesForTopic.length,
+      sourcePublisherCount: uniquePublishers.size,
+      sourceConfidence,
       matchedSubsidies,
       matchedPersonas,
       todayDate: date,
     };
 
-    const userPrompt = `다음 입력 데이터로 오늘의 이슈 포스트를 작성하세요. 출력은 반드시 JSON 객체 1개로만, 다른 텍스트 없이.
+    // Cycle #69: low confidence 시 정보 제한 명시 + 환각 차단 강화 prompt
+    const lowConfNote =
+      sourceConfidence === 'low'
+        ? `\n\n⚠️ 정보 출처가 제한적입니다 (매체 ${uniquePublishers.size}곳 · 기사 ${articlesForTopic.length}건). 다음 규칙을 반드시 지키세요:
+- 추측·일반화 금지. 출처에 명시된 사실만 인용
+- sections 첫 단락에 "정보 제한 알림" 자동 첨부 — 단일/소수 매체 보도 출처 명시
+- sources에 가용한 모든 기사를 빠짐없이 나열
+- coreFacts.who/amount/deadline/where 중 출처에 없는 항목은 "확인 필요" 명시 (추측 X)`
+        : '';
+
+    const userPrompt = `다음 입력 데이터로 오늘의 이슈 포스트를 작성하세요. 출력은 반드시 JSON 객체 1개로만, 다른 텍스트 없이.${lowConfNote}
 
 입력:
 \`\`\`json
@@ -751,6 +777,9 @@ ${JSON.stringify(userInput, null, 2)}
     post.date = date;
     // factCheck 점수도 메타에 저장 — 운영자 모니터링용
     post.factCheckScore = fc.score;
+    // Cycle #69: sourceConfidence 보존 — UI disclaimer 표시 + 운영자 모니터링
+    post.sourceConfidence = sourceConfidence;
+    post.sourcePublisherCount = uniquePublishers.size;
     // Cycle #7: primary subsidy ID 보존 — 미래 7일 dedup 안정성
     if (!post.matchedSubsidies && matchedSubsidies.length > 0) {
       post.matchedSubsidies = matchedSubsidies;
