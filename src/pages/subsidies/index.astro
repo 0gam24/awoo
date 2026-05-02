@@ -70,6 +70,35 @@ const collectionSchema = buildCollectionPage({
   pageUrl: '/subsidies/',
   items: sorted.slice(0, 100).map((s) => ({ url: `/subsidies/${s.data.id}/`, name: s.data.title })),
 });
+
+// Cycle #67: 글로벌 검색 확장 — q 매칭 시 페르소나/카테고리/토픽 추천 chip 표시
+// 빌드 타임에 가벼운 검색 인덱스 생성 → 클라이언트 inline JSON으로 전달
+const personas = await getCollection('personas');
+const topics = await getCollection('topics');
+type CrossEntry = { type: 'persona' | 'category' | 'topic'; href: string; label: string; sub: string; text: string };
+const crossIndex: CrossEntry[] = [
+  ...personas.map((p) => ({
+    type: 'persona' as const,
+    href: `/personas/${p.data.id}/`,
+    label: p.data.label,
+    sub: p.data.sub,
+    text: `${p.data.label} ${p.data.sub} ${p.data.age} ${p.data.income} ${p.data.living} ${(p.data.pains ?? []).join(' ')}`.toLowerCase(),
+  })),
+  ...CATEGORIES.filter((c) => c.id !== 'all').map((c) => ({
+    type: 'category' as const,
+    href: `/categories/${encodeURIComponent(c.id)}/`,
+    label: c.name,
+    sub: c.description ?? `${c.id} 분야 지원금`,
+    text: `${c.id} ${c.name} ${c.description ?? ''} ${(c.commonEligibility ?? []).join(' ')}`.toLowerCase(),
+  })),
+  ...topics.map((t) => ({
+    type: 'topic' as const,
+    href: `/topics/${t.data.id}/`,
+    label: t.data.title,
+    sub: t.data.shortDef,
+    text: `${t.data.title} ${t.data.shortDef} ${t.data.category} ${(t.data.relatedSubsidyKeywords ?? []).join(' ')}`.toLowerCase(),
+  })),
+];
 ---
 
 <BaseLayout
@@ -97,6 +126,15 @@ const collectionSchema = buildCollectionPage({
         <span class="as-q" data-active-q></span>
         <a class="as-clear" href={`/subsidies/`} aria-label="검색어 초기화">×</a>
       </div>
+
+      {/* Cycle #67: 검색어와 매칭하는 페르소나/카테고리/토픽 chip — q 변경 시 렌더링 */}
+      <div class="cross-results" data-cross-results hidden>
+        <span class="cr-label">관련 페이지</span>
+        <ul class="cr-list" data-cross-list></ul>
+      </div>
+
+      {/* 검색 인덱스 — 클라이언트 JS가 q 매칭에 사용 */}
+      <script type="application/json" data-cross-index set:html={JSON.stringify(crossIndex)} />
 
       {/* Cycle #54: filter + sort를 sticky 컨테이너로 묶음 — 카드 스크롤 중에도 재선택 가능 */}
       <div class="filter-sticky">
@@ -249,6 +287,33 @@ const collectionSchema = buildCollectionPage({
         qEl.hidden = true;
       }
     }
+
+    // Cycle #67: q 매칭하는 페르소나/카테고리/토픽 chip 동적 렌더링
+    const crossEl = document.querySelector<HTMLElement>('[data-cross-results]');
+    const crossList = document.querySelector<HTMLUListElement>('[data-cross-list]');
+    const crossIndexEl = document.querySelector<HTMLScriptElement>('[data-cross-index]');
+    if (crossEl && crossList && crossIndexEl && q) {
+      try {
+        type CrossEntry = { type: 'persona' | 'category' | 'topic'; href: string; label: string; sub: string; text: string };
+        const idx: CrossEntry[] = JSON.parse(crossIndexEl.textContent || '[]');
+        const matches = idx.filter((e) => e.text.includes(q)).slice(0, 6);
+        if (matches.length > 0) {
+          crossList.innerHTML = matches
+            .map((e) => {
+              const typeLabel = e.type === 'persona' ? '페르소나' : e.type === 'category' ? '분야' : '주제';
+              return `<li><a class="cr-chip cr-${e.type}" href="${e.href}"><span class="cr-type">${typeLabel}</span><span class="cr-name">${e.label}</span><span class="cr-arrow" aria-hidden="true">→</span></a></li>`;
+            })
+            .join('');
+          crossEl.hidden = false;
+        } else {
+          crossEl.hidden = true;
+        }
+      } catch {
+        crossEl.hidden = true;
+      }
+    } else if (crossEl) {
+      crossEl.hidden = true;
+    }
   };
 
   // Intercept chip clicks to use history.pushState (no full reload)
@@ -328,6 +393,79 @@ const collectionSchema = buildCollectionPage({
     background: var(--accent);
     color: var(--on-accent);
     text-decoration: none;
+  }
+
+  /* Cycle #67: 검색 매칭 페르소나/카테고리/토픽 추천 chips */
+  .cross-results {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 14px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-md);
+    flex-wrap: wrap;
+  }
+  .cr-label {
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+    text-transform: uppercase;
+  }
+  .cr-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .cr-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .cr-chip:hover {
+    text-decoration: none;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .cr-type {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    background: rgb(0 113 227 / 0.1);
+    padding: 1px 7px;
+    border-radius: var(--radius-pill);
+    text-transform: uppercase;
+  }
+  :global([data-theme='dark']) .cr-type {
+    background: rgb(41 151 255 / 0.16);
+  }
+  .cr-name {
+    color: var(--text);
+    font-weight: 600;
+  }
+  .cr-arrow {
+    color: var(--text-3);
+    font-size: 12px;
+  }
+  .cr-chip:hover .cr-arrow {
+    color: var(--accent);
   }
 
   /* Cycle #54: filter + sort sticky 컨테이너 — 카드 스크롤 중에도 재선택 */
