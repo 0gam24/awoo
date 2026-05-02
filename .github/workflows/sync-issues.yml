@@ -78,11 +78,17 @@ jobs:
           git config user.name "awoo-bot"
           git config user.email "noreply@awoo.or.kr"
           git add src/data/today-issue.json src/data/issues/
-          DATE=$(date -u +"%Y-%m-%d")
+          # Cycle #79: commit message date를 KST(UTC+9)로 — 한국 운영 사이트 일관성
+          DATE=$(TZ=Asia/Seoul date +"%Y-%m-%d")
           git commit -m "chore(data): 오늘의 이슈 자동 갱신 — ${DATE}
 
           [skip ci]"
           git push origin main
+
+      # Cycle #79: build 분리 — IndexNow ping과 Cloudflare deploy가 동일 dist 재사용
+      - name: Build (astro)
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run build
 
       # Cycle #12 P0-3: 신규 영구 포스트 즉시 IndexNow ping (검색엔진 24h → 즉시)
       # [skip ci] 커밋이라 indexnow.yml 트리거 안 됨 → 직접 호출
@@ -91,7 +97,14 @@ jobs:
         env:
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         continue-on-error: true
-        run: |
-          npm run build
-          npm run indexnow:ping
-          # 상태 파일 갱신은 다음 정규 indexnow.yml 실행에서 처리
+        run: npm run indexnow:ping
+
+      # Cycle #79: cron 결과 즉시 사이트 반영 — [skip ci] 커밋이라 deploy.yml 트리거 안 되므로
+      # sync-issues.yml 안에서 직접 wrangler deploy 호출 (deploy.yml과 동일 패턴)
+      # 사전 설정: secrets.CLOUDFLARE_API_TOKEN + secrets.CLOUDFLARE_ACCOUNT_ID (deploy.yml과 공유)
+      - name: Deploy to Cloudflare Workers (sync 결과 사이트 즉시 반영)
+        if: steps.diff.outputs.changed == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
