@@ -113,6 +113,38 @@ async function loadLastBatchSlugs() {
   }
 }
 
+// Cycle #77: 모든 reportType prompt에 공통 SEO/GEO 가이드라인 prepend
+// Featured Snippet + AI 답변 엔진 인용 + 한국어 검색 의도 매핑 동시 최적화
+const SEO_GUIDELINES = `
+**📌 SEO/GEO 작성 규칙 (모든 reportType 공통, 반드시 준수)**:
+
+1. **title**: 시간 한정어("이번 주"·"오늘"·"이번 달") 회피. 구체 지원금명 1-2개 + 금액·마감·신청 핵심 정보 포함
+   ✓ 좋음: "강원 평생교육이용권·해남 아이키움수당 신청 (자격·금액·마감일)"
+   ✗ 나쁨: "이번 주 새로 등록된 정부 지원금 5건 비교"
+
+2. **metaDescription**: "신청 기간" / "처리 기간" / "필요 서류" / "자격 조건" 중 1개 이상 키워드 포함
+   ✓ 좋음: "월 20만원~연 150만원, 신청 마감 D-7, 필요 서류·자격 조건 한눈에"
+   ✗ 나쁨: "다양한 지원금을 비교해 정리했습니다"
+
+3. **sections heading**: 한국어 의문문 형식 (검색 의도 직매칭)
+   ✓ "누가 받을 수 있나요?" / "얼마를 받을 수 있나요?" / "어떻게 신청하나요?" / "주의할 점은?"
+   ✗ "자격 요건" / "지원 금액" / "신청 절차" (명사형 — Featured Snippet 약화)
+
+4. **sections lead**: 최대 40자 + 숫자/기관명/날짜 1개 이상 (Featured Snippet 후보)
+   ✓ "자격자는 인천 미추홀구 거주자, 월 20만원 지급" (24자, 숫자 2개)
+   ✗ "이 지원금의 자격 조건은 다음과 같이 정해져 있으며 자세한 사항은..." (40자 초과 + vague)
+
+5. **sections body**: 신청 절차 섹션은 단계별 구조화 (HowTo schema 후보)
+   ✓ "**1단계: 자격 확인** — 인천 거주자 본인 확인.\n\n**2단계: 서류 준비** — 신분증·..."
+   ✗ "신청 시 서류를 준비해서 방문하면 됩니다" (단계 미명시)
+
+6. **faq**: 한국어 검색 직매칭 질문 형식
+   ✓ "X 자격 조건은 어떻게 되나요?" / "X 신청 방법은?" / "X 마감일이 언제인가요?"
+   ✗ "관련 정보가 궁금하시다면" (간접형)
+
+7. **금지 패턴**: AI 클리셰 회피 — "총정리" / "한눈에 정리" / "완벽 가이드" / "꿀팁" 같은 표현 X
+`;
+
 // Cycle #73: deadline 문자열 → D-day (KST 자정 기준). 임박 판정용.
 // src/lib/deadline-format.ts 와 동일 로직 (.ts 직접 import 불가하므로 inline 복제)
 function getDDay(deadline) {
@@ -546,7 +578,7 @@ async function generateNewSubsidyReport({
   };
 
   const userPrompt = `다음 입력은 정부24에서 새로 등록된 지원금 ${newSubsidies.length}건입니다.
-
+${SEO_GUIDELINES}
 ⚠️ **리포트 유형**: 신규 지원금 비교 분석 (트렌딩 키워드 분석 X — 본 리포트는 매주 새로 등록된 지원금을 비교·정리)
 
 **지시사항**:
@@ -698,7 +730,7 @@ async function generateDeadlineImminentReport({
   };
 
   const userPrompt = `다음 입력은 마감 임박 (D-30 이내) 정부 지원금 ${imminent.length}건입니다.
-
+${SEO_GUIDELINES}
 ⚠️ **리포트 유형**: 마감 임박 주간 분석 (트렌딩 X, 신규 등록 X — 이번 주 놓치면 안 되는 지원금 정리)
 
 **지시사항**:
@@ -901,7 +933,7 @@ async function generatePersonaWeeklyReport({
   };
 
   const userPrompt = `다음 입력은 "${persona.label}" 페르소나의 매칭 지원금 풀(${matched.length}건 중 카테고리별 Top ${annotated.length}건)입니다.
-
+${SEO_GUIDELINES}
 ⚠️ **리포트 유형**: 페르소나 주간 분석 (트렌딩 X, 신규 X — 이번 주 ${persona.label}을 위한 정부 지원금 종합 정리)
 
 **지시사항**:
@@ -1099,7 +1131,7 @@ async function generateCategoryWeeklyReport({
   };
 
   const userPrompt = `다음 입력은 "${targetCategory}" 카테고리 정부 지원금 풀(${matched.length}건 중 Top ${compactMatched.length}건)입니다.
-
+${SEO_GUIDELINES}
 ⚠️ **리포트 유형**: 카테고리 심층 분석 (트렌딩 X, 신규 X, 페르소나 X — ${targetCategory} 분야 전체 종합)
 
 **지시사항**:
@@ -1401,7 +1433,8 @@ async function main() {
 - coreFacts.who/amount/deadline/where 중 출처에 없는 항목은 "확인 필요" 명시 (추측 X)`
         : '';
 
-    const userPrompt = `다음 입력 데이터로 오늘의 이슈 포스트를 작성하세요. 출력은 반드시 JSON 객체 1개로만, 다른 텍스트 없이.${lowConfNote}
+    const userPrompt = `다음 입력 데이터로 오늘의 이슈 포스트를 작성하세요. 출력은 반드시 JSON 객체 1개로만, 다른 텍스트 없이.
+${SEO_GUIDELINES}${lowConfNote}
 
 입력:
 \`\`\`json
