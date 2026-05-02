@@ -345,6 +345,18 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
 
       <header class="hero">
         <div class="meta">
+          {/* Cycle #76: reportType별 배지 — 트렌딩 vs 신규/마감/페르소나/카테고리 분석 차별화 */}
+          {(post as { reportType?: string }).reportType && (() => {
+            const rt = (post as { reportType?: string }).reportType;
+            const rtLabel = {
+              'new-subsidies-weekly': '🆕 신규 등록',
+              'deadline-imminent-weekly': '⏰ 마감 임박',
+              'persona-weekly': '👤 페르소나 분석',
+              'category-weekly': '🗂 분야 심층',
+            };
+            const label = rt ? rtLabel[rt] : null;
+            return label ? <span class={`report-type-pill rt-${rt}`}>{label}</span> : null;
+          })()}
           {post.freshness && (
             <a
               class="freshness-pill"
@@ -923,6 +935,43 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
     border-radius: var(--radius-pill);
     font-size: 13px;
     font-weight: 600;
+  }
+
+  /* Cycle #76: reportType별 배지 — 분석 유형 시각 차별화 */
+  .report-type-pill {
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .report-type-pill.rt-new-subsidies-weekly {
+    background: rgb(0 113 227 / 0.12);
+    color: var(--accent);
+  }
+  .report-type-pill.rt-deadline-imminent-weekly {
+    background: rgb(214 44 26 / 0.12);
+    color: var(--color-danger);
+  }
+  .report-type-pill.rt-persona-weekly {
+    background: rgb(139 92 246 / 0.12);
+    color: #8b5cf6;
+  }
+  .report-type-pill.rt-category-weekly {
+    background: rgb(8 145 178 / 0.12);
+    color: #0891b2;
+  }
+  :global([data-theme='dark']) .report-type-pill.rt-new-subsidies-weekly {
+    background: rgb(41 151 255 / 0.18);
+  }
+  :global([data-theme='dark']) .report-type-pill.rt-deadline-imminent-weekly {
+    background: rgb(255 75 75 / 0.18);
+  }
+  :global([data-theme='dark']) .report-type-pill.rt-persona-weekly {
+    background: rgb(139 92 246 / 0.18);
+  }
+  :global([data-theme='dark']) .report-type-pill.rt-category-weekly {
+    background: rgb(8 145 178 / 0.2);
   }
   .date {
     color: var(--text-3);

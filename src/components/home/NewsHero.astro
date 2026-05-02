@@ -40,6 +40,8 @@ type PostMeta = {
   date?: string;
   publishedAt?: string;
   freshness?: { trendingTerm?: string; daysActive?: number };
+  // Cycle #76: reportType별 UI 차별화
+  reportType?: 'new-subsidies-weekly' | 'deadline-imminent-weekly' | 'persona-weekly' | 'category-weekly';
 };
 const postModules = import.meta.glob<{ default: PostMeta }>(
   '/src/data/issues/*/*.json',
@@ -417,6 +419,17 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
             <li>
               <a class={`rp-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
                 <div class="rp-meta">
+                  {/* Cycle #76: reportType 배지 — 홈에서 분석 유형 즉시 인지 */}
+                  {p.data.reportType && (() => {
+                    const rtLabel = {
+                      'new-subsidies-weekly': '🆕 신규',
+                      'deadline-imminent-weekly': '⏰ 마감',
+                      'persona-weekly': '👤 페르소나',
+                      'category-weekly': '🗂 분야',
+                    };
+                    const label = rtLabel[p.data.reportType];
+                    return label ? <span class={`rp-rt rt-${p.data.reportType}`}>{label}</span> : null;
+                  })()}
                   <span class="rp-cat">{p.data.category}</span>
                   <span class="rp-date">{p.date}</span>
                   {p.data.freshness?.daysActive && p.data.freshness.daysActive >= 3 && (
@@ -1474,6 +1487,21 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
     border-color: var(--border-2);
     text-decoration: none;
   }
+  /* Cycle #76: rp-card reportType 배지 */
+  .rp-rt {
+    padding: 2px 7px;
+    border-radius: var(--radius-pill);
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .rp-rt.rt-new-subsidies-weekly { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .rp-rt.rt-deadline-imminent-weekly { background: rgb(214 44 26 / 0.12); color: var(--color-danger); }
+  .rp-rt.rt-persona-weekly { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .rp-rt.rt-category-weekly { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  :global([data-theme='dark']) .rp-rt.rt-new-subsidies-weekly { background: rgb(41 151 255 / 0.18); }
+  :global([data-theme='dark']) .rp-rt.rt-deadline-imminent-weekly { background: rgb(255 75 75 / 0.18); }
+
   .rp-meta {
     display: flex;
     align-items: center;
