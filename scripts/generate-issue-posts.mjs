@@ -113,6 +113,26 @@ async function loadLastBatchSlugs() {
   }
 }
 
+// Cycle #73: deadline 문자열 → D-day (KST 자정 기준). 임박 판정용.
+// src/lib/deadline-format.ts 와 동일 로직 (.ts 직접 import 불가하므로 inline 복제)
+function getDDay(deadline) {
+  if (!deadline) return null;
+  const s = String(deadline).trim();
+  if (/상시|신청\s*불필요|연중/.test(s)) return null; // 상시는 임박 아님
+  if (/예산\s*소진|접수기관\s*별|명절기간|기관\s*문의/.test(s)) return null;
+  const matches = [...s.matchAll(/(\d{4})\s*[.\-/]\s*(\d{1,2})\s*[.\-/]\s*(\d{1,2})/g)];
+  const last = matches[matches.length - 1];
+  if (!last) return null;
+  const [, y, m, d] = last;
+  const yy = parseInt(y, 10), mm = parseInt(m, 10), dd = parseInt(d, 10);
+  if (!yy || !mm || !dd || mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
+  const end = new Date(Date.UTC(yy, mm - 1, dd));
+  const now = new Date();
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  const today = new Date(Date.UTC(kst.getUTCFullYear(), kst.getUTCMonth(), kst.getUTCDate()));
+  return Math.round((end.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
+}
+
 function matchSubsidies(headline, term, category, allSubsidies, limit = 6) {
   const _text = `${headline} ${term}`;
   const scored = allSubsidies.map((s) => {
@@ -631,6 +651,156 @@ ${JSON.stringify(userInput, null, 2)}
 }
 
 // ─────────────────────────────────────────────────────────────
+// Cycle #73: Source 3 — 마감 임박 (D-30 이내) 주간 분석 리포트
+// 트렌딩 + Source 2 모두 0건 시 fallback. 또는 7일 dedup 통과 시 정기 발행 후보.
+// ─────────────────────────────────────────────────────────────
+async function generateDeadlineImminentReport({
+  apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
+}) {
+  // D-30 이내 임박 지원금 추출 (D-7는 너무 좁아 발행 빈도 낮음)
+  const imminent = allSubsidies
+    .map((s) => ({ s, dDay: getDDay(s.deadline) }))
+    .filter(({ dDay }) => dDay !== null && dDay >= 0 && dDay <= 30)
+    .sort((a, b) => a.dDay - b.dDay)
+    .slice(0, 6);
+
+  if (imminent.length === 0) {
+    console.log('  ⤳ D-30 이내 임박 지원금 0건 → 마감 임박 분석 skip');
+    return null;
+  }
+
+  // 7일 dedup — fingerprint 기반
+  const fingerprint = `deadline-imminent-${imminent.map(({ s }) => s.id).sort().join('-').slice(0, 60)}`;
+  const recentDeadlineReports = Object.entries(history.byTerm ?? {})
+    .filter(([, e]) => e.reportType === 'deadline-imminent-weekly')
+    .map(([, e]) => ({ firstSeen: e.firstSeen, postSlug: e.postSlug }));
+  const today = new Date(date + 'T00:00:00Z');
+  const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const recentExists = recentDeadlineReports.some((r) => {
+    const d = new Date(r.firstSeen + 'T00:00:00Z');
+    return d > sevenDaysAgo;
+  });
+  if (recentExists) {
+    console.log('  ⤳ 7일 내 마감 임박 리포트 이미 발행 → skip');
+    return null;
+  }
+
+  const userInput = {
+    reportType: 'deadline-imminent-weekly',
+    todayDate: date,
+    imminentSubsidies: imminent.map(({ s, dDay }) => ({
+      id: s.id, title: s.title, agency: s.agency, category: s.category,
+      amount: s.amount, amountLabel: s.amountLabel, monthly: s.monthly,
+      deadline: s.deadline, period: s.period, summary: s.summary,
+      eligibility: s.eligibility, benefits: s.benefits, documents: s.documents,
+      applyUrl: s.applyUrl, tags: s.tags, dDay,
+    })),
+  };
+
+  const userPrompt = `다음 입력은 마감 임박 (D-30 이내) 정부 지원금 ${imminent.length}건입니다.
+
+⚠️ **리포트 유형**: 마감 임박 주간 분석 (트렌딩 X, 신규 등록 X — 이번 주 놓치면 안 되는 지원금 정리)
+
+**지시사항**:
+- title: "이번 주 마감 임박 정부 지원금 ${imminent.length}건 — 놓치면 안 되는 신청 데드라인" 같은 형식
+- slug: "deadline-imminent-weekly-${date}" 또는 변형
+- tldr: 4-6개 핵심 요약 (D-day 가장 임박한 것부터)
+- sections: 5개 표준
+  1. 마감 임박 ${imminent.length}건 한눈에 (D-day 정렬)
+  2. 가장 빨리 신청해야 할 지원금 Top 3
+  3. 자격 요건 빠른 체크 — 누가 받을 수 있나
+  4. 신청 절차 + 필요 서류 (오늘 준비 시작 가이드)
+  5. 마감 후 비슷한 다음 차수 안내
+- table: D-day 비교표 — 마감일/D-day/지원금/금액/자격 첫 줄/신청처
+- faq: 4-5건 (마감 임박 신청 관련 자주 묻는 질문)
+- sources: 각 지원금의 applyUrl + bokjiro.go.kr 또는 정부 부처 .go.kr 도메인만 사용
+- 출력 JSON 객체 1개만, 다른 텍스트 없이
+- **중요**: 입력 dDay 값 그대로 인용. 추측·환각 금지
+
+입력:
+\`\`\`json
+${JSON.stringify(userInput, null, 2)}
+\`\`\``;
+
+  console.log(`  → Claude 호출 (마감 임박 ${imminent.length}건, 가장 임박 D-${imminent[0].dDay})`);
+  let post;
+  try {
+    const result = await callClaude(systemPrompt, userPrompt, apiKey, staticContext);
+    if (result.usage) {
+      cacheLog.push({
+        term: 'deadline-imminent-weekly',
+        rank: 0,
+        cache_creation: result.usage.cache_creation_input_tokens ?? 0,
+        cache_read: result.usage.cache_read_input_tokens ?? 0,
+        input: result.usage.input_tokens ?? 0,
+        output: result.usage.output_tokens ?? 0,
+        at: new Date().toISOString(),
+      });
+    }
+    post = parseJsonFromResponse(result.content);
+  } catch (e) {
+    console.warn(`⚠️ Claude 호출 실패 (마감 임박): ${e?.message ?? e}`);
+    return null;
+  }
+
+  // 본문 검증
+  const sectionCount = Array.isArray(post.sections) ? post.sections.length : 0;
+  const faqCount = Array.isArray(post.faq) ? post.faq.length : 0;
+  const sourceCount = Array.isArray(post.sources) ? post.sources.length : 0;
+  if (sectionCount < 3 || faqCount < 1 || sourceCount < 1) {
+    console.warn(
+      `⚠️ 마감 임박 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`,
+    );
+    return null;
+  }
+
+  // 정부 도메인 sources 검증
+  const govDomains = ['gov.kr', 'go.kr', 'bokjiro', 'work.go.kr'];
+  const validSources = post.sources.filter((src) => {
+    const url = src.url ?? src.link ?? '';
+    return govDomains.some((d) => url.includes(d));
+  });
+  if (validSources.length === 0) {
+    console.warn('⚠️ 마감 임박 sources에 정부 공식 도메인 없음 → 발행 차단');
+    return null;
+  }
+
+  // 메타 보강
+  if (post.title) post.title = sanitizeTitle(post.title);
+  if (!post.slug) post.slug = `deadline-imminent-weekly-${date}`;
+  const finalSlug = await resolveSlug(date, post.slug);
+  post.slug = finalSlug;
+  post.publishedAt = new Date().toISOString();
+  post.date = date;
+  post.factCheckScore = 1.0;
+  post.sourceConfidence = 'high';
+  post.sourcePublisherCount = validSources.length;
+  post.reportType = 'deadline-imminent-weekly';
+  post.matchedSubsidies = imminent.map(({ s }) => ({
+    id: s.id, title: s.title, agency: s.agency, category: s.category,
+    icon: s.icon, amount: s.amount, amountLabel: s.amountLabel,
+  }));
+
+  const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
+  await mkdir(dirname(outPath), { recursive: true });
+  await writeFile(outPath, `${JSON.stringify(post, null, 2)}\n`, 'utf8');
+  console.log(`✅ ${outPath}`);
+
+  history.byTerm ??= {};
+  history.byTerm[fingerprint] = {
+    firstSeen: date,
+    lastSeen: date,
+    totalCount: imminent.length,
+    daysActive: 1,
+    dailyCounts: { [date]: imminent.length },
+    postSlug: finalSlug,
+    reportType: 'deadline-imminent-weekly',
+  };
+
+  return post;
+}
+
+// ─────────────────────────────────────────────────────────────
 // 메인
 // ─────────────────────────────────────────────────────────────
 async function main() {
@@ -977,29 +1147,43 @@ ${JSON.stringify(userInput, null, 2)}
     }
   }
 
-  // Cycle #72: 트렌딩 분석 0건이면 신규 지원금 분석 fallback 시도 (Source 2)
-  // 매일 1건이라도 분석 리포트 발행 보장
+  // Cycle #72-73: 트렌딩 분석 0건이면 fallback 체인 시도 — 매일 1건 분석 리포트 보장
+  // Source 2 (신규 지원금) → Source 3 (마감 임박) → 다음 source는 Cycle #74+
   if (mainSuccess === 0 && bonusSuccess === 0) {
     console.log('\n🔄 트렌딩 분석 0건 → Source 2 (정부24 신규 지원금 분석) fallback 시도');
+    let fallbackOk = false;
     try {
-      const fallbackPost = await generateNewSubsidyReport({
-        apiKey,
-        systemPrompt,
-        staticContext,
-        allSubsidies,
-        date,
-        history,
-        cacheLog,
+      const s2Post = await generateNewSubsidyReport({
+        apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
       });
-      if (fallbackPost) {
+      if (s2Post) {
         success++;
         mainSuccess++;
-        console.log(`✅ Source 2 (신규 지원금 분석) fallback 발행: ${fallbackPost.slug}`);
+        fallbackOk = true;
+        console.log(`✅ Source 2 (신규 지원금 분석) fallback 발행: ${s2Post.slug}`);
       } else {
-        console.log('  ⤳ Source 2 fallback 실패 — 다음 source는 미구현 (Cycle #73+)');
+        console.log('  ⤳ Source 2 skip → Source 3 시도');
       }
     } catch (e) {
-      console.warn(`⚠️ Source 2 fallback 오류: ${e?.message ?? e}`);
+      console.warn(`⚠️ Source 2 오류: ${e?.message ?? e}`);
+    }
+
+    if (!fallbackOk) {
+      console.log('🔄 Source 3 (마감 임박 주간 분석) fallback 시도');
+      try {
+        const s3Post = await generateDeadlineImminentReport({
+          apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
+        });
+        if (s3Post) {
+          success++;
+          mainSuccess++;
+          console.log(`✅ Source 3 (마감 임박 분석) fallback 발행: ${s3Post.slug}`);
+        } else {
+          console.log('  ⤳ Source 3 skip — 다음 source는 미구현 (Cycle #74+)');
+        }
+      } catch (e) {
+        console.warn(`⚠️ Source 3 오류: ${e?.message ?? e}`);
+      }
     }
   }
 
