@@ -816,8 +816,10 @@ async function main() {
   }
 
   // 3. 트렌딩 토픽별 매칭 기사 전체 수집 + 대표 기사 선정
-  // Cycle #7: 매체 다양성 가중 — `mediaCount * 2 + articleCount` 로 재정렬.
-  //   같은 자료를 여러 매체가 다룬 토픽이 단일 매체 반복 보도보다 신호↑.
+  // Cycle #66 (사용자 요청): count(보도 횟수) desc 단순 정렬로 변경.
+  //   이전 Cycle #7의 `mediaCount * 2 + articleCount` 가중은 9회(5곳) < 8회(6곳)이
+  //   되어 UI에서 보도 회수 desc 직관과 어긋남.
+  //   동률 시 mediaCount desc → articleCount desc → term asc로 안정 정렬.
   const trendingWithArticles = [];
   for (const [term, count] of ranked) {
     const matching = articles.filter((a) => a.title.includes(term));
@@ -839,6 +841,7 @@ async function main() {
         count,
         mediaCount,
         articleCount,
+        // rankScore는 모니터링용으로만 보존 (정렬에는 사용 X)
         rankScore: mediaCount * 2 + articleCount,
         topArticle: scored[0],
         allArticles: scored, // 다중 소스 종합용 (sync 결과에는 압축, post 생성엔 전체 전달)
@@ -846,8 +849,13 @@ async function main() {
     }
   }
 
-  // rankScore desc — count 동률 시 매체 다양성이 높은 토픽이 상위
-  trendingWithArticles.sort((a, b) => b.rankScore - a.rankScore);
+  // count desc 단순 정렬 — 동률 시 매체 다양성·기사 수·term 알파벳 순으로 tiebreak
+  trendingWithArticles.sort((a, b) => {
+    if (b.count !== a.count) return b.count - a.count;
+    if (b.mediaCount !== a.mediaCount) return b.mediaCount - a.mediaCount;
+    if (b.articleCount !== a.articleCount) return b.articleCount - a.articleCount;
+    return a.term.localeCompare(b.term);
+  });
 
   if (trendingWithArticles.length === 0) {
     console.error('❌ 모든 트렌딩 토픽이 필터 통과 못함');
