@@ -28,6 +28,8 @@ interface PostMeta {
   sections?: unknown[];
   faq?: unknown[];
   tldr?: unknown[];
+  // Cycle #76: reportType별 UI 차별화
+  reportType?: 'new-subsidies-weekly' | 'deadline-imminent-weekly' | 'persona-weekly' | 'category-weekly';
 }
 
 // 한국어 분당 500자 기준 — sections·faq·tldr 평균 길이로 추정 (server-side, 빌드타임)
@@ -291,6 +293,17 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
                     <li data-post-cat={p.data.category}>
                       <a class={`post-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
                         <div class="pc-meta">
+                          {/* Cycle #76: reportType 배지 — 분석 유형 시각 */}
+                          {p.data.reportType && (() => {
+                            const rtLabel = {
+                              'new-subsidies-weekly': '🆕 신규',
+                              'deadline-imminent-weekly': '⏰ 마감',
+                              'persona-weekly': '👤 페르소나',
+                              'category-weekly': '🗂 분야',
+                            };
+                            const label = rtLabel[p.data.reportType];
+                            return label ? <span class={`pc-rt rt-${p.data.reportType}`}>{label}</span> : null;
+                          })()}
                           {p.data.freshness && p.data.freshness.daysActive >= 3 && (
                             <span class="freshness">
                               <span class="dot" aria-hidden="true" />
@@ -921,6 +934,20 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
     flex-wrap: wrap;
     margin-bottom: 8px;
   }
+  /* Cycle #76: post-card reportType 배지 — 목록에서 분석 유형 즉시 인지 */
+  .pc-rt {
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .pc-rt.rt-new-subsidies-weekly { background: rgb(0 113 227 / 0.12); color: var(--accent); }
+  .pc-rt.rt-deadline-imminent-weekly { background: rgb(214 44 26 / 0.12); color: var(--color-danger); }
+  .pc-rt.rt-persona-weekly { background: rgb(139 92 246 / 0.12); color: #8b5cf6; }
+  .pc-rt.rt-category-weekly { background: rgb(8 145 178 / 0.12); color: #0891b2; }
+  :global([data-theme='dark']) .pc-rt.rt-new-subsidies-weekly { background: rgb(41 151 255 / 0.18); }
+  :global([data-theme='dark']) .pc-rt.rt-deadline-imminent-weekly { background: rgb(255 75 75 / 0.18); }
   .freshness {
     display: inline-flex;
     align-items: center;
