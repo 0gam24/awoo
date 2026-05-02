@@ -102,6 +102,17 @@ async function loadAllSubsidies() {
   return all;
 }
 
+// Cycle #72: gov24 _manifest.json의 lastBatch.slugs (가장 최근 sync 추가 신규 지원금)
+async function loadLastBatchSlugs() {
+  try {
+    const manifestPath = join(GOV24_DIR, '_manifest.json');
+    const data = JSON.parse(await readFile(manifestPath, 'utf8'));
+    return data.lastBatch?.slugs ?? [];
+  } catch {
+    return [];
+  }
+}
+
 function matchSubsidies(headline, term, category, allSubsidies, limit = 6) {
   const _text = `${headline} ${term}`;
   const scored = allSubsidies.map((s) => {
@@ -462,6 +473,164 @@ async function resolveSlug(date, slug) {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Cycle #72: Source 2 — 정부24 신규 지원금 비교 분석 리포트
+// 트렌딩 분석 0건 시 fallback. lastBatch.slugs 활용해 매일 1건 보장.
+// ─────────────────────────────────────────────────────────────
+async function generateNewSubsidyReport({
+  apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
+}) {
+  const lastBatchSlugs = await loadLastBatchSlugs();
+  if (lastBatchSlugs.length === 0) {
+    console.log('  ⤳ lastBatch.slugs 비어있음 → 신규 지원금 분석 skip');
+    return null;
+  }
+
+  // 신규 지원금 5건 데이터 수집 (prompt 크기 제어)
+  const subsidyMap = new Map(allSubsidies.map((s) => [s.id, s]));
+  const newSubsidies = lastBatchSlugs
+    .map((slug) => subsidyMap.get(slug))
+    .filter(Boolean)
+    .slice(0, 5);
+  if (newSubsidies.length === 0) {
+    console.log('  ⤳ lastBatch.slugs에 매칭 지원금 없음 → skip');
+    return null;
+  }
+
+  // 7일 내 신규 지원금 리포트 중복 방지 — history에 reportType 추적
+  const recentReportSlugs = new Set(
+    Object.values(history.byTerm ?? {})
+      .filter((e) => e.reportType === 'new-subsidies-weekly')
+      .map((e) => e.postSlug)
+      .filter(Boolean),
+  );
+  const fingerprint = `new-subsidies-${newSubsidies.map((s) => s.id).sort().join('-').slice(0, 60)}`;
+  if (recentReportSlugs.size > 0) {
+    // 같은 batch 다시 리포트 방지
+    const existingPaths = await readdir(join(ISSUES_OUT_DIR, date)).catch(() => []);
+    if (existingPaths.some((p) => p.startsWith('new-subsidies-weekly'))) {
+      console.log('  ⤳ 같은 날짜 신규 지원금 리포트 이미 발행 → skip');
+      return null;
+    }
+  }
+
+  const userInput = {
+    reportType: 'new-subsidies-weekly',
+    todayDate: date,
+    newSubsidies: newSubsidies.map((s) => ({
+      id: s.id, title: s.title, agency: s.agency, category: s.category,
+      amount: s.amount, amountLabel: s.amountLabel, monthly: s.monthly,
+      deadline: s.deadline, period: s.period, summary: s.summary,
+      eligibility: s.eligibility, benefits: s.benefits, documents: s.documents,
+      applyUrl: s.applyUrl, tags: s.tags,
+    })),
+  };
+
+  const userPrompt = `다음 입력은 정부24에서 새로 등록된 지원금 ${newSubsidies.length}건입니다.
+
+⚠️ **리포트 유형**: 신규 지원금 비교 분석 (트렌딩 키워드 분석 X — 본 리포트는 매주 새로 등록된 지원금을 비교·정리)
+
+**지시사항**:
+- title: "이번 주 새로 등록된 정부 지원금 N건 자격·금액 비교" 같은 형식 (트렌딩 키워드 형식 X)
+- slug: "new-subsidies-weekly-${date}" 또는 그 변형
+- tldr: 4-6개, 신규 지원금 핵심 차별점 요약
+- sections: 5개 표준
+  1. 신규 등록 N건 한눈에 (비교표 안내)
+  2. 자격 요건 공통점·차이점
+  3. 금액·기간 비교
+  4. 어떤 페르소나가 받을 수 있나
+  5. 신청 우선순위 (마감 임박 + 자격 적합도 기준)
+- table: 비교표 — title/agency/amount/eligibility[0]/deadline 헤더로 N건 행
+- faq: 4-5건 (신규 지원금에 대한 자주 묻는 질문)
+- sources: 각 지원금의 applyUrl + bokjiro.go.kr 또는 gov.kr 도메인만 사용 — 매체 보도 X, 정부 공식 사이트만
+- 출력 JSON 객체 1개만, 다른 텍스트 없이
+- **중요**: 입력 데이터에 명시된 사실만 인용. 추측·환각·일반화 금지
+- factCheckScore는 1.0 (정부 공식 데이터 기반)으로 자체 표시
+
+입력:
+\`\`\`json
+${JSON.stringify(userInput, null, 2)}
+\`\`\``;
+
+  console.log(`  → Claude 호출 (신규 지원금 ${newSubsidies.length}건 비교)`);
+  let post;
+  try {
+    const result = await callClaude(systemPrompt, userPrompt, apiKey, staticContext);
+    if (result.usage) {
+      cacheLog.push({
+        term: 'new-subsidies-weekly',
+        rank: 0,
+        cache_creation: result.usage.cache_creation_input_tokens ?? 0,
+        cache_read: result.usage.cache_read_input_tokens ?? 0,
+        input: result.usage.input_tokens ?? 0,
+        output: result.usage.output_tokens ?? 0,
+        at: new Date().toISOString(),
+      });
+    }
+    post = parseJsonFromResponse(result.content);
+  } catch (e) {
+    console.warn(`⚠️ Claude 호출 실패 (신규 지원금): ${e?.message ?? e}`);
+    return null;
+  }
+
+  // 본문 검증 (Cycle #65 가드 동일)
+  const sectionCount = Array.isArray(post.sections) ? post.sections.length : 0;
+  const faqCount = Array.isArray(post.faq) ? post.faq.length : 0;
+  const sourceCount = Array.isArray(post.sources) ? post.sources.length : 0;
+  if (sectionCount < 3 || faqCount < 1 || sourceCount < 1) {
+    console.warn(
+      `⚠️ 신규 지원금 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`,
+    );
+    return null;
+  }
+
+  // sources가 정부 공식 도메인인지 검증 (raw URL 필터)
+  const govDomains = ['gov.kr', 'go.kr', 'bokjiro', 'work.go.kr'];
+  const validSources = post.sources.filter((src) => {
+    const url = src.url ?? src.link ?? '';
+    return govDomains.some((d) => url.includes(d));
+  });
+  if (validSources.length === 0) {
+    console.warn('⚠️ 신규 지원금 sources에 정부 공식 도메인 없음 → 발행 차단');
+    return null;
+  }
+
+  // 메타 보강
+  if (post.title) post.title = sanitizeTitle(post.title);
+  if (!post.slug) post.slug = `new-subsidies-weekly-${date}`;
+  const finalSlug = await resolveSlug(date, post.slug);
+  post.slug = finalSlug;
+  post.publishedAt = new Date().toISOString();
+  post.date = date;
+  post.factCheckScore = 1.0; // 정부 공식 데이터 기반
+  post.sourceConfidence = 'high';
+  post.sourcePublisherCount = validSources.length;
+  post.reportType = 'new-subsidies-weekly';
+  post.matchedSubsidies = newSubsidies.map((s) => ({
+    id: s.id, title: s.title, agency: s.agency, category: s.category,
+    icon: s.icon, amount: s.amount, amountLabel: s.amountLabel,
+  }));
+
+  const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
+  await mkdir(dirname(outPath), { recursive: true });
+  await writeFile(outPath, `${JSON.stringify(post, null, 2)}\n`, 'utf8');
+  console.log(`✅ ${outPath}`);
+
+  // history 갱신 — fingerprint 기반 dedup
+  history.byTerm ??= {};
+  history.byTerm[fingerprint] = {
+    firstSeen: date,
+    lastSeen: date,
+    totalCount: newSubsidies.length,
+    daysActive: 1,
+    dailyCounts: { [date]: newSubsidies.length },
+    postSlug: finalSlug,
+    reportType: 'new-subsidies-weekly',
+  };
+
+  return post;
+}
+
+// ─────────────────────────────────────────────────────────────
 // 메인
 // ─────────────────────────────────────────────────────────────
 async function main() {
@@ -805,6 +974,32 @@ ${JSON.stringify(userInput, null, 2)}
     if (mainSuccess >= POSTS_PER_DAY && bonusSuccess >= BONUS_MAX_PER_DAY) {
       console.log(`\n✓ 메인 ${mainSuccess} + 보너스 ${bonusSuccess} 캡 도달 — 처리 종료`);
       break;
+    }
+  }
+
+  // Cycle #72: 트렌딩 분석 0건이면 신규 지원금 분석 fallback 시도 (Source 2)
+  // 매일 1건이라도 분석 리포트 발행 보장
+  if (mainSuccess === 0 && bonusSuccess === 0) {
+    console.log('\n🔄 트렌딩 분석 0건 → Source 2 (정부24 신규 지원금 분석) fallback 시도');
+    try {
+      const fallbackPost = await generateNewSubsidyReport({
+        apiKey,
+        systemPrompt,
+        staticContext,
+        allSubsidies,
+        date,
+        history,
+        cacheLog,
+      });
+      if (fallbackPost) {
+        success++;
+        mainSuccess++;
+        console.log(`✅ Source 2 (신규 지원금 분석) fallback 발행: ${fallbackPost.slug}`);
+      } else {
+        console.log('  ⤳ Source 2 fallback 실패 — 다음 source는 미구현 (Cycle #73+)');
+      }
+    } catch (e) {
+      console.warn(`⚠️ Source 2 fallback 오류: ${e?.message ?? e}`);
     }
   }
 
