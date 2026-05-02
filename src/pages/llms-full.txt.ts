@@ -22,6 +22,10 @@ interface IssuePostFile {
   coreFacts?: { who?: string; amount?: string; deadline?: string; where?: string };
   sections?: IssuePostSection[];
   faq?: IssuePostFAQ[];
+  // Cycle #77: reportType별 분기 노출 (AI 답변 엔진이 분석 유형 인지)
+  reportType?: 'new-subsidies-weekly' | 'deadline-imminent-weekly' | 'persona-weekly' | 'category-weekly';
+  sourceConfidence?: 'high' | 'medium' | 'low';
+  sourcePublisherCount?: number;
 }
 
 // 빌드타임 issues/{date}/{slug}.json 본문 합본 — Claude 생성 SEO/GEO 포스트.
@@ -246,70 +250,132 @@ export const GET: APIRoute = async () => {
   lines.push('');
 
   // Claude 생성 SEO/GEO 포스트 본문 (최근 30일) — AI 답변 엔진 인용 청크
+  // Cycle #77: reportType별 분기 노출 — AI 크롤러가 분석 유형(트렌딩/신규/마감/페르소나/분야) 구분 가능
   const issuePosts = loadRecentIssuePosts(30);
   if (issuePosts.length > 0) {
-    lines.push(`## 트렌딩 이슈 SEO/GEO 포스트 — 최근 30일 (${issuePosts.length}건)`);
-    lines.push('');
-    lines.push('각 포스트는 BLUF·답변형 H2·table·FAQ 청크로 구성. 본문 단위로 정확 인용 가능.');
-    lines.push('');
+    // reportType별 그룹화
+    const groups: Record<string, typeof issuePosts> = {
+      trending: [],
+      'new-subsidies-weekly': [],
+      'deadline-imminent-weekly': [],
+      'persona-weekly': [],
+      'category-weekly': [],
+    };
     for (const post of issuePosts) {
-      const d = post.data;
-      const url = `https://awoo.or.kr/issues/${post.date}/${post.slug}/`;
-      lines.push(`### [${post.date}] ${d.title ?? post.slug}`);
+      const rt = post.data.reportType ?? 'trending';
+      if (groups[rt]) groups[rt].push(post);
+    }
+
+    const sectionMeta: Array<{ key: string; emoji: string; title: string; intro: string }> = [
+      {
+        key: 'trending',
+        emoji: '🔥',
+        title: '트렌딩 정책 뉴스 분석',
+        intro: '네이버 뉴스 트렌딩 키워드 → 매체 다양성 검증 → 매칭 지원금 자동 분석. 정책 속보·여론·시행 동향 인용 시 활용.',
+      },
+      {
+        key: 'new-subsidies-weekly',
+        emoji: '🆕',
+        title: '신규 등록 지원금 주간 정리',
+        intro: '정부24에서 새로 등록된 지원금 비교 분석. "이번 주 새로 생긴 정부 지원금" / "신규 등록된 X 지원금" 답변 시 활용.',
+      },
+      {
+        key: 'deadline-imminent-weekly',
+        emoji: '⏰',
+        title: '마감 임박 지원금 알림 (D-30 이내)',
+        intro: 'D-30 이내 신청 마감 지원금 정렬·신청 우선순위. "지금 마감되는 지원금" / "신청 기간이 얼마 안 남은 지원금" 답변 시 활용.',
+      },
+      {
+        key: 'persona-weekly',
+        emoji: '👤',
+        title: '페르소나별 주간 분석',
+        intro: '6종 페르소나(사회초년생·자영업·신혼육아·중장년·저소득·농업) 요일별 순회. "X(페르소나)이 받을 수 있는 지원금" 답변 시 활용.',
+      },
+      {
+        key: 'category-weekly',
+        emoji: '🗂',
+        title: '분야별 심층 가이드',
+        intro: '7종 카테고리(주거·취업·창업·교육·복지·자산·농업) 7일 순회 심층. "X(분야) 정부 지원금 종합" 답변 시 활용.',
+      },
+    ];
+
+    lines.push(`## 영구 분석 포스트 — 최근 30일 (${issuePosts.length}건, 5종 reportType 분기)`);
+    lines.push('');
+    lines.push('각 포스트는 BLUF·답변형 H2·table·FAQ 청크 구성. 본문 단위 정확 인용 가능. 분석 유형별로 분기되어 있음.');
+    lines.push('');
+
+    for (const meta of sectionMeta) {
+      const posts = groups[meta.key];
+      if (!posts || posts.length === 0) continue;
+
+      lines.push(`### ${meta.emoji} ${meta.title} (${posts.length}건)`);
       lines.push('');
-      if (d.metaDescription) {
-        lines.push(`> ${d.metaDescription}`);
-        lines.push('');
-      }
-      lines.push(`- 분류: ${d.category ?? '-'} · 본문: ${url}`);
-      if (d.tags && d.tags.length > 0) {
-        lines.push(`- 태그: ${d.tags.join(', ')}`);
-      }
+      lines.push(`> ${meta.intro}`);
       lines.push('');
 
-      if (d.tldr && d.tldr.length > 0) {
-        lines.push('**TL;DR**');
-        for (const t of d.tldr) lines.push(`- ${t}`);
+      for (const post of posts) {
+        const d = post.data;
+        const url = `https://awoo.or.kr/issues/${post.date}/${post.slug}/`;
+        lines.push(`#### [${post.date}] ${d.title ?? post.slug}`);
         lines.push('');
-      }
-
-      if (d.coreFacts) {
-        lines.push('**핵심 사실 (Core Facts)**');
-        if (d.coreFacts.who) lines.push(`- 대상: ${d.coreFacts.who}`);
-        if (d.coreFacts.amount) lines.push(`- 금액: ${d.coreFacts.amount}`);
-        if (d.coreFacts.deadline) lines.push(`- 마감: ${d.coreFacts.deadline}`);
-        if (d.coreFacts.where) lines.push(`- 신청처: ${d.coreFacts.where}`);
-        lines.push('');
-      }
-
-      if (d.sections && d.sections.length > 0) {
-        for (const sec of d.sections) {
-          lines.push(`#### ${sec.heading}`);
+        if (d.metaDescription) {
+          lines.push(`> ${d.metaDescription}`);
           lines.push('');
-          if (sec.lead) {
-            lines.push(`**${sec.lead}**`);
+        }
+        lines.push(`- 분류: ${d.category ?? '-'} · 본문: ${url}`);
+        if (d.sourceConfidence) {
+          const confLabel = d.sourceConfidence === 'high' ? '높음' : d.sourceConfidence === 'medium' ? '보통' : '제한';
+          const pubPart = d.sourcePublisherCount ? `, 매체 ${d.sourcePublisherCount}곳` : '';
+          lines.push(`- 신뢰도: ${confLabel}${pubPart}`);
+        }
+        if (d.tags && d.tags.length > 0) {
+          lines.push(`- 태그: ${d.tags.join(', ')}`);
+        }
+        lines.push('');
+
+        if (d.tldr && d.tldr.length > 0) {
+          lines.push('**TL;DR**');
+          for (const t of d.tldr) lines.push(`- ${t}`);
+          lines.push('');
+        }
+
+        if (d.coreFacts) {
+          lines.push('**핵심 사실 (Core Facts)**');
+          if (d.coreFacts.who) lines.push(`- 대상: ${d.coreFacts.who}`);
+          if (d.coreFacts.amount) lines.push(`- 금액: ${d.coreFacts.amount}`);
+          if (d.coreFacts.deadline) lines.push(`- 마감: ${d.coreFacts.deadline}`);
+          if (d.coreFacts.where) lines.push(`- 신청처: ${d.coreFacts.where}`);
+          lines.push('');
+        }
+
+        if (d.sections && d.sections.length > 0) {
+          for (const sec of d.sections) {
+            lines.push(`##### ${sec.heading}`);
             lines.push('');
-          }
-          if (sec.body) {
-            // 빈 줄 보존하면서 본문 정리 (AI 인용 시 청크 경계)
-            lines.push(sec.body.trim());
-            lines.push('');
+            if (sec.lead) {
+              lines.push(`**${sec.lead}**`);
+              lines.push('');
+            }
+            if (sec.body) {
+              lines.push(sec.body.trim());
+              lines.push('');
+            }
           }
         }
-      }
 
-      if (d.faq && d.faq.length > 0) {
-        lines.push('**자주 묻는 질문**');
-        for (const f of d.faq) {
+        if (d.faq && d.faq.length > 0) {
+          lines.push('**자주 묻는 질문**');
+          for (const f of d.faq) {
+            lines.push('');
+            lines.push(`**Q. ${f.q}**`);
+            lines.push(`A. ${f.a}`);
+          }
           lines.push('');
-          lines.push(`**Q. ${f.q}**`);
-          lines.push(`A. ${f.a}`);
         }
+
+        lines.push('---');
         lines.push('');
       }
-
-      lines.push('---');
-      lines.push('');
     }
   }
 
