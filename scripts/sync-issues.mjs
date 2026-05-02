@@ -933,20 +933,47 @@ async function main() {
     matchedSubsidies: matched,
     // Cycle #9: 트렌딩 키워드별 Top 3 매칭 지원금 (1:1 매핑 UI 데이터)
     matchedSubsidiesByTerm: matchedByTerm,
-    // 사이드바용 — Top 5 트렌딩 + 각각 대표 기사 + 매체수·기사수
-    trending: trendingWithArticles.slice(0, 5).map((t) => ({
-      term: t.term,
-      count: t.count,
-      mediaCount: t.mediaCount,
-      articleCount: t.articleCount,
-      topArticle: {
-        title: t.topArticle.title,
-        link: t.topArticle.link,
-        pubDate: t.topArticle.pubDate,
-        pubDateKR: formatDateKR(t.topArticle.pubDate),
+    // 사이드바용 — Top 5 트렌딩 + 각각 대표 기사 + 매체수·기사수 + mini summary
+    // Cycle #66 고급화: 각 트렌딩 키워드마다 generateSummary 호출 → 사이드바에서
+    //   2-5위 키워드도 "어떤 이슈인지" subhead/cities/hookCopy로 즉시 인지 가능
+    trending: trendingWithArticles.slice(0, 5).map((t) => {
+      const tHist = history.byTerm?.[t.term];
+      const tDaysActive = (tHist?.daysActive ?? 0) + 1;
+      const tTotalCount = (tHist?.totalCount ?? 0) + t.count;
+      const tMatched = matchedByTerm[t.term] ?? [];
+      const tSummary = generateSummary({
+        term: t.term,
+        count: t.count,
+        daysActive: tDaysActive,
+        totalCount: tTotalCount,
         category: t.topArticle.category,
-      },
-    })),
+        allArticles: t.allArticles,
+        matchedCount: tMatched.length,
+      });
+      return {
+        term: t.term,
+        count: t.count,
+        mediaCount: t.mediaCount,
+        articleCount: t.articleCount,
+        topArticle: {
+          title: t.topArticle.title,
+          link: t.topArticle.link,
+          pubDate: t.topArticle.pubDate,
+          pubDateKR: formatDateKR(t.topArticle.pubDate),
+          category: t.topArticle.category,
+        },
+        // 고급화 — 사이드바 mini hover/chip 정보
+        summary: {
+          headline: tSummary.headline,
+          subhead: tSummary.subhead,
+          hookCopy: tSummary.hookCopy,
+        },
+        cities: tSummary.aggregate.cities,
+        publisherCount: tSummary.aggregate.publisherCount,
+        daysActive: tDaysActive,
+        matchedCount: tMatched.length,
+      };
+    }),
     // 1위 토픽의 전체 기사 메타 (post 생성에서 다중 소스 종합 시 활용)
     topTrendingArticles: topAllArticles.map((a) => ({
       title: a.title,
