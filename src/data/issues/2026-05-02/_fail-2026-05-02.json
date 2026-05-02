@@ -1,0 +1,32 @@
+{
+  "date": "2026-05-02",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 1,
+  "failed": 2,
+  "failures": [
+    {
+      "rank": 1,
+      "term": "공정수당",
+      "count": 12,
+      "category": "취업",
+      "reason": "JSON parse failed: Expected ',' or '}' after property value in JSON at position 1835 (line 34 column 303)",
+      "at": "2026-05-02T13:50:10.528Z"
+    },
+    {
+      "rank": 2,
+      "term": "피해지원금",
+      "count": 9,
+      "category": "자산",
+      "reason": "fact-check fail: 5/10 matched (score 0.5)",
+      "unmatched": [
+        "56만",
+        "2026년",
+        "4월27일",
+        "5월1일",
+        "4월30일"
+      ],
+      "at": "2026-05-02T13:51:18.562Z"
+    }
+  ]
+}
