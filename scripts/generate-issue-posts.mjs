@@ -801,6 +801,212 @@ ${JSON.stringify(userInput, null, 2)}
 }
 
 // ─────────────────────────────────────────────────────────────
+// Cycle #74: Source 4 — 페르소나 주간 순회 분석 리포트
+// 요일별 페르소나 1종 매핑 → 매일 다른 페르소나로 순회 (7일 dedup)
+// ─────────────────────────────────────────────────────────────
+const PERSONA_WEEKDAY_MAP = {
+  1: 'office-rookie',     // 월
+  2: 'self-employed',     // 화
+  3: 'newlywed-family',   // 수
+  4: 'senior',            // 목
+  5: 'low-income',        // 금
+  6: 'farmer',            // 토
+  // 0 (일요일): persona 발행 X — 카테고리 심층(Source 5) 또는 휴식
+};
+
+async function generatePersonaWeeklyReport({
+  apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
+}) {
+  // 요일 → 페르소나 결정 (KST 기준)
+  const dateObj = new Date(date + 'T00:00:00+09:00');
+  const weekday = dateObj.getUTCDay(); // 0=일 ~ 6=토 (KST 기준 weekday는 UTC 변환에서 같음)
+  const targetPersonaId = PERSONA_WEEKDAY_MAP[weekday];
+  if (!targetPersonaId) {
+    console.log(`  ⤳ 요일 ${weekday} (일요일) → persona-weekly skip`);
+    return null;
+  }
+  const persona = personas.find((p) => p.id === targetPersonaId);
+  if (!persona) {
+    console.log(`  ⤳ 페르소나 ${targetPersonaId} 데이터 없음 → skip`);
+    return null;
+  }
+
+  // 7일 dedup — 같은 페르소나 1주 내 재발행 차단
+  const sevenDaysAgo = new Date(dateObj.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const recentExists = Object.values(history.byTerm ?? {}).some((e) => {
+    if (e.reportType !== 'persona-weekly') return false;
+    if (e.personaId !== targetPersonaId) return false;
+    const d = new Date(e.firstSeen + 'T00:00:00Z');
+    return d > sevenDaysAgo;
+  });
+  if (recentExists) {
+    console.log(`  ⤳ ${targetPersonaId} 페르소나 7일 내 발행 — skip`);
+    return null;
+  }
+
+  // 매칭 지원금 — targetPersonas에 페르소나 ID 포함
+  const matched = allSubsidies.filter((s) => (s.targetPersonas ?? []).includes(targetPersonaId));
+  if (matched.length === 0) {
+    console.log(`  ⤳ ${targetPersonaId} 매칭 지원금 0건 → skip`);
+    return null;
+  }
+
+  // 정렬 + 카테고리별 Top 압축 (prompt 크기 제어)
+  const byCategory = new Map();
+  for (const s of matched) {
+    const cat = s.category;
+    if (!byCategory.has(cat)) byCategory.set(cat, []);
+    byCategory.get(cat).push(s);
+  }
+  for (const arr of byCategory.values()) {
+    arr.sort((a, b) => {
+      const ah = a.isHot ? 1 : 0, bh = b.isHot ? 1 : 0;
+      if (ah !== bh) return bh - ah;
+      return (b.amount ?? 0) - (a.amount ?? 0);
+    });
+  }
+  // 카테고리별 Top 2 → 최대 8건
+  const compactMatched = [];
+  for (const [cat, arr] of byCategory.entries()) {
+    compactMatched.push(...arr.slice(0, 2).map((s) => ({ ...s, _cat: cat })));
+  }
+  const topMatched = compactMatched.slice(0, 8);
+
+  // 신규/마감 임박 정보 추가
+  const lastBatchSlugs = await loadLastBatchSlugs();
+  const newSlugSet = new Set(lastBatchSlugs);
+  const annotated = topMatched.map((s) => ({
+    id: s.id, title: s.title, agency: s.agency, category: s.category,
+    amount: s.amount, amountLabel: s.amountLabel, monthly: s.monthly,
+    deadline: s.deadline, summary: s.summary,
+    eligibility: s.eligibility?.slice(0, 3),
+    benefits: s.benefits?.slice(0, 3),
+    applyUrl: s.applyUrl, tags: s.tags,
+    isNew: newSlugSet.has(s.id),
+    dDay: getDDay(s.deadline),
+    isHot: !!s.isHot,
+  }));
+
+  const userInput = {
+    reportType: 'persona-weekly',
+    todayDate: date,
+    persona: {
+      id: persona.id, label: persona.label, sub: persona.sub,
+      age: persona.age, income: persona.income, living: persona.living,
+      pains: persona.pains,
+    },
+    totalMatched: matched.length,
+    matchedTop: annotated,
+    categories: [...byCategory.keys()],
+  };
+
+  const userPrompt = `다음 입력은 "${persona.label}" 페르소나의 매칭 지원금 풀(${matched.length}건 중 카테고리별 Top ${annotated.length}건)입니다.
+
+⚠️ **리포트 유형**: 페르소나 주간 분석 (트렌딩 X, 신규 X — 이번 주 ${persona.label}을 위한 정부 지원금 종합 정리)
+
+**지시사항**:
+- title: "이번 주 ${persona.label} 정부 지원금 ${matched.length}건 — 핵심 매칭 + 신청 우선순위" 같은 형식
+- slug: "persona-weekly-${persona.id}-${date}" 또는 변형
+- tldr: 4-6개 핵심 요약 (페르소나 자격·평균 금액·신규/마감 임박 강조)
+- sections: 5개 표준
+  1. ${persona.label}의 자격 한눈에 (연령·소득·주거 + pains)
+  2. 분야별 매칭 지원금 Top
+  3. 이번 주 신규 등록 (isNew=true 항목 강조)
+  4. 마감 임박 (dDay ≤ 30 항목 강조 + 신청 우선순위)
+  5. ${persona.label}이 자주 놓치는 자격·서류 주의사항
+- table: 분야 / 지원금 / 금액 / 자격 첫 줄 / 마감 / 신청처 비교
+- faq: 4-5건 (해당 페르소나가 자주 묻는 질문)
+- sources: 각 지원금 applyUrl + bokjiro.go.kr 또는 정부 부처 .go.kr 도메인만
+- 출력 JSON 객체 1개만, 다른 텍스트 없이
+- **중요**: 입력에 없는 자격·금액 추측 금지. ${persona.label} 외 다른 페르소나 정보 인용 금지
+
+입력:
+\`\`\`json
+${JSON.stringify(userInput, null, 2)}
+\`\`\``;
+
+  console.log(`  → Claude 호출 (페르소나 ${persona.label}, 매칭 ${matched.length}건 → Top ${annotated.length})`);
+  let post;
+  try {
+    const result = await callClaude(systemPrompt, userPrompt, apiKey, staticContext);
+    if (result.usage) {
+      cacheLog.push({
+        term: `persona-weekly-${targetPersonaId}`,
+        rank: 0,
+        cache_creation: result.usage.cache_creation_input_tokens ?? 0,
+        cache_read: result.usage.cache_read_input_tokens ?? 0,
+        input: result.usage.input_tokens ?? 0,
+        output: result.usage.output_tokens ?? 0,
+        at: new Date().toISOString(),
+      });
+    }
+    post = parseJsonFromResponse(result.content);
+  } catch (e) {
+    console.warn(`⚠️ Claude 호출 실패 (페르소나 ${targetPersonaId}): ${e?.message ?? e}`);
+    return null;
+  }
+
+  // 본문 검증
+  const sectionCount = Array.isArray(post.sections) ? post.sections.length : 0;
+  const faqCount = Array.isArray(post.faq) ? post.faq.length : 0;
+  const sourceCount = Array.isArray(post.sources) ? post.sources.length : 0;
+  if (sectionCount < 3 || faqCount < 1 || sourceCount < 1) {
+    console.warn(
+      `⚠️ 페르소나 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`,
+    );
+    return null;
+  }
+
+  // 정부 도메인 sources 검증
+  const govDomains = ['gov.kr', 'go.kr', 'bokjiro', 'work.go.kr'];
+  const validSources = post.sources.filter((src) => {
+    const url = src.url ?? src.link ?? '';
+    return govDomains.some((d) => url.includes(d));
+  });
+  if (validSources.length === 0) {
+    console.warn('⚠️ 페르소나 sources에 정부 공식 도메인 없음 → 발행 차단');
+    return null;
+  }
+
+  if (post.title) post.title = sanitizeTitle(post.title);
+  if (!post.slug) post.slug = `persona-weekly-${persona.id}-${date}`;
+  const finalSlug = await resolveSlug(date, post.slug);
+  post.slug = finalSlug;
+  post.publishedAt = new Date().toISOString();
+  post.date = date;
+  post.factCheckScore = 1.0;
+  post.sourceConfidence = 'high';
+  post.sourcePublisherCount = validSources.length;
+  post.reportType = 'persona-weekly';
+  post.personaId = persona.id;
+  post.matchedSubsidies = topMatched.slice(0, 6).map((s) => ({
+    id: s.id, title: s.title, agency: s.agency, category: s.category,
+    icon: s.icon, amount: s.amount, amountLabel: s.amountLabel,
+  }));
+
+  const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
+  await mkdir(dirname(outPath), { recursive: true });
+  await writeFile(outPath, `${JSON.stringify(post, null, 2)}\n`, 'utf8');
+  console.log(`✅ ${outPath}`);
+
+  // history fingerprint
+  const fingerprint = `persona-weekly-${persona.id}-${date}`;
+  history.byTerm ??= {};
+  history.byTerm[fingerprint] = {
+    firstSeen: date,
+    lastSeen: date,
+    totalCount: matched.length,
+    daysActive: 1,
+    dailyCounts: { [date]: matched.length },
+    postSlug: finalSlug,
+    reportType: 'persona-weekly',
+    personaId: persona.id,
+  };
+
+  return post;
+}
+
+// ─────────────────────────────────────────────────────────────
 // 메인
 // ─────────────────────────────────────────────────────────────
 async function main() {
@@ -1177,12 +1383,31 @@ ${JSON.stringify(userInput, null, 2)}
         if (s3Post) {
           success++;
           mainSuccess++;
+          fallbackOk = true;
           console.log(`✅ Source 3 (마감 임박 분석) fallback 발행: ${s3Post.slug}`);
         } else {
-          console.log('  ⤳ Source 3 skip — 다음 source는 미구현 (Cycle #74+)');
+          console.log('  ⤳ Source 3 skip → Source 4 시도');
         }
       } catch (e) {
         console.warn(`⚠️ Source 3 오류: ${e?.message ?? e}`);
+      }
+    }
+
+    if (!fallbackOk) {
+      console.log('🔄 Source 4 (페르소나 주간 순회) fallback 시도');
+      try {
+        const s4Post = await generatePersonaWeeklyReport({
+          apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
+        });
+        if (s4Post) {
+          success++;
+          mainSuccess++;
+          console.log(`✅ Source 4 (페르소나 주간 분석) fallback 발행: ${s4Post.slug}`);
+        } else {
+          console.log('  ⤳ Source 4 skip — 다음 source는 미구현 (Cycle #75+)');
+        }
+      } catch (e) {
+        console.warn(`⚠️ Source 4 오류: ${e?.message ?? e}`);
       }
     }
   }
