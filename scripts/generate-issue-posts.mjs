@@ -1007,6 +1007,201 @@ ${JSON.stringify(userInput, null, 2)}
 }
 
 // ─────────────────────────────────────────────────────────────
+// Cycle #75: Source 5 — 카테고리 심층 분석 리포트 (7일 순회)
+// 가장 오래된 카테고리 → 페르소나별 추천·자격 비교·페르소나 분포 종합
+// ─────────────────────────────────────────────────────────────
+async function generateCategoryWeeklyReport({
+  apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
+}) {
+  // 데이터셋에서 카테고리 unique 추출
+  const allCategories = [...new Set(allSubsidies.map((s) => s.category).filter(Boolean))];
+  if (allCategories.length === 0) {
+    console.log('  ⤳ 카테고리 데이터 없음 → category-weekly skip');
+    return null;
+  }
+
+  // 마지막 발행 카테고리 → 다음 카테고리 선택 (7일 dedup)
+  const dateObj = new Date(date + 'T00:00:00+09:00');
+  const sevenDaysAgo = new Date(dateObj.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const recentCategoryReports = Object.values(history.byTerm ?? {})
+    .filter((e) => e.reportType === 'category-weekly')
+    .map((e) => ({ category: e.categoryId, firstSeen: e.firstSeen }))
+    .filter((e) => {
+      const d = new Date(e.firstSeen + 'T00:00:00Z');
+      return d > sevenDaysAgo;
+    });
+  const recentCategories = new Set(recentCategoryReports.map((e) => e.category));
+
+  // 미발행 카테고리 우선 → 다음 가장 오래된 → 같은 가중치면 dataset 빈도 desc
+  const candidates = allCategories
+    .filter((cat) => !recentCategories.has(cat))
+    .map((cat) => ({
+      cat,
+      count: allSubsidies.filter((s) => s.category === cat).length,
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  if (candidates.length === 0) {
+    console.log('  ⤳ 모든 카테고리 7일 내 발행 — skip');
+    return null;
+  }
+
+  const targetCategory = candidates[0].cat;
+  const matched = allSubsidies.filter((s) => s.category === targetCategory);
+  if (matched.length === 0) return null;
+
+  // 정렬: HOT → 신청 가능 → 금액 desc
+  const sorted = [...matched].sort((a, b) => {
+    const ah = a.isHot ? 1 : 0, bh = b.isHot ? 1 : 0;
+    if (ah !== bh) return bh - ah;
+    return (b.amount ?? 0) - (a.amount ?? 0);
+  });
+
+  // 페르소나 분포
+  const personaFreq = {};
+  for (const s of matched) {
+    for (const pid of s.targetPersonas ?? []) {
+      personaFreq[pid] = (personaFreq[pid] ?? 0) + 1;
+    }
+  }
+  const topPersonas = Object.entries(personaFreq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([pid, count]) => {
+      const p = personas.find((x) => x.id === pid);
+      return p ? { id: p.id, label: p.label, sub: p.sub, count } : null;
+    })
+    .filter(Boolean);
+
+  // 신규·마감 임박 메타
+  const lastBatchSlugs = await loadLastBatchSlugs();
+  const newSlugSet = new Set(lastBatchSlugs);
+  const compactMatched = sorted.slice(0, 8).map((s) => ({
+    id: s.id, title: s.title, agency: s.agency,
+    amount: s.amount, amountLabel: s.amountLabel, monthly: s.monthly,
+    deadline: s.deadline, summary: s.summary,
+    eligibility: s.eligibility?.slice(0, 3),
+    benefits: s.benefits?.slice(0, 3),
+    applyUrl: s.applyUrl, tags: s.tags,
+    isNew: newSlugSet.has(s.id),
+    dDay: getDDay(s.deadline),
+    isHot: !!s.isHot,
+    targetPersonas: s.targetPersonas ?? [],
+  }));
+
+  const userInput = {
+    reportType: 'category-weekly',
+    todayDate: date,
+    category: targetCategory,
+    totalMatched: matched.length,
+    matchedTop: compactMatched,
+    topPersonas,
+  };
+
+  const userPrompt = `다음 입력은 "${targetCategory}" 카테고리 정부 지원금 풀(${matched.length}건 중 Top ${compactMatched.length}건)입니다.
+
+⚠️ **리포트 유형**: 카테고리 심층 분석 (트렌딩 X, 신규 X, 페르소나 X — ${targetCategory} 분야 전체 종합)
+
+**지시사항**:
+- title: "이번 주 ${targetCategory} 정부 지원금 ${matched.length}건 심층 — 누가 받을 수 있고 얼마인가" 같은 형식
+- slug: "category-weekly-${targetCategory}-${date}" 또는 변형
+- tldr: 4-6개 (분야 평균 금액·핵심 자격·신규/마감 임박)
+- sections: 5개 표준
+  1. ${targetCategory} 분야 한눈에 (지원금 ${matched.length}건 종합 — 평균 금액·자격 공통점)
+  2. 분야 Top 지원금 비교 (HOT·금액 큰 순)
+  3. 어떤 페르소나에게 적합한가 (topPersonas 기반)
+  4. 이번 주 신규/마감 임박 (isNew/dDay 항목 강조)
+  5. ${targetCategory} 분야 신청 시 자주 놓치는 자격·서류 주의사항
+- table: 지원금 / 기관 / 금액 / 자격 첫 줄 / 마감 / 적합 페르소나 비교
+- faq: 4-5건 (해당 분야 자주 묻는 질문)
+- sources: 각 지원금 applyUrl + bokjiro.go.kr 또는 정부 부처 .go.kr만
+- 출력 JSON 객체 1개만, 다른 텍스트 없이
+- **중요**: 입력에 없는 정보 추측 금지. ${targetCategory} 외 카테고리 인용 금지
+
+입력:
+\`\`\`json
+${JSON.stringify(userInput, null, 2)}
+\`\`\``;
+
+  console.log(`  → Claude 호출 (카테고리 ${targetCategory}, ${matched.length}건 → Top ${compactMatched.length})`);
+  let post;
+  try {
+    const result = await callClaude(systemPrompt, userPrompt, apiKey, staticContext);
+    if (result.usage) {
+      cacheLog.push({
+        term: `category-weekly-${targetCategory}`,
+        rank: 0,
+        cache_creation: result.usage.cache_creation_input_tokens ?? 0,
+        cache_read: result.usage.cache_read_input_tokens ?? 0,
+        input: result.usage.input_tokens ?? 0,
+        output: result.usage.output_tokens ?? 0,
+        at: new Date().toISOString(),
+      });
+    }
+    post = parseJsonFromResponse(result.content);
+  } catch (e) {
+    console.warn(`⚠️ Claude 호출 실패 (카테고리 ${targetCategory}): ${e?.message ?? e}`);
+    return null;
+  }
+
+  // 본문 + 정부 도메인 검증
+  const sectionCount = Array.isArray(post.sections) ? post.sections.length : 0;
+  const faqCount = Array.isArray(post.faq) ? post.faq.length : 0;
+  const sourceCount = Array.isArray(post.sources) ? post.sources.length : 0;
+  if (sectionCount < 3 || faqCount < 1 || sourceCount < 1) {
+    console.warn(
+      `⚠️ 카테고리 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`,
+    );
+    return null;
+  }
+  const govDomains = ['gov.kr', 'go.kr', 'bokjiro', 'work.go.kr'];
+  const validSources = post.sources.filter((src) => {
+    const url = src.url ?? src.link ?? '';
+    return govDomains.some((d) => url.includes(d));
+  });
+  if (validSources.length === 0) {
+    console.warn('⚠️ 카테고리 sources에 정부 공식 도메인 없음 → 발행 차단');
+    return null;
+  }
+
+  if (post.title) post.title = sanitizeTitle(post.title);
+  if (!post.slug) post.slug = `category-weekly-${targetCategory}-${date}`;
+  const finalSlug = await resolveSlug(date, post.slug);
+  post.slug = finalSlug;
+  post.publishedAt = new Date().toISOString();
+  post.date = date;
+  post.factCheckScore = 1.0;
+  post.sourceConfidence = 'high';
+  post.sourcePublisherCount = validSources.length;
+  post.reportType = 'category-weekly';
+  post.categoryId = targetCategory;
+  post.matchedSubsidies = sorted.slice(0, 6).map((s) => ({
+    id: s.id, title: s.title, agency: s.agency, category: s.category,
+    icon: s.icon, amount: s.amount, amountLabel: s.amountLabel,
+  }));
+
+  const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
+  await mkdir(dirname(outPath), { recursive: true });
+  await writeFile(outPath, `${JSON.stringify(post, null, 2)}\n`, 'utf8');
+  console.log(`✅ ${outPath}`);
+
+  const fingerprint = `category-weekly-${targetCategory}-${date}`;
+  history.byTerm ??= {};
+  history.byTerm[fingerprint] = {
+    firstSeen: date,
+    lastSeen: date,
+    totalCount: matched.length,
+    daysActive: 1,
+    dailyCounts: { [date]: matched.length },
+    postSlug: finalSlug,
+    reportType: 'category-weekly',
+    categoryId: targetCategory,
+  };
+
+  return post;
+}
+
+// ─────────────────────────────────────────────────────────────
 // 메인
 // ─────────────────────────────────────────────────────────────
 async function main() {
@@ -1402,12 +1597,31 @@ ${JSON.stringify(userInput, null, 2)}
         if (s4Post) {
           success++;
           mainSuccess++;
+          fallbackOk = true;
           console.log(`✅ Source 4 (페르소나 주간 분석) fallback 발행: ${s4Post.slug}`);
         } else {
-          console.log('  ⤳ Source 4 skip — 다음 source는 미구현 (Cycle #75+)');
+          console.log('  ⤳ Source 4 skip → Source 5 시도');
         }
       } catch (e) {
         console.warn(`⚠️ Source 4 오류: ${e?.message ?? e}`);
+      }
+    }
+
+    if (!fallbackOk) {
+      console.log('🔄 Source 5 (카테고리 심층 분석) fallback 시도');
+      try {
+        const s5Post = await generateCategoryWeeklyReport({
+          apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
+        });
+        if (s5Post) {
+          success++;
+          mainSuccess++;
+          console.log(`✅ Source 5 (카테고리 심층 분석) fallback 발행: ${s5Post.slug}`);
+        } else {
+          console.log('  ⤳ Source 5 skip — 모든 source 소진');
+        }
+      } catch (e) {
+        console.warn(`⚠️ Source 5 오류: ${e?.message ?? e}`);
       }
     }
   }
