@@ -254,9 +254,13 @@ async function saveHistory(history) {
   await writeFile(HISTORY_PATH, `${JSON.stringify(history, null, 2)}\n`, 'utf8');
 }
 
+// Cycle #79: KST(UTC+9) 기준 today date — 한국 운영 사이트라 KST 자정 경계로 폴더 분리
+// 이전: UTC date 사용으로 KST 06:00 cron 시 폴더가 전일로 생성됨 (혼동)
 function todayDateStr() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const now = new Date();
+  // UTC+9 시간대로 변환 (서버 timezone과 무관)
+  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+  return `${kst.getUTCFullYear()}-${String(kst.getUTCMonth() + 1).padStart(2, '0')}-${String(kst.getUTCDate()).padStart(2, '0')}`;
 }
 
 function updateHistory(history, term, count, slug) {
