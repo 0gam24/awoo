@@ -134,9 +134,30 @@ const articleWordCount =
     0,
   ) +
   (post.faq ?? []).reduce((s, f) => s + (f.q?.length ?? 0) + (f.a?.length ?? 0), 0);
+// Cycle #78: reportType 분기 — 트렌딩(NewsArticle) vs 분석/가이드(Article)
+// AI 답변 엔진(Perplexity 등)은 Article을 "evergreen reference"로, NewsArticle을 "speed news"로 분류.
+// Source 2-5는 분석·가이드라 Article + isBasedOn(정부 출처)이 더 적합.
+const reportType = (post as { reportType?: string }).reportType;
+const articleType: 'NewsArticle' | 'Article' = reportType ? 'Article' : 'NewsArticle';
+// Article 분기 시 isBasedOn (정부 공식 출처) 명시 — AI 인용 신뢰도 ↑
+const isBasedOnList = reportType
+  ? (post.sources ?? [])
+      .filter((s) => {
+        const url = s.url ?? '';
+        return /\.gov\.kr|\.go\.kr|bokjiro/.test(url);
+      })
+      .slice(0, 5)
+      .map((s) => ({
+        '@type': 'CreativeWork',
+        name: s.title,
+        url: s.url,
+        publisher: s.publisher ? { '@type': 'GovernmentOrganization', name: s.publisher } : undefined,
+      }))
+  : [];
+
 const articleSchema = {
   '@context': 'https://schema.org',
-  '@type': 'NewsArticle',
+  '@type': articleType,
   '@id': canonicalUrl,
   mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalUrl },
   headline: post.title,
@@ -208,7 +229,48 @@ const articleSchema = {
         })),
       }
     : {}),
+  // Cycle #78: Article 분기 시 정부 공식 출처 명시 (AI 인용 신뢰도 강화)
+  ...(isBasedOnList.length > 0 ? { isBasedOn: isBasedOnList } : {}),
 };
+
+// Cycle #78: HowTo schema 자동 생성 — body에서 "**N단계:**" 패턴 감지 시
+// "어떻게 신청하나요?" 등 신청 절차 섹션의 단계를 HowToStep으로 변환.
+const stepRegex = /\*\*\s*(\d+)\s*단계\s*[:：]\s*([^*\n]+?)\s*\*\*\s*[—\-:]?\s*([\s\S]*?)(?=\*\*\s*\d+\s*단계|$)/g;
+let howToSchema: Record<string, unknown> | null = null;
+for (const sec of post.sections ?? []) {
+  if (!sec.body) continue;
+  // 신청·절차·방법 키워드 있는 섹션만 검사 (false positive 방지)
+  const isApplyHeading = /신청|절차|방법|어떻게/.test(sec.heading ?? '');
+  if (!isApplyHeading) continue;
+  const matches = [...sec.body.matchAll(stepRegex)];
+  if (matches.length < 2) continue; // 2단계 이상이어야 HowTo 가치
+  howToSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    '@id': `${canonicalUrl}#howto`,
+    name: `${post.title} — ${sec.heading}`,
+    inLanguage: 'ko-KR',
+    description: sec.lead ?? `${post.title}의 단계별 신청 절차`,
+    step: matches.map((m, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: (m[2] ?? `단계 ${i + 1}`).trim(),
+      text: (m[3] ?? '').trim().slice(0, 500),
+    })),
+  };
+  break; // 첫 신청 절차 섹션만 HowTo로
+}
+
+// Cycle #78: Table schema — post.table → schema:Table 마크업 (Featured Snippet 후보)
+const tableSchema = post.table && Array.isArray(post.table.headers) && Array.isArray(post.table.rows)
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'Table',
+      '@id': `${canonicalUrl}#table`,
+      about: post.table.title ?? post.title,
+      name: post.table.title ?? '비교표',
+    }
+  : null;
 
 // Cycle #26: speakable schema — FAQ를 음성 검색 (Google Assistant, Bixby 등) 친화적으로 마킹
 const faqSchema = post.faq.length > 0 ? {
@@ -279,6 +341,10 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
 >
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+  {/* Cycle #78: HowTo schema (단계별 신청 절차) — Google rich result + AI 답변 엔진 인용 */}
+  {howToSchema && <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />}
+  {/* Cycle #78: Table schema (비교표) — Featured Snippet 후보 */}
+  {tableSchema && <script type="application/ld+json" set:html={JSON.stringify(tableSchema)} />}
 
   <script>
     // 공유 — Web Share API 우선, 없으면 clipboard, 모두 실패 시 prompt
