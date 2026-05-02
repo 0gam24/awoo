@@ -61,7 +61,17 @@ export const getStaticPaths = (() => {
     const date = m[1];
     const slug = m[2];
     if (!date || !slug || slug.startsWith('_')) continue;
-    all.push({ date, slug, data: mod.default });
+    // Cycle #65: 본문 콘텐츠 누락 포스트는 path 생성 자체 skip — 빈 페이지 발행 차단
+    // (Claude max_tokens truncate 등으로 sections/faq/sources 손실 시 방어)
+    const data = mod.default;
+    const hasSections = Array.isArray(data?.sections) && data.sections.length >= 3;
+    const hasFaq = Array.isArray(data?.faq) && data.faq.length >= 1;
+    const hasSources = Array.isArray(data?.sources) && data.sources.length >= 1;
+    if (!hasSections || !hasFaq || !hasSources) {
+      console.warn(`[issues] 본문 콘텐츠 누락으로 path 생성 skip: ${date}/${slug} (sections=${data?.sections?.length ?? 0}, faq=${data?.faq?.length ?? 0}, sources=${data?.sources?.length ?? 0})`);
+      continue;
+    }
+    all.push({ date, slug, data });
   }
   // 시간 desc 정렬 (최신순)
   all.sort((a, b) =>
