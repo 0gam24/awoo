@@ -169,14 +169,20 @@ const peakDay = dailyEntries.reduce(
 );
 
 // BLUF 자동 통계 (Cycle #3 P0-6, Cycle #4 P0-1 firstSeen/lastSeen null 가드)
+// Cycle #71: 매체 다양성을 1순위 stat으로 — 신뢰도 우선 노출
+const uniquePublishers = new Set(
+  sourceArticles.map((a) => a.publisher).filter((p): p is string => Boolean(p)),
+);
+const mediaCount = uniquePublishers.size;
 const firstSeenLabel = entry.firstSeen ?? '최근';
 const lastSeenLabel = entry.lastSeen ?? '오늘';
-const blufSummaryTopic = `"${term}"는 ${firstSeenLabel}부터 ${lastSeenLabel}까지 ${entry.daysActive}일 동안 ${entry.totalCount}건의 보도가 있던 정부 지원금 키워드입니다. 관련 지원금 ${matchedSubsidies.length}건을 한 페이지에 정리했습니다.`;
+const mediaPart = mediaCount > 0 ? `매체 ${mediaCount}곳에서 ` : '';
+const blufSummaryTopic = `"${term}"는 ${firstSeenLabel}부터 ${lastSeenLabel}까지 ${entry.daysActive}일 동안 ${mediaPart}${entry.totalCount}회 언급된 정부 지원금 키워드입니다. 관련 지원금 ${matchedSubsidies.length}건을 한 페이지에 정리했습니다.`;
 const blufStatsTopic = [
-  { value: `${entry.totalCount}건`, label: '누적 보도' },
+  ...(mediaCount > 0 ? [{ value: `${mediaCount}곳`, label: '보도 매체' }] : []),
+  { value: `${entry.totalCount}회`, label: '누적 언급' },
   { value: `${entry.daysActive}일`, label: '화제 일수' },
   { value: `${matchedSubsidies.length}건`, label: '관련 지원금' },
-  ...(peakDay.count > 0 ? [{ value: `${peakDay.count}건`, label: `최다 보도 (${peakDay.date})` }] : []),
 ];
 
 // Cycle #22: 토픽 hub CollectionPage + ItemList — entity 누락 회복

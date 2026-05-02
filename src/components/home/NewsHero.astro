@@ -336,11 +336,16 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
               return (
                 <li class:list={['news-trend-item-auto', i === 0 && 'hot']}>
                   <a href={href} class={`trend-link-auto tier-${tier}`}>
+                    {/* Cycle #71: 매체 수를 main pill 주 신호로 격상 (count는 부수) — 신뢰도·다양성 우선 */}
                     <div class="trend-row-1">
                       <span class="rank">{i + 1}</span>
                       <span class="trend-pill">
                         <span class="trend-term">{t.term}</span>
-                        <span class="trend-count">{t.count}건</span>
+                        {(t.mediaCount ?? 0) > 0 && (
+                          <span class="trend-publishers" title={`정책성 필터 통과 ${t.mediaCount}곳 매체에서 보도`}>
+                            📰 {t.mediaCount}곳
+                          </span>
+                        )}
                       </span>
                     </div>
                     <div class="trend-row-2">
@@ -349,26 +354,24 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
                       </span>
                       <span class="trend-arrow" aria-hidden="true">→</span>
                     </div>
-                    {/* Cycle #66 고급화: 키워드별 mini summary — 어떤 이슈인지 즉시 인지 */}
-                    {(t.cities?.length || t.matchedCount) && (
-                      <div class="trend-row-mini">
-                        {t.cities && t.cities.length > 0 && (
-                          <span class="trend-mini-pill">
-                            🏙 {t.cities.slice(0, 2).join('·')}
-                            {t.cities.length > 2 && ` 외 ${t.cities.length - 2}곳`}
-                          </span>
-                        )}
-                        {t.publisherCount !== undefined && t.publisherCount > 0 && (
-                          <span class="trend-mini-pill">📰 {t.publisherCount}곳</span>
-                        )}
-                        {t.matchedCount !== undefined && t.matchedCount > 0 && (
-                          <span class="trend-mini-pill">⚡ 매칭 {t.matchedCount}건</span>
-                        )}
-                        {t.daysActive !== undefined && t.daysActive >= 2 && (
-                          <span class="trend-mini-pill">{t.daysActive}일째</span>
-                        )}
-                      </div>
-                    )}
+                    {/* Cycle #66 고급화 + Cycle #71 재배치: 보조 메타 — count는 raw 빈도, 부수 정보 */}
+                    <div class="trend-row-mini">
+                      <span class="trend-mini-pill" title="제목 등장 빈도 (raw)">
+                        언급 {t.count}회
+                      </span>
+                      {t.cities && t.cities.length > 0 && (
+                        <span class="trend-mini-pill">
+                          🏙 {t.cities.slice(0, 2).join('·')}
+                          {t.cities.length > 2 && ` 외 ${t.cities.length - 2}곳`}
+                        </span>
+                      )}
+                      {t.matchedCount !== undefined && t.matchedCount > 0 && (
+                        <span class="trend-mini-pill">⚡ 매칭 {t.matchedCount}건</span>
+                      )}
+                      {t.daysActive !== undefined && t.daysActive >= 2 && (
+                        <span class="trend-mini-pill">{t.daysActive}일째</span>
+                      )}
+                    </div>
                     <div class="trend-row-3">
                       <span class="trend-cta">{ctaLabel}</span>
                     </div>
@@ -1267,6 +1270,22 @@ const hookCopy = auto?.summary?.hookCopy ?? null;
 
   .news-trend-item-auto.hot .trend-count {
     color: #d62c1a;
+  }
+
+  /* Cycle #71: trend-pill 안의 매체 수 — 주 신호 (다양성 우선) */
+  .trend-publishers {
+    color: #6affd0;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-left: auto;
+    font-size: 11px;
+    letter-spacing: 0.02em;
+  }
+  .news-trend-item-auto.hot .trend-publishers {
+    color: #003875;
+    background: rgb(0 56 117 / 0.12);
+    padding: 1px 7px;
+    border-radius: var(--radius-pill);
   }
 
   .trend-row-2 {

@@ -176,10 +176,21 @@ export const GET: APIRoute = async () => {
   }
 
   // 토픽 hub (history.byTerm totalCount ≥ 1)
+  // Cycle #71: 매체 수를 첫 신호로 격상 — AI 답변 엔진의 다양성 시그널 우선
   const historyModules = import.meta.glob<{
     default: { byTerm?: Record<string, { totalCount: number; daysActive: number }> };
   }>('/src/data/issues/_history.json', { eager: true });
   const history = Object.values(historyModules)[0]?.default ?? { byTerm: {} };
+  // today-issue.json trending에서 매체 수 매핑 (오늘 활성 키워드)
+  const todayIssueModules = import.meta.glob<{
+    default: { trending?: Array<{ term: string; mediaCount?: number; count?: number }> };
+  }>('/src/data/today-issue.json', { eager: true });
+  const todayTrending = Object.values(todayIssueModules)[0]?.default?.trending ?? [];
+  const mediaCountByTerm = new Map<string, number>(
+    todayTrending
+      .filter((t): t is { term: string; mediaCount: number } => typeof t.mediaCount === 'number')
+      .map((t) => [t.term, t.mediaCount]),
+  );
   const activeTopics = Object.entries(history.byTerm ?? {})
     .filter(([, e]) => e.totalCount >= 1)
     .sort((a, b) => b[1].totalCount - a[1].totalCount);
@@ -187,8 +198,10 @@ export const GET: APIRoute = async () => {
     lines.push('## 트렌딩 토픽 hub');
     lines.push('');
     for (const [term, e] of activeTopics) {
+      const mc = mediaCountByTerm.get(term);
+      const mediaPart = mc ? `매체 ${mc}곳 · ` : '';
       lines.push(
-        `- [${term}](https://awoo.or.kr/issues/topics/${term}/): ${e.totalCount}건 보도, ${e.daysActive}일 화제`,
+        `- [${term}](https://awoo.or.kr/issues/topics/${term}/): ${mediaPart}누적 ${e.totalCount}회 언급, ${e.daysActive}일 화제`,
       );
     }
     lines.push('');
