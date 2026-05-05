@@ -1,0 +1,55 @@
+{
+  "date": "2026-05-04",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 1,
+  "failed": 3,
+  "failures": [
+    {
+      "rank": 1,
+      "term": "생활지원금",
+      "count": 4,
+      "category": "자산",
+      "reason": "fact-check fail: 3/9 matched (score 0.33)",
+      "unmatched": [
+        "4월30일",
+        "3월18일",
+        "5월",
+        "5월3일",
+        "6월",
+        "시군청"
+      ],
+      "at": "2026-05-03T21:34:51.353Z"
+    },
+    {
+      "rank": 2,
+      "term": "피해지원금",
+      "count": 3,
+      "category": "자산",
+      "reason": "fact-check fail: 0/5 matched (score 0)",
+      "unmatched": [
+        "2026년",
+        "5월",
+        "5월3일",
+        "포항시청",
+        "제주특별자치도청"
+      ],
+      "at": "2026-05-03T21:35:43.467Z"
+    },
+    {
+      "rank": 3,
+      "term": "아동수당",
+      "count": 2,
+      "category": "복지",
+      "reason": "fact-check fail: 0/5 matched (score 0)",
+      "unmatched": [
+        "10만원",
+        "2,000만",
+        "10만",
+        "100만",
+        "50만"
+      ],
+      "at": "2026-05-03T21:36:39.339Z"
+    }
+  ]
+}
