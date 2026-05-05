@@ -1,0 +1,41 @@
+{
+  "date": "2026-05-06",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 1,
+  "failed": 2,
+  "failures": [
+    {
+      "rank": 3,
+      "term": "피해지원금",
+      "count": 4,
+      "category": "자산",
+      "reason": "fact-check fail: 4/13 matched (score 0.31)",
+      "unmatched": [
+        "24%",
+        "5%",
+        "29%",
+        "2026년",
+        "5월5일",
+        "4월27일",
+        "보건복지부",
+        "행정안전부",
+        "미신청"
+      ],
+      "at": "2026-05-05T21:56:07.767Z"
+    },
+    {
+      "rank": 5,
+      "term": "고용지원금",
+      "count": 3,
+      "category": "취업",
+      "reason": "fact-check fail: 1/4 matched (score 0.25)",
+      "unmatched": [
+        "2026년",
+        "5월5일",
+        "5월"
+      ],
+      "at": "2026-05-05T21:57:08.827Z"
+    }
+  ]
+}
