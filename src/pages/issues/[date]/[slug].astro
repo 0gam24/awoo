@@ -420,6 +420,7 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
               'deadline-imminent-weekly': '⏰ 마감 임박',
               'persona-weekly': '👤 페르소나 분석',
               'category-weekly': '🗂 분야 심층',
+              'trending-persona-angle': '🎯 트렌딩 페르소나 각도',
             };
             const label = rt ? rtLabel[rt] : null;
             return label ? <span class={`report-type-pill rt-${rt}`}>{label}</span> : null;
@@ -1023,6 +1024,14 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
   }
   :global([data-theme='dark']) .report-type-pill.rt-new-subsidies-detail {
     background: rgb(8 145 178 / 0.22);
+  }
+  /* Cycle #82: 트렌딩 페르소나 각도 — 핫 핑크 */
+  .report-type-pill.rt-trending-persona-angle {
+    background: rgb(236 72 153 / 0.14);
+    color: #ec4899;
+  }
+  :global([data-theme='dark']) .report-type-pill.rt-trending-persona-angle {
+    background: rgb(236 72 153 / 0.22);
   }
   .report-type-pill.rt-deadline-imminent-weekly {
     background: rgb(214 44 26 / 0.12);
