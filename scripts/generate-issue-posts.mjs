@@ -42,8 +42,9 @@ const HISTORY_PATH = join(ROOT, 'src', 'data', 'issues', '_history.json');
 // Cycle #7 — 1일 1개 고정 메인. + Cycle #11 P0-2 보너스: 신규 키워드 + 지속성 게이트.
 // 메인 1건 후, 트렌딩 중 (totalCount ≥ 2 AND 영구 포스트 0건 AND primary subsidy dedup 통과) 추가 생성.
 // 1일 캡 BONUS_MAX_PER_DAY (단발 노이즈·비용 방어).
+// Cycle #82: 매일 정확히 3건 발행 정책 — 메인 1 (트렌딩 Top 1 일반) + 보너스 1 (트렌딩 Top 2 일반) + Slot 3 (트렌딩 Top 1 + 페르소나 각도, 별도 호출)
 const POSTS_PER_DAY = 1;
-const BONUS_MAX_PER_DAY = 2; // 1일 최대 메인 1 + 보너스 2 = 3
+const BONUS_MAX_PER_DAY = 1; // Cycle #82: 2 → 1로 — Slot 3 페르소나 각도가 추가 1건 차지
 const BONUS_TOTAL_COUNT_MIN = 2; // 신규 키워드 지속성 게이트 (1일치 단발 차단)
 const FALLBACK_CANDIDATES = 5;
 const TOP_N = FALLBACK_CANDIDATES; // 호환 alias
@@ -529,10 +530,9 @@ async function resolveSlug(date, slug) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Cycle #72 → #80: Source 2 — 정부24 신규 지원금 Hub-spoke 분석
-// Hub: 묶음 비교 (트렌드 overview, AI 트렌드 답변용)
-// Spoke 5건: 각 지원금 심층 분석 (구체 검색 의도 흡수, AI 단일 답변용)
-// 1회 Claude 호출에 hub + spokes[] 배열 동시 출력 (timeout 안전)
+// Cycle #72 → #80 → #82: Source 2 — 정부24 신규 지원금 spoke 1건 (슬롯 1)
+// Cycle #82: hub 제거 — 매일 3건 정책 (슬롯 1+2+3)에서 슬롯 1 단독으로 사용
+// 우선순위: HOT → 마감 임박 → 금액 큰 순으로 1건 선택, 90일 dedup
 // ─────────────────────────────────────────────────────────────
 async function generateNewSubsidyReport({
   apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
@@ -544,23 +544,15 @@ async function generateNewSubsidyReport({
   }
 
   const subsidyMap = new Map(allSubsidies.map((s) => [s.id, s]));
-  const newSubsidies = lastBatchSlugs
+  const candidates = lastBatchSlugs
     .map((slug) => subsidyMap.get(slug))
-    .filter(Boolean)
-    .slice(0, 5);
-  if (newSubsidies.length === 0) {
+    .filter(Boolean);
+  if (candidates.length === 0) {
     console.log('  ⤳ lastBatch.slugs에 매칭 지원금 없음 → skip');
     return null;
   }
 
-  // 같은 날짜 hub 이미 발행 시 skip (전체 batch 재실행 방지)
-  const existingPaths = await readdir(join(ISSUES_OUT_DIR, date)).catch(() => []);
-  if (existingPaths.some((p) => p.startsWith('new-subsidies-weekly'))) {
-    console.log('  ⤳ 같은 날짜 신규 지원금 hub 이미 발행 → skip');
-    return null;
-  }
-
-  // Cycle #80: spoke 90일 dedup — 같은 지원금이 90일 내 spoke로 발행됐으면 hub 비교에만 포함하고 spoke skip
+  // 90일 dedup — 같은 지원금이 90일 내 spoke 발행됐으면 후보에서 제외
   const recentSpokeSubsidyIds = new Set();
   const ninetyDaysAgo = new Date(date + 'T00:00:00+09:00').getTime() - 90 * 24 * 60 * 60 * 1000;
   for (const e of Object.values(history.byTerm ?? {})) {
@@ -569,103 +561,85 @@ async function generateNewSubsidyReport({
     const t = new Date(e.firstSeen + 'T00:00:00Z').getTime();
     if (t > ninetyDaysAgo) recentSpokeSubsidyIds.add(e.subsidyId);
   }
-  const eligibleForSpoke = newSubsidies.filter((s) => !recentSpokeSubsidyIds.has(s.id));
-  console.log(`  → Hub-spoke: hub 1건 + spoke ${eligibleForSpoke.length}건 (총 ${newSubsidies.length}건 중 ${newSubsidies.length - eligibleForSpoke.length}건은 90일 내 발행됨, hub만 포함)`);
+  const eligible = candidates.filter((s) => !recentSpokeSubsidyIds.has(s.id));
+  if (eligible.length === 0) {
+    console.log(`  ⤳ 모든 신규 지원금 ${candidates.length}건 90일 내 발행됨 → skip`);
+    return null;
+  }
+
+  // Cycle #82: 우선순위 1건 선택 — HOT > 마감 임박(D-30) > 금액 큰 순
+  const ranked = [...eligible].sort((a, b) => {
+    const ah = a.isHot ? 1 : 0, bh = b.isHot ? 1 : 0;
+    if (ah !== bh) return bh - ah;
+    const adl = getDDay(a.deadline);
+    const bdl = getDDay(b.deadline);
+    const adAr = (adl !== null && adl >= 0 && adl <= 30) ? adl : 999;
+    const bdAr = (bdl !== null && bdl >= 0 && bdl <= 30) ? bdl : 999;
+    if (adAr !== bdAr) return adAr - bdAr;
+    return (b.amount ?? 0) - (a.amount ?? 0);
+  });
+  const chosen = ranked[0];
+  console.log(`  → Slot 1 선택: ${chosen.id} (${chosen.title}) — HOT=${!!chosen.isHot}, D-${getDDay(chosen.deadline) ?? '∞'}, ${(chosen.amount ?? 0).toLocaleString('ko-KR')}원`);
+
+  // 같은 날짜 같은 subsidyId 이미 발행 시 skip
+  const existingPaths = await readdir(join(ISSUES_OUT_DIR, date)).catch(() => []);
+  if (existingPaths.some((p) => p.startsWith(`${chosen.id}-detail-`))) {
+    console.log(`  ⤳ ${chosen.id} 같은 날짜 발행 이미 존재 → skip`);
+    return null;
+  }
 
   const userInput = {
-    reportType: 'new-subsidies-weekly-hubspoke',
+    reportType: 'new-subsidies-detail',
     todayDate: date,
-    newSubsidies: newSubsidies.map((s) => ({
-      id: s.id, title: s.title, agency: s.agency, category: s.category,
-      amount: s.amount, amountLabel: s.amountLabel, monthly: s.monthly,
-      deadline: s.deadline, period: s.period, summary: s.summary,
-      eligibility: s.eligibility, benefits: s.benefits, documents: s.documents,
-      applyUrl: s.applyUrl, tags: s.tags, targetPersonas: s.targetPersonas ?? [],
-      hubUrl: `https://awoo.or.kr/subsidies/${s.id}/`,
-      // 90일 내 spoke 발행됐는지 표시 (Claude가 hub에만 포함하도록 안내)
-      hasRecentSpoke: recentSpokeSubsidyIds.has(s.id),
-    })),
-    spokeCandidateIds: eligibleForSpoke.map((s) => s.id),
+    subsidy: {
+      id: chosen.id, title: chosen.title, agency: chosen.agency, category: chosen.category,
+      amount: chosen.amount, amountLabel: chosen.amountLabel, monthly: chosen.monthly,
+      deadline: chosen.deadline, period: chosen.period, summary: chosen.summary,
+      eligibility: chosen.eligibility, benefits: chosen.benefits, documents: chosen.documents,
+      applyUrl: chosen.applyUrl, tags: chosen.tags,
+      targetPersonas: chosen.targetPersonas ?? [],
+      hubUrl: `https://awoo.or.kr/subsidies/${chosen.id}/`,
+      isHot: !!chosen.isHot,
+      dDay: getDDay(chosen.deadline),
+    },
   };
 
-  const userPrompt = `다음 입력은 정부24에서 새로 등록된 지원금 ${newSubsidies.length}건입니다.
+  const userPrompt = `다음 입력은 정부24에서 새로 등록된 정부 지원금 1건의 풀 메타 데이터입니다.
 ${SEO_GUIDELINES}
-⚠️ **리포트 유형**: 신규 지원금 Hub-spoke 분석 (1 hub + ${eligibleForSpoke.length} spoke 동시 출력)
+⚠️ **리포트 유형**: 신규 지원금 단일 심층 분석 (Slot 1 — 매일 1건)
 
-**Hub-spoke 구조**:
-- **Hub** = 묶음 비교 overview (트렌드 답변용 — "이번 주 새 지원금" 같은 broad 검색)
-- **Spoke** = 각 지원금 심층 분석 (구체 검색 의도 — "X 지원금 자격·신청법" 같은 long-tail)
-- **subsidies/[id] 페이지(GovernmentService)와 cannibalization 회피 critical**:
-  - subsidies/[id] = 자격·금액·신청 facts hub
-  - Spoke = 분석·맥락·시의성 (왜 만들어졌나/누구에게 가치/비슷한 지원금 비교/신청 우선순위)
-  - 각 spoke는 본문 첫 단락에 "공식 자격·금액·신청 → /subsidies/{id}/" cross-link 강제
+**subsidies/[id] 페이지(GovernmentService)와 cannibalization 회피 critical**:
+- subsidies/[id] = 자격·금액·신청 facts hub
+- 본 포스트 = 분석·맥락·시의성 (왜 지금 화제 / 누구에게 가치 / 비슷한 지원금 비교 / 신청 우선순위)
+- **본문 첫 단락에 "공식 자격·금액·신청 → /subsidies/{id}/" cross-link 강제**
 
-**출력 JSON schema (반드시 이 형식)**:
-\`\`\`json
-{
-  "hub": {
-    "title": "...",
-    "slug": "new-subsidies-weekly-${date}",
-    "metaDescription": "...",
-    "tldr": ["...", "..."],
-    "sections": [{ "heading": "...", "lead": "...", "body": "..." }, ...],
-    "table": { "title": "...", "headers": ["..."], "rows": [["..."]] },
-    "faq": [{ "q": "...", "a": "..." }],
-    "sources": [{ "title": "...", "url": "https://www.gov.kr/...", "publisher": "정부24" }]
-  },
-  "spokes": [
-    {
-      "subsidyId": "{id from spokeCandidateIds}",
-      "title": "...",
-      "slug": "{subsidyId}-detail-${date}",
-      "metaDescription": "...",
-      "tldr": ["..."],
-      "sections": [
-        { "heading": "이 지원금이 왜 지금 화제인가요?", "lead": "...", "body": "공식 자격·금액·신청은 [정부 공식 페이지](https://awoo.or.kr/subsidies/{subsidyId}/)에서 확인.\\n\\n..." },
-        { "heading": "누구에게 가장 가치 있나요?", "lead": "...", "body": "..." },
-        { "heading": "비슷한 다른 지원금과 어떻게 다른가요?", "lead": "...", "body": "..." },
-        { "heading": "신청 우선순위는?", "lead": "...", "body": "..." }
-      ],
-      "faq": [{ "q": "...", "a": "..." }],
-      "sources": [...]
-    }, ...
-  ]
-}
-\`\`\`
-
-**Hub 작성 규칙**:
-- title: "정부 지원금 ${newSubsidies.length}건 신규 등록 — 자격·금액·신청 비교" 같은 형식 (시간한정어 회피)
-- slug: "new-subsidies-weekly-${date}"
-- sections 5개 표준 + table 비교 + faq 4-5건 + sources 정부 공식 도메인만
-
-**Spoke ${eligibleForSpoke.length}건 작성 규칙**:
-- spokeCandidateIds [${eligibleForSpoke.map((s) => `"${s.id}"`).join(', ')}] 각각에 대해 1개 spoke 생성
-- subsidyId: 입력의 id 그대로 사용 (필수)
-- title: 해당 지원금명을 핵심으로 (예: "[강원] 장애인 평생교육이용권 — 2026년 5월 신청 자격·금액 분석")
-- slug: "{subsidyId}-detail-${date}" 정확히 사용
-- sections 4개 (분석 깊이): 왜 화제인지 / 누구에게 가치 / 비슷한 다른 지원금 비교 / 신청 우선순위
-  - **첫 sections.body 첫 단락**: "공식 자격·금액·신청 정보는 [정부 공식 페이지](https://awoo.or.kr/subsidies/{subsidyId}/)에서 확인하세요." 명시 (cannibalization 회피)
-- faq 3-4건
-- sources: 정부 공식 도메인 + 해당 지원금 applyUrl
-
-**중요**:
-- 입력 데이터에 없는 사실 추측 금지
-- factCheckScore 자체 표시 1.0 (정부 공식)
-- hub와 spoke는 서로 다른 깊이·톤 (hub=overview, spoke=분석)
-- 출력 JSON 객체 1개만 (다른 텍스트 없이)
+**작성 규칙**:
+- title: "[지역] 지원금명 — 2026년 5월 신청 자격·금액 분석" 같은 long-tail 검색 직매칭 형식
+- slug: "${chosen.id}-detail-${date}"
+- tldr: 4-6개 (이 지원금의 핵심 차별점 + 누가 받을 수 있는지 + 마감일)
+- sections: 4개 분석 깊이 (subsidies/[id]와 다른 angle)
+  1. "이 지원금이 왜 지금 화제인가요?" — 시의성·맥락 (정책 변화·사회적 배경)
+    **첫 단락**: "공식 자격·금액·신청 정보는 [정부 공식 페이지](https://awoo.or.kr/subsidies/${chosen.id}/)에서 확인하세요." 명시
+  2. "누구에게 가장 가치 있나요?" — 페르소나별 영향 분석 (사회초년생·자영업·신혼 등)
+  3. "비슷한 다른 지원금과 어떻게 다른가요?" — 비교·차별점 (조합 가능 여부 포함)
+  4. "신청 우선순위는?" — 마감 임박도·자격 적합도·금액 기준
+- faq: 3-4건 (검색 직매칭 — "X 자격 조건은?" / "X 신청 방법은?" / "X 마감일?")
+- sources: applyUrl + bokjiro/gov.kr/go.kr 정부 공식 도메인만 (≥2건)
+- 출력 JSON 객체 1개만, 다른 텍스트 없이
+- factCheckScore 1.0 자체 표시 (정부 공식 데이터 기반)
 
 입력:
 \`\`\`json
 ${JSON.stringify(userInput, null, 2)}
 \`\`\``;
 
-  console.log(`  → Claude 호출 (hub + spokes[${eligibleForSpoke.length}])`);
-  let parsed;
+  console.log(`  → Claude 호출 (Slot 1 신규 지원금 단일: ${chosen.id})`);
+  let post;
   try {
     const result = await callClaude(systemPrompt, userPrompt, apiKey, staticContext);
     if (result.usage) {
       cacheLog.push({
-        term: 'new-subsidies-hubspoke',
+        term: `new-subsidies-detail-${chosen.id}`,
         rank: 0,
         cache_creation: result.usage.cache_creation_input_tokens ?? 0,
         cache_read: result.usage.cache_read_input_tokens ?? 0,
@@ -674,165 +648,257 @@ ${JSON.stringify(userInput, null, 2)}
         at: new Date().toISOString(),
       });
     }
-    parsed = parseJsonFromResponse(result.content);
+    post = parseJsonFromResponse(result.content);
   } catch (e) {
-    console.warn(`⚠️ Claude 호출 실패 (Hub-spoke): ${e?.message ?? e}`);
+    console.warn(`⚠️ Claude 호출 실패 (Slot 1): ${e?.message ?? e}`);
     return null;
   }
 
-  // Hub-spoke 출력 검증
-  const hub = parsed.hub;
-  const spokes = Array.isArray(parsed.spokes) ? parsed.spokes : [];
-  if (!hub || typeof hub !== 'object') {
-    console.warn('⚠️ hub 객체 누락 → 발행 차단');
+  // 본문 검증 + 정부 도메인 sources 검증
+  const sectionCount = Array.isArray(post.sections) ? post.sections.length : 0;
+  const faqCount = Array.isArray(post.faq) ? post.faq.length : 0;
+  const sourceCount = Array.isArray(post.sources) ? post.sources.length : 0;
+  if (sectionCount < 3 || faqCount < 1 || sourceCount < 1) {
+    console.warn(`⚠️ Slot 1 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`);
     return null;
   }
-
   const govDomains = ['gov.kr', 'go.kr', 'bokjiro', 'work.go.kr'];
-  function isGovUrl(u) { return govDomains.some((d) => (u ?? '').includes(d)); }
-  function validatePostShape(p, label) {
-    const sCount = Array.isArray(p.sections) ? p.sections.length : 0;
-    const fCount = Array.isArray(p.faq) ? p.faq.length : 0;
-    const srcCount = Array.isArray(p.sources) ? p.sources.length : 0;
-    const minSections = label === 'hub' ? 3 : 3; // spoke도 최소 3
-    if (sCount < minSections || fCount < 1 || srcCount < 1) {
-      console.warn(`⚠️ ${label} 본문 검증 실패: sections=${sCount}/${minSections}+ faq=${fCount}/1+ sources=${srcCount}/1+`);
-      return null;
-    }
-    const validSrc = p.sources.filter((s) => isGovUrl(s.url ?? s.link ?? ''));
-    if (validSrc.length === 0) {
-      console.warn(`⚠️ ${label} sources에 정부 공식 도메인 없음 → 차단`);
-      return null;
-    }
-    return validSrc;
+  const validSources = post.sources.filter((s) => {
+    const url = s.url ?? s.link ?? '';
+    return govDomains.some((d) => url.includes(d));
+  });
+  if (validSources.length === 0) {
+    console.warn('⚠️ Slot 1 sources 정부 도메인 없음 → 차단');
+    return null;
   }
 
-  const hubValidSrc = validatePostShape(hub, 'hub');
-  if (!hubValidSrc) return null;
-
-  // Hub 저장
-  if (hub.title) hub.title = sanitizeTitle(hub.title);
-  if (!hub.slug) hub.slug = `new-subsidies-weekly-${date}`;
-  const hubFinalSlug = await resolveSlug(date, hub.slug);
-  hub.slug = hubFinalSlug;
-  hub.publishedAt = new Date().toISOString();
-  hub.date = date;
-  hub.factCheckScore = 1.0;
-  hub.sourceConfidence = 'high';
-  hub.sourcePublisherCount = hubValidSrc.length;
-  hub.reportType = 'new-subsidies-weekly';
-  hub.matchedSubsidies = newSubsidies.map((s) => ({
-    id: s.id, title: s.title, agency: s.agency, category: s.category,
-    icon: s.icon, amount: s.amount, amountLabel: s.amountLabel,
-  }));
-  // schema mentions/audience 자동
-  hub.relatedSubsidies = newSubsidies.map((s) => s.id);
-  const hubPersonas = new Set();
-  for (const s of newSubsidies) for (const p of s.targetPersonas ?? []) hubPersonas.add(p);
-  hub.relatedPersonas = [...hubPersonas];
-  if (!hub.category && newSubsidies.length > 0) hub.category = newSubsidies[0].category;
-  if (!Array.isArray(hub.tags) || hub.tags.length === 0) {
-    const tagSet = new Set();
-    for (const s of newSubsidies) for (const t of s.tags ?? []) tagSet.add(t);
-    hub.tags = [...tagSet].slice(0, 8);
-  }
-  if (!hub.coreFacts) {
-    hub.coreFacts = {
-      who: `신규 등록 ${newSubsidies.length}건의 다양한 자격 대상`,
-      amount: '지원금별 상이',
-      deadline: '지원금별 상이',
-      where: '정부24·복지로 등 공식 사이트',
+  // 메타 보강
+  if (post.title) post.title = sanitizeTitle(post.title);
+  if (!post.slug) post.slug = `${chosen.id}-detail-${date}`;
+  const finalSlug = await resolveSlug(date, post.slug);
+  post.slug = finalSlug;
+  post.publishedAt = new Date().toISOString();
+  post.date = date;
+  post.factCheckScore = 1.0;
+  post.sourceConfidence = 'high';
+  post.sourcePublisherCount = validSources.length;
+  post.reportType = 'new-subsidies-detail';
+  post.subsidyId = chosen.id;
+  post.matchedSubsidies = [{
+    id: chosen.id, title: chosen.title, agency: chosen.agency,
+    category: chosen.category, icon: chosen.icon,
+    amount: chosen.amount, amountLabel: chosen.amountLabel,
+  }];
+  post.relatedSubsidies = [chosen.id];
+  post.relatedPersonas = chosen.targetPersonas ?? [];
+  if (!post.category) post.category = chosen.category;
+  if (!Array.isArray(post.tags) || post.tags.length === 0) post.tags = chosen.tags ?? [];
+  if (!post.coreFacts) {
+    post.coreFacts = {
+      who: chosen.eligibility?.[0] ?? '확인 필요',
+      amount: `${chosen.amountLabel ?? ''} ${chosen.amount > 0 ? chosen.amount.toLocaleString('ko-KR') + '원' : ''}`.trim(),
+      deadline: chosen.deadline ?? '확인 필요',
+      where: chosen.agency ?? '확인 필요',
     };
   }
-  // Hub → Spoke 양방향 internal link 메타
-  hub.spokeSlugs = spokes.map((sp) => `${sp.subsidyId ?? sp.slug}-detail-${date}`);
 
-  const hubPath = join(ISSUES_OUT_DIR, date, `${hubFinalSlug}.json`);
-  await mkdir(dirname(hubPath), { recursive: true });
-  await writeFile(hubPath, `${JSON.stringify(hub, null, 2)}\n`, 'utf8');
-  console.log(`✅ Hub: ${hubPath}`);
+  const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
+  await mkdir(dirname(outPath), { recursive: true });
+  await writeFile(outPath, `${JSON.stringify(post, null, 2)}\n`, 'utf8');
+  console.log(`✅ Slot 1: ${outPath}`);
 
   history.byTerm ??= {};
-  const hubFingerprint = `new-subsidies-${newSubsidies.map((s) => s.id).sort().join('-').slice(0, 60)}`;
-  history.byTerm[hubFingerprint] = {
+  history.byTerm[`new-subsidies-detail-${chosen.id}-${date}`] = {
     firstSeen: date,
     lastSeen: date,
-    totalCount: newSubsidies.length,
+    totalCount: 1,
     daysActive: 1,
-    dailyCounts: { [date]: newSubsidies.length },
-    postSlug: hubFinalSlug,
-    reportType: 'new-subsidies-weekly',
+    dailyCounts: { [date]: 1 },
+    postSlug: finalSlug,
+    reportType: 'new-subsidies-detail',
+    subsidyId: chosen.id,
   };
 
-  // Spoke 저장 (각각 검증 + isBasedOn cross-link 자동 부착)
-  let spokeOk = 0;
-  for (const spoke of spokes) {
-    const subsidyId = spoke.subsidyId;
-    const matched = subsidyMap.get(subsidyId);
-    if (!matched) {
-      console.warn(`⚠️ spoke subsidyId="${subsidyId}" 매칭 안됨 → skip`);
-      continue;
-    }
-    if (recentSpokeSubsidyIds.has(subsidyId)) {
-      console.log(`  ⤳ spoke ${subsidyId} 90일 내 발행 → skip`);
-      continue;
-    }
-    const validSrc = validatePostShape(spoke, `spoke[${subsidyId}]`);
-    if (!validSrc) continue;
+  return post;
+}
 
-    if (spoke.title) spoke.title = sanitizeTitle(spoke.title);
-    if (!spoke.slug) spoke.slug = `${subsidyId}-detail-${date}`;
-    const spokeFinalSlug = await resolveSlug(date, spoke.slug);
-    spoke.slug = spokeFinalSlug;
-    spoke.publishedAt = new Date().toISOString();
-    spoke.date = date;
-    spoke.factCheckScore = 1.0;
-    spoke.sourceConfidence = 'high';
-    spoke.sourcePublisherCount = validSrc.length;
-    spoke.reportType = 'new-subsidies-detail';
-    spoke.subsidyId = subsidyId;
-    // Hub로 backlink + subsidies/[id]로 isBasedOn (canonical 회피, cross-link만)
-    spoke.parentHubSlug = hubFinalSlug;
-    spoke.matchedSubsidies = [{
-      id: matched.id, title: matched.title, agency: matched.agency,
-      category: matched.category, icon: matched.icon,
-      amount: matched.amount, amountLabel: matched.amountLabel,
-    }];
-    // schema mentions GovernmentService @id 자동 부착 + 페르소나 audience
-    spoke.relatedSubsidies = [subsidyId];
-    spoke.relatedPersonas = matched.targetPersonas ?? [];
-    // category·tags 자동 부여 (없으면)
-    if (!spoke.category) spoke.category = matched.category;
-    if (!Array.isArray(spoke.tags) || spoke.tags.length === 0) spoke.tags = matched.tags ?? [];
-    // coreFacts 자동 (subsidies/[id]와 일치)
-    if (!spoke.coreFacts) {
-      spoke.coreFacts = {
-        who: matched.eligibility?.[0] ?? '확인 필요',
-        amount: `${matched.amountLabel ?? ''} ${matched.amount > 0 ? matched.amount.toLocaleString('ko-KR') + '원' : ''}`.trim(),
-        deadline: matched.deadline ?? '확인 필요',
-        where: matched.agency ?? '확인 필요',
-      };
-    }
-
-    const spokePath = join(ISSUES_OUT_DIR, date, `${spokeFinalSlug}.json`);
-    await writeFile(spokePath, `${JSON.stringify(spoke, null, 2)}\n`, 'utf8');
-    console.log(`✅ Spoke: ${spokePath}`);
-
-    history.byTerm[`new-subsidies-detail-${subsidyId}-${date}`] = {
-      firstSeen: date,
-      lastSeen: date,
-      totalCount: 1,
-      daysActive: 1,
-      dailyCounts: { [date]: 1 },
-      postSlug: spokeFinalSlug,
-      reportType: 'new-subsidies-detail',
-      subsidyId,
-    };
-    spokeOk++;
+// ─────────────────────────────────────────────────────────────
+// Cycle #82: Slot 3 — 트렌딩 Top 1 + 페르소나 각도 분석 (long-tail 흡수)
+// 예: "공정수당" Top 1 → "공정수당이 사회초년생에게 미치는 영향" angle 분석
+// Cannibalization 회피: Slot 2(트렌딩 일반)와 audience schema·sections 차별화
+// ─────────────────────────────────────────────────────────────
+async function generateTrendingPersonaAngle({
+  apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
+  trendingTerm, trendingArticles, slot2Slug,
+}) {
+  if (!trendingTerm || !Array.isArray(trendingArticles) || trendingArticles.length === 0) {
+    console.log('  ⤳ Slot 3 입력 부족 (트렌딩 term/articles 없음) → skip');
+    return null;
   }
-  console.log(`📊 Hub 1 + Spoke ${spokeOk}/${eligibleForSpoke.length} 발행`);
 
-  return hub;
+  // 매칭 페르소나 1순위 — 트렌딩 카테고리 + 매칭 지원금에서 추출
+  const matched = matchSubsidies(trendingArticles[0]?.title ?? '', trendingTerm, trendingArticles[0]?.category, allSubsidies, 4);
+  if (matched.length === 0) {
+    console.log(`  ⤳ Slot 3 매칭 지원금 0건 (${trendingTerm}) → skip`);
+    return null;
+  }
+  const personaFreq = {};
+  for (const m of matched) {
+    for (const pid of m.targetPersonas ?? []) {
+      personaFreq[pid] = (personaFreq[pid] ?? 0) + 1;
+    }
+  }
+  const topPersonaId = Object.entries(personaFreq).sort((a, b) => b[1] - a[1])[0]?.[0];
+  if (!topPersonaId) {
+    console.log(`  ⤳ Slot 3 페르소나 매칭 0건 (${trendingTerm}) → skip`);
+    return null;
+  }
+  const persona = personas.find((p) => p.id === topPersonaId);
+  if (!persona) return null;
+
+  // 7일 dedup — 같은 (term, persona) 조합 1주 내 재발행 X
+  const sevenDaysAgo = new Date(date + 'T00:00:00+09:00').getTime() - 7 * 24 * 60 * 60 * 1000;
+  for (const e of Object.values(history.byTerm ?? {})) {
+    if (e.reportType !== 'trending-persona-angle') continue;
+    if (e.trendingTerm !== trendingTerm || e.personaId !== topPersonaId) continue;
+    const t = new Date(e.firstSeen + 'T00:00:00Z').getTime();
+    if (t > sevenDaysAgo) {
+      console.log(`  ⤳ Slot 3 7일 내 발행 (${trendingTerm}+${topPersonaId}) → skip`);
+      return null;
+    }
+  }
+
+  const userInput = {
+    reportType: 'trending-persona-angle',
+    todayDate: date,
+    trendingTerm,
+    persona: { id: persona.id, label: persona.label, sub: persona.sub, age: persona.age, income: persona.income, pains: persona.pains },
+    matchedSubsidies: matched.slice(0, 4).map((m) => ({
+      id: m.id, title: m.title, agency: m.agency, category: m.category,
+      amount: m.amount, amountLabel: m.amountLabel, deadline: m.deadline,
+      eligibility: (m.eligibility ?? []).slice(0, 2),
+      applyUrl: m.applyUrl,
+    })),
+    sourceArticles: trendingArticles.slice(0, 5),
+    slot2Slug, // Slot 2 일반 분석 cross-link용
+  };
+
+  const userPrompt = `다음 입력은 트렌딩 키워드 "${trendingTerm}"의 페르소나 각도 분석 데이터입니다.
+${SEO_GUIDELINES}
+⚠️ **리포트 유형**: 트렌딩 + 페르소나 각도 분석 (Slot 3 — Slot 2의 일반 분석과 차별화)
+
+**Cannibalization 회피 critical**:
+- Slot 2 = "${trendingTerm}" 일반 신청 자격·금액·방법 (broad)
+- 본 포스트(Slot 3) = "${persona.label}" 페르소나 영향 분석 (long-tail)
+- audience schema 차별화 (PeopleAudience: ${persona.label})
+- 본문 첫 단락에 "${trendingTerm} 일반 분석은 [/issues/${date}/${slot2Slug}/]에서 확인" cross-link 필수
+
+**작성 규칙**:
+- title: "${trendingTerm}이 ${persona.label}에게 미치는 영향 — 자격·받을 수 있는 금액·신청 우선순위" 같은 long-tail 의도 직매칭 형식
+- slug: "trending-${trendingTerm}-${topPersonaId}-${date}" 형식 (변형 가능)
+- tldr: 4-6개 (페르소나 시각으로 핵심 요약)
+- sections: 4개 분석 깊이 (Slot 2와 다른 angle)
+  1. "${persona.label}이 ${trendingTerm}을 받을 수 있나요?" — 페르소나 자격 매칭
+    **첫 단락**: "${trendingTerm} 일반 신청 정보는 [관련 분석](/issues/${date}/${slot2Slug}/)에서 확인하세요." 명시
+  2. "받을 수 있는 금액은 얼마인가요?" — 페르소나 소득·연령 시뮬레이션
+  3. "다른 ${persona.label} 지원금과 어떻게 조합하나요?" — 매칭 지원금 비교·중복 수급 가능 여부
+  4. "신청 우선순위 + 주의할 점" — 페르소나 특수 사항
+- faq: 3-4건 (페르소나 자주 묻는 질문)
+- sources: 정부 공식 도메인 + matchedSubsidies applyUrl
+- 출력 JSON 객체 1개만, 다른 텍스트 없이
+
+입력:
+\`\`\`json
+${JSON.stringify(userInput, null, 2)}
+\`\`\``;
+
+  console.log(`  → Claude 호출 (Slot 3: ${trendingTerm} + ${persona.label})`);
+  let post;
+  try {
+    const result = await callClaude(systemPrompt, userPrompt, apiKey, staticContext);
+    if (result.usage) {
+      cacheLog.push({
+        term: `trending-persona-${trendingTerm}-${topPersonaId}`,
+        rank: 0,
+        cache_creation: result.usage.cache_creation_input_tokens ?? 0,
+        cache_read: result.usage.cache_read_input_tokens ?? 0,
+        input: result.usage.input_tokens ?? 0,
+        output: result.usage.output_tokens ?? 0,
+        at: new Date().toISOString(),
+      });
+    }
+    post = parseJsonFromResponse(result.content);
+  } catch (e) {
+    console.warn(`⚠️ Claude 호출 실패 (Slot 3): ${e?.message ?? e}`);
+    return null;
+  }
+
+  // 본문 검증
+  const sectionCount = Array.isArray(post.sections) ? post.sections.length : 0;
+  const faqCount = Array.isArray(post.faq) ? post.faq.length : 0;
+  const sourceCount = Array.isArray(post.sources) ? post.sources.length : 0;
+  if (sectionCount < 3 || faqCount < 1 || sourceCount < 1) {
+    console.warn(`⚠️ Slot 3 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`);
+    return null;
+  }
+  const govDomains = ['gov.kr', 'go.kr', 'bokjiro', 'work.go.kr'];
+  const validSources = post.sources.filter((s) => {
+    const url = s.url ?? s.link ?? '';
+    return govDomains.some((d) => url.includes(d));
+  });
+  if (validSources.length === 0) {
+    console.warn('⚠️ Slot 3 sources 정부 도메인 없음 → 차단');
+    return null;
+  }
+
+  if (post.title) post.title = sanitizeTitle(post.title);
+  if (!post.slug) post.slug = `trending-${trendingTerm}-${topPersonaId}-${date}`;
+  const finalSlug = await resolveSlug(date, post.slug);
+  post.slug = finalSlug;
+  post.publishedAt = new Date().toISOString();
+  post.date = date;
+  post.factCheckScore = 1.0;
+  post.sourceConfidence = 'high';
+  post.sourcePublisherCount = validSources.length;
+  post.reportType = 'trending-persona-angle';
+  post.trendingTerm = trendingTerm;
+  post.personaId = topPersonaId;
+  post.parentSlug = slot2Slug;
+  post.matchedSubsidies = matched.slice(0, 4).map((m) => ({
+    id: m.id, title: m.title, agency: m.agency, category: m.category,
+    icon: m.icon, amount: m.amount, amountLabel: m.amountLabel,
+  }));
+  post.relatedSubsidies = matched.slice(0, 4).map((m) => m.id);
+  post.relatedPersonas = [topPersonaId];
+  if (!post.category) post.category = trendingArticles[0]?.category ?? '복지';
+  if (!Array.isArray(post.tags) || post.tags.length === 0) post.tags = [trendingTerm, persona.label];
+  if (!post.coreFacts) {
+    post.coreFacts = {
+      who: persona.label,
+      amount: matched[0]?.amount ? `${(matched[0].amount).toLocaleString('ko-KR')}원` : '확인 필요',
+      deadline: matched[0]?.deadline ?? '확인 필요',
+      where: matched[0]?.agency ?? '확인 필요',
+    };
+  }
+
+  const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
+  await mkdir(dirname(outPath), { recursive: true });
+  await writeFile(outPath, `${JSON.stringify(post, null, 2)}\n`, 'utf8');
+  console.log(`✅ Slot 3: ${outPath}`);
+
+  history.byTerm[`trending-persona-${trendingTerm}-${topPersonaId}-${date}`] = {
+    firstSeen: date,
+    lastSeen: date,
+    totalCount: 1,
+    daysActive: 1,
+    dailyCounts: { [date]: 1 },
+    postSlug: finalSlug,
+    reportType: 'trending-persona-angle',
+    trendingTerm,
+    personaId: topPersonaId,
+  };
+
+  return post;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1446,6 +1512,8 @@ async function main() {
   const cacheLog = [];
   // GitHub Actions 환경 감지 — annotation 출력
   const isCI = !!process.env.GITHUB_ACTIONS;
+  // Cycle #82: Slot 3 (페르소나 각도)에서 사용할 Top 1 트렌딩 정보 캡처
+  let slot1Trending = null;
 
   // 2. Top N 토픽 순회
   for (const [idx, t] of trending.slice(0, TOP_N).entries()) {
@@ -1725,6 +1793,12 @@ ${JSON.stringify(userInput, null, 2)}
       console.log(`  🎁 보너스 ${bonusSuccess}/${BONUS_MAX_PER_DAY}`);
     } else {
       mainSuccess++;
+      // Cycle #82: Slot 1 (트렌딩 Top 1) 정보 캡처 — Slot 3 페르소나 각도에서 사용
+      slot1Trending = {
+        term,
+        slug: finalSlug,
+        articles: articlesForTopic,
+      };
     }
 
     // Cycle #11: 메인 + 보너스 캡 도달 시 종료 (메인 1 + 보너스 ≤ BONUS_MAX_PER_DAY)
@@ -1734,81 +1808,46 @@ ${JSON.stringify(userInput, null, 2)}
     }
   }
 
-  // Cycle #72-73: 트렌딩 분석 0건이면 fallback 체인 시도 — 매일 1건 분석 리포트 보장
-  // Source 2 (신규 지원금) → Source 3 (마감 임박) → 다음 source는 Cycle #74+
-  if (mainSuccess === 0 && bonusSuccess === 0) {
-    console.log('\n🔄 트렌딩 분석 0건 → Source 2 (정부24 신규 지원금 분석) fallback 시도');
-    let fallbackOk = false;
+  // ─────────────────────────────────────────────────────────────
+  // Cycle #82: 매일 3건 발행 정책
+  // Slot 1 (메인) + Slot 2 (보너스) = main loop에서 처리됨 (트렌딩 Top 1, Top 2)
+  // Slot 3 = 트렌딩 Top 1 + 페르소나 각도 (long-tail 흡수)
+  // ─────────────────────────────────────────────────────────────
+  if (slot1Trending) {
+    console.log('\n🎯 Slot 3 (트렌딩 Top 1 + 페르소나 각도) 시도');
     try {
-      const s2Post = await generateNewSubsidyReport({
-        apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
+      const s3Post = await generateTrendingPersonaAngle({
+        apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
+        trendingTerm: slot1Trending.term,
+        trendingArticles: slot1Trending.articles,
+        slot2Slug: slot1Trending.slug,
       });
-      if (s2Post) {
+      if (s3Post) {
         success++;
-        mainSuccess++;
-        fallbackOk = true;
-        console.log(`✅ Source 2 (신규 지원금 분석) fallback 발행: ${s2Post.slug}`);
-      } else {
-        console.log('  ⤳ Source 2 skip → Source 3 시도');
+        console.log(`✅ Slot 3 (페르소나 각도) 발행: ${s3Post.slug}`);
       }
     } catch (e) {
-      console.warn(`⚠️ Source 2 오류: ${e?.message ?? e}`);
+      console.warn(`⚠️ Slot 3 오류: ${e?.message ?? e}`);
     }
+  }
 
-    if (!fallbackOk) {
-      console.log('🔄 Source 3 (마감 임박 주간 분석) fallback 시도');
-      try {
-        const s3Post = await generateDeadlineImminentReport({
-          apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
-        });
-        if (s3Post) {
-          success++;
-          mainSuccess++;
-          fallbackOk = true;
-          console.log(`✅ Source 3 (마감 임박 분석) fallback 발행: ${s3Post.slug}`);
-        } else {
-          console.log('  ⤳ Source 3 skip → Source 4 시도');
-        }
-      } catch (e) {
-        console.warn(`⚠️ Source 3 오류: ${e?.message ?? e}`);
+  // Fallback: 트렌딩 0건 시에만 신규 지원금 spoke 1건 (대체 콘텐츠)
+  // Cycle #82: Source 3·4·5 fallback 비활성화 — Slot 정책에 없음
+  if (mainSuccess === 0 && bonusSuccess === 0) {
+    console.log('\n🔄 트렌딩 분석 0건 → Slot 1 fallback (정부24 신규 지원금 spoke 1건)');
+    try {
+      const fbPost = await generateNewSubsidyReport({
+        apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
+      });
+      if (fbPost) {
+        success++;
+        mainSuccess++;
+        console.log(`✅ Fallback (신규 지원금 spoke) 발행: ${fbPost.slug}`);
+      } else {
+        console.log('  ⤳ Slot 1 fallback skip — 오늘 발행 없음');
       }
-    }
-
-    if (!fallbackOk) {
-      console.log('🔄 Source 4 (페르소나 주간 순회) fallback 시도');
-      try {
-        const s4Post = await generatePersonaWeeklyReport({
-          apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
-        });
-        if (s4Post) {
-          success++;
-          mainSuccess++;
-          fallbackOk = true;
-          console.log(`✅ Source 4 (페르소나 주간 분석) fallback 발행: ${s4Post.slug}`);
-        } else {
-          console.log('  ⤳ Source 4 skip → Source 5 시도');
-        }
-      } catch (e) {
-        console.warn(`⚠️ Source 4 오류: ${e?.message ?? e}`);
-      }
-    }
-
-    if (!fallbackOk) {
-      console.log('🔄 Source 5 (카테고리 심층 분석) fallback 시도');
-      try {
-        const s5Post = await generateCategoryWeeklyReport({
-          apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
-        });
-        if (s5Post) {
-          success++;
-          mainSuccess++;
-          console.log(`✅ Source 5 (카테고리 심층 분석) fallback 발행: ${s5Post.slug}`);
-        } else {
-          console.log('  ⤳ Source 5 skip — 모든 source 소진');
-        }
-      } catch (e) {
-        console.warn(`⚠️ Source 5 오류: ${e?.message ?? e}`);
-      }
+    } catch (e) {
+      console.warn(`⚠️ Slot 1 fallback 오류: ${e?.message ?? e}`);
     }
   }
 

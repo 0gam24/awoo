@@ -297,9 +297,11 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
                           {p.data.reportType && (() => {
                             const rtLabel = {
                               'new-subsidies-weekly': '🆕 신규',
+                              'new-subsidies-detail': '🔍 심층',
                               'deadline-imminent-weekly': '⏰ 마감',
                               'persona-weekly': '👤 페르소나',
                               'category-weekly': '🗂 분야',
+                              'trending-persona-angle': '🎯 페르소나 각도',
                             };
                             const label = rtLabel[p.data.reportType];
                             return label ? <span class={`pc-rt rt-${p.data.reportType}`}>{label}</span> : null;
