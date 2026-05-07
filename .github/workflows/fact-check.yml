@@ -1,0 +1,61 @@
+name: fact-check (LITE)
+
+# 매일 02:00 KST (= 17:00 UTC 전일) — 직전 24h 발행분 환각 자동 차단 게이트.
+# Cycle #84: PURPOSE.md §5 절대 마지노선(환각 0) 보장. AI 호출 X — 정적 분석 only.
+# generate (06:00 KST) 보다 늦은 02:00 KST에 돌아 직전일 발행분을 audit.
+on:
+  schedule:
+    - cron: '0 17 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: fact-check
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    name: fact-checker LITE
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Run fact-checker LITE
+        id: factcheck
+        continue-on-error: true
+        run: node scripts/agents/fact-checker.mjs
+
+      - name: Commit audit result
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          git add fact-check-queue/
+          if git diff --cached --quiet; then
+            echo "No audit changes"
+          else
+            DATE=$(TZ=Asia/Seoul date +"%Y-%m-%d")
+            git commit -m "chore(audit): fact-check LITE 결과 — ${DATE}
+
+          [skip ci]"
+            git push origin HEAD:main
+          fi
+
+      - name: Fail if HIGH-RISK
+        if: steps.factcheck.outcome == 'failure'
+        run: |
+          echo "::error title=환각 의심 HIGH-RISK 발견::운영자 1시간 내 검토 필요. fact-check-queue/{KST date}.json 참조."
+          exit 1
