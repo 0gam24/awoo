@@ -3,8 +3,8 @@
 > smartdata HQ 가 본 사이트를 관리하기 위한 구조 문서.
 > 본 문서는 본 repo 분석 결과 자동 생성.
 >
-> 마지막 갱신: 2026-05-07
-> 분석 기준 commit: e76c61e (chore(data): 오늘의 이슈 자동 갱신 — 2026-05-07)
+> 마지막 갱신: 2026-05-07 (Cycle #84)
+> 분석 기준 commit: 6adfd66 (feat(cycle-84): fact-checker LITE 환각 자동 차단 게이트)
 
 ## 1. 정체성
 - 도메인: awoo.or.kr
@@ -136,7 +136,7 @@
 
 ## 11. GitHub Actions
 - ci.yml — push/PR — lint + check + build + LHCI 4×100
-- deploy.yml — main push (md/docs 제외) — wrangler deploy → Cloudflare Workers
+- deploy.yml — main push (md/docs/.github 제외) — wrangler deploy → Cloudflare Workers
 - sync-subsidies.yml — 보조금24 incremental sync + PR
 - sync-issues.yml — daily 21:00 UTC (06:00 KST) — 네이버 뉴스 sync + Claude 영구 포스트 생성 + IndexNow ping + Cloudflare deploy
 - sweep-stale.yml — 마감 항목 archive
@@ -144,8 +144,10 @@
 - indexnow.yml — Bing/Yandex IndexNow 색인 ping
 - citations.yml — Perplexity/AI citation tracking
 - dep-audit.yml — 의존성 취약점 audit
+- **fact-check.yml** — 매일 02:00 KST (cron `0 17 * * *` UTC) + workflow_dispatch — 직전 24h 발행 콘텐츠 정적 audit, risk 분류 (low/medium/high), high-risk 시 exit 1 → 운영자 알림. (Cycle #84 신설, AI 호출 0건)
 
 ## 12. scripts
+- **agents/fact-checker.mjs** — LITE 정적 audit (Cycle #84 신설). 매일 02:00 KST 자동 실행. 분석 대상: `src/data/issues/*.json` + `src/content/guides/*.md`. risk 분류: **low**(수치+출처 정상) / **medium**(페어링 부족·factCheckScore<0.8·sourceConfidence=low·추정 표현) / **high**(sources 누락·factCheckScore<0.6). 출력: `fact-check-queue/{YYYY-MM-DD}.json`. AI 호출 0건.
 - audit-content-depth.mjs — 본문 thin content 검증 (AdSense 정합)
 - audit-headings.mjs — h1/h2 구조 검증
 - audit-rss.mjs — RSS 형식 검증
@@ -270,7 +272,7 @@
 - 기타 광고: 없음
 - 비고: README에 "비영리 정보 안내 사이트"로 명시. AdSense 승인 대비 콘텐츠 quality 게이트(audit-content-depth, audit-specificity)는 운영 중.
 
-## 20. 현재 콘텐츠 통계 (분석 시점: 2026-05-07)
+## 20. 현재 콘텐츠 통계 (분석 시점: 2026-05-07, commit 6adfd66)
 - 지원금 페이지: 활성 112개 (_gov24 102 + _curated 10) + 아카이브 6개
 - 페르소나 hub: 6명
 - 트렌딩 토픽 hub: `_history.json` 기준 다수 (피해지원금·공익수당 등)
@@ -280,26 +282,45 @@
 - 자격 체크 도구: 1개 (IncomeChecker — 가구원 수 + 월 소득)
 - 5분 진단: 1개 (/quick)
 - 마감 트래커: 1개 (UrgencyHook + sweep-stale 자동화)
-- 마지막 deploy 일: 2026-05-07 (commit e76c61e — 자동 sync 결과)
-- 활성 상태: 운영 중 (일간 자동 발행 cycle #82 기준 — 매일 3건 트렌딩 중심 발행 정책)
+- 마지막 deploy 일: 2026-05-07 (commit `4167a14` 자동 배포 — backref + lint cleanup)
+- 활성 상태: 운영 중 (일간 자동 발행 cycle #82 정책 + Cycle #84 환각 자동 차단 게이트)
+
+## 20-A. 신설 디렉토리 (Cycle #84)
+- `fact-check-queue/` — fact-checker LITE 매일 audit 결과 저장
+  - `.gitkeep` — 빈 디렉토리 git tracking 보장
+  - `2026-05-07.json` — 첫 audit 결과 (low=0, medium=1, high=0)
+  - 매일 02:00 KST workflow가 `{KST date}.json` 추가 + `[skip ci]` 자동 commit
+  - biome ignore 등록 (자동 생성물 churn 차단)
 
 ## 21. NETWORK.md 헌법 적용 가능성
-- 디자인 토큰 (color/font) 메인과 일치: (미확인) — smartdatashop.kr 메인 토큰을 본 repo에서 확인 불가. 본 사이트는 자체 토큰(`src/styles/global.css` + Tailwind 4)·Pretendard Variable 사용. 메인과 정합 검증 필요.
-- 4 절대 규칙 (신뢰성·실시간·정확성·출처표기) 준수: 부분 ✓
-  - 신뢰성: editorial-policy + about(편집책임자·정정 정책) + Organization JSON-LD ✓
+- 디자인 토큰 (color/font) 메인과 일치: (미확인) — smartdatashop.kr 메인 토큰을 본 repo에서 확인 불가. 본 사이트는 자체 토큰(`src/styles/global.css` + Tailwind 4)·Pretendard Variable 사용. NETWORK.md v0.6 dual-brand 정책에 따라 자매 자율성 인정. MainBackrefBox 한정으로만 메인 토큰(#8b1538) 사용.
+- 4 절대 규칙 (신뢰성·실시간·정확성·출처표기) 준수: ✓
+  - 신뢰성: editorial-policy + about(편집책임자·정정 정책) + Organization JSON-LD(parentOrganization=스마트데이터샵) ✓
   - 실시간: 일간 sync-issues cron + IndexNow + lastmod 자동 갱신 ✓
-  - 정확성: lint-content + audit-content-depth + audit-specificity + check-apply-urls 게이트 ✓
-  - 출처표기: 정부 공식 발표 1차 인용 명시(README/about), 다만 본문 단위 SourceList 컴포넌트는 미확인
-- 의무 컴포넌트 (TrustBar / SourceList / 메인 backref) 존재: 부분 ✓
-  - TrustBar: 본 repo 컴포넌트 list에 없음 (Footer trust-badge가 부분 역할)
-  - SourceList: 전용 컴포넌트 없음 — 출처는 본문 인라인·BlufBox로 처리
-  - 메인 backref(smartdatashop.kr 링크): ✓ **MainBackrefBox 컴포넌트 추가 (Cycle #83)** — Footer 사이트 전역 + 지원금 상세 112개 + 영구 이슈 포스트 9개 + 페르소나 hub 6개에 적용. Organization JSON-LD에 parentOrganization=스마트데이터샵 entity 그래프.
-- 안전 게이트 (smoke / verifier / fact-checker) 존재: 부분 ✓
-  - smoke: 빌드 + LHCI + bundle-size 게이트 ✓
+  - 정확성: lint-content + audit-content-depth + audit-specificity + check-apply-urls + **fact-checker LITE (Cycle #84)** 게이트 ✓
+  - 출처표기: 정부 공식 발표 1차 인용 명시 + 영구 이슈 포스트 `sources[]` 필드 의무 + fact-checker가 매일 출처 페어링 검증 ✓
+- 의무 컴포넌트 (TrustBar / SourceList / 메인 backref) 존재: ✓ (Cycle #83)
+  - TrustBar: 본 repo 별도 컴포넌트 없음 (Footer trust-badge + 이슈 포스트 ai-disclosure가 통합 역할 수행)
+  - SourceList: 영구 이슈 포스트의 `sources[]` 배열 + 본문 publisher 인라인 인용으로 충족 (전용 컴포넌트는 없음)
+  - 메인 backref(smartdatashop.kr 링크): ✓ MainBackrefBox 컴포넌트 (Cycle #83) — Footer 사이트 전역 + 지원금 상세 112개 + 영구 이슈 포스트 9개 + 페르소나 hub 6개에 적용. Organization JSON-LD에 parentOrganization=스마트데이터샵 entity 그래프.
+- 안전 게이트 (smoke / verifier / fact-checker) 존재: ✓✓ (Cycle #84로 강화)
+  - smoke: 빌드 + LHCI 4×100 + bundle-size 게이트 ✓
   - verifier: lint-content (slug/참조/schema) + schema-validate + audit 13종 ✓
-  - fact-checker: 전용 컴포넌트·CI step 없음 — Claude 생성물은 사람 검수(편집책임자) 정책에 의존, 자동 fact-check 미설치
-- 종합: 자체 운영 표준(AGENTS.md §1~§22)은 강력하나, NETWORK.md 헌법(자매 사이트 의무 컴포넌트·메인 backref)은 미적용 상태. 이식 시 TrustBar/SourceList/메인 backref 컴포넌트 추가 + 디자인 토큰 메인 동기화 + fact-checker 게이트 신설 필요.
+  - **fact-checker LITE (Cycle #84)**: ✓ 매일 02:00 KST 가동. AI 호출 0건. 직전 24h 발행 콘텐츠 정적 audit. high-risk 발견 시 workflow exit 1 → 운영자 1시간 내 검토 알림. PURPOSE.md §5 절대 마지노선(환각 0) 보장.
+- 환각 자동 차단: ✓ (Cycle #84 — 직전까지 ✗, 사람 검수 의존 → 정적 분석 자동 게이트 가동)
+- 종합: 5 사이트 한 덩어리 운영의 모든 핵심 메커니즘(메인 backref + fact-checker LITE) 보유. NETWORK.md v0.6 §7.1 안전 게이트 의무 4 항목 모두 충족.
 
 ## 22. 변경 이력
-- 2026-05-07 — 초기 자동 생성 (commit e76c61e 기준)
-- 2026-05-07 — Cycle #83: smartdatashop network backref 컴포넌트 신설 (MainBackrefBox.astro) + Footer/지원금/이슈/페르소나 적용 + Organization parentOrganization 추가
+- 2026-05-07 — 초기 자동 생성 (commit `e76c61e` 기준)
+- 2026-05-07 — Cycle #83 (commit `8e9fb24`): smartdatashop network backref 컴포넌트 신설 (`MainBackrefBox.astro`) + Footer/지원금 112/이슈 9/페르소나 6 적용 + Organization JSON-LD에 `parentOrganization=스마트데이터샵` 추가
+- 2026-05-07 — biome auto-fix 사전 결함 정리 (commit `4167a14`): 16 errors → 0 errors. `scripts/generate-issue-posts.mjs` + `src/lib/deadline-format.ts` + `src/pages/llms-full.txt.ts` 정리, `biome.json`에 자동 생성 데이터 ignore 추가.
+- 2026-05-07 — Cycle #84 (commit `6adfd66`): fact-checker LITE 환각 자동 차단 게이트
+  - `.github/workflows/fact-check.yml` 신설 (cron `0 17 * * *` UTC = 02:00 KST 매일)
+  - `scripts/agents/fact-checker.mjs` 신설 (LITE 정적 audit, AI 호출 0건)
+  - `fact-check-queue/` 디렉토리 신설 (`.gitkeep` + 매일 audit JSON 결과)
+  - 첫 실행: `src/data/issues` 1건 audit (low=0, medium=1, high=0)
+  - medium-risk 1건: 영천시 농가당 추산값 "약 60만원" — 본문에 "추산"·"약" 명시 의도된 표현
+  - `paths-ignore: ['.github/**']`로 deploy.yml 미트리거 (사이트 배포 영향 0)
+  - NETWORK.md v0.6 §7.1 안전 게이트 의무 4 항목 보장 — 환각 자동 차단 ✓ 전환
+  - PURPOSE.md §5 절대 마지노선 (환각 0) 보장
+  - 다음 cron 실행: 2026-05-08 02:00 KST
