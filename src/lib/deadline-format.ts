@@ -27,9 +27,7 @@ const UNKNOWN_PATTERNS = [/예산\s*소진/, /접수기관\s*별/, /명절기간
  */
 function extractEndDate(deadline: string): Date | null {
   // 모든 YYYY.M.D 또는 YYYY-M-D 또는 YYYY/M/D 패턴 (구분자, 공백 허용)
-  const matches = [
-    ...deadline.matchAll(/(\d{4})\s*[.\-/]\s*(\d{1,2})\s*[.\-/]\s*(\d{1,2})/g),
-  ];
+  const matches = [...deadline.matchAll(/(\d{4})\s*[.\-/]\s*(\d{1,2})\s*[.\-/]\s*(\d{1,2})/g)];
   // 연도 없이 M.D 또는 M/D만 있는 경우 (정부24 raw "4. 27.(월)" 등)
   // 마지막 날짜 사용
   const last = matches[matches.length - 1];

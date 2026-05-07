@@ -157,7 +157,9 @@ function getDDay(deadline) {
   const last = matches[matches.length - 1];
   if (!last) return null;
   const [, y, m, d] = last;
-  const yy = parseInt(y, 10), mm = parseInt(m, 10), dd = parseInt(d, 10);
+  const yy = parseInt(y, 10),
+    mm = parseInt(m, 10),
+    dd = parseInt(d, 10);
   if (!yy || !mm || !dd || mm < 1 || mm > 12 || dd < 1 || dd > 31) return null;
   const end = new Date(Date.UTC(yy, mm - 1, dd));
   const now = new Date();
@@ -372,7 +374,9 @@ async function callClaude(systemPrompt, userPrompt, apiKey, staticContext = '') 
   // Cycle #65: max_tokens hit 차단 — 이때 응답이 truncate되어 sections/faq/sources 손실 가능
   // stop_reason 'end_turn' 외 (특히 'max_tokens')일 때 명시 throw → 부분 결과 발행 차단
   if (json.stop_reason && json.stop_reason !== 'end_turn') {
-    throw new Error(`Claude stop_reason=${json.stop_reason} (응답 truncate 가능 — MAX_TOKENS 증가 필요)`);
+    throw new Error(
+      `Claude stop_reason=${json.stop_reason} (응답 truncate 가능 — MAX_TOKENS 증가 필요)`,
+    );
   }
   return { content, usage };
 }
@@ -463,7 +467,7 @@ function parseJsonFromResponse(text) {
   if (start === -1 || end === -1) {
     throw new Error('No JSON object in response');
   }
-  let body = cleaned.slice(start, end + 1);
+  const body = cleaned.slice(start, end + 1);
   // 3. 1차 시도
   try {
     return JSON.parse(body);
@@ -471,7 +475,7 @@ function parseJsonFromResponse(text) {
     // 4. 흔한 깨짐 패턴 자동 수정 시도
     //    - trailing comma 제거: ,] 또는 ,}
     //    - 줄바꿈으로 인한 문자열 깨짐 — 따옴표 안 raw newline → \\n
-    let fixed = body
+    const fixed = body
       .replace(/,(\s*[\]}])/g, '$1') // trailing comma
       .replace(/[‘’]/g, "'") // 스마트 단일따옴표
       .replace(/[“”]/g, '"'); // 스마트 이중따옴표
@@ -535,7 +539,13 @@ async function resolveSlug(date, slug) {
 // 우선순위: HOT → 마감 임박 → 금액 큰 순으로 1건 선택, 90일 dedup
 // ─────────────────────────────────────────────────────────────
 async function generateNewSubsidyReport({
-  apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
+  apiKey,
+  systemPrompt,
+  staticContext,
+  allSubsidies,
+  date,
+  history,
+  cacheLog,
 }) {
   const lastBatchSlugs = await loadLastBatchSlugs();
   if (lastBatchSlugs.length === 0) {
@@ -544,9 +554,7 @@ async function generateNewSubsidyReport({
   }
 
   const subsidyMap = new Map(allSubsidies.map((s) => [s.id, s]));
-  const candidates = lastBatchSlugs
-    .map((slug) => subsidyMap.get(slug))
-    .filter(Boolean);
+  const candidates = lastBatchSlugs.map((slug) => subsidyMap.get(slug)).filter(Boolean);
   if (candidates.length === 0) {
     console.log('  ⤳ lastBatch.slugs에 매칭 지원금 없음 → skip');
     return null;
@@ -569,17 +577,20 @@ async function generateNewSubsidyReport({
 
   // Cycle #82: 우선순위 1건 선택 — HOT > 마감 임박(D-30) > 금액 큰 순
   const ranked = [...eligible].sort((a, b) => {
-    const ah = a.isHot ? 1 : 0, bh = b.isHot ? 1 : 0;
+    const ah = a.isHot ? 1 : 0,
+      bh = b.isHot ? 1 : 0;
     if (ah !== bh) return bh - ah;
     const adl = getDDay(a.deadline);
     const bdl = getDDay(b.deadline);
-    const adAr = (adl !== null && adl >= 0 && adl <= 30) ? adl : 999;
-    const bdAr = (bdl !== null && bdl >= 0 && bdl <= 30) ? bdl : 999;
+    const adAr = adl !== null && adl >= 0 && adl <= 30 ? adl : 999;
+    const bdAr = bdl !== null && bdl >= 0 && bdl <= 30 ? bdl : 999;
     if (adAr !== bdAr) return adAr - bdAr;
     return (b.amount ?? 0) - (a.amount ?? 0);
   });
   const chosen = ranked[0];
-  console.log(`  → Slot 1 선택: ${chosen.id} (${chosen.title}) — HOT=${!!chosen.isHot}, D-${getDDay(chosen.deadline) ?? '∞'}, ${(chosen.amount ?? 0).toLocaleString('ko-KR')}원`);
+  console.log(
+    `  → Slot 1 선택: ${chosen.id} (${chosen.title}) — HOT=${!!chosen.isHot}, D-${getDDay(chosen.deadline) ?? '∞'}, ${(chosen.amount ?? 0).toLocaleString('ko-KR')}원`,
+  );
 
   // 같은 날짜 같은 subsidyId 이미 발행 시 skip
   const existingPaths = await readdir(join(ISSUES_OUT_DIR, date)).catch(() => []);
@@ -592,11 +603,21 @@ async function generateNewSubsidyReport({
     reportType: 'new-subsidies-detail',
     todayDate: date,
     subsidy: {
-      id: chosen.id, title: chosen.title, agency: chosen.agency, category: chosen.category,
-      amount: chosen.amount, amountLabel: chosen.amountLabel, monthly: chosen.monthly,
-      deadline: chosen.deadline, period: chosen.period, summary: chosen.summary,
-      eligibility: chosen.eligibility, benefits: chosen.benefits, documents: chosen.documents,
-      applyUrl: chosen.applyUrl, tags: chosen.tags,
+      id: chosen.id,
+      title: chosen.title,
+      agency: chosen.agency,
+      category: chosen.category,
+      amount: chosen.amount,
+      amountLabel: chosen.amountLabel,
+      monthly: chosen.monthly,
+      deadline: chosen.deadline,
+      period: chosen.period,
+      summary: chosen.summary,
+      eligibility: chosen.eligibility,
+      benefits: chosen.benefits,
+      documents: chosen.documents,
+      applyUrl: chosen.applyUrl,
+      tags: chosen.tags,
       targetPersonas: chosen.targetPersonas ?? [],
       hubUrl: `https://awoo.or.kr/subsidies/${chosen.id}/`,
       isHot: !!chosen.isHot,
@@ -659,7 +680,9 @@ ${JSON.stringify(userInput, null, 2)}
   const faqCount = Array.isArray(post.faq) ? post.faq.length : 0;
   const sourceCount = Array.isArray(post.sources) ? post.sources.length : 0;
   if (sectionCount < 3 || faqCount < 1 || sourceCount < 1) {
-    console.warn(`⚠️ Slot 1 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`);
+    console.warn(
+      `⚠️ Slot 1 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`,
+    );
     return null;
   }
   const govDomains = ['gov.kr', 'go.kr', 'bokjiro', 'work.go.kr'];
@@ -684,11 +707,17 @@ ${JSON.stringify(userInput, null, 2)}
   post.sourcePublisherCount = validSources.length;
   post.reportType = 'new-subsidies-detail';
   post.subsidyId = chosen.id;
-  post.matchedSubsidies = [{
-    id: chosen.id, title: chosen.title, agency: chosen.agency,
-    category: chosen.category, icon: chosen.icon,
-    amount: chosen.amount, amountLabel: chosen.amountLabel,
-  }];
+  post.matchedSubsidies = [
+    {
+      id: chosen.id,
+      title: chosen.title,
+      agency: chosen.agency,
+      category: chosen.category,
+      icon: chosen.icon,
+      amount: chosen.amount,
+      amountLabel: chosen.amountLabel,
+    },
+  ];
   post.relatedSubsidies = [chosen.id];
   post.relatedPersonas = chosen.targetPersonas ?? [];
   if (!post.category) post.category = chosen.category;
@@ -696,7 +725,8 @@ ${JSON.stringify(userInput, null, 2)}
   if (!post.coreFacts) {
     post.coreFacts = {
       who: chosen.eligibility?.[0] ?? '확인 필요',
-      amount: `${chosen.amountLabel ?? ''} ${chosen.amount > 0 ? chosen.amount.toLocaleString('ko-KR') + '원' : ''}`.trim(),
+      amount:
+        `${chosen.amountLabel ?? ''} ${chosen.amount > 0 ? chosen.amount.toLocaleString('ko-KR') + '원' : ''}`.trim(),
       deadline: chosen.deadline ?? '확인 필요',
       where: chosen.agency ?? '확인 필요',
     };
@@ -728,8 +758,17 @@ ${JSON.stringify(userInput, null, 2)}
 // Cannibalization 회피: Slot 2(트렌딩 일반)와 audience schema·sections 차별화
 // ─────────────────────────────────────────────────────────────
 async function generateTrendingPersonaAngle({
-  apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
-  trendingTerm, trendingArticles, slot2Slug,
+  apiKey,
+  systemPrompt,
+  staticContext,
+  allSubsidies,
+  personas,
+  date,
+  history,
+  cacheLog,
+  trendingTerm,
+  trendingArticles,
+  slot2Slug,
 }) {
   if (!trendingTerm || !Array.isArray(trendingArticles) || trendingArticles.length === 0) {
     console.log('  ⤳ Slot 3 입력 부족 (트렌딩 term/articles 없음) → skip');
@@ -737,7 +776,13 @@ async function generateTrendingPersonaAngle({
   }
 
   // 매칭 페르소나 1순위 — 트렌딩 카테고리 + 매칭 지원금에서 추출
-  const matched = matchSubsidies(trendingArticles[0]?.title ?? '', trendingTerm, trendingArticles[0]?.category, allSubsidies, 4);
+  const matched = matchSubsidies(
+    trendingArticles[0]?.title ?? '',
+    trendingTerm,
+    trendingArticles[0]?.category,
+    allSubsidies,
+    4,
+  );
   if (matched.length === 0) {
     console.log(`  ⤳ Slot 3 매칭 지원금 0건 (${trendingTerm}) → skip`);
     return null;
@@ -772,10 +817,22 @@ async function generateTrendingPersonaAngle({
     reportType: 'trending-persona-angle',
     todayDate: date,
     trendingTerm,
-    persona: { id: persona.id, label: persona.label, sub: persona.sub, age: persona.age, income: persona.income, pains: persona.pains },
+    persona: {
+      id: persona.id,
+      label: persona.label,
+      sub: persona.sub,
+      age: persona.age,
+      income: persona.income,
+      pains: persona.pains,
+    },
     matchedSubsidies: matched.slice(0, 4).map((m) => ({
-      id: m.id, title: m.title, agency: m.agency, category: m.category,
-      amount: m.amount, amountLabel: m.amountLabel, deadline: m.deadline,
+      id: m.id,
+      title: m.title,
+      agency: m.agency,
+      category: m.category,
+      amount: m.amount,
+      amountLabel: m.amountLabel,
+      deadline: m.deadline,
       eligibility: (m.eligibility ?? []).slice(0, 2),
       applyUrl: m.applyUrl,
     })),
@@ -838,7 +895,9 @@ ${JSON.stringify(userInput, null, 2)}
   const faqCount = Array.isArray(post.faq) ? post.faq.length : 0;
   const sourceCount = Array.isArray(post.sources) ? post.sources.length : 0;
   if (sectionCount < 3 || faqCount < 1 || sourceCount < 1) {
-    console.warn(`⚠️ Slot 3 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`);
+    console.warn(
+      `⚠️ Slot 3 본문 검증 실패: sections=${sectionCount} faq=${faqCount} sources=${sourceCount}`,
+    );
     return null;
   }
   const govDomains = ['gov.kr', 'go.kr', 'bokjiro', 'work.go.kr'];
@@ -865,13 +924,19 @@ ${JSON.stringify(userInput, null, 2)}
   post.personaId = topPersonaId;
   post.parentSlug = slot2Slug;
   post.matchedSubsidies = matched.slice(0, 4).map((m) => ({
-    id: m.id, title: m.title, agency: m.agency, category: m.category,
-    icon: m.icon, amount: m.amount, amountLabel: m.amountLabel,
+    id: m.id,
+    title: m.title,
+    agency: m.agency,
+    category: m.category,
+    icon: m.icon,
+    amount: m.amount,
+    amountLabel: m.amountLabel,
   }));
   post.relatedSubsidies = matched.slice(0, 4).map((m) => m.id);
   post.relatedPersonas = [topPersonaId];
   if (!post.category) post.category = trendingArticles[0]?.category ?? '복지';
-  if (!Array.isArray(post.tags) || post.tags.length === 0) post.tags = [trendingTerm, persona.label];
+  if (!Array.isArray(post.tags) || post.tags.length === 0)
+    post.tags = [trendingTerm, persona.label];
   if (!post.coreFacts) {
     post.coreFacts = {
       who: persona.label,
@@ -906,7 +971,13 @@ ${JSON.stringify(userInput, null, 2)}
 // 트렌딩 + Source 2 모두 0건 시 fallback. 또는 7일 dedup 통과 시 정기 발행 후보.
 // ─────────────────────────────────────────────────────────────
 async function generateDeadlineImminentReport({
-  apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
+  apiKey,
+  systemPrompt,
+  staticContext,
+  allSubsidies,
+  date,
+  history,
+  cacheLog,
 }) {
   // D-30 이내 임박 지원금 추출 (D-7는 너무 좁아 발행 빈도 낮음)
   const imminent = allSubsidies
@@ -921,7 +992,11 @@ async function generateDeadlineImminentReport({
   }
 
   // 7일 dedup — fingerprint 기반
-  const fingerprint = `deadline-imminent-${imminent.map(({ s }) => s.id).sort().join('-').slice(0, 60)}`;
+  const fingerprint = `deadline-imminent-${imminent
+    .map(({ s }) => s.id)
+    .sort()
+    .join('-')
+    .slice(0, 60)}`;
   const recentDeadlineReports = Object.entries(history.byTerm ?? {})
     .filter(([, e]) => e.reportType === 'deadline-imminent-weekly')
     .map(([, e]) => ({ firstSeen: e.firstSeen, postSlug: e.postSlug }));
@@ -940,11 +1015,22 @@ async function generateDeadlineImminentReport({
     reportType: 'deadline-imminent-weekly',
     todayDate: date,
     imminentSubsidies: imminent.map(({ s, dDay }) => ({
-      id: s.id, title: s.title, agency: s.agency, category: s.category,
-      amount: s.amount, amountLabel: s.amountLabel, monthly: s.monthly,
-      deadline: s.deadline, period: s.period, summary: s.summary,
-      eligibility: s.eligibility, benefits: s.benefits, documents: s.documents,
-      applyUrl: s.applyUrl, tags: s.tags, dDay,
+      id: s.id,
+      title: s.title,
+      agency: s.agency,
+      category: s.category,
+      amount: s.amount,
+      amountLabel: s.amountLabel,
+      monthly: s.monthly,
+      deadline: s.deadline,
+      period: s.period,
+      summary: s.summary,
+      eligibility: s.eligibility,
+      benefits: s.benefits,
+      documents: s.documents,
+      applyUrl: s.applyUrl,
+      tags: s.tags,
+      dDay,
     })),
   };
 
@@ -1028,8 +1114,13 @@ ${JSON.stringify(userInput, null, 2)}
   post.sourcePublisherCount = validSources.length;
   post.reportType = 'deadline-imminent-weekly';
   post.matchedSubsidies = imminent.map(({ s }) => ({
-    id: s.id, title: s.title, agency: s.agency, category: s.category,
-    icon: s.icon, amount: s.amount, amountLabel: s.amountLabel,
+    id: s.id,
+    title: s.title,
+    agency: s.agency,
+    category: s.category,
+    icon: s.icon,
+    amount: s.amount,
+    amountLabel: s.amountLabel,
   }));
 
   const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
@@ -1056,17 +1147,24 @@ ${JSON.stringify(userInput, null, 2)}
 // 요일별 페르소나 1종 매핑 → 매일 다른 페르소나로 순회 (7일 dedup)
 // ─────────────────────────────────────────────────────────────
 const PERSONA_WEEKDAY_MAP = {
-  1: 'office-rookie',     // 월
-  2: 'self-employed',     // 화
-  3: 'newlywed-family',   // 수
-  4: 'senior',            // 목
-  5: 'low-income',        // 금
-  6: 'farmer',            // 토
+  1: 'office-rookie', // 월
+  2: 'self-employed', // 화
+  3: 'newlywed-family', // 수
+  4: 'senior', // 목
+  5: 'low-income', // 금
+  6: 'farmer', // 토
   // 0 (일요일): persona 발행 X — 카테고리 심층(Source 5) 또는 휴식
 };
 
 async function generatePersonaWeeklyReport({
-  apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
+  apiKey,
+  systemPrompt,
+  staticContext,
+  allSubsidies,
+  personas,
+  date,
+  history,
+  cacheLog,
 }) {
   // 요일 → 페르소나 결정 (KST 기준)
   const dateObj = new Date(date + 'T00:00:00+09:00');
@@ -1111,7 +1209,8 @@ async function generatePersonaWeeklyReport({
   }
   for (const arr of byCategory.values()) {
     arr.sort((a, b) => {
-      const ah = a.isHot ? 1 : 0, bh = b.isHot ? 1 : 0;
+      const ah = a.isHot ? 1 : 0,
+        bh = b.isHot ? 1 : 0;
       if (ah !== bh) return bh - ah;
       return (b.amount ?? 0) - (a.amount ?? 0);
     });
@@ -1127,12 +1226,19 @@ async function generatePersonaWeeklyReport({
   const lastBatchSlugs = await loadLastBatchSlugs();
   const newSlugSet = new Set(lastBatchSlugs);
   const annotated = topMatched.map((s) => ({
-    id: s.id, title: s.title, agency: s.agency, category: s.category,
-    amount: s.amount, amountLabel: s.amountLabel, monthly: s.monthly,
-    deadline: s.deadline, summary: s.summary,
+    id: s.id,
+    title: s.title,
+    agency: s.agency,
+    category: s.category,
+    amount: s.amount,
+    amountLabel: s.amountLabel,
+    monthly: s.monthly,
+    deadline: s.deadline,
+    summary: s.summary,
     eligibility: s.eligibility?.slice(0, 3),
     benefits: s.benefits?.slice(0, 3),
-    applyUrl: s.applyUrl, tags: s.tags,
+    applyUrl: s.applyUrl,
+    tags: s.tags,
     isNew: newSlugSet.has(s.id),
     dDay: getDDay(s.deadline),
     isHot: !!s.isHot,
@@ -1142,8 +1248,12 @@ async function generatePersonaWeeklyReport({
     reportType: 'persona-weekly',
     todayDate: date,
     persona: {
-      id: persona.id, label: persona.label, sub: persona.sub,
-      age: persona.age, income: persona.income, living: persona.living,
+      id: persona.id,
+      label: persona.label,
+      sub: persona.sub,
+      age: persona.age,
+      income: persona.income,
+      living: persona.living,
       pains: persona.pains,
     },
     totalMatched: matched.length,
@@ -1176,7 +1286,9 @@ ${SEO_GUIDELINES}
 ${JSON.stringify(userInput, null, 2)}
 \`\`\``;
 
-  console.log(`  → Claude 호출 (페르소나 ${persona.label}, 매칭 ${matched.length}건 → Top ${annotated.length})`);
+  console.log(
+    `  → Claude 호출 (페르소나 ${persona.label}, 매칭 ${matched.length}건 → Top ${annotated.length})`,
+  );
   let post;
   try {
     const result = await callClaude(systemPrompt, userPrompt, apiKey, staticContext);
@@ -1231,8 +1343,13 @@ ${JSON.stringify(userInput, null, 2)}
   post.reportType = 'persona-weekly';
   post.personaId = persona.id;
   post.matchedSubsidies = topMatched.slice(0, 6).map((s) => ({
-    id: s.id, title: s.title, agency: s.agency, category: s.category,
-    icon: s.icon, amount: s.amount, amountLabel: s.amountLabel,
+    id: s.id,
+    title: s.title,
+    agency: s.agency,
+    category: s.category,
+    icon: s.icon,
+    amount: s.amount,
+    amountLabel: s.amountLabel,
   }));
 
   const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
@@ -1262,7 +1379,14 @@ ${JSON.stringify(userInput, null, 2)}
 // 가장 오래된 카테고리 → 페르소나별 추천·자격 비교·페르소나 분포 종합
 // ─────────────────────────────────────────────────────────────
 async function generateCategoryWeeklyReport({
-  apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
+  apiKey,
+  systemPrompt,
+  staticContext,
+  allSubsidies,
+  personas,
+  date,
+  history,
+  cacheLog,
 }) {
   // 데이터셋에서 카테고리 unique 추출
   const allCategories = [...new Set(allSubsidies.map((s) => s.category).filter(Boolean))];
@@ -1303,7 +1427,8 @@ async function generateCategoryWeeklyReport({
 
   // 정렬: HOT → 신청 가능 → 금액 desc
   const sorted = [...matched].sort((a, b) => {
-    const ah = a.isHot ? 1 : 0, bh = b.isHot ? 1 : 0;
+    const ah = a.isHot ? 1 : 0,
+      bh = b.isHot ? 1 : 0;
     if (ah !== bh) return bh - ah;
     return (b.amount ?? 0) - (a.amount ?? 0);
   });
@@ -1328,12 +1453,18 @@ async function generateCategoryWeeklyReport({
   const lastBatchSlugs = await loadLastBatchSlugs();
   const newSlugSet = new Set(lastBatchSlugs);
   const compactMatched = sorted.slice(0, 8).map((s) => ({
-    id: s.id, title: s.title, agency: s.agency,
-    amount: s.amount, amountLabel: s.amountLabel, monthly: s.monthly,
-    deadline: s.deadline, summary: s.summary,
+    id: s.id,
+    title: s.title,
+    agency: s.agency,
+    amount: s.amount,
+    amountLabel: s.amountLabel,
+    monthly: s.monthly,
+    deadline: s.deadline,
+    summary: s.summary,
     eligibility: s.eligibility?.slice(0, 3),
     benefits: s.benefits?.slice(0, 3),
-    applyUrl: s.applyUrl, tags: s.tags,
+    applyUrl: s.applyUrl,
+    tags: s.tags,
     isNew: newSlugSet.has(s.id),
     dDay: getDDay(s.deadline),
     isHot: !!s.isHot,
@@ -1374,7 +1505,9 @@ ${SEO_GUIDELINES}
 ${JSON.stringify(userInput, null, 2)}
 \`\`\``;
 
-  console.log(`  → Claude 호출 (카테고리 ${targetCategory}, ${matched.length}건 → Top ${compactMatched.length})`);
+  console.log(
+    `  → Claude 호출 (카테고리 ${targetCategory}, ${matched.length}건 → Top ${compactMatched.length})`,
+  );
   let post;
   try {
     const result = await callClaude(systemPrompt, userPrompt, apiKey, staticContext);
@@ -1427,8 +1560,13 @@ ${JSON.stringify(userInput, null, 2)}
   post.reportType = 'category-weekly';
   post.categoryId = targetCategory;
   post.matchedSubsidies = sorted.slice(0, 6).map((s) => ({
-    id: s.id, title: s.title, agency: s.agency, category: s.category,
-    icon: s.icon, amount: s.amount, amountLabel: s.amountLabel,
+    id: s.id,
+    title: s.title,
+    agency: s.agency,
+    category: s.category,
+    icon: s.icon,
+    amount: s.amount,
+    amountLabel: s.amountLabel,
   }));
 
   const outPath = join(ISSUES_OUT_DIR, date, `${finalSlug}.json`);
@@ -1742,9 +1880,7 @@ ${JSON.stringify(userInput, null, 2)}
       const reason = `본문 검증 실패: sections=${sectionCount}/3+ faq=${faqCount}/1+ sources=${sourceCount}/1+`;
       console.warn(`⚠️ ${reason} (${term})`);
       if (isCI) {
-        console.log(
-          `::warning title=본문 검증 실패::${term} ${reason}`,
-        );
+        console.log(`::warning title=본문 검증 실패::${term} ${reason}`);
       }
       failures.push({
         rank: idx + 1,
@@ -1817,7 +1953,14 @@ ${JSON.stringify(userInput, null, 2)}
     console.log('\n🎯 Slot 3 (트렌딩 Top 1 + 페르소나 각도) 시도');
     try {
       const s3Post = await generateTrendingPersonaAngle({
-        apiKey, systemPrompt, staticContext, allSubsidies, personas, date, history, cacheLog,
+        apiKey,
+        systemPrompt,
+        staticContext,
+        allSubsidies,
+        personas,
+        date,
+        history,
+        cacheLog,
         trendingTerm: slot1Trending.term,
         trendingArticles: slot1Trending.articles,
         slot2Slug: slot1Trending.slug,
@@ -1837,7 +1980,13 @@ ${JSON.stringify(userInput, null, 2)}
     console.log('\n🔄 트렌딩 분석 0건 → Slot 1 fallback (정부24 신규 지원금 spoke 1건)');
     try {
       const fbPost = await generateNewSubsidyReport({
-        apiKey, systemPrompt, staticContext, allSubsidies, date, history, cacheLog,
+        apiKey,
+        systemPrompt,
+        staticContext,
+        allSubsidies,
+        date,
+        history,
+        cacheLog,
       });
       if (fbPost) {
         success++;

@@ -23,7 +23,11 @@ interface IssuePostFile {
   sections?: IssuePostSection[];
   faq?: IssuePostFAQ[];
   // Cycle #77: reportType별 분기 노출 (AI 답변 엔진이 분석 유형 인지)
-  reportType?: 'new-subsidies-weekly' | 'deadline-imminent-weekly' | 'persona-weekly' | 'category-weekly';
+  reportType?:
+    | 'new-subsidies-weekly'
+    | 'deadline-imminent-weekly'
+    | 'persona-weekly'
+    | 'category-weekly';
   sourceConfidence?: 'high' | 'medium' | 'low';
   sourcePublisherCount?: number;
 }
@@ -271,37 +275,44 @@ export const GET: APIRoute = async () => {
         key: 'trending',
         emoji: '🔥',
         title: '트렌딩 정책 뉴스 분석',
-        intro: '네이버 뉴스 트렌딩 키워드 → 매체 다양성 검증 → 매칭 지원금 자동 분석. 정책 속보·여론·시행 동향 인용 시 활용.',
+        intro:
+          '네이버 뉴스 트렌딩 키워드 → 매체 다양성 검증 → 매칭 지원금 자동 분석. 정책 속보·여론·시행 동향 인용 시 활용.',
       },
       {
         key: 'new-subsidies-weekly',
         emoji: '🆕',
         title: '신규 등록 지원금 주간 정리',
-        intro: '정부24에서 새로 등록된 지원금 비교 분석. "이번 주 새로 생긴 정부 지원금" / "신규 등록된 X 지원금" 답변 시 활용.',
+        intro:
+          '정부24에서 새로 등록된 지원금 비교 분석. "이번 주 새로 생긴 정부 지원금" / "신규 등록된 X 지원금" 답변 시 활용.',
       },
       {
         key: 'deadline-imminent-weekly',
         emoji: '⏰',
         title: '마감 임박 지원금 알림 (D-30 이내)',
-        intro: 'D-30 이내 신청 마감 지원금 정렬·신청 우선순위. "지금 마감되는 지원금" / "신청 기간이 얼마 안 남은 지원금" 답변 시 활용.',
+        intro:
+          'D-30 이내 신청 마감 지원금 정렬·신청 우선순위. "지금 마감되는 지원금" / "신청 기간이 얼마 안 남은 지원금" 답변 시 활용.',
       },
       {
         key: 'persona-weekly',
         emoji: '👤',
         title: '페르소나별 주간 분석',
-        intro: '6종 페르소나(사회초년생·자영업·신혼육아·중장년·저소득·농업) 요일별 순회. "X(페르소나)이 받을 수 있는 지원금" 답변 시 활용.',
+        intro:
+          '6종 페르소나(사회초년생·자영업·신혼육아·중장년·저소득·농업) 요일별 순회. "X(페르소나)이 받을 수 있는 지원금" 답변 시 활용.',
       },
       {
         key: 'category-weekly',
         emoji: '🗂',
         title: '분야별 심층 가이드',
-        intro: '7종 카테고리(주거·취업·창업·교육·복지·자산·농업) 7일 순회 심층. "X(분야) 정부 지원금 종합" 답변 시 활용.',
+        intro:
+          '7종 카테고리(주거·취업·창업·교육·복지·자산·농업) 7일 순회 심층. "X(분야) 정부 지원금 종합" 답변 시 활용.',
       },
     ];
 
     lines.push(`## 영구 분석 포스트 — 최근 30일 (${issuePosts.length}건, 5종 reportType 분기)`);
     lines.push('');
-    lines.push('각 포스트는 BLUF·답변형 H2·table·FAQ 청크 구성. 본문 단위 정확 인용 가능. 분석 유형별로 분기되어 있음.');
+    lines.push(
+      '각 포스트는 BLUF·답변형 H2·table·FAQ 청크 구성. 본문 단위 정확 인용 가능. 분석 유형별로 분기되어 있음.',
+    );
     lines.push('');
 
     for (const meta of sectionMeta) {
@@ -324,7 +335,12 @@ export const GET: APIRoute = async () => {
         }
         lines.push(`- 분류: ${d.category ?? '-'} · 본문: ${url}`);
         if (d.sourceConfidence) {
-          const confLabel = d.sourceConfidence === 'high' ? '높음' : d.sourceConfidence === 'medium' ? '보통' : '제한';
+          const confLabel =
+            d.sourceConfidence === 'high'
+              ? '높음'
+              : d.sourceConfidence === 'medium'
+                ? '보통'
+                : '제한';
           const pubPart = d.sourcePublisherCount ? `, 매체 ${d.sourcePublisherCount}곳` : '';
           lines.push(`- 신뢰도: ${confLabel}${pubPart}`);
         }
