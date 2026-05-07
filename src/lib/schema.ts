@@ -67,6 +67,14 @@ export function buildOrganization() {
       email: ORG.email,
       availableLanguage: ['ko'],
     },
+    // smartdatashop network — awoo는 메인(스마트데이터샵 데이터 저널)의 정부 지원금 자매.
+    // parentOrganization로 entity 그래프상 네트워크 관계 명시 → AI/검색 sitelinks·신뢰 신호.
+    parentOrganization: {
+      '@type': 'Organization',
+      '@id': 'https://smartdatashop.kr/#organization',
+      name: '스마트데이터샵',
+      url: 'https://smartdatashop.kr',
+    },
   };
 }
 

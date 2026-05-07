@@ -1,0 +1,214 @@
+---
+// MainBackrefBox — smartdatashop.kr (메인 데이터 저널) backref.
+//
+// 목적:
+//   - 자매 자율성 유지 + 1차 출처(메인) 자연 funnel
+//   - "본 데이터 출처: smartdatashop.kr" 시각 인식 (메인 토큰 #8b1538 좌측 라인)
+//   - 외부 link rel="noopener noreferrer" + target="_blank"
+//
+// 변형:
+//   inline   — 본문 끝 / 카드 하단
+//   sidebar  — 사이드 레일 sticky
+//   footer   — 사이트 Footer 네트워크 섹션
+//
+// 페르소나 → 메인 카테고리 자동 매핑 (CATEGORY_MAP §3.2):
+//   self-employed → /category/tax-finance/  (창업·세무 contour)
+//   그 외 (office-rookie / newlywed-family / senior / low-income / farmer /
+//         student / unemployed-career-shift) → /category/policy/
+
+const MAIN_URL = 'https://smartdatashop.kr';
+
+const PERSONA_TO_CATEGORY: Record<string, string> = {
+  // 본 repo personas.json (6종)
+  'office-rookie': '/category/policy/',
+  'self-employed': '/category/tax-finance/',
+  'newlywed-family': '/category/policy/',
+  'senior': '/category/policy/',
+  'low-income': '/category/policy/',
+  'farmer': '/category/policy/',
+  // 향후 NETWORK 표준 페르소나 (현재 미구현, 매핑만 선언)
+  'student': '/category/policy/',
+  'unemployed-career-shift': '/category/policy/',
+};
+
+interface Props {
+  /** 메인 펄스(개별 콘텐츠) 직접 link — 있으면 우선 */
+  mainPulseUrl?: string;
+  /** 메인 카테고리 link (펄스 없으면 카테고리) */
+  mainCategoryUrl?: string;
+  /** 메인 펄스 제목 (있으면 표시) */
+  pulseTitle?: string;
+  /** 박스 제목 — 기본 "본 데이터 출처" */
+  title?: string;
+  /** 위치별 스타일 */
+  variant?: 'inline' | 'sidebar' | 'footer';
+  /** 페르소나(자동 매핑) — mainCategoryUrl 미지정 시 매핑.
+   *  exactOptionalPropertyTypes 고려해 undefined 허용. */
+  persona?:
+    | 'office-rookie'
+    | 'self-employed'
+    | 'newlywed-family'
+    | 'senior'
+    | 'low-income'
+    | 'farmer'
+    | 'student'
+    | 'unemployed-career-shift'
+    | undefined;
+}
+
+const {
+  mainPulseUrl,
+  mainCategoryUrl,
+  pulseTitle,
+  title = '본 데이터 출처',
+  variant = 'inline',
+  persona,
+} = Astro.props;
+
+// 우선순위: pulse → category(직접) → persona 매핑 → 메인 홈
+const personaCategory = persona ? PERSONA_TO_CATEGORY[persona] : undefined;
+const targetPath = mainPulseUrl
+  ?? mainCategoryUrl
+  ?? (personaCategory ? `${MAIN_URL}${personaCategory}` : `${MAIN_URL}/`);
+const targetUrl = targetPath.startsWith('http') ? targetPath : `${MAIN_URL}${targetPath}`;
+
+const subtitle = pulseTitle || '한국 정부·공공기관 1차 출처 데이터 저널';
+---
+
+<aside
+  class:list={['mbr', `mbr-${variant}`]}
+  aria-label="메인 데이터 저널 출처"
+>
+  <div class="mbr-inner">
+    <p class="mbr-eyebrow">
+      <span aria-hidden="true">📊</span> {title}
+    </p>
+    <p class="mbr-sub">{subtitle}</p>
+    <a
+      class="mbr-cta"
+      href={targetUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      검증·해설 → <strong class="mbr-domain">smartdatashop.kr</strong>
+      <svg
+        class="mbr-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M10 6H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" />
+        <path d="M14 4h6v6" />
+        <path d="M10 14 20 4" />
+      </svg>
+    </a>
+  </div>
+</aside>
+
+<style>
+  /* 메인(smartdatashop.kr) 토큰 — 자매에서 brand identity 시각 인식용. 본 컴포넌트 한정. */
+  .mbr {
+    --mbr-accent: #8b1538;
+    --mbr-bg: #faf7f0;
+    --mbr-text: #1d1d1f;
+    --mbr-text-2: #5a5a5e;
+
+    background: var(--mbr-bg);
+    border-left: 4px solid var(--mbr-accent);
+    border-radius: 0 8px 8px 0;
+    padding: 16px 18px;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    color: var(--mbr-text);
+  }
+
+  /* 다크 모드에서도 brand color 유지하되 배경만 톤 다운 */
+  :global([data-theme='dark']) .mbr {
+    --mbr-bg: #2a2118;
+    --mbr-text: #f0e8dc;
+    --mbr-text-2: #c4b8a8;
+  }
+
+  .mbr-inline {
+    margin: 32px 0;
+    max-width: 720px;
+  }
+  .mbr-sidebar {
+    position: sticky;
+    top: 16px;
+  }
+  .mbr-footer {
+    margin-top: 24px;
+    max-width: 100%;
+  }
+
+  .mbr-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mbr-eyebrow {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--mbr-accent);
+    margin: 0;
+  }
+
+  .mbr-sub {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--mbr-text-2);
+    margin: 0;
+  }
+
+  .mbr-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mbr-accent);
+    text-decoration: none;
+    align-self: flex-start;
+    min-height: 32px;
+    padding: 4px 0;
+  }
+
+  .mbr-cta:hover,
+  .mbr-cta:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .mbr-domain {
+    font-weight: 800;
+    margin-left: 2px;
+  }
+
+  .mbr-icon {
+    width: 14px;
+    height: 14px;
+    margin-left: 2px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 720px) {
+    .mbr {
+      padding: 14px 16px;
+    }
+    .mbr-sub {
+      font-size: 13.5px;
+    }
+    .mbr-cta {
+      font-size: 13.5px;
+    }
+  }
+</style>

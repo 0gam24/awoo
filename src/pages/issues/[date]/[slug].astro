@@ -1,6 +1,7 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
+import MainBackrefBox from '@/components/MainBackrefBox.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
 import { paragraphsAndLists } from '@/lib/inline-markdown';
@@ -742,6 +743,16 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
       )}
     </Container>
   </article>
+
+  {/* smartdatashop network — 메인 정책 카테고리로 자연 funnel (이슈 포스트는 시사 정책 본질) */}
+  <section class="band">
+    <Container size="wide">
+      <MainBackrefBox
+        variant="inline"
+        mainCategoryUrl="https://smartdatashop.kr/category/policy/"
+      />
+    </Container>
+  </section>
 
   {/* Cycle #46: 모바일 하단 sticky CTA — 사용자가 글 끝까지 안 읽어도 전환 가능 */}
   <div class="mobile-sticky-cta" aria-label="다음 행동">

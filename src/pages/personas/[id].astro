@@ -2,6 +2,7 @@
 import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import CrossRefRail from '@/components/CrossRefRail.astro';
+import MainBackrefBox from '@/components/MainBackrefBox.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
@@ -308,6 +309,18 @@ const collectionSchema = buildCollectionPage({
       )}
 
       <CrossRefRail title="함께 보면 좋은 다른 관점" items={crossRefItems} />
+
+      {/* smartdatashop network — 페르소나 자동 매핑 (CATEGORY_MAP §3.2) */}
+      <MainBackrefBox
+        variant="inline"
+        persona={p.id as
+          | 'office-rookie'
+          | 'self-employed'
+          | 'newlywed-family'
+          | 'senior'
+          | 'low-income'
+          | 'farmer'}
+      />
 
       <nav class="persona-nav" aria-label="다른 페르소나">
         <div class="pn-eyebrow">다른 페르소나로 보기</div>

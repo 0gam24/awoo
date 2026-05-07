@@ -2,6 +2,7 @@
 import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
+import MainBackrefBox from '@/components/MainBackrefBox.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon, CATEGORY_FAQS } from '@/data/site-data';
 import { isNew, isStale, getRegDateISO, getLastVerifiedISO, getLastVerifiedKR, STALE_THRESHOLD_DAYS } from '@/lib/subsidies-meta';
@@ -459,6 +460,23 @@ const breadcrumbs = [
       set:html={JSON.stringify(faqSchema)}
     />
   )}
+
+  {/* smartdatashop network — 메인 데이터 저널 backref. 페르소나 자동 매핑. */}
+  <section class="band">
+    <Container size="wide">
+      <MainBackrefBox
+        variant="inline"
+        persona={matchedPersonas[0]?.id as
+          | 'office-rookie'
+          | 'self-employed'
+          | 'newlywed-family'
+          | 'senior'
+          | 'low-income'
+          | 'farmer'
+          | undefined}
+      />
+    </Container>
+  </section>
 
   {/* Cycle #47: 모바일 하단 sticky CTA — 신청 즉시 도달 + 5분 진단 보조 */}
   <div class="mobile-sticky-cta" aria-label="신청 행동">
