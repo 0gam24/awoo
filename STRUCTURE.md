@@ -148,6 +148,7 @@
 
 ## 12. scripts
 - **agents/fact-checker.mjs** — LITE 정적 audit (Cycle #84 신설). 매일 02:00 KST 자동 실행. 분석 대상: `src/data/issues/*.json` + `src/content/guides/*.md`. risk 분류: **low**(수치+출처 정상) / **medium**(페어링 부족·factCheckScore<0.8·sourceConfidence=low·추정 표현) / **high**(sources 누락·factCheckScore<0.6). 출력: `fact-check-queue/{YYYY-MM-DD}.json`. AI 호출 0건.
+- **generate-network-mirror.mjs** — smartdata Network Index용 자매 인벤토리 export (Cycle #85 신설). `prebuild` hook으로 `npm run build` 시 자동 실행. 출력: `public/network-mirror.json` — 활성 지원금 + 영구 이슈 메타·요약·URL (본문 복제 X, AdSense ID 노출 X). 메인 사이트가 awoo 발행물 list를 sync하기 위한 정적 인덱스. .gitignore 처리(자동 생성물).
 - audit-content-depth.mjs — 본문 thin content 검증 (AdSense 정합)
 - audit-headings.mjs — h1/h2 구조 검증
 - audit-rss.mjs — RSS 형식 검증
@@ -173,7 +174,8 @@
 
 ## 13. 빌드·배포 명령
 - `npm run dev` — 개발 서버 (localhost:4321)
-- `npm run build` — entity-graph + astro build + bundle-size 게이트
+- `npm run generate:mirror` — Network Index용 `public/network-mirror.json` 단독 생성 (Cycle #85)
+- `npm run build` — **prebuild(generate:mirror)** + entity-graph + astro build + bundle-size 게이트
 - `npm run preview` — build + wrangler dev 로컬 Worker
 - `npm run check` — astro check + tsc --noEmit
 - `npm run lint` / `lint:fix` — Biome
@@ -310,6 +312,12 @@
 - 환각 자동 차단: ✓ (Cycle #84 — 직전까지 ✗, 사람 검수 의존 → 정적 분석 자동 게이트 가동)
 - 종합: 5 사이트 한 덩어리 운영의 모든 핵심 메커니즘(메인 backref + fact-checker LITE) 보유. NETWORK.md v0.6 §7.1 안전 게이트 의무 4 항목 모두 충족.
 
+## 20-B. Network mirror (Cycle #85)
+- `public/network-mirror.json` — 빌드 시 `prebuild` hook이 `scripts/generate-network-mirror.mjs` 실행하여 자동 생성. 운영 중 활성 콘텐츠(지원금 + 영구 이슈) 메타·요약·URL을 단일 JSON으로 export.
+- 노출 URL: `https://awoo.or.kr/network-mirror.json` (Cloudflare Workers 정적 배포)
+- 첫 빌드 결과: 122편 (지원금 112 + 이슈 10) — 6 페르소나, 3 categories, isCommercial=false
+- gitignored — repo에는 commit하지 않고 build 시 매번 재생성 (sync-issues cron 의 새 이슈 자동 반영)
+
 ## 22. 변경 이력
 - 2026-05-07 — 초기 자동 생성 (commit `e76c61e` 기준)
 - 2026-05-07 — Cycle #83 (commit `8e9fb24`): smartdatashop network backref 컴포넌트 신설 (`MainBackrefBox.astro`) + Footer/지원금 112/이슈 9/페르소나 6 적용 + Organization JSON-LD에 `parentOrganization=스마트데이터샵` 추가
@@ -324,3 +332,10 @@
   - NETWORK.md v0.6 §7.1 안전 게이트 의무 4 항목 보장 — 환각 자동 차단 ✓ 전환
   - PURPOSE.md §5 절대 마지노선 (환각 0) 보장
   - 다음 cron 실행: 2026-05-08 02:00 KST
+- 2026-05-08 — Cycle #85: Network mirror 빌드 자동 생성
+  - `scripts/generate-network-mirror.mjs` 신설 — 활성 지원금 112 + 영구 이슈 10 = 122편 메타 export
+  - `package.json` `prebuild` hook 추가 → `npm run build` 시 자동 실행
+  - 출력: `public/network-mirror.json` (gitignored, 빌드마다 재생성)
+  - 노출 URL: https://awoo.or.kr/network-mirror.json
+  - 메인 사이트(smartdatashop.kr Network HQ)가 awoo 발행물 list sync 가능
+  - isCommercial: false 명시 (awoo 비영리)
