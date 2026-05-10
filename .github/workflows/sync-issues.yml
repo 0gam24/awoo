@@ -72,12 +72,17 @@ jobs:
             echo "No data change — skipping commit"
           fi
 
+      # Cycle #86: today.md 일일 변경 로그 갱신 — 신규 이슈 + 지원금 reg/mod 통합
+      # 데이터 변경 여부와 무관하게 매일 실행 (헤더의 "마지막 갱신" 타임스탬프 freshness)
+      - name: Update today.md
+        run: npm run update:today
+
       - name: Commit changes
         if: steps.diff.outputs.changed == 'true'
         run: |
           git config user.name "awoo-bot"
           git config user.email "noreply@awoo.or.kr"
-          git add src/data/today-issue.json src/data/issues/
+          git add src/data/today-issue.json src/data/issues/ today.md
           # Cycle #79: commit message date를 KST(UTC+9)로 — 한국 운영 사이트 일관성
           DATE=$(TZ=Asia/Seoul date +"%Y-%m-%d")
           git commit -m "chore(data): 오늘의 이슈 자동 갱신 — ${DATE}

@@ -11,6 +11,7 @@
     "build": "node scripts/build-entity-graph.mjs && astro build && node scripts/check-bundle-size.mjs",
     "build:graph": "node scripts/build-entity-graph.mjs",
     "generate:mirror": "node scripts/generate-network-mirror.mjs",
+    "update:today": "node scripts/update-today-md.mjs",
     "preview": "npm run build && wrangler dev",
     "astro": "astro",
     "check": "astro check && tsc --noEmit",
