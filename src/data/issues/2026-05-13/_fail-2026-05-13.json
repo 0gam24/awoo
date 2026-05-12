@@ -1,0 +1,49 @@
+{
+  "date": "2026-05-13",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 1,
+  "failed": 2,
+  "failures": [
+    {
+      "rank": 2,
+      "term": "아동수당",
+      "count": 7,
+      "category": "복지",
+      "reason": "fact-check fail: 8/20 matched (score 0.4)",
+      "unmatched": [
+        "200만원",
+        "2026년",
+        "2027년",
+        "3월20일",
+        "5월",
+        "2017년",
+        "하반기부",
+        "출생일로부",
+        "언제부",
+        "출생월부"
+      ],
+      "at": "2026-05-12T22:07:00.459Z"
+    },
+    {
+      "rank": 3,
+      "term": "복지급여",
+      "count": 3,
+      "category": "복지",
+      "reason": "fact-check fail: 0/14 matched (score 0)",
+      "unmatched": [
+        "10만원",
+        "100만원",
+        "50만원",
+        "200만원",
+        "34만",
+        "70%",
+        "33만원",
+        "2026년",
+        "5월",
+        "보건복지부"
+      ],
+      "at": "2026-05-12T22:08:05.943Z"
+    }
+  ]
+}
