@@ -418,6 +418,79 @@ function extractClaims(post) {
   return [...claims];
 }
 
+// Cycle #87: claim 변형(variants) 확장 — 토큰 정규화로 false-fail 감소.
+// 실측: 10일간 16건 fail에서 unmatched 토큰 = 날짜 40 / 연도 18 / 기관명 17건이 대부분 표기 차이 때문.
+//   "5월7일" vs source "5월 7일" / "5.7" / "2026-05-07" / "05.07"
+//   "2026년" vs source "2026" (년 미표기)
+//   "행정안전부" vs source "행안부"
+//   "영천시청" vs source "영천시"
+const AGENCY_ALIASES = {
+  행정안전부: ['행안부'],
+  행안부: ['행정안전부'],
+  보건복지부: ['복지부'],
+  복지부: ['보건복지부'],
+  국토교통부: ['국토부'],
+  국토부: ['국토교통부'],
+  여성가족부: ['여가부', '여성부'],
+  여가부: ['여성가족부'],
+  고용노동부: ['노동부', '고용부'],
+  노동부: ['고용노동부'],
+  중소벤처기업부: ['중기부'],
+  중기부: ['중소벤처기업부'],
+  기획재정부: ['기재부'],
+  기재부: ['기획재정부'],
+};
+
+function expandClaimVariants(claim) {
+  const variants = new Set([claim]);
+
+  // 연도 — "2026년" → "2026"
+  const yearMatch = claim.match(/^(\d{4})년$/);
+  if (yearMatch) {
+    variants.add(yearMatch[1]);
+  }
+
+  // M월D일 → 다양한 표기 (공백/점/하이픈/슬래시/zero-pad)
+  const mdMatch = claim.match(/^(\d{1,2})월(\d{1,2})일$/);
+  if (mdMatch) {
+    const mRaw = mdMatch[1];
+    const dRaw = mdMatch[2];
+    const mPad = mRaw.padStart(2, '0');
+    const dPad = dRaw.padStart(2, '0');
+    variants.add(`${mRaw}월 ${dRaw}일`);
+    variants.add(`${mPad}월${dPad}일`);
+    variants.add(`${mPad}월 ${dPad}일`);
+    variants.add(`${mRaw}.${dRaw}`);
+    variants.add(`${mPad}.${dPad}`);
+    variants.add(`${mRaw}-${dRaw}`);
+    variants.add(`${mPad}-${dPad}`);
+    variants.add(`${mRaw}/${dRaw}`);
+    variants.add(`${mPad}/${dPad}`);
+  }
+
+  // M월 alone — zero-pad 추가
+  const mOnlyMatch = claim.match(/^(\d{1,2})월$/);
+  if (mOnlyMatch) {
+    variants.add(`${mOnlyMatch[1].padStart(2, '0')}월`);
+  }
+
+  // 기관명 alias
+  if (AGENCY_ALIASES[claim]) {
+    for (const alias of AGENCY_ALIASES[claim]) variants.add(alias);
+  }
+
+  // 시청/군청/구청/도청 → bare locality (시/군/구/도)
+  const cityMatch = claim.match(/^(.+?)(시청|군청|구청|도청)$/);
+  if (cityMatch) {
+    const base = cityMatch[1];
+    const suffixMap = { 시청: '시', 군청: '군', 구청: '구', 도청: '도' };
+    variants.add(`${base}${suffixMap[cityMatch[2]]}`);
+    variants.add(base); // 영천시청 → 영천
+  }
+
+  return variants;
+}
+
 function factCheck(post, sourceArticles) {
   const claims = extractClaims(post);
   if (claims.length === 0) return { passed: true, score: 1, unmatched: [] };
@@ -427,17 +500,25 @@ function factCheck(post, sourceArticles) {
   const unmatched = [];
   let matched = 0;
   for (const claim of claims) {
-    // 정확 일치 또는 핵심 숫자 일치
-    if (sourceText.includes(claim)) {
+    // Cycle #87: variants 확장 후 매칭 — 표기 차이로 인한 false-fail 차단
+    const variants = expandClaimVariants(claim);
+    let found = false;
+    for (const v of variants) {
+      if (sourceText.includes(v)) {
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      matched++;
+      continue;
+    }
+    // 숫자만 추출해 부분 매칭 시도 (기존 fallback)
+    const num = claim.match(/[\d,.]+/)?.[0];
+    if (num && num.length >= 2 && sourceText.includes(num)) {
       matched++;
     } else {
-      // 숫자만 추출해 부분 매칭 시도
-      const num = claim.match(/[\d,.]+/)?.[0];
-      if (num && num.length >= 2 && sourceText.includes(num)) {
-        matched++;
-      } else {
-        unmatched.push(claim);
-      }
+      unmatched.push(claim);
     }
   }
 

@@ -166,10 +166,12 @@ const displayStats: readonly PublicStat[] = autoTrending
 
 // 표시 데이터 — summary 우선, 없으면 graceful empty
 const displayHeadline = auto?.summary?.headline ?? auto?.headline ?? '오늘의 정부 지원금 이슈';
+// displaySubhead — 현재 hero 레이아웃에서 미사용. summary API 변경 시 즉시 복귀 위해 데이터만 유지.
 const displaySubhead =
   auto?.summary?.subhead ??
   auto?.description ??
   '매일 자동으로 갱신되는 지원금 이슈를 확인하세요.';
+void displaySubhead;
 const displayCategory = auto?.category ?? '';
 const externalLink = auto?.link;
 const isAuto = !!auto;
@@ -201,7 +203,9 @@ function extractSource(link: string | undefined): string {
   }
 }
 
+// sourceLabel — 현재 hero에서 매체명 표기 제거 (Cycle #40에서 syncedAt으로 대체). API 형태 유지.
 const sourceLabel = isAuto ? extractSource(externalLink) : '뉴스 매체';
+void sourceLabel;
 
 // Cycle #40 (사용자 요청): 뉴스 크롤링 시각 표기 (사이트 신선도 신호)
 function formatSyncedAt(iso: string): string {
@@ -227,6 +231,8 @@ const topicPostUrl = isAuto ? findTopicPostUrl(auto?.trendingTopic) : null;
 // 핵심 사실 4박스 + 훅 카피 (현재 hero에서는 사용 안 함, 데이터만 유지)
 const coreFacts = auto?.summary?.coreFacts ?? [];
 const hookCopy = auto?.summary?.hookCopy ?? null;
+void coreFacts;
+void hookCopy;
 ---
 
 <section class="news-band">

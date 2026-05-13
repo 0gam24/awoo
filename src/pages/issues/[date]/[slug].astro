@@ -323,6 +323,21 @@ const vagueCount = (fullText.match(/(확인\s*필요|문의\s*요망|확인\s*�
 const factCheckScore = (post as { factCheckScore?: number }).factCheckScore ?? 1;
 // thin 기준: 본문 1500자 미만 OR vague 표현 5건 이상 OR factCheck < 0.6
 const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
+
+// Cycle #76: reportType별 배지 — frontmatter에서 미리 계산 (JSX 안 generic <...>가 astro parser 충돌)
+const RT_LABELS = {
+  'new-subsidies-weekly': '🆕 신규 등록 비교',
+  'new-subsidies-detail': '🔍 신규 지원금 심층',
+  'deadline-imminent-weekly': '⏰ 마감 임박',
+  'persona-weekly': '👤 페르소나 분석',
+  'category-weekly': '🗂 분야 심층',
+  'trending-persona-angle': '🎯 트렌딩 페르소나 각도',
+} as const;
+type ReportType = keyof typeof RT_LABELS;
+const rt = (post as { reportType?: string }).reportType;
+const reportTypeBadge = rt && rt in RT_LABELS
+  ? { rt, label: RT_LABELS[rt as ReportType] }
+  : null;
 ---
 
 <BaseLayout
@@ -413,19 +428,9 @@ const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
       <header class="hero">
         <div class="meta">
           {/* Cycle #76: reportType별 배지 — 트렌딩 vs 신규/마감/페르소나/카테고리 분석 차별화 */}
-          {(post as { reportType?: string }).reportType && (() => {
-            const rt = (post as { reportType?: string }).reportType;
-            const rtLabel = {
-              'new-subsidies-weekly': '🆕 신규 등록 비교',
-              'new-subsidies-detail': '🔍 신규 지원금 심층',
-              'deadline-imminent-weekly': '⏰ 마감 임박',
-              'persona-weekly': '👤 페르소나 분석',
-              'category-weekly': '🗂 분야 심층',
-              'trending-persona-angle': '🎯 트렌딩 페르소나 각도',
-            };
-            const label = rt ? rtLabel[rt] : null;
-            return label ? <span class={`report-type-pill rt-${rt}`}>{label}</span> : null;
-          })()}
+          {reportTypeBadge && (
+            <span class={`report-type-pill rt-${reportTypeBadge.rt}`}>{reportTypeBadge.label}</span>
+          )}
           {post.freshness && (
             <a
               class="freshness-pill"
