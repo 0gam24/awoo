@@ -207,6 +207,22 @@ const collectionSchema = buildCollectionPage({
     <Container size="wide">
       <BlufBox summary={blufSummary} stats={blufStats} basis="2026년 4월 기준 · 보조금24 + 큐레이션" />
 
+      {p.intro && (
+        <section class="key-section">
+          <h2 class="key-h2">{p.label} 페르소나란?</h2>
+          <p class="key-lead">{p.intro}</p>
+        </section>
+      )}
+
+      {p.keyTips && p.keyTips.length > 0 && (
+        <section class="key-section">
+          <h2 class="key-h2">{p.label} 핵심 팁</h2>
+          <ul class="tips-list">
+            {p.keyTips.map((tip) => <li>{tip}</li>)}
+          </ul>
+        </section>
+      )}
+
       {p.pains.length > 0 && (
         <section class="key-section">
           <h2 class="key-h2">{p.label}이 자주 겪는 어려움</h2>
@@ -533,6 +549,32 @@ const collectionSchema = buildCollectionPage({
     color: var(--accent);
     font-weight: 700;
     margin-right: 6px;
+  }
+  /* Cycle #87: keyTips — 페르소나별 핵심 운영 팁 (단락형, 매칭 지원금 부족 시 본문 보강) */
+  .tips-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .tips-list li {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 18px 14px 36px;
+    font-size: 14.5px;
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .tips-list li::before {
+    content: '💡';
+    position: absolute;
+    left: 12px;
+    top: 14px;
+    font-size: 14px;
   }
 
   .subsidy-grid {

@@ -14,7 +14,13 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   <Container size="narrow">
     <article class="page">
       <h1>광고 정책</h1>
-      <p class="meta">시행일: 2026-05-01</p>
+      <p class="meta">시행일: 2026-05-01 · 최종 갱신: 2026-05-14</p>
+
+      <aside class="current-status" aria-label="현재 운영 상태">
+        <strong>현재 운영 상태</strong> — 본 사이트는 <strong>현재 어떤 광고도 게재하지 않습니다</strong>.
+        Google AdSense·제휴 마케팅 모두 미통합 상태입니다. 본 정책은 향후 광고 도입 시점에 대비한
+        사전 고지이며, 활성화 시 본 페이지의 "시행일·최종 갱신"이 즉시 변경됩니다.
+      </aside>
 
       <section>
         <h2>1. 광고 게재 원칙</h2>
@@ -113,7 +119,21 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
   .meta {
     font-size: 13px;
     color: var(--text-2);
+    margin: 0 0 20px;
+  }
+  .current-status {
+    background: var(--surface-2);
+    border-left: 4px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
     margin: 0 0 32px;
+    font-size: 14.5px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .current-status strong:first-child {
+    color: var(--accent);
+    font-weight: 700;
   }
   section {
     margin-bottom: 32px;

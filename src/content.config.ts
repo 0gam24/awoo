@@ -13,6 +13,11 @@ const personas = defineCollection({
     living: z.string(),
     bg: z.string(),
     pains: z.array(z.string()),
+    // Cycle #87: 매칭 지원금이 적은 페르소나(farmer 등)의 본문 부족 보강용 옵셔널 필드.
+    // 셋 다 미지정 시 기존 렌더링 그대로 — backward-compatible.
+    intro: z.string().optional(),
+    keyTips: z.array(z.string()).optional(),
+    relatedSituations: z.array(z.string()).optional(),
   }),
 });
 
