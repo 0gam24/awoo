@@ -562,12 +562,12 @@ function parseJsonFromResponse(text) {
       .replace(/[“”]/g, '"'); // 스마트 이중따옴표
     try {
       return JSON.parse(fixed);
-    } catch (e2) {
+    } catch (_e2) {
       // 5. 마지막 fallback — 깨진 객체 끝부분을 잘라내고 재시도 (불완전 응답 대응)
       // 마지막 valid '}' 위치를 점진 감소
       for (let cut = end - 1; cut > start + 100; cut -= 50) {
         try {
-          const partial = cleaned.slice(start, cut).replace(/,\s*$/, '') + '}';
+          const partial = `${cleaned.slice(start, cut).replace(/,\s*$/, '')}}`;
           return JSON.parse(partial);
         } catch {}
       }
@@ -643,11 +643,11 @@ async function generateNewSubsidyReport({
 
   // 90일 dedup — 같은 지원금이 90일 내 spoke 발행됐으면 후보에서 제외
   const recentSpokeSubsidyIds = new Set();
-  const ninetyDaysAgo = new Date(date + 'T00:00:00+09:00').getTime() - 90 * 24 * 60 * 60 * 1000;
+  const ninetyDaysAgo = new Date(`${date}T00:00:00+09:00`).getTime() - 90 * 24 * 60 * 60 * 1000;
   for (const e of Object.values(history.byTerm ?? {})) {
     if (e.reportType !== 'new-subsidies-detail') continue;
     if (!e.subsidyId) continue;
-    const t = new Date(e.firstSeen + 'T00:00:00Z').getTime();
+    const t = new Date(`${e.firstSeen}T00:00:00Z`).getTime();
     if (t > ninetyDaysAgo) recentSpokeSubsidyIds.add(e.subsidyId);
   }
   const eligible = candidates.filter((s) => !recentSpokeSubsidyIds.has(s.id));
@@ -807,7 +807,7 @@ ${JSON.stringify(userInput, null, 2)}
     post.coreFacts = {
       who: chosen.eligibility?.[0] ?? '확인 필요',
       amount:
-        `${chosen.amountLabel ?? ''} ${chosen.amount > 0 ? chosen.amount.toLocaleString('ko-KR') + '원' : ''}`.trim(),
+        `${chosen.amountLabel ?? ''} ${chosen.amount > 0 ? `${chosen.amount.toLocaleString('ko-KR')}원` : ''}`.trim(),
       deadline: chosen.deadline ?? '확인 필요',
       where: chosen.agency ?? '확인 필요',
     };
@@ -883,11 +883,11 @@ async function generateTrendingPersonaAngle({
   if (!persona) return null;
 
   // 7일 dedup — 같은 (term, persona) 조합 1주 내 재발행 X
-  const sevenDaysAgo = new Date(date + 'T00:00:00+09:00').getTime() - 7 * 24 * 60 * 60 * 1000;
+  const sevenDaysAgo = new Date(`${date}T00:00:00+09:00`).getTime() - 7 * 24 * 60 * 60 * 1000;
   for (const e of Object.values(history.byTerm ?? {})) {
     if (e.reportType !== 'trending-persona-angle') continue;
     if (e.trendingTerm !== trendingTerm || e.personaId !== topPersonaId) continue;
-    const t = new Date(e.firstSeen + 'T00:00:00Z').getTime();
+    const t = new Date(`${e.firstSeen}T00:00:00Z`).getTime();
     if (t > sevenDaysAgo) {
       console.log(`  ⤳ Slot 3 7일 내 발행 (${trendingTerm}+${topPersonaId}) → skip`);
       return null;
@@ -1051,7 +1051,7 @@ ${JSON.stringify(userInput, null, 2)}
 // Cycle #73: Source 3 — 마감 임박 (D-30 이내) 주간 분석 리포트
 // 트렌딩 + Source 2 모두 0건 시 fallback. 또는 7일 dedup 통과 시 정기 발행 후보.
 // ─────────────────────────────────────────────────────────────
-async function generateDeadlineImminentReport({
+async function _generateDeadlineImminentReport({
   apiKey,
   systemPrompt,
   staticContext,
@@ -1081,10 +1081,10 @@ async function generateDeadlineImminentReport({
   const recentDeadlineReports = Object.entries(history.byTerm ?? {})
     .filter(([, e]) => e.reportType === 'deadline-imminent-weekly')
     .map(([, e]) => ({ firstSeen: e.firstSeen, postSlug: e.postSlug }));
-  const today = new Date(date + 'T00:00:00Z');
+  const today = new Date(`${date}T00:00:00Z`);
   const sevenDaysAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
   const recentExists = recentDeadlineReports.some((r) => {
-    const d = new Date(r.firstSeen + 'T00:00:00Z');
+    const d = new Date(`${r.firstSeen}T00:00:00Z`);
     return d > sevenDaysAgo;
   });
   if (recentExists) {
@@ -1237,7 +1237,7 @@ const PERSONA_WEEKDAY_MAP = {
   // 0 (일요일): persona 발행 X — 카테고리 심층(Source 5) 또는 휴식
 };
 
-async function generatePersonaWeeklyReport({
+async function _generatePersonaWeeklyReport({
   apiKey,
   systemPrompt,
   staticContext,
@@ -1248,7 +1248,7 @@ async function generatePersonaWeeklyReport({
   cacheLog,
 }) {
   // 요일 → 페르소나 결정 (KST 기준)
-  const dateObj = new Date(date + 'T00:00:00+09:00');
+  const dateObj = new Date(`${date}T00:00:00+09:00`);
   const weekday = dateObj.getUTCDay(); // 0=일 ~ 6=토 (KST 기준 weekday는 UTC 변환에서 같음)
   const targetPersonaId = PERSONA_WEEKDAY_MAP[weekday];
   if (!targetPersonaId) {
@@ -1266,7 +1266,7 @@ async function generatePersonaWeeklyReport({
   const recentExists = Object.values(history.byTerm ?? {}).some((e) => {
     if (e.reportType !== 'persona-weekly') return false;
     if (e.personaId !== targetPersonaId) return false;
-    const d = new Date(e.firstSeen + 'T00:00:00Z');
+    const d = new Date(`${e.firstSeen}T00:00:00Z`);
     return d > sevenDaysAgo;
   });
   if (recentExists) {
@@ -1459,7 +1459,7 @@ ${JSON.stringify(userInput, null, 2)}
 // Cycle #75: Source 5 — 카테고리 심층 분석 리포트 (7일 순회)
 // 가장 오래된 카테고리 → 페르소나별 추천·자격 비교·페르소나 분포 종합
 // ─────────────────────────────────────────────────────────────
-async function generateCategoryWeeklyReport({
+async function _generateCategoryWeeklyReport({
   apiKey,
   systemPrompt,
   staticContext,
@@ -1477,13 +1477,13 @@ async function generateCategoryWeeklyReport({
   }
 
   // 마지막 발행 카테고리 → 다음 카테고리 선택 (7일 dedup)
-  const dateObj = new Date(date + 'T00:00:00+09:00');
+  const dateObj = new Date(`${date}T00:00:00+09:00`);
   const sevenDaysAgo = new Date(dateObj.getTime() - 7 * 24 * 60 * 60 * 1000);
   const recentCategoryReports = Object.values(history.byTerm ?? {})
     .filter((e) => e.reportType === 'category-weekly')
     .map((e) => ({ category: e.categoryId, firstSeen: e.firstSeen }))
     .filter((e) => {
-      const d = new Date(e.firstSeen + 'T00:00:00Z');
+      const d = new Date(`${e.firstSeen}T00:00:00Z`);
       return d > sevenDaysAgo;
     });
   const recentCategories = new Set(recentCategoryReports.map((e) => e.category));
