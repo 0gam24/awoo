@@ -1,0 +1,44 @@
+{
+  "date": "2026-05-14",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 1,
+  "failed": 2,
+  "failures": [
+    {
+      "rank": 2,
+      "term": "민생지원금",
+      "count": 2,
+      "category": "창업",
+      "reason": "fact-check fail: 2/7 matched (score 0.29)",
+      "unmatched": [
+        "120만원",
+        "2026년",
+        "5월13일",
+        "고성군청",
+        "발급일로부"
+      ],
+      "at": "2026-05-13T22:05:25.433Z"
+    },
+    {
+      "rank": 3,
+      "term": "복지급여",
+      "count": 2,
+      "category": "복지",
+      "reason": "fact-check fail: 0/10 matched (score 0)",
+      "unmatched": [
+        "10만원",
+        "70%",
+        "33만",
+        "2026년",
+        "국세청",
+        "건강보험공단",
+        "보건복지부",
+        "이후부",
+        "언제부",
+        "국민연금공단"
+      ],
+      "at": "2026-05-13T22:06:15.096Z"
+    }
+  ]
+}
