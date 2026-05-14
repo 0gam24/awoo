@@ -126,6 +126,8 @@ const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
 
 // JSON-LD — NewsArticle 강화 (mainEntityOfPage·articleSection·inLanguage 등)
 const canonicalUrl = `https://awoo.or.kr/issues/${date}/${slug}/`;
+// Cycle #88: factCheckScore — articleSchema reviewedBy + ClaimReview emit 조건. 하단 isThinPost 검사에서도 재사용.
+const factCheckScore = (post as { factCheckScore?: number }).factCheckScore ?? 1;
 // Cycle #11 P0-1: wordCount — AI 인용 confidence 신호 (콘텐츠 depth 명시)
 const articleWordCount =
   (post.metaDescription?.length ?? 0) +
@@ -232,7 +234,67 @@ const articleSchema = {
     : {}),
   // Cycle #78: Article 분기 시 정부 공식 출처 명시 (AI 인용 신뢰도 강화)
   ...(isBasedOnList.length > 0 ? { isBasedOn: isBasedOnList } : {}),
+  // Cycle #88: NewsArticle 한국어 신호 — Naver Yeti·SmartBlock 인식 강화
+  // dateline = 발신지, copyrightHolder/Year = entity 그래프 + 저작권 신호
+  dateline: '지원금가이드',
+  copyrightHolder: { '@id': 'https://awoo.or.kr/#organization' },
+  copyrightYear: new Date(post.publishedAt).getUTCFullYear(),
+  // E-E-A-T (Cycle #88): 책임 편집자 검수 명시 — YMYL Discover 가산
+  ...(typeof factCheckScore === 'number' && factCheckScore >= 0.7
+    ? {
+        reviewedBy: {
+          '@type': 'Person',
+          name: '김준혁',
+          jobTitle: '편집책임자',
+          url: 'https://awoo.or.kr/about/',
+        },
+      }
+    : {}),
 };
+
+// Cycle #88: ClaimReview JSON-LD — fact-checker 자체 검증 결과 entity 노출.
+// Google YMYL/Discover에서 ClaimReview rich-result 자격 카테고리 (정부 지원금 등).
+// factCheckScore >= 0.7 시에만 emit — 신뢰도 낮은 포스트는 클레임 노출 X.
+const claimReviewSchema =
+  typeof factCheckScore === 'number' && factCheckScore >= 0.7 && (post.tldr?.[0] ?? '').trim().length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ClaimReview',
+        '@id': `${canonicalUrl}#claimreview`,
+        url: canonicalUrl,
+        datePublished: post.publishedAt,
+        inLanguage: 'ko-KR',
+        author: {
+          '@type': 'Organization',
+          '@id': 'https://awoo.or.kr/#organization',
+        },
+        itemReviewed: {
+          '@type': 'Claim',
+          appearance: canonicalUrl,
+          author: (post.sources ?? []).slice(0, 3).map((s) => ({
+            '@type': 'NewsMediaOrganization',
+            name: s.publisher,
+          })),
+          firstAppearance: (post.sources ?? [])[0]?.url,
+          datePublished: (post.sources ?? [])[0]?.pubDate,
+          claimReviewed: (post.tldr?.[0] ?? '').trim().slice(0, 280),
+        },
+        reviewRating: {
+          '@type': 'Rating',
+          // factCheck 0~1 → 1~5 stars 매핑 (0.7→3.5, 1.0→5.0)
+          ratingValue: Number((factCheckScore * 5).toFixed(1)),
+          bestRating: 5,
+          worstRating: 1,
+          alternateName:
+            factCheckScore >= 0.9 ? '교차 검증됨' : factCheckScore >= 0.8 ? '주요 사실 확인' : '부분 검증',
+        },
+        claimInterpreter: {
+          '@type': 'Person',
+          name: '김준혁',
+          url: 'https://awoo.or.kr/about/',
+        },
+      }
+    : null;
 
 // Cycle #78: HowTo schema 자동 생성 — body에서 "**N단계:**" 패턴 감지 시
 // "어떻게 신청하나요?" 등 신청 절차 섹션의 단계를 HowToStep으로 변환.
@@ -274,6 +336,8 @@ const tableSchema = post.table && Array.isArray(post.table.headers) && Array.isA
   : null;
 
 // Cycle #26: speakable schema — FAQ를 음성 검색 (Google Assistant, Bixby 등) 친화적으로 마킹
+// Cycle #88: cssSelector 확장 — sentence-level chunk(.lead-sentence) + 자기충족 청크(.tldr li) 추가.
+// AI 답변 엔진(Perplexity/ChatGPT Search/Claude)이 self-contained 문장을 우선 인용.
 const faqSchema = post.faq.length > 0 ? {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -287,7 +351,7 @@ const faqSchema = post.faq.length > 0 ? {
   })),
   speakable: {
     '@type': 'SpeakableSpecification',
-    cssSelector: ['.tldr', '.faq-section'],
+    cssSelector: ['.tldr', '.tldr li', '.lead', '.faq-section'],
   },
 } : null;
 
@@ -320,7 +384,7 @@ const fullText = [
 ].join(' ');
 const totalChars = fullText.replace(/\s+/g, '').length;
 const vagueCount = (fullText.match(/(확인\s*필요|문의\s*요망|확인\s*해|공식\s*공고\s*참조)/g) ?? []).length;
-const factCheckScore = (post as { factCheckScore?: number }).factCheckScore ?? 1;
+// factCheckScore는 frontmatter 상단에서 이미 선언됨 (articleSchema reviewedBy + ClaimReview emit에서 우선 사용)
 // thin 기준: 본문 1500자 미만 OR vague 표현 5건 이상 OR factCheck < 0.6
 const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
 
@@ -357,6 +421,10 @@ const reportTypeBadge = rt && rt in RT_LABELS
 >
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+  {/* Cycle #88: ClaimReview — fact-checker 자체 검증 결과 entity (Google YMYL rich-result) */}
+  {claimReviewSchema && (
+    <script type="application/ld+json" set:html={JSON.stringify(claimReviewSchema)} />
+  )}
   {/* Cycle #78: HowTo schema (단계별 신청 절차) — Google rich result + AI 답변 엔진 인용 */}
   {howToSchema && <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />}
   {/* Cycle #78: Table schema (비교표) — Featured Snippet 후보 */}

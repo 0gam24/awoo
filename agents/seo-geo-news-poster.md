@@ -221,6 +221,14 @@ JSON 출력 전 다음을 점검:
   - 예: ❌ "약 60만원" / ✅ "지자체 공고에 따르면 농가당 60만원" 또는 "농가당 30~80만원 범위"
 - [ ] **publisher 인용 최소 출처 수의 절반 이상** — sources 3매체라면 본문에 publisher 이름이 최소 2회 등장 (예: "뉴스타운에 따르면", "안동MBC 보도 기준")
 - [ ] sections 5개 표준 (질문형 헤딩, BLUF lead, 사실 body)
+- [ ] **질문형 H2 강제 (Cycle #88, GEO 핵심)** — sections 5개 중 **최소 3개**의 heading이 `?`로 끝나는 질문형
+  - 예: "누가 받을 수 있나요?", "얼마를 받을 수 있나요?", "어떻게 신청하나요?"
+  - 평서문은 Naver SmartBlock·Google Featured Snippet 추출 후보에서 탈락 → Q→A 페어로 인식되어야 노출
+- [ ] **lead 25-55자 강제 (Cycle #88)** — 각 section.lead가 25~55자 (Featured Snippet 답변 박스 길이 최적치)
+  - 너무 짧으면 답변 부족, 너무 길면 잘림
+  - lead는 self-contained — 앞뒤 맥락 없이 단독 인용 가능해야 (AI 답변 엔진 청크 단위)
+- [ ] **첫 100자 조기 답변 (Cycle #88, AI Overviews 최적화)** — sections[0].lead + 이어지는 body 첫 문장 안에 답변 핵심(액수·대상·기한 중 2개 이상) 포함
+  - Perplexity·ChatGPT Search·Google AI Overviews는 페이지 상단 응답 청크 우선 인용
 - [ ] table 5행 (대상/금액/기간/신청처/담당기관)
 - [ ] FAQ 최소 3건
 - [ ] relatedSubsidies — 입력으로 받은 matchedSubsidies 중에서만 선택 (없으면 빈 배열)

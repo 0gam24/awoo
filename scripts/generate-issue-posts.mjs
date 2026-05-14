@@ -2022,6 +2022,25 @@ ${JSON.stringify(userInput, null, 2)}
         failed++;
         continue;
       }
+
+      // Cycle #88: GEO soft warnings — fail은 아니지만 로그·CI 표시 (운영자 모니터링)
+      // 1) 질문형 H2 ≥3개 (5개 중) — Featured Snippet/SmartBlock 추출 후보 자격
+      // 2) lead 25~55자 — AI 답변 엔진 청크 단위 최적
+      const headings = (post.sections ?? []).map((s) => s.heading ?? '');
+      const questionHeadings = headings.filter((h) => /\?\s*$/.test(h)).length;
+      const leadLengths = (post.sections ?? []).map((s) => (s.lead ?? '').length);
+      const leadOutOfRange = leadLengths.filter((l) => l < 25 || l > 55).length;
+      if (questionHeadings < 3 || leadOutOfRange > 2) {
+        const geoNotes = [];
+        if (questionHeadings < 3) geoNotes.push(`질문형 H2 ${questionHeadings}/5 (권장 ≥3)`);
+        if (leadOutOfRange > 2)
+          geoNotes.push(`lead 25-55자 범위 외 ${leadOutOfRange}/${leadLengths.length}`);
+        console.warn(`⚠️ GEO 권장 미달 (${term}): ${geoNotes.join(' / ')}`);
+        if (isCI) {
+          console.log(`::warning title=GEO 권장 미달::${term} ${geoNotes.join(' / ')}`);
+        }
+        // 발행은 허용 — 차단 X (안정 측정 후 hard-gate 검토)
+      }
     }
 
     // Cycle #40: title sanitize — AI 클리셰 패턴 제거 (사용자 요청: 콜론·대시 금지)
