@@ -239,6 +239,35 @@ const articleSchema = {
   dateline: '지원금가이드',
   copyrightHolder: { '@id': 'https://awoo.or.kr/#organization' },
   copyrightYear: new Date(post.publishedAt).getUTCFullYear(),
+  // Cycle #88 P5: potentialAction (ApplyAction) — Google AI Overviews "do" intent 노출 자격.
+  // 첫 매칭 지원금의 신청 URL을 primary action target으로 합성. 페르소나는 audience로 노출.
+  // applyUrl 없으면 omit — 의도 일치하지 않는 action 노출 방지.
+  ...(relatedSubsidies[0]?.applyUrl
+    ? {
+        potentialAction: {
+          '@type': 'ApplyAction',
+          name: `${relatedSubsidies[0].title} 신청하기`,
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: relatedSubsidies[0].applyUrl,
+            actionPlatform: [
+              'https://schema.org/DesktopWebPlatform',
+              'https://schema.org/MobileWebPlatform',
+            ],
+          },
+          // 마감 정보가 있으면 텍스트 형태로 안내 (ISO 변환은 코어팩트 문자열 다양성 때문에 생략)
+          ...(post.coreFacts?.deadline ? { description: `마감: ${post.coreFacts.deadline}` } : {}),
+          ...(relatedPersonas.length > 0
+            ? {
+                participant: {
+                  '@type': 'PeopleAudience',
+                  audienceType: relatedPersonas.map((p) => p.label).join(', '),
+                },
+              }
+            : {}),
+        },
+      }
+    : {}),
   // E-E-A-T (Cycle #88): 책임 편집자 검수 명시 — YMYL Discover 가산
   ...(typeof factCheckScore === 'number' && factCheckScore >= 0.7
     ? {
