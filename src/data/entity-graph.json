@@ -4,8 +4,8 @@
   "source": {
     "personas": 6,
     "situations": 12,
-    "glossary": 30,
-    "topics": 2,
+    "glossary": 33,
+    "topics": 3,
     "subsidies": 112
   },
   "entities": {
@@ -785,6 +785,49 @@
         ],
         "related_dangling": [],
         "category": "복지"
+      },
+      "oil-price-relief": {
+        "@id": "https://awoo.or.kr/glossary/oil-price-relief/",
+        "term": "고유가 피해지원금",
+        "synonyms": [
+          "민생지원금",
+          "유가 보전 지원금"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/basic-livelihood/",
+          "https://awoo.or.kr/glossary/income-percentile/",
+          "https://awoo.or.kr/glossary/low-income-support/"
+        ],
+        "related_dangling": [],
+        "category": "재난·생계"
+      },
+      "fuel-subsidy": {
+        "@id": "https://awoo.or.kr/glossary/fuel-subsidy/",
+        "term": "유가보조금",
+        "synonyms": [
+          "화물차 유가보조금",
+          "운송사업자 유가보조금"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/smb-policy-loan/",
+          "https://awoo.or.kr/glossary/oil-price-relief/"
+        ],
+        "related_dangling": [],
+        "category": "재난·생계"
+      },
+      "tax-free-oil": {
+        "@id": "https://awoo.or.kr/glossary/tax-free-oil/",
+        "term": "면세유",
+        "synonyms": [
+          "농업인 면세유",
+          "어업인 면세유"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/return-farming/",
+          "https://awoo.or.kr/glossary/fuel-subsidy/"
+        ],
+        "related_dangling": [],
+        "category": "재난·생계"
       }
     },
     "topics": {
@@ -871,6 +914,32 @@
           "https://awoo.or.kr/situations/marriage/",
           "https://awoo.or.kr/situations/childbirth/",
           "https://awoo.or.kr/situations/raising-child/"
+        ]
+      },
+      "oil-price-relief": {
+        "@id": "https://awoo.or.kr/topics/oil-price-relief/",
+        "title": "고유가 피해지원금·유가보조금 종합",
+        "category": "복지",
+        "relatedGlossary": [
+          "https://awoo.or.kr/glossary/basic-livelihood/",
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/income-percentile/",
+          "https://awoo.or.kr/glossary/median-income/",
+          "https://awoo.or.kr/glossary/smb-policy-loan/",
+          "https://awoo.or.kr/glossary/return-farming/"
+        ],
+        "relatedGlossary_dangling": [],
+        "matchedSubsidies": [],
+        "mainPersonas": [
+          "https://awoo.or.kr/personas/low-income/",
+          "https://awoo.or.kr/personas/senior/",
+          "https://awoo.or.kr/personas/self-employed/",
+          "https://awoo.or.kr/personas/farmer/"
+        ],
+        "mainSituations": [
+          "https://awoo.or.kr/situations/rural/",
+          "https://awoo.or.kr/situations/startup/",
+          "https://awoo.or.kr/situations/retirement/"
         ]
       }
     },
@@ -2320,8 +2389,8 @@
     "topics_glossary_dangling_count": 0,
     "subsidies_with_glossary_mentions": 65,
     "topics_with_subsidy_matches": 2,
-    "topics_total": 2,
-    "topics_without_matches": 0,
+    "topics_total": 3,
+    "topics_without_matches": 1,
     "subsidies_total": 112,
     "subsidies_orphan_count": 5,
     "subsidies_inbound_coverage_pct": 96
