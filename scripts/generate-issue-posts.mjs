@@ -1975,6 +1975,55 @@ ${JSON.stringify(userInput, null, 2)}
       continue;
     }
 
+    // Cycle #87: 환각 hard-gate — fact-check medium 패턴 자동 차단
+    // 1) 추정 표현 + 정확 수치 ("약 60만원" 등) 3건 이상 = 차단
+    // 2) publisher 인용 < sources 수의 절반 = 차단 (편집책임자 검수 필요 수준)
+    {
+      const fullText = [
+        ...(post.tldr ?? []),
+        ...(post.sections ?? []).map((s) => `${s.heading ?? ''} ${s.lead ?? ''} ${s.body ?? ''}`),
+        ...(post.faq ?? []).map((f) => `${f.q ?? ''} ${f.a ?? ''}`),
+      ].join('\n');
+
+      const hedgePattern =
+        /(?:약|추정|통상|예상|대략)\s*\d+(?:[.,]\d+)?\s*(?:%|만원|억원|원|명|건)/g;
+      const hedgeHits = fullText.match(hedgePattern) ?? [];
+
+      const publishers = Array.from(
+        new Set((post.sources ?? []).map((s) => s.publisher).filter(Boolean)),
+      );
+      let pubMentions = 0;
+      for (const p of publishers) {
+        const re = new RegExp(p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+        pubMentions += (fullText.match(re) ?? []).length;
+      }
+
+      const hedgeFail = hedgeHits.length >= 3;
+      const pubFail = publishers.length >= 2 && pubMentions < Math.ceil(publishers.length / 2);
+
+      if (hedgeFail || pubFail) {
+        const reasons = [];
+        if (hedgeFail)
+          reasons.push(`추정 표현 ${hedgeHits.length}건 (${hedgeHits.slice(0, 3).join(', ')})`);
+        if (pubFail) reasons.push(`publisher 인용 ${pubMentions}회/${publishers.length}매체`);
+        const reason = `hard-gate fail: ${reasons.join(' / ')}`;
+        console.warn(`⚠️ ${reason} (${term})`);
+        if (isCI) {
+          console.log(`::warning title=hard-gate 실패::${term} ${reason}`);
+        }
+        failures.push({
+          rank: idx + 1,
+          term,
+          count,
+          category,
+          reason,
+          at: new Date().toISOString(),
+        });
+        failed++;
+        continue;
+      }
+    }
+
     // Cycle #40: title sanitize — AI 클리셰 패턴 제거 (사용자 요청: 콜론·대시 금지)
     if (post.title) {
       post.title = sanitizeTitle(post.title);
