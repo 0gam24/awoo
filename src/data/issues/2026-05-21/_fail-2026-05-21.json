@@ -1,0 +1,35 @@
+{
+  "date": "2026-05-21",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 0,
+  "failed": 2,
+  "failures": [
+    {
+      "rank": 1,
+      "term": "피해지원금",
+      "count": 3,
+      "category": "자산",
+      "reason": "fact-check fail: 2/5 matched (score 0.4)",
+      "unmatched": [
+        "2026년",
+        "5월18일",
+        "5월20일"
+      ],
+      "at": "2026-05-20T22:21:01.810Z"
+    },
+    {
+      "rank": 3,
+      "term": "안심지원금",
+      "count": 2,
+      "category": "복지",
+      "reason": "fact-check fail: 4/7 matched (score 0.57)",
+      "unmatched": [
+        "2026년",
+        "5월18일",
+        "5월6일"
+      ],
+      "at": "2026-05-20T22:21:55.581Z"
+    }
+  ]
+}
