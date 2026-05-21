@@ -2,9 +2,9 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-05-21 07:21 KST
+> 마지막 갱신: 2026-05-22 07:13 KST
 
-## 2026-05-21 (오늘)
+## 2026-05-22 (오늘)
 
 _신규/갱신 콘텐츠 없음._
 
@@ -186,13 +186,3 @@ _신규/갱신 콘텐츠 없음._
   - 65세 이상 어르신을 대상으로 한 생활체육교실 운영 및 지자체별 기획사업 추진
 - [교육급여](https://awoo.or.kr/subsidies/education-allowance-000003/) — 교육부
   - 초중고 학생에게 교육활동지원비 지원(초중고 학생별 차등지급)
-
-## 2026-04-21
-
-### ✏️ 갱신된 지원금 (3건)
-- [주거급여 (맞춤형 급여)](https://awoo.or.kr/subsidies/housing-allowance-customized-000096/) — 국토교통부
-  - 저소득층 대상으로 주거형태, 소득, 주거비 부담수준을 고려하여 임차료 지원
-- [기존주택 전세임대주택 지원사업](https://awoo.or.kr/subsidies/housing-rental-jeonse-business-support-000022/) — 국토교통부
-  - 일정요건의 저소득층 등을 위해 공공사업자가 주택소유자와 전세계약 체결 후 재임대하는 사업
-- [해남아이 키움수당 지원](https://awoo.or.kr/subsidies/allowance-support-000320/) — 전라남도 해남군
-  - ○ 1세부터 7세까지 매달 20만원(해남사랑상품권) 지원
