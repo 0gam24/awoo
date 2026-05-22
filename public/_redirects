@@ -5,6 +5,12 @@
 /issues/main /issues/ 301
 /issues/main/ /issues/ 301
 
+# 옛 RSS/사이트맵 URL 흡수 — Search Console에 등록돼 "가져올 수 없음" 상태로
+# 남아있는 옛 경로를 현재 라우트로 흘려보내 색인 신호 낭비 차단.
+/feed /feed.xml 301
+/feed/ /feed.xml 301
+/sitemap_index.xml /sitemap-index.xml 301
+
 # 마감된 지원금 — 외부 인바운드 링크는 archived 가이드 페이지로
 # (활성 지원금 라우트 /subsidies/<slug>/ 가 우선 매칭, 없을 때만 fallback)
 # Cloudflare Pages는 가장 구체적인 매치 우선 → 활성 정적 페이지가 우선됨
