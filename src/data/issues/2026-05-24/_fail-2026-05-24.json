@@ -1,0 +1,42 @@
+{
+  "date": "2026-05-24",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 0,
+  "failed": 2,
+  "failures": [
+    {
+      "rank": 1,
+      "term": "피해지원금",
+      "count": 7,
+      "category": "자산",
+      "reason": "fact-check fail: 9/16 matched (score 0.56)",
+      "unmatched": [
+        "22.4%",
+        "18만",
+        "2026년",
+        "5월",
+        "5월22일",
+        "5월23일",
+        "미신청"
+      ],
+      "at": "2026-05-23T21:46:32.289Z"
+    },
+    {
+      "rank": 2,
+      "term": "고유가지원금",
+      "count": 5,
+      "category": "자산",
+      "reason": "fact-check fail: 8/14 matched (score 0.57)",
+      "unmatched": [
+        "2,800만",
+        "3,600만",
+        "2026년",
+        "5월23일",
+        "5월22일",
+        "5월19일"
+      ],
+      "at": "2026-05-23T21:47:41.162Z"
+    }
+  ]
+}
