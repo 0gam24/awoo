@@ -1,0 +1,25 @@
+{
+  "date": "2026-05-25",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 0,
+  "failed": 2,
+  "failures": [
+    {
+      "rank": 1,
+      "term": "피해지원금",
+      "count": 3,
+      "category": "자산",
+      "reason": "hard-gate fail: 추정 표현 3건 (약 76%, 약 76%, 약 77%)",
+      "at": "2026-05-24T21:48:33.783Z"
+    },
+    {
+      "rank": 2,
+      "term": "건보급여",
+      "count": 3,
+      "category": "복지",
+      "reason": "JSON parse failed: Expected ',' or '}' after property value in JSON at position 5322 (line 103 column 18)",
+      "at": "2026-05-24T21:49:45.175Z"
+    }
+  ]
+}
