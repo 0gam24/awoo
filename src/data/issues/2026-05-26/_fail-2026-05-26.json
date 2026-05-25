@@ -1,0 +1,43 @@
+{
+  "date": "2026-05-26",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 1,
+  "failed": 2,
+  "failures": [
+    {
+      "rank": 2,
+      "term": "생활지원금",
+      "count": 2,
+      "category": "복지",
+      "reason": "fact-check fail: 2/6 matched (score 0.33)",
+      "unmatched": [
+        "13%",
+        "2026년",
+        "5월25일",
+        "경상남도청"
+      ],
+      "at": "2026-05-25T22:04:45.798Z"
+    },
+    {
+      "rank": 3,
+      "term": "정책지원금",
+      "count": 2,
+      "category": "복지",
+      "reason": "fact-check fail: 0/10 matched (score 0)",
+      "unmatched": [
+        "32%",
+        "70%",
+        "2026년",
+        "5월26일",
+        "건강보험공단",
+        "보건복지부",
+        "본인부",
+        "임산부",
+        "국민연금공단",
+        "국민건강보험공단"
+      ],
+      "at": "2026-05-25T22:05:50.175Z"
+    }
+  ]
+}
