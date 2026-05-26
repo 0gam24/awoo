@@ -1,0 +1,55 @@
+{
+  "date": "2026-05-27",
+  "model": "claude-sonnet-4-6",
+  "attempted": 5,
+  "succeeded": 0,
+  "failed": 3,
+  "failures": [
+    {
+      "rank": 1,
+      "term": "유가연동보조금",
+      "count": 3,
+      "category": "자산",
+      "reason": "fact-check fail: 8/14 matched (score 0.57)",
+      "unmatched": [
+        "521억원",
+        "2026년",
+        "5월26일",
+        "3월",
+        "6월",
+        "5월27일"
+      ],
+      "at": "2026-05-26T22:16:34.932Z"
+    },
+    {
+      "rank": 2,
+      "term": "생활지원금",
+      "count": 3,
+      "category": "복지",
+      "reason": "fact-check fail: 5/10 matched (score 0.5)",
+      "unmatched": [
+        "13%",
+        "6월",
+        "2026년",
+        "5월26일",
+        "미신청"
+      ],
+      "at": "2026-05-26T22:17:37.013Z"
+    },
+    {
+      "rank": 3,
+      "term": "농업인수당",
+      "count": 2,
+      "category": "농업",
+      "reason": "fact-check fail: 5/10 matched (score 0.5)",
+      "unmatched": [
+        "70만원",
+        "5월27일",
+        "2027년",
+        "농지원부",
+        "중앙정부"
+      ],
+      "at": "2026-05-26T22:18:35.237Z"
+    }
+  ]
+}
