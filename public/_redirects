@@ -11,6 +11,10 @@
 /feed/ /feed.xml 301
 /sitemap_index.xml /sitemap-index.xml 301
 
+# 잘못 발행된 5/24 URL → 정정 5/27 URL (날짜 오기재 정정, 색인 안전망)
+/issues/2026-05-24/self-employed-essentials-weekly-2026-05-24/ /issues/2026-05-27/self-employed-essentials-weekly-2026-05-27/ 301
+/issues/2026-05-24/senior-essentials-weekly-2026-05-24/ /issues/2026-05-27/senior-essentials-weekly-2026-05-27/ 301
+
 # 마감된 지원금 — 외부 인바운드 링크는 archived 가이드 페이지로
 # (활성 지원금 라우트 /subsidies/<slug>/ 가 우선 매칭, 없을 때만 fallback)
 # Cloudflare Pages는 가장 구체적인 매치 우선 → 활성 정적 페이지가 우선됨
