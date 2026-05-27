@@ -336,6 +336,23 @@ awoo/
 
 ---
 
+## 11-Z. 수동 포스팅 운영 모드 (2026-05-27~)
+
+**핵심**: 영구 포스트 자동 발행 로직(`generate-issue-posts.mjs`)은 2026-05-27 삭제됨 (커밋 `683bde1`). 이후 영구 포스트는 운영자가 메인화면 트렌딩 키워드를 보고 Claude(AI 보조)에 키워드 1개 던지면 8단계 파이프라인으로 작성·검증·발행한다.
+
+- **표준 문서**: [docs/ops/MANUAL-POSTING.md](docs/ops/MANUAL-POSTING.md) — 8단계 파이프라인·4 게이트·6축 롱테일·SEO/AEO/GEO 분산 매트릭스·18항목 체크리스트
+- **메인화면 자동**: `today-issue.json` 트렌딩·매칭 지원금·카테고리 chips는 매일 06KST 자동 (sync-issues.yml의 sync 단계만 유지)
+- **목적**: 검색 트래픽 빠른 유입 — 광역 키워드 X, 롱테일 자산화 + IndexNow + Naver Search Advisor + Hub-Spoke
+
+명령 예시:
+```
+/post 유가연동보조금
+/post 농업인수당 urgency=high
+/post 청년주택드림 persona=office-rookie
+```
+
+---
+
 ## 11-A. 운영 사이클 하네스 (2026-04-30~)
 
 본 프로젝트는 SEO/GEO 트래픽 성장을 KPI로 한 **수동 트리거 운영 사이클**을 사용한다.
