@@ -39,6 +39,11 @@ jobs:
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
         run: npm run sync:issues
 
+      # 트렌딩 term → 포스트 매핑(postSlug/postDate) 자동 derive (포스트의 freshness.trendingTerm 기준)
+      # 실행 순서 엄수: sync:issues(카운트) → sync:history(매핑) → lint:content(무결성 게이트)
+      - name: Sync trending→post mapping
+        run: npm run sync:history
+
       - name: Verify content (lint)
         run: npm run lint:content
 
