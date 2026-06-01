@@ -6,7 +6,10 @@ import { formatWon } from '@/data/site-data';
 // 메인 NewsHero — 자동 큐레이션 today-issue.json 기반.
 // 데이터 없으면 graceful empty (CTA 만 노출), 트렌딩 차트·하드코드 fallback 제거.
 // CTA 1순위: 1위 토픽의 영구 포스트 (있으면 직진), 없으면 /issues/ 인덱스.
-type HistoryEntry = { firstSeen: string; postSlug: string; totalCount: number };
+// postDate: 트렌딩 term이 며칠째 이어질 때, 링크를 "최초 등장일 글"이 아니라
+// 운영자가 매핑한 "실제 포스트가 있는 날짜" 글로 보낸다(수동 발행 후 _history.json에서 갱신).
+// 없으면 firstSeen으로 폴백(과거 자동발행 엔트리 호환).
+type HistoryEntry = { firstSeen: string; postSlug: string; totalCount: number; postDate?: string };
 type HistoryFile = { byTerm?: Record<string, HistoryEntry> };
 const historyModules = import.meta.glob<{ default: HistoryFile }>(
   '/src/data/issues/_history.json',
@@ -19,7 +22,8 @@ function findTopicPostUrl(term: string | undefined): string | null {
   if (!term) return null;
   const entry = history.byTerm?.[term];
   if (!entry?.postSlug || !entry?.firstSeen) return null;
-  return `/issues/${entry.firstSeen}/${entry.postSlug}/`;
+  const postDate = entry.postDate ?? entry.firstSeen;
+  return `/issues/${postDate}/${entry.postSlug}/`;
 }
 
 // Cycle #9: thinness 가드 완화 — 모든 트렌딩 키워드(totalCount ≥ 1) 에 토픽 hub 생성됨.
