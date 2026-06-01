@@ -10,6 +10,8 @@ interface Props {
   description: string;
   canonical?: string;
   ogImage?: string;
+  /** head <meta name="keywords"> — tags 최대 8개 (네이버 신호, 구글 무해) */
+  keywords?: string[];
   noindex?: boolean;
   /** 활성 nav 키: 'home' | '/subsidies' | '/guide' 등 */
   activeNav?: string;
@@ -32,6 +34,7 @@ const {
   description,
   canonical,
   ogImage = '/og-default.png',
+  keywords,
   noindex = false,
   activeNav = '',
   breadcrumbs,
@@ -93,6 +96,8 @@ const siteName = '지원금가이드';
 
     <title>{title}</title>
     <meta name="description" content={description} />
+    {keywords && keywords.length > 0 && <meta name="keywords" content={keywords.slice(0, 8).join(', ')} />}
+    {ogType === 'article' && <meta name="author" content={ogArticle?.author ?? '김준혁'} />}
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="alternate icon" type="image/png" href="/favicon.svg" />
@@ -129,6 +134,8 @@ const siteName = '지원금가이드';
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={ogImageURL} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="ko_KR" />
 
     {/* Cycle #18 P0: og:type=article 시 Article 전용 메타 (영구 포스트) */}

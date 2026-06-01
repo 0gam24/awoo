@@ -94,6 +94,26 @@ export function buildWebSite() {
   };
 }
 
+/**
+ * ImageObject JSON-LD — Article.image 등에 dimension 명시 (Cycle P0-4).
+ * raw 문자열 대신 width/height 포함 → Discover·카카오 대형 미리보기 자격.
+ * 기본값 1200×630(OG 표준). caption은 있을 때만 노출.
+ */
+export function buildImageObject(opts: {
+  url: string;
+  width?: number;
+  height?: number;
+  caption?: string;
+}) {
+  return {
+    '@type': 'ImageObject',
+    url: opts.url,
+    width: opts.width ?? 1200,
+    height: opts.height ?? 630,
+    ...(opts.caption ? { caption: opts.caption } : {}),
+  };
+}
+
 export interface BreadcrumbItem {
   name: string;
   /** 절대 또는 상대 경로 ('/' 시작) */

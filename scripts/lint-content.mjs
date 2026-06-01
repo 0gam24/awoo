@@ -158,6 +158,20 @@ const REQUIRED_POST_FIELDS = [
 // JSON-LD shape 검증용 — 본 사이트가 출력하는 schema의 필수 필드 체크
 const ALLOWED_CATEGORIES = ['주거', '취업', '창업', '교육', '자산', '복지', '농업'];
 
+// 정식 reportType enum (실사용 5종). 레거시 포스트는 reportType 자체가 없을 수 있으므로
+// '존재하는데 enum 밖일 때만' err — 누락은 검사하지 않는다(회귀 안전).
+const REPORT_TYPES = [
+  'weekly-essentials',
+  'issue-followup',
+  'new-subsidies-weekly',
+  'new-subsidies-detail',
+  'deadline-imminent-weekly',
+];
+const SOURCE_CONFIDENCE = ['high', 'medium', 'low'];
+
+// metaDescription 전역 중복 검사용 (이슈 간 동일 문자열 → warn)
+const metaDescSeen = new Map(); // metaDescription → "date/slug"
+
 // 헤드라인 클릭베이트·과장 패턴 — Google Discover 정책 준수용
 // 발견 시 warn (포스트별 사람 검토 신호)
 const CLICKBAIT_PATTERNS = [
@@ -293,6 +307,115 @@ for (const { date, slug, file } of issueFiles) {
   }
   if (post.date && post.date !== date) {
     err(`이슈 date 디렉토리 불일치 (필드: ${post.date} / 디렉토리: ${date}): ${date}/${slug}`);
+  }
+
+  // --- P0: reportType enum (존재할 때만 검사 / 누락은 무시 — 레거시 안전) ---
+  if (post.reportType !== undefined && post.reportType !== null) {
+    if (!REPORT_TYPES.includes(post.reportType)) {
+      err(
+        `이슈 reportType enum 위반 (${post.reportType}, 허용: ${REPORT_TYPES.join('|')}): ${date}/${slug}`,
+      );
+    }
+  }
+
+  // --- P0: 결정적 계산값 (값이 있을 때만 검사) ---
+  // factCheckScore: 0~1 숫자
+  if (post.factCheckScore !== undefined && post.factCheckScore !== null) {
+    if (
+      typeof post.factCheckScore !== 'number' ||
+      post.factCheckScore < 0 ||
+      post.factCheckScore > 1
+    ) {
+      err(`이슈 factCheckScore 0~1 숫자 아님 (${post.factCheckScore}): ${date}/${slug}`);
+    }
+  }
+  // sourceConfidence: high/medium/low
+  if (post.sourceConfidence !== undefined && post.sourceConfidence !== null) {
+    if (!SOURCE_CONFIDENCE.includes(post.sourceConfidence)) {
+      err(
+        `이슈 sourceConfidence enum 위반 (${post.sourceConfidence}, 허용: ${SOURCE_CONFIDENCE.join('|')}): ${date}/${slug}`,
+      );
+    }
+  }
+  // sourcePublisherCount: sources 있을 때 고유 publisher 수와 일치
+  if (
+    post.sourcePublisherCount !== undefined &&
+    post.sourcePublisherCount !== null &&
+    Array.isArray(post.sources)
+  ) {
+    const uniquePublishers = new Set(post.sources.map((s) => s.publisher).filter(Boolean)).size;
+    if (post.sourcePublisherCount !== uniquePublishers) {
+      // 파생/표시용 필드 — 배포 차단(err) 대상 아님. 불일치는 warn으로 표면화만.
+      warn(
+        `이슈 sourcePublisherCount 불일치 (필드: ${post.sourcePublisherCount} / 실제 고유 publisher: ${uniquePublishers}): ${date}/${slug}`,
+      );
+    }
+  }
+
+  // --- P0: table 셀 수 (table 있을 때만) ---
+  if (post.table && typeof post.table === 'object') {
+    const headers = post.table.headers;
+    const rows = post.table.rows;
+    if (Array.isArray(headers)) {
+      const n = headers.length;
+      if (Array.isArray(rows)) {
+        rows.forEach((row, i) => {
+          if (Array.isArray(row) && row.length !== n) {
+            err(
+              `이슈 table rows[${i}] 셀 수 불일치 (${row.length} ≠ headers ${n}): ${date}/${slug}`,
+            );
+          }
+        });
+      }
+      // headers 2~5 범위 권장 (warn)
+      if (n < 2 || n > 5) {
+        warn(`이슈 table headers 권장 범위(2~5) 밖 (${n}): ${date}/${slug}`);
+      }
+    }
+    // rows 3행 미만 권장 (warn)
+    if (Array.isArray(rows) && rows.length < 3) {
+      warn(`이슈 table rows 권장(3행+) 미만 (${rows.length}): ${date}/${slug}`);
+    }
+  }
+
+  // --- P0: AEO/길이 warn (전부 warn — 빌드 안 막음) ---
+  // tldr
+  if (Array.isArray(post.tldr)) {
+    if (post.tldr.length < 3 || post.tldr.length > 6) {
+      warn(`이슈 tldr 개수 권장(3~6) 밖 (${post.tldr.length}): ${date}/${slug}`);
+    }
+    if (typeof post.tldr[0] === 'string' && !/[0-9０-９]|만원|원|일|%|건|명/.test(post.tldr[0])) {
+      warn(`이슈 tldr[0]에 수치/날짜 토큰 없음: ${date}/${slug}`);
+    }
+  }
+  // faq
+  if (Array.isArray(post.faq)) {
+    if (post.faq.length < 3 || post.faq.length > 7) {
+      warn(`이슈 faq 개수 권장(3~7) 밖 (${post.faq.length}): ${date}/${slug}`);
+    }
+    post.faq.forEach((f, i) => {
+      if (f && typeof f.a === 'string' && /^\s*(네|예)[,，]/.test(f.a)) {
+        warn(`이슈 faq[${i}].a "네,"/"예," 시작 (단독 완결 권장): ${date}/${slug}`);
+      }
+    });
+  }
+  // title 길이
+  if (typeof post.title === 'string' && post.title.length > 40) {
+    warn(`이슈 title 40자 초과 (${post.title.length}자): ${date}/${slug}`);
+  }
+  // metaDescription 길이 + 전역 중복
+  if (typeof post.metaDescription === 'string') {
+    const len = post.metaDescription.length;
+    if (len < 60 || len > 110) {
+      warn(`이슈 metaDescription 권장 길이(60~110) 밖 (${len}자): ${date}/${slug}`);
+    }
+    if (metaDescSeen.has(post.metaDescription)) {
+      warn(
+        `이슈 metaDescription 전역 중복 (${metaDescSeen.get(post.metaDescription)} 와 동일): ${date}/${slug}`,
+      );
+    } else {
+      metaDescSeen.set(post.metaDescription, `${date}/${slug}`);
+    }
   }
 }
 

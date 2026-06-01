@@ -4,6 +4,7 @@ import Icon from '@/components/Icon.astro';
 import MainBackrefBox from '@/components/MainBackrefBox.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
+import { buildImageObject } from '@/lib/schema';
 import { paragraphsAndLists } from '@/lib/inline-markdown';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -197,7 +198,12 @@ const articleSchema = {
   ],
   // 사이트와이드 Organization @id 참조 (Cycle #1 P0-2 자산) — entity 일관성 + 중복 제거
   publisher: { '@id': 'https://awoo.or.kr/#organization' },
-  image: ['https://awoo.or.kr/og-default.png'],
+  image: [
+    buildImageObject({
+      url: 'https://awoo.or.kr/og-default.png',
+      caption: post.title,
+    }),
+  ],
   isAccessibleForFree: true,
   // Cycle #11 P0-1: AI 답변 엔진 인용 confidence 신호
   wordCount: articleWordCount,
@@ -422,9 +428,8 @@ const RT_LABELS = {
   'new-subsidies-weekly': '🆕 신규 등록 비교',
   'new-subsidies-detail': '🔍 신규 지원금 심층',
   'deadline-imminent-weekly': '⏰ 마감 임박',
-  'persona-weekly': '👤 페르소나 분석',
-  'category-weekly': '🗂 분야 심층',
-  'trending-persona-angle': '🎯 트렌딩 페르소나 각도',
+  'weekly-essentials': '🗂 핵심',
+  'issue-followup': '🔎 후속',
 } as const;
 type ReportType = keyof typeof RT_LABELS;
 const rt = (post as { reportType?: string }).reportType;
@@ -439,6 +444,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
   activeNav="/issues/"
   breadcrumbs={breadcrumbs}
   noindex={isThinPost}
+  keywords={post.tags?.slice(0, 8)}
   ogType="article"
   ogArticle={{
     publishedTime: post.publishedAt,
@@ -1149,6 +1155,22 @@ const reportTypeBadge = rt && rt in RT_LABELS
   .report-type-pill.rt-deadline-imminent-weekly {
     background: rgb(214 44 26 / 0.12);
     color: var(--color-danger);
+  }
+  /* weekly-essentials — 핵심 정리(보라 톤) */
+  .report-type-pill.rt-weekly-essentials {
+    background: rgb(139 92 246 / 0.12);
+    color: #8b5cf6;
+  }
+  :global([data-theme='dark']) .report-type-pill.rt-weekly-essentials {
+    background: rgb(139 92 246 / 0.18);
+  }
+  /* issue-followup — 트렌딩 후속(핫 핑크) */
+  .report-type-pill.rt-issue-followup {
+    background: rgb(236 72 153 / 0.14);
+    color: #ec4899;
+  }
+  :global([data-theme='dark']) .report-type-pill.rt-issue-followup {
+    background: rgb(236 72 153 / 0.22);
   }
   .report-type-pill.rt-persona-weekly {
     background: rgb(139 92 246 / 0.12);
