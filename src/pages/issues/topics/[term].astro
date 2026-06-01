@@ -24,6 +24,8 @@ interface HistoryEntry {
   daysActive: number;
   dailyCounts: Record<string, number>;
   postSlug?: string;
+  // 수동 발행 글의 실제 날짜(트렌드 지속 시 firstSeen과 달라짐). 없으면 firstSeen 폴백.
+  postDate?: string;
 }
 
 interface PostData {
@@ -74,7 +76,7 @@ export const getStaticPaths = (() => {
     // 매칭 포스트 찾기 (postSlug 우선)
     let post: PostData | undefined;
     if (entry.postSlug) {
-      const dayPosts = postsByDate[entry.firstSeen] ?? [];
+      const dayPosts = postsByDate[entry.postDate ?? entry.firstSeen] ?? [];
       post = dayPosts.find((p) => p.slug === entry.postSlug);
     }
     // 현재 term을 제외한 다른 토픽 8개
@@ -200,7 +202,7 @@ const collectionSchema = !isThin
         ...(post
           ? [
               {
-                url: `/issues/${entry.firstSeen ?? entry.lastSeen}/${post.slug}/`,
+                url: `/issues/${post.date}/${post.slug}/`,
                 name: post.title,
               },
             ]
@@ -270,7 +272,7 @@ const collectionSchema = !isThin
       {post && (
         <section class="post-link-card">
           <div class="plc-eyebrow">관련 포스트</div>
-          <a class="plc-link" href={`/issues/${entry.firstSeen}/${post.slug}/`}>
+          <a class="plc-link" href={`/issues/${post.date}/${post.slug}/`}>
             <div class="plc-title">{post.title}</div>
             <div class="plc-meta">
               {post.category} · {post.date}

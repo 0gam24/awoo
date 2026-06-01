@@ -41,7 +41,7 @@ const aggregate = auto?.aggregate;
 const topTermMatched = (topTerm && auto?.matchedSubsidiesByTerm?.[topTerm]) || auto?.matchedSubsidies || [];
 
 // 영구 포스트 백링크 (있으면)
-type HistoryEntry = { firstSeen: string; postSlug: string; totalCount: number };
+type HistoryEntry = { firstSeen: string; postSlug: string; totalCount: number; postDate?: string };
 const histModules = import.meta.glob<{ default: { byTerm?: Record<string, HistoryEntry> } }>(
   '/src/data/issues/_history.json',
   { eager: true },
@@ -50,7 +50,8 @@ const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
 function findPostUrl(term: string): string | null {
   const e = historyByTerm[term];
   if (!e?.postSlug || !e?.firstSeen) return null;
-  return `/issues/${e.firstSeen}/${e.postSlug}/`;
+  // postDate(실제 글 날짜) 우선, 없으면 firstSeen 폴백 — NewsHero/topics와 동일 규칙
+  return `/issues/${e.postDate ?? e.firstSeen}/${e.postSlug}/`;
 }
 function findTopicHubUrl(term: string): string | null {
   const e = historyByTerm[term];

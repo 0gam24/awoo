@@ -296,6 +296,34 @@ for (const { date, slug, file } of issueFiles) {
   }
 }
 
+// --- 4. _history.json 트렌딩 매핑 무결성 (재발 방지)
+// 메인 트렌딩 카드/토픽 hub의 'term→포스트' 링크는 _history.json byTerm[term]의
+// {postDate ?? firstSeen}/{postSlug} 로 URL을 만든다. 이 매핑이 실제 존재하는 포스트를
+// 가리키지 않으면 '한 달 전 무관 글/404' 류 드리프트가 배포된다 → 빌드 차단.
+const HISTORY_FILE = path.join(ISSUES_DIR, '_history.json');
+if (existsSync(HISTORY_FILE)) {
+  const issueKeySet = new Set(issueFiles.map(({ date, slug }) => `${date}/${slug}`));
+  let history = null;
+  try {
+    history = readJson(HISTORY_FILE);
+  } catch (e) {
+    err(`_history.json parse 실패 — ${e.message}`);
+  }
+  if (history?.byTerm) {
+    for (const [term, entry] of Object.entries(history.byTerm)) {
+      if (!entry?.postSlug) continue;
+      const postDate = entry.postDate ?? entry.firstSeen;
+      const key = `${postDate}/${entry.postSlug}`;
+      if (!issueKeySet.has(key)) {
+        err(
+          `_history 트렌딩 매핑이 존재하지 않는 포스트를 가리킴 (term "${term}" → ${key}.json). ` +
+            `postDate/postSlug 정정 또는 npm run sync:history 필요`,
+        );
+      }
+    }
+  }
+}
+
 // --- 출력
 console.log('');
 if (warnings.length > 0) {
