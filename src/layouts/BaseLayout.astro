@@ -79,6 +79,18 @@ const siteName = '지원금가이드';
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
 
+    {/* Google Analytics 4 (gtag.js) — 전 페이지 사이트와이드 측정.
+        CSP: script-src에 googletagmanager, connect-src에 google-analytics 허용 필요 (public/_headers). */}
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-3VBB7V08LJ"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+      gtag('config', 'G-3VBB7V08LJ');
+    </script>
+
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
@@ -176,6 +188,17 @@ const siteName = '지원금가이드';
         (window as Window).requestIdleCallback(_initVitals, { timeout: 3000 });
       } else {
         setTimeout(_initVitals, 2500);
+      }
+    </script>
+
+    {/* Naver Analytics (wcslog) — 닫는 body 직전.
+        CSP: script-src에 wcs.pstatic.net, connect-src에 wcs.naver.net 허용 필요 (public/_headers). */}
+    <script is:inline type="text/javascript" src="https://wcs.pstatic.net/wcslog.js"></script>
+    <script is:inline type="text/javascript">
+      window.wcs_add = window.wcs_add || {};
+      window.wcs_add['wa'] = 'cf391d9a2fff08';
+      if (window.wcs) {
+        window.wcs_do();
       }
     </script>
   </body>
