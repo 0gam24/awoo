@@ -125,6 +125,14 @@ const histModules = import.meta.glob<{ default: { byTerm?: Record<string, Histor
 );
 const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
 
+// P2: dateModified·OG·hero 수정일을 단일 변수로 통일 (트렌딩 재등장 lastSeen 우선)
+const lastSeenForTrend =
+  post.freshness?.trendingTerm && historyByTerm[post.freshness.trendingTerm]?.lastSeen
+    ? historyByTerm[post.freshness.trendingTerm]!.lastSeen
+    : null;
+const lastSeenIso = lastSeenForTrend ? `${lastSeenForTrend}T00:00:00.000Z` : post.publishedAt;
+const isUpdated = lastSeenForTrend != null && lastSeenForTrend > post.date;
+
 // JSON-LD — NewsArticle 강화 (mainEntityOfPage·articleSection·inLanguage 등)
 const canonicalUrl = `https://awoo.or.kr/issues/${date}/${slug}/`;
 // Cycle #88: factCheckScore — articleSchema reviewedBy + ClaimReview emit 조건. 하단 isThinPost 검사에서도 재사용.
@@ -169,11 +177,8 @@ const articleSchema = {
   url: canonicalUrl,
   inLanguage: 'ko-KR',
   datePublished: post.publishedAt,
-  // Cycle #31: dateModified — history.lastSeen 우선 (트렌딩 재등장 시 freshness 갱신)
-  dateModified:
-    post.freshness?.trendingTerm && historyByTerm[post.freshness.trendingTerm]?.lastSeen
-      ? `${historyByTerm[post.freshness.trendingTerm]!.lastSeen}T00:00:00.000Z`
-      : post.publishedAt,
+  // Cycle #31: dateModified — history.lastSeen 우선 (트렌딩 재등장 시 freshness 갱신). P2: 공통 변수.
+  dateModified: lastSeenIso,
   articleSection: post.category,
   keywords: post.tags.join(', '),
   about: post.freshness?.trendingTerm ?? post.tags[0],
@@ -376,6 +381,10 @@ const tableSchema = post.table && Array.isArray(post.table.headers) && Array.isA
 const faqSchema = post.faq.length > 0 ? {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
+  // P2: 그래프 정합 — @id/isPartOf/inLanguage 명시(분리 블록이라 @graph 통합 불필요)
+  '@id': `${canonicalUrl}#faq`,
+  inLanguage: 'ko-KR',
+  isPartOf: { '@id': canonicalUrl },
   mainEntity: post.faq.map((f) => ({
     '@type': 'Question',
     name: f.q,
@@ -386,7 +395,8 @@ const faqSchema = post.faq.length > 0 ? {
   })),
   speakable: {
     '@type': 'SpeakableSpecification',
-    cssSelector: ['.tldr', '.tldr li', '.lead', '.faq-section'],
+    // P2: .lead 과다매칭(모든 섹션 리드) 제거 → 자기충족 청크만 음성 발췌
+    cssSelector: ['.tldr', '.tldr li', '.faq-section'],
   },
 } : null;
 
@@ -448,7 +458,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
   ogType="article"
   ogArticle={{
     publishedTime: post.publishedAt,
-    modifiedTime: post.publishedAt,
+    modifiedTime: lastSeenIso,
     author: '김준혁',
     section: post.category,
     tags: post.tags,
@@ -546,7 +556,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
             </a>
           )}
           <span class="cat-pill">{post.category}</span>
-          <span class="date">{post.date}</span>
+          <span class="date">{post.date}{isUpdated && ` · 업데이트 ${lastSeenForTrend}`}</span>
           <span class="read-time" aria-label={`${readMin}분 분량`}>📖 {readMin}분</span>
           <button
             type="button"
@@ -665,8 +675,9 @@ const reportTypeBadge = rt && rt in RT_LABELS
               <h2>{post.table.title}</h2>
               <div class="table-wrap">
                 <table>
+                  <caption style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">{post.table.title}</caption>
                   <thead>
-                    <tr>{post.table.headers.map((h) => <th>{h}</th>)}</tr>
+                    <tr>{post.table.headers.map((h) => <th scope="col">{h}</th>)}</tr>
                   </thead>
                   <tbody>
                     {post.table.rows.map((row) => (
