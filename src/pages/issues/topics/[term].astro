@@ -69,6 +69,9 @@ export const getStaticPaths = (() => {
     .sort((a, b) => b[1].totalCount - a[1].totalCount)
     .map(([t, e]) => ({ term: t, totalCount: e.totalCount, daysActive: e.daysActive }));
 
+  // 1:N — 같은 트렌딩 term의 모든 포스트 집계용 평탄 리스트
+  const allPostsFlat = Object.values(postsByDate).flat();
+
   // term 별 페이지 생성 — Cycle #9: 모든 트렌딩 키워드 hub 보장 (thin은 noindex)
   const paths = [];
   for (const [term, entry] of Object.entries(byTerm)) {
@@ -79,20 +82,25 @@ export const getStaticPaths = (() => {
       const dayPosts = postsByDate[entry.postDate ?? entry.firstSeen] ?? [];
       post = dayPosts.find((p) => p.slug === entry.postSlug);
     }
+    // 1:N — freshness.trendingTerm 으로 같은 term 전체 포스트(날짜 desc). pill 기대-실현 정합.
+    const relatedPosts = allPostsFlat
+      .filter((p) => p.freshness?.trendingTerm === term && p.slug && p.date)
+      .sort((a, b) => ((a.date ?? '') < (b.date ?? '') ? 1 : -1));
     // 현재 term을 제외한 다른 토픽 8개
     const otherTopics = activeTopics.filter((t) => t.term !== term).slice(0, 8);
     paths.push({
       params: { term },
-      props: { term, entry, post: post ?? null, otherTopics },
+      props: { term, entry, post: post ?? null, relatedPosts, otherTopics },
     });
   }
   return paths;
 }) satisfies GetStaticPaths;
 
-const { term, entry, post, otherTopics } = Astro.props as {
+const { term, entry, post, relatedPosts, otherTopics } = Astro.props as {
   term: string;
   entry: HistoryEntry;
   post: PostData | null;
+  relatedPosts: PostData[];
   otherTopics: Array<{ term: string; totalCount: number; daysActive: number }>;
 };
 
@@ -199,14 +207,10 @@ const collectionSchema = !isThin
           url: `/subsidies/${s.data.id}/`,
           name: s.data.title,
         })),
-        ...(post
-          ? [
-              {
-                url: `/issues/${post.date}/${post.slug}/`,
-                name: post.title,
-              },
-            ]
-          : []),
+        ...relatedPosts.map((p) => ({
+          url: `/issues/${p.date}/${p.slug}/`,
+          name: p.title,
+        })),
       ],
     })
   : null;
@@ -284,6 +288,23 @@ const collectionSchema = !isThin
             )}
             <span class="plc-cta">자세히 보기 →</span>
           </a>
+        </section>
+      )}
+
+      {/* 1:N — 같은 트렌딩 term의 모든 분석 글 (pill 기대-실현 정합) */}
+      {relatedPosts.length > 1 && (
+        <section class="topic-posts">
+          <h2 class="tp-h">"{term}" 관련 분석 {relatedPosts.length}건</h2>
+          <ul class="tp-list">
+            {relatedPosts.filter((p) => p.slug !== post?.slug).map((p) => (
+              <li>
+                <a class="tp-card" href={`/issues/${p.date}/${p.slug}/`}>
+                  <span class="tp-meta">{p.category} · {p.date}</span>
+                  <span class="tp-title">{p.title}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -1082,4 +1103,12 @@ const collectionSchema = !isThin
     font-size: 11px;
     font-weight: 600;
   }
+  /* 1:N 관련 분석 글 리스트 */
+  .topic-posts { margin-top: 28px; }
+  .tp-h { font-size: 18px; font-weight: 700; margin: 0 0 12px; }
+  .tp-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  .tp-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: var(--radius-md); text-decoration: none; color: inherit; transition: border-color 0.15s, transform 0.15s; }
+  .tp-card:hover { border-color: var(--accent); transform: translateY(-1px); text-decoration: none; }
+  .tp-meta { font-size: 12px; color: var(--text-3); }
+  .tp-title { font-size: 15px; font-weight: 600; line-height: 1.4; }
 </style>

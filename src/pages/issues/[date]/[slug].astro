@@ -860,12 +860,21 @@ const reportTypeBadge = rt && rt in RT_LABELS
           <div class="rail-card">
             <div class="rail-eyebrow">5분 진단</div>
             <div class="rail-title">받을 수 있는 지원금이 뭔지 빠르게 확인</div>
-            <a class="rail-cta" href="/subsidies/">전체 지원금 둘러보기 →</a>
+            <a class="rail-cta" href="/quick/">5분 진단 시작 →</a>
           </div>
+          {/* 이 글 연동 — 읽는 내내 다음 행동 상주 */}
           <div class="rail-card">
-            <div class="rail-eyebrow">신청 흐름</div>
-            <div class="rail-title">정부 지원금 신청 단계 가이드</div>
-            <a class="rail-cta" href="/guide/">신청 가이드 →</a>
+            <div class="rail-eyebrow">이 글 관련</div>
+            {officialSource && (
+              <a class="rail-cta" href={officialSource.url} target="_blank" rel="nofollow noopener noreferrer">🔗 공식 안내·신청 바로가기</a>
+            )}
+            {relatedSubsidies.slice(0, 2).map((s) => (
+              <a class="rail-cta" href={`/subsidies/${s.id}/`}>💸 {s.title}</a>
+            ))}
+            {nextPost && (
+              <a class="rail-cta" href={`/issues/${nextPost.date}/${nextPost.slug}/`}>📄 다음 글 보기</a>
+            )}
+            <a class="rail-cta" href="/guide/">📋 신청 가이드</a>
           </div>
         </aside>
       </div>
@@ -1634,7 +1643,10 @@ const reportTypeBadge = rt && rt in RT_LABELS
     font-weight: 600;
   }
 
-  .rail { display: flex; flex-direction: column; gap: 12px; }
+  .rail { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 80px; align-self: start; max-height: calc(100vh - 96px); overflow-y: auto; }
+  .rail-card .rail-cta { display: block; }
+  .rail-card .rail-cta + .rail-cta { margin-top: 8px; }
+  @media (max-width: 880px) { .rail { position: static; max-height: none; } }
   .rail-card {
     background: var(--surface);
     border: 1px solid var(--border);
