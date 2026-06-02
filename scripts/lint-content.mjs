@@ -417,6 +417,23 @@ for (const { date, slug, file } of issueFiles) {
       metaDescSeen.set(post.metaDescription, `${date}/${slug}`);
     }
   }
+
+  // --- P1: 본문 문맥 내부링크 (내부링크 가중·AI 본문 인용 유리) — 작성 유도 warn ---
+  const bodies = (post.sections ?? []).map((s) => s.body ?? '').join('\n');
+  if (bodies && !/\[[^\]]+\]\(\/[^)]+\)/.test(bodies)) {
+    warn(`이슈 본문 내부링크 없음 ([텍스트](/경로) 1개 이상 권장): ${date}/${slug}`);
+  }
+
+  // --- P1: 신청/절차 섹션인데 "**N단계:**" 패턴 없음 → HowTo 자동생성 누락 — 작성 유도 warn ---
+  if (Array.isArray(post.sections)) {
+    const hasProcedureHeading = post.sections.some(
+      (s) => typeof s.heading === 'string' && /신청|절차|방법|접수|단계/.test(s.heading),
+    );
+    const hasStepPattern = /\*\*\s*\d+\s*단계/.test(bodies);
+    if (hasProcedureHeading && !hasStepPattern) {
+      warn(`이슈 신청/절차 섹션에 "**N단계:**" 패턴 없음 (HowTo 자동생성 권장): ${date}/${slug}`);
+    }
+  }
 }
 
 // --- 4. _history.json 트렌딩 매핑 무결성 (재발 방지)

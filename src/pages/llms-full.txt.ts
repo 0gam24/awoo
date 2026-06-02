@@ -30,6 +30,8 @@ interface IssuePostFile {
     | 'category-weekly';
   sourceConfidence?: 'high' | 'medium' | 'low';
   sourcePublisherCount?: number;
+  sources?: Array<{ title?: string; url?: string; publisher?: string; pubDate?: string }>;
+  factCheckScore?: number;
 }
 
 // 빌드타임 issues/{date}/{slug}.json 본문 합본 — Claude 생성 SEO/GEO 포스트.
@@ -385,6 +387,20 @@ export const GET: APIRoute = async () => {
             lines.push('');
             lines.push(`**Q. ${f.q}**`);
             lines.push(`A. ${f.a}`);
+          }
+          lines.push('');
+        }
+
+        // P1(GEO): 1차 출처 URL + 사실검증 점수 — AI 크롤러가 합본(llms-full)만 읽어도 attribution 확보
+        if (Array.isArray(d.sources) && d.sources.length > 0) {
+          lines.push('**출처**');
+          for (const s of d.sources) {
+            const name = s.publisher ?? s.title ?? '출처';
+            const cite = s.url ? `[${name}](${s.url})` : name;
+            lines.push(`- ${cite}${s.pubDate ? ` (${s.pubDate})` : ''}`);
+          }
+          if (typeof d.factCheckScore === 'number') {
+            lines.push(`- 사실검증 점수: ${Math.round(d.factCheckScore * 100)}%`);
           }
           lines.push('');
         }

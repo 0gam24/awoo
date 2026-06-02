@@ -113,6 +113,7 @@ STEP 8  발행 후처리 ── IndexNow + SC 안내 + today.md 갱신 + (선택
 | `table` headers | 구분·대상·금액·마감·신청처 | AEO 표 발췌 |
 | `tags` 5~8 | 시드 + 페르소나ID + 카테고리 + "2026" | 내부 4축 cross-ref |
 | `sources` ≥3 | publisher 2개 기관 이상, 정부 1차 출처 우선 | **GEO 신뢰도** |
+| `sections[].body` 내부링크 | relatedSubsidies/glossary 용어 첫 등장 시 `[용어](/경로)` 1개 이상 | 내부링크 가중·AI 본문 인용 |
 
 ### AEO·GEO 즉시 인용 트리거 (필수)
 - `tldr` 첫 항목 첫 문장 = 단독으로 답이 되도록
