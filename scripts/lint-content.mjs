@@ -387,6 +387,31 @@ for (const { date, slug, file } of issueFiles) {
     if (typeof post.tldr[0] === 'string' && !/[0-9０-９]|만원|원|일|%|건|명/.test(post.tldr[0])) {
       warn(`이슈 tldr[0]에 수치/날짜 토큰 없음: ${date}/${slug}`);
     }
+    // 역할 분리 휴리스틱(warn): coreFacts=수치 / tldr=맥락. 토큰 자카드≥0.6 항목 2개+면 중복 경고
+    if (post.coreFacts && typeof post.coreFacts === 'object') {
+      const tok = (s) =>
+        new Set(
+          String(s ?? '')
+            .toLowerCase()
+            .replace(/[^0-9a-z가-힣]+/g, ' ')
+            .split(/\s+/)
+            .filter((w) => w.length >= 2),
+        );
+      const cfSets = ['who', 'amount', 'deadline', 'where'].map((k) => tok(post.coreFacts[k]));
+      const jac = (a, b) => {
+        if (!a.size || !b.size) return 0;
+        let inter = 0;
+        for (const x of a) if (b.has(x)) inter++;
+        return inter / (a.size + b.size - inter);
+      };
+      let dup = 0;
+      for (const t of post.tldr) if (cfSets.some((c) => jac(tok(t), c) >= 0.6)) dup++;
+      if (dup >= 2) {
+        warn(
+          `이슈 tldr ${dup}개가 coreFacts와 중복 (역할분리 권장: coreFacts=수치 / tldr=왜·맥락): ${date}/${slug}`,
+        );
+      }
+    }
   }
   // faq
   if (Array.isArray(post.faq)) {

@@ -1787,5 +1787,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
   .faq-item summary { position: relative; padding-right: 24px; }
   .faq-item summary::after { content: '⌄'; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); transition: transform 0.18s; color: var(--text-3); }
   .faq-item[open] summary::after { transform: translateY(-50%) rotate(180deg); }
+  /* 본문 전화번호 tel: 링크 (모바일 원탭) */
+  .tel-link { color: var(--accent); font-weight: 600; white-space: nowrap; }
   @media (max-width: 600px) { .meta { gap: 10px; } }
 </style>
