@@ -63,9 +63,10 @@ export const getStaticPaths = (() => {
     postsByDate[date]!.push(mod.default);
   }
 
-  // 활성 term (totalCount ≥ 1) 정렬 — Cycle #9: 1:1 매핑 보장
+  // 활성 term — "다른 토픽 보기"에는 실제 한국어 키워드만 노출
+  // (옛 자동발행 시절의 machine-slug term: new-subsidies-…, deadline-imminent-… 제외)
   const activeTopics = Object.entries(byTerm)
-    .filter(([, e]) => e.totalCount >= 1)
+    .filter(([t, e]) => e.totalCount >= 1 && /[가-힣]/.test(t))
     .sort((a, b) => b[1].totalCount - a[1].totalCount)
     .map(([t, e]) => ({ term: t, totalCount: e.totalCount, daysActive: e.daysActive }));
 
