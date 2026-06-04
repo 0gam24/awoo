@@ -625,12 +625,12 @@ const reportTypeBadge = rt && rt in RT_LABELS
           </div>
         )}
 
-        {/* Cycle #23: AI 사용 disclosure 글 단위 명시 (E-E-A-T 신호 + AdSense 정책 정합) */}
-        <aside class="ai-disclosure" aria-label="AI 활용 명시">
+        {/* 편집·검수 신뢰 단서 — 사람 검수 + 정부 공식 출처를 전면화.
+            AI 보조 활용은 편집정책 페이지에 투명 공개(여기선 숫자 점수·AI 라벨 미노출 → YMYL 첫인상 신뢰). */}
+        <aside class="ai-disclosure" aria-label="편집·검수 정보">
           <span class="ai-icon" aria-hidden="true">✓</span>
           <span class="ai-text">
-            <strong>AI 보조 작성</strong> · 편집책임자
-            <a href="/editor/jjh/">김준혁</a> 검수 · Fact-check {(((post as { factCheckScore?: number }).factCheckScore ?? 0) * 100).toFixed(0)}%
+            편집책임자 <a href="/editor/jjh/"><strong>김준혁</strong></a> 검수 · 정부 공식 출처 기반
             <a class="ai-policy" href="/editorial-policy/">편집 정책</a>
           </span>
         </aside>
