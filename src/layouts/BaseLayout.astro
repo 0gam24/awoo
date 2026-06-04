@@ -94,6 +94,10 @@ const siteName = '지원금가이드';
       gtag('config', 'G-3VBB7V08LJ');
     </script>
 
+    {/* Google AdSense — 사이트 소유권 확인 + 광고 게재.
+        CSP: script-src/connect-src/frame-src 에 googlesyndication·doubleclick 허용 (public/_headers). */}
+    <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7830821732287404" crossorigin="anonymous"></script>
+
     <title>{title}</title>
     <meta name="description" content={description} />
     {keywords && keywords.length > 0 && <meta name="keywords" content={keywords.slice(0, 8).join(', ')} />}
