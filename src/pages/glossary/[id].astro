@@ -3,6 +3,7 @@ import BlufBox from '@/components/BlufBox.astro';
 import Container from '@/components/Container.astro';
 import CrossRefRail from '@/components/CrossRefRail.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { CATEGORIES } from '@/data/site-data';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -82,13 +83,17 @@ const blufStatsGlossary = [
 ];
 const blufSummaryGlossary = `${term.term} — ${term.shortDef}${matched.length > 0 ? ` 본 용어가 적용되는 정부 지원금 ${matched.length}건을 정리했습니다.` : ''}`;
 
+// term.category가 실제 카테고리(주거·자산 등)일 때만 분야 링크 — 비카테고리(재난·생계 등) dangling 차단
+const hasCategoryRoute = CATEGORIES.some((c) => c.id === term.category);
 const crossRefItems = [
   ...matchedTopics.map((t) => ({
     href: `/topics/${t.data.id}/`,
     label: t.data.title,
     sub: '주제별 종합 가이드',
   })),
-  { href: `/categories/${encodeURIComponent(term.category)}/`, label: `${term.category} 분야 전체`, sub: '관련 분야 지원금 모아보기' },
+  ...(hasCategoryRoute
+    ? [{ href: `/categories/${encodeURIComponent(term.category)}/`, label: `${term.category} 분야 전체`, sub: '관련 분야 지원금 모아보기' }]
+    : []),
   { href: '/glossary/', label: '용어 사전 전체', sub: '다른 용어 찾기' },
 ];
 ---

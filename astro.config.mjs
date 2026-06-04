@@ -92,7 +92,9 @@ export default defineConfig({
       filter: (page) =>
         !page.endsWith('/issues/main/') &&
         !page.endsWith('/demo/') &&
-        !page.endsWith('/preferences/'),
+        !page.endsWith('/preferences/') &&
+        // 마감 sweep 된 지원금 안내(noindex) — 색인·orphan 차단
+        !page.includes('/subsidies/archived/'),
       i18n: {
         defaultLocale: 'ko',
         locales: { ko: 'ko-KR' },

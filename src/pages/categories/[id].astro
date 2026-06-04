@@ -53,9 +53,9 @@ const personaLabelMap: Record<string, string> = {
 };
 
 // Cycle #63: 카테고리 페이지에서 페르소나로 cross-link
-// 매칭 카운트 desc 정렬, 1건 이상인 페르소나만
+// 매칭 2건 이상만 — persona 라우트 MIN_RESULTS=2와 일치시켜 dangling 링크 방지
 const personaCrossLinks = Object.entries(personaCount)
-  .filter(([, n]) => n >= 1)
+  .filter(([, n]) => n >= 2)
   .sort((a, b) => b[1] - a[1])
   .slice(0, 6)
   .map(([pid, n]) => ({

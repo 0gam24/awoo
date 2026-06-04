@@ -73,6 +73,14 @@ const siteNavigation = {
 const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toString();
 const ogImageURL = new URL(ogImage, Astro.site).toString();
 const siteName = '지원금가이드';
+
+// AdSense 로더는 정책·약관 페이지와 noindex(404·thin) 페이지에는 주입하지 않는다.
+// (ads-policy "광고 미게재 영역" 약속을 코드로 강제 + AdSense 정책페이지 광고 금지 준수)
+const POLICY_PATHS = new Set([
+  '/privacy/', '/cookies/', '/terms/', '/about/', '/contact/', '/ads-policy/', '/editorial-policy/',
+]);
+const normalizedPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
 ---
 
 <!doctype html>
@@ -95,8 +103,11 @@ const siteName = '지원금가이드';
     </script>
 
     {/* Google AdSense — 사이트 소유권 확인 + 광고 게재.
+        정책·약관 페이지와 noindex(404·thin) 페이지에는 미주입 (showAds 가드).
         CSP: script-src/connect-src/frame-src 에 googlesyndication·doubleclick 허용 (public/_headers). */}
-    <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7830821732287404" crossorigin="anonymous"></script>
+    {showAds && (
+      <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7830821732287404" crossorigin="anonymous"></script>
+    )}
 
     <title>{title}</title>
     <meta name="description" content={description} />

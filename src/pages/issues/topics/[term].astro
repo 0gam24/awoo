@@ -77,6 +77,9 @@ export const getStaticPaths = (() => {
   const paths = [];
   for (const [term, entry] of Object.entries(byTerm)) {
     if (entry.totalCount < 1) continue;
+    // 머신슬러그(옛 자동발행: new-subsidies-…, deadline-imminent-…)는 hub 생성 제외.
+    // 한국어 키워드만 색인 — soft-404/scaled-content 인상 차단 (activeTopics 69행과 동일 기준).
+    if (!/[가-힣]/.test(term)) continue;
     // 매칭 포스트 찾기 (postSlug 우선)
     let post: PostData | undefined;
     if (entry.postSlug) {

@@ -133,6 +133,13 @@ const lastSeenForTrend =
 const lastSeenIso = lastSeenForTrend ? `${lastSeenForTrend}T00:00:00.000Z` : post.publishedAt;
 const isUpdated = lastSeenForTrend != null && lastSeenForTrend > post.date;
 
+// 토픽 hub는 한국어 키워드 + totalCount≥1 일 때만 빌드됨([term].astro 가드와 동일).
+// 미빌드 term에는 pill을 링크하지 않는다 — 죽은 hub 링크(dangling) 차단.
+const trendTerm = post.freshness?.trendingTerm;
+const topicHubExists = Boolean(
+  trendTerm && /[가-힣]/.test(trendTerm) && (historyByTerm[trendTerm]?.totalCount ?? 0) >= 1,
+);
+
 // 독자용 공식 안내·신청 외부 링크 — sources 중 정부 도메인 우선 (applyUrl은 JSON-LD에만 있어 화면에 노출)
 const officialSource = (post.sources ?? []).find((s) => /\.go\.kr|\.gov\.kr|bokjiro/.test(s.url ?? '')) ?? null;
 
@@ -234,7 +241,7 @@ const articleSchema = {
     name: '전체 분석 포스트 아카이브',
     url: 'https://awoo.or.kr/issues/all/',
   },
-  ...(post.freshness?.trendingTerm
+  ...(topicHubExists && post.freshness?.trendingTerm
     ? {
         discussionUrl: `https://awoo.or.kr/issues/topics/${encodeURIComponent(post.freshness.trendingTerm)}/`,
       }
@@ -559,7 +566,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
           {reportTypeBadge && (
             <span class={`report-type-pill rt-${reportTypeBadge.rt}`}>{reportTypeBadge.label}</span>
           )}
-          {post.freshness && (
+          {post.freshness && topicHubExists && (
             <a
               class="freshness-pill"
               href={`/issues/topics/${encodeURIComponent(post.freshness.trendingTerm)}/`}
@@ -569,6 +576,13 @@ const reportTypeBadge = rt && rt in RT_LABELS
               {post.freshness.daysActive}일 연속 화제
               {post.freshness.totalCount > 0 && ` · ${post.freshness.totalCount}건 보도`}
             </a>
+          )}
+          {post.freshness && !topicHubExists && (
+            <span class="freshness-pill freshness-pill--static">
+              <span class="dot" aria-hidden="true" />
+              {post.freshness.daysActive}일 연속 화제
+              {post.freshness.totalCount > 0 && ` · ${post.freshness.totalCount}건 보도`}
+            </span>
           )}
           <span class="cat-pill">{post.category}</span>
           <span class="date">{post.date}{isUpdated && ` · 업데이트 ${lastSeenForTrend}`}</span>
@@ -1101,6 +1115,12 @@ const reportTypeBadge = rt && rt in RT_LABELS
   a.freshness-pill:hover {
     background: rgb(0 113 227 / 0.22);
     text-decoration: none;
+  }
+  /* hub 미빌드 term — 링크 없는 화제 상태 배지 (dangling 방지) */
+  .freshness-pill--static {
+    background: var(--surface-2);
+    color: var(--text-2);
+    cursor: default;
   }
 
   /* Cycle #25: prev/next post navigation */

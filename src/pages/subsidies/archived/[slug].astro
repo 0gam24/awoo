@@ -51,10 +51,8 @@ const similar = allActive
   title={`${subsidy.title} (마감) — 지원금가이드`}
   description={`${subsidy.title}은 신청이 종료되었습니다. ${subsidy.category} 분야 활성 지원금을 확인하세요.`}
   activeNav="/subsidies/"
+  noindex={true}
 >
-  <Fragment slot="head">
-    <meta name="robots" content="noindex,follow" />
-  </Fragment>
 
   <section class="band">
     <Container size="narrow">
