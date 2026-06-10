@@ -18,6 +18,7 @@
           "https://awoo.or.kr/subsidies/housing-monthly/",
           "https://awoo.or.kr/subsidies/job-card/",
           "https://awoo.or.kr/subsidies/savings-account/",
+          "https://awoo.or.kr/subsidies/youth-future-savings/",
           "https://awoo.or.kr/subsidies/disability-voucher-education-800002/",
           "https://awoo.or.kr/subsidies/discount-000002/",
           "https://awoo.or.kr/subsidies/employment-allowance-000063/",
@@ -63,7 +64,7 @@
           "https://awoo.or.kr/subsidies/youth-loan-100042/",
           "https://awoo.or.kr/subsidies/youth-rent-support-000099/"
         ],
-        "subsidiesCount": 47
+        "subsidiesCount": 48
       },
       "self-employed": {
         "@id": "https://awoo.or.kr/personas/self-employed/",
@@ -74,6 +75,7 @@
           "https://awoo.or.kr/subsidies/savings-account/",
           "https://awoo.or.kr/subsidies/small-biz-loan/",
           "https://awoo.or.kr/subsidies/startup-grant/",
+          "https://awoo.or.kr/subsidies/youth-future-savings/",
           "https://awoo.or.kr/subsidies/employment-allowance-000063/",
           "https://awoo.or.kr/subsidies/employment-job-seeker-support-000092/",
           "https://awoo.or.kr/subsidies/housing-rental-jeonse-business-support-000022/",
@@ -86,7 +88,7 @@
           "https://awoo.or.kr/subsidies/welfare-000030/",
           "https://awoo.or.kr/subsidies/youth-011848/"
         ],
-        "subsidiesCount": 15
+        "subsidiesCount": 16
       },
       "newlywed-family": {
         "@id": "https://awoo.or.kr/personas/newlywed-family/",
@@ -174,7 +176,6 @@
           "https://awoo.or.kr/subsidies/basic-support-000116/",
           "https://awoo.or.kr/subsidies/business-medical-disaster-support-008743/",
           "https://awoo.or.kr/subsidies/comfort-payment-support-000351/",
-          "https://awoo.or.kr/subsidies/disability-voucher-education-special-400007/",
           "https://awoo.or.kr/subsidies/disability-voucher-education-support-700011/",
           "https://awoo.or.kr/subsidies/discount-000002/",
           "https://awoo.or.kr/subsidies/discount-000092/",
@@ -227,7 +228,7 @@
           "https://awoo.or.kr/subsidies/youth-loan-100042/",
           "https://awoo.or.kr/subsidies/youth-rent-support-000099/"
         ],
-        "subsidiesCount": 56
+        "subsidiesCount": 55
       },
       "farmer": {
         "@id": "https://awoo.or.kr/personas/farmer/",
@@ -870,6 +871,7 @@
           "https://awoo.or.kr/subsidies/youth-housing-000088/",
           "https://awoo.or.kr/subsidies/farm-startup/",
           "https://awoo.or.kr/subsidies/savings-account/",
+          "https://awoo.or.kr/subsidies/youth-future-savings/",
           "https://awoo.or.kr/subsidies/youth-000138/",
           "https://awoo.or.kr/subsidies/youth-011848/",
           "https://awoo.or.kr/subsidies/youth-allowance-support-000126/",
@@ -1074,6 +1076,21 @@
           "https://awoo.or.kr/glossary/startup-package/"
         ]
       },
+      "youth-future-savings": {
+        "@id": "https://awoo.or.kr/subsidies/youth-future-savings/",
+        "title": "청년미래적금",
+        "category": "자산",
+        "targetPersonas": [
+          "https://awoo.or.kr/personas/office-rookie/",
+          "https://awoo.or.kr/personas/self-employed/"
+        ],
+        "mentionedInTopics": [
+          "https://awoo.or.kr/topics/youth-housing/"
+        ],
+        "mentionedGlossary": [
+          "https://awoo.or.kr/glossary/median-income/"
+        ]
+      },
       "allowance-000739": {
         "@id": "https://awoo.or.kr/subsidies/allowance-000739/",
         "title": "아이 꿈 수당 지급",
@@ -1221,19 +1238,6 @@
         ],
         "mentionedInTopics": [],
         "mentionedGlossary": []
-      },
-      "disability-voucher-education-special-400007": {
-        "@id": "https://awoo.or.kr/subsidies/disability-voucher-education-special-400007/",
-        "title": "2026년 강원특별자치도 장애인 평생교육이용권(2차)",
-        "category": "교육",
-        "targetPersonas": [
-          "https://awoo.or.kr/personas/low-income/"
-        ],
-        "mentionedInTopics": [],
-        "mentionedGlossary": [
-          "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
-        ]
       },
       "disability-voucher-education-support-700011": {
         "@id": "https://awoo.or.kr/subsidies/disability-voucher-education-support-700011/",
