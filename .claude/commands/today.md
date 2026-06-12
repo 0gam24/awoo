@@ -18,6 +18,7 @@ git fetch origin && git rebase origin/main
 ### PHASE 1 — 점검 (/traffic 실행)
 Skill 도구로 `traffic` 호출, args: `"갱신·색인 점검 우선 — 내일 추천(scout)은 생략, PHASE 2가 수행"`
 핵심 산출: ① 최근 발행 색인 여부 표본 ② **freshness 갱신 후보** (확정 발표가 난 "발표 대기" 글 — 있으면 오늘 가장 빠른 트래픽).
+갱신 후보 1차 소스: `src/data/keyword-radar.json`의 **updateCandidates** (레이더가 하루 4회 미확정 글×수요 신호를 자동 감지해둠) — 비어 있을 때만 grep("발표 대기|미확정|검토중")으로 보조 탐색. 플래그는 "확정 발표 가능성"일 뿐이므로 반드시 WebSearch로 실제 확정 여부 확인 후 갱신 트랙에 올린다.
 
 ### PHASE 2 — 발굴 (keyword-scout spawn)
 `$ARGUMENTS`에 키워드가 있으면 생략. 없으면 **keyword-scout** 에이전트 spawn → 오늘 후보 5~8개 스코어 표.

@@ -58,6 +58,11 @@ const SPAM_RE =
 // term 자체 블랙리스트 (도메인 무관 일반어)
 const TERM_BLACKLIST = new Set(['월급여', '본급여', '주휴수당은', '퇴직급여']);
 
+// 갱신 후보 감지 — 기발행 글의 미확정 마커 ("예정" 단독은 오탐 多 → 제외)
+const ISSUES_DIR = join(ROOT, 'src', 'data', 'issues');
+const STALE_MARKER_RE =
+  /발표 대기|발표대기|미확정|추후 확정|공시 예정|확정 전|검토 중|검토중|보도 기준/g;
+
 // ── env ──────────────────────────────────────────────────────
 async function loadEnv() {
   const env = { ...process.env };
@@ -224,6 +229,45 @@ function extractTerms(questions) {
   return byTerm;
 }
 
+// ── 갱신 후보 감지: 미확정 마커 보유 글 × 오늘 수요 신호 교차 ──
+// 마커가 남은 글의 키워드가 지식iN/뉴스에서 다시 움직이면 "확정 발표 났을 가능성" 플래그.
+// 실제 확정 여부 검증은 /today의 fact-checker 몫 — 여기선 감지만 한다.
+async function scanUpdateCandidates(questions, newsSignal, rows) {
+  const posts = [];
+  try {
+    for (const dateDir of await readdir(ISSUES_DIR)) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateDir)) continue;
+      for (const f of await readdir(join(ISSUES_DIR, dateDir))) {
+        if (!f.endsWith('.json') || f.startsWith('_')) continue;
+        try {
+          const d = JSON.parse(await readFile(join(ISSUES_DIR, dateDir, f), 'utf8'));
+          const body = JSON.stringify([d.tldr, d.coreFacts, d.sections, d.faq, d.table]);
+          const markers = (body.match(STALE_MARKER_RE) ?? []).length;
+          if (markers === 0) continue;
+          const term = d.freshness?.trendingTerm ?? d.tags?.[0] ?? '';
+          if (!term) continue;
+          posts.push({ slug: f.replace(/\.json$/, ''), date: dateDir, term, markers });
+        } catch {}
+      }
+    }
+  } catch {}
+
+  const core = (t) =>
+    t.replace(/(지원금|보조금|수당|바우처|장려금|급여|연금|적금|환급금|장학금)$/, '') || t;
+  const candidates = [];
+  for (const p of posts) {
+    const kinCount = questions.filter((q) => q.title.includes(core(p.term))).length;
+    const news = newsSignal.get(p.term) ?? 0;
+    const datalab = rows.find((r) => r.term === p.term)?.signals.datalab ?? 0;
+    const signalScore = Math.round((kinCount * 1.5 + news + datalab) * 10) / 10;
+    if (signalScore >= 2) {
+      candidates.push({ ...p, signal: { kinQuestions: kinCount, news, datalab }, signalScore });
+    }
+  }
+  candidates.sort((a, b) => b.signalScore - a.signalScore);
+  return candidates;
+}
+
 // ── 적재 (30일 롤링 + 사이즈 가드) ───────────────────────────
 async function loadStore() {
   try {
@@ -323,12 +367,21 @@ async function main() {
   rows = rows.slice(0, SNAPSHOT_TERM_CAP);
   const ts = new Date().toISOString();
 
+  // 갱신 후보 감지 (미확정 글 × 수요 신호)
+  const updateCandidates = await scanUpdateCandidates(questions, newsSignal, rows);
+
   console.log(`[radar] ${ts} — 소스: ${JSON.stringify(sourceStatus)}`);
   console.log('[radar] top 15:');
   for (const r of rows.slice(0, 15)) {
     console.log(
       `  ${String(r.score).padStart(6)}  ${r.term}  (kin:${r.signals.kinQuestions} news:${r.signals.news} dl:${r.signals.datalab ?? '-'} 매칭:${r.matchedSubsidies.length})`,
     );
+  }
+  if (updateCandidates.length) {
+    console.log('[radar] 🔔 갱신 후보 (미확정 글 키워드 수요 감지):');
+    for (const c of updateCandidates.slice(0, 8)) {
+      console.log(`  ${c.signalScore}  ${c.date}/${c.slug} — ${c.term} (마커 ${c.markers}곳)`);
+    }
   }
 
   if (dryRun) {
@@ -338,6 +391,7 @@ async function main() {
 
   const store = await loadStore();
   store.updatedAt = ts;
+  store.updateCandidates = updateCandidates.map((c) => ({ ...c, flaggedAt: ts }));
   store.snapshots.push({ ts, sourceStatus, keywords: rows });
   for (const r of rows) {
     const rec = store.byTerm[r.term] ?? { firstSeen: ts, bestScore: 0, appearances: 0 };
