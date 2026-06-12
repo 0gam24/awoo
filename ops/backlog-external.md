@@ -58,7 +58,7 @@ github secrets|github environment
 ### F. 외부 데이터 소스 추가
 - [ ] **복지로 RSS / 통계청 중위소득 API** — 신규 외부 키 발급
 - [ ] **추가 정부 부처 API** — 사용자 결정 필요
-- [ ] **네이버 데이터랩 검색어트렌드 API 권한 추가** — 개발자센터에서 기존 앱에 권한 1클릭 추가 (무료, 심사 없음, 일 1,000회) → keyword-radar P1 가동 조건 (KEYWORD-INTELLIGENCE-PLAN §3)
+- [x] ✅ **네이버 데이터랩 검색어트렌드 API 권한 추가** — 2026-06-12 운영자 완료 (사용 API: 검색 + 데이터랩) → keyword-radar 가동
 - [ ] **네이버 검색광고 API (RelKwdStat)** — 검색광고 계정 + AD_API_KEY/SECRET/CUSTOMER_ID 3종 발급 시 월간 검색량 절대치 확보 → keyword-radar P2 (선택)
 
 ## 처리된 항목 (참고)

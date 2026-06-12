@@ -1,0 +1,62 @@
+name: Keyword radar (kin + datalab)
+
+# 하루 4회 — KST 06:17 / 11:17 / 16:17 / 21:17 (정시 혼잡·sync-issues race 회피용 분 오프셋)
+# 산출 src/data/keyword-radar.json은 사이트 미사용 운영 데이터 → build/deploy 없음
+on:
+  schedule:
+    - cron: '17 21,2,7,12 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: keyword-radar
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  radar:
+    name: Collect keyword demand signals
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Run radar
+        env:
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+        run: npm run radar:sync
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain src/data/keyword-radar.json)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No radar change — skipping commit"
+          fi
+
+      - name: Commit changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          git add src/data/keyword-radar.json
+          HOUR=$(TZ=Asia/Seoul date +"%m/%d %H시")
+          git commit -m "chore(radar): ${HOUR} 키워드 스냅샷
+
+          [skip ci]"
+          # 같은 시각대 다른 cron(sync-issues 등) 선행 push 대비
+          git pull --rebase origin main
+          git push origin main
