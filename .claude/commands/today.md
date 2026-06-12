@@ -22,19 +22,20 @@ Skill 도구로 `traffic` 호출, args: `"갱신·색인 점검 우선 — 내�
 ### PHASE 2 — 발굴 (keyword-scout spawn)
 `$ARGUMENTS`에 키워드가 있으면 생략. 없으면 **keyword-scout** 에이전트 spawn → 오늘 후보 5~8개 스코어 표.
 
-### PHASE 3 — 운영자 결정 (하루 1회 질문)
-AskUserQuestion 1회로 통합 결정:
-- **"추천 1건 발행"** (scout 1순위 → /post 흐름) — 기본 추천
-- **"스프린트 3건"** (상위 3개 → /sprint 흐름)
-- **"갱신만"** (PHASE 1 갱신 후보만 처리)
-- 직접 키워드 입력(Other)
-갱신 후보가 있으면 어떤 선택이든 **갱신을 함께 처리**할지 같은 질문에 포함.
+### PHASE 3 — 자동 범위 결정 (2026-06-12 운영자 지시: 질문 없이 에이전트가 결정)
+AskUserQuestion **금지** — 다음 규칙으로 범위를 자동 확정:
+- **갱신 후보**(확정 발표 난 "발표 대기" 글)가 있으면 **전부 포함** (가장 빠른 트래픽)
+- **신규는 scout 1순위 1건 기본.** 시기성 오버라이드(마감 D-14·지급일 ±3일·확정 발표 24h) 후보가 더 있으면 최대 3건까지 확대
+- hub 회수·trendingTerm 정비 등 발행 0건짜리 구조 작업은 발견 즉시 포함
+- GATE-A 중복 70%↑면 강행하지 않고 longtail-strategist가 제시한 빈 각도로 자동 전환, 빈 각도가 없으면 그 키워드는 제외
+- GATE-B 매칭 0건이면 그 키워드 제외 (외부 소스 단독 발행은 자율 모드에서 금지)
 
-### PHASE 4 — 발행 (/post 또는 /sprint 실행)
-- 1건 → Skill 도구로 `post` 호출, args: 확정 키워드(+hint). PHASE 0·scout는 이미 끝났으므로 중복 수행 생략을 args에 명시.
-- 2건 이상 → Skill 도구로 `sprint` 호출, args: 확정 키워드 쉼표 목록.
-- 갱신 건 → 해당 JSON 수치 교체 + dateModified 갱신 + fact-checker 검증 → GATE-D 결재에 포함.
-- 각 커맨드의 GATE-C/GATE-D·검증·발행·후처리(indexnow·update:today·색인 링크)는 그대로 따른다.
+### PHASE 4 — 발행 (자동 결재)
+- post-writer(병렬) → fact-checker(병렬) + quality-gate(일괄) → lint:content + build.
+- **GATE-D 자동 결재 규칙**: fact-checker PASS(또는 FIX 정정 후 재검증 PASS) + quality-gate PASS + lint err 0 + build 성공 = **즉시 발행** (commit·push·indexnow·update:today까지 무중단).
+- fact-checker **BLOCK** = 그 글만 자동 제외하고 나머지 발행. 전건 BLOCK이면 발행 0건으로 종료하고 사유 보고.
+- 갱신 건: 수치 교체 + lastSeen/dateModified 갱신 + fact-checker 검증 — 동일 자동 결재.
+- 절대 한도: factCheckScore < 0.6 발행 금지 · 하루 신규 8건 초과 금지 · 날짜 4중 일치.
 
 ### PHASE 5 — 마무리 리포트
 ```
@@ -44,7 +45,9 @@ AskUserQuestion 1회로 통합 결정:
 📅 내일 1순위 후보: {scout 차순위 키워드 — 근거}
 ```
 
-## 규칙
-- 운영자 입력은 **PHASE 3 결정 1회 + GATE-D 발행 결재 1회**, 총 2회를 넘기지 않는다 (게이트 위반 경고 시 예외).
-- 어떤 PHASE도 건너뛰어 보고로 끝내지 않는다 — PHASE 4 발행 결재까지 반드시 도달.
-- 발행 0건으로 끝나는 경우는 운영자가 명시적으로 "취소"했을 때뿐.
+## 규칙 (완전 자율 모드 — 2026-06-12 운영자 지시)
+- **운영자 입력 0회.** "오늘 포스팅" 입력 후 발행 완료 리포트까지 질문 없이 완주한다.
+- 어떤 PHASE도 건너뛰어 보고로 끝내지 않는다 — 발행(push + 후처리)까지 반드시 도달.
+- 발행 0건 종료는 전 후보가 BLOCK/중복/매칭 0건으로 탈락했을 때뿐 — 사유를 리포트에 명시.
+- 롤백 안전장치: 발행 후 운영자가 "취소"라고 하면 `git revert` + IndexNow 재핑 (MANUAL-POSTING §9).
+- 마무리 리포트에 GSC·Naver 색인 요청 링크를 항상 출력 (운영자 유일한 수동 작업).
