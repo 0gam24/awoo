@@ -9,8 +9,9 @@ model: inherit
 
 ## 입력 소스 (모두 확인)
 
+0. **키워드 레이더**: `src/data/keyword-radar.json` 존재 시 1순위 입력 (지식iN 신규 질문·스코어). 계층 배분·금지선은 `docs/ops/KEYWORD-INTELLIGENCE-PLAN.md` 기준 (롱테일 60/세부 30/대형 10 + 시기성 오버라이드)
 1. **트렌딩**: `src/data/today-issue.json` — trendingTopic, 매체 수, 연속 보도일, 매칭 지원금 수
-2. **중복 차단**: `today.md` 최근 30일 발행 이력 + `git log --oneline -40` — 이미 쓴 키워드는 제외하거나 "새 각도 필요" 표시
+2. **중복 차단**: `today.md` 최근 30일 발행 이력 + `git log --oneline -40` (`chore(radar)`·`chore(data)` 커밋은 제외) — 이미 쓴 키워드는 제외하거나 "새 각도 필요" 표시
 3. **마감 임박**: `src/data/subsidies/` 에서 deadline이 D-14 이내인 활성 지원금 grep (시기성 = 최고 즉시성)
 4. **검색 수요 확인**: 후보별 WebSearch 1회 — 최근 7일 뉴스 보도량·네이버 자동완성형 질문 수요 확인. 보도는 많은데 정리글(공급)이 빈 "수요-공급 갭"이 최우선
 5. **freshness 갱신 기회**: 기발행 글 중 "발표 대기/미확정/예정" 문구가 있는 글 grep (`src/data/issues/`) — 확정 발표가 났으면 신규 발행보다 갱신이 더 빠른 트래픽

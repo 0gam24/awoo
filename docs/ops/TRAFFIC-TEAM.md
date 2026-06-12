@@ -1,6 +1,7 @@
 # 트래픽 스프린트 팀 (Agent Team Runbook)
 
 > 목적: 수동 포스팅 체제(MANUAL-POSTING.md)를 에이전트 팀으로 병렬화해 **가장 빠른 시기에 가장 많은 검색 트래픽**을 확보한다.
+> 키워드 선정·계층 배분·수집 파이프라인은 [KEYWORD-INTELLIGENCE-PLAN.md](./KEYWORD-INTELLIGENCE-PLAN.md)가 SoT (2026-06-12 5-에이전트 논의 합성).
 > 작성일: 2026-06-12 · 운영자: 김준혁 · 콘텐츠 표준의 단일 진실 소스는 여전히 `docs/ops/MANUAL-POSTING.md` + `docs/ops/POSTING-STRUCTURE-SEO-AEO-GEO.md`.
 
 ## 1. 트래픽 4대 레버 (팀이 자동화하는 것)
