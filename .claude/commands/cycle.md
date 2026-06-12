@@ -147,9 +147,9 @@ description: SEO/GEO 트래픽 성장 운영 사이클 — 다음 phase 자동 �
    ```
 6. `node scripts/cycle-runner.mjs advance` → phase: OPERATE
 7. 커밋: `ops(cycle-{n}): EXECUTE 로그`
-8. 사용자에게 1줄: "Cycle {n} EXECUTE 완료. {N}건 구현, 게이트 통과. 푸시는 '푸쉬' 입력 시."
+8. 사용자에게 1줄: "Cycle {n} EXECUTE 완료. {N}건 구현, 게이트 통과. 브랜치 push 완료."
 
-**푸시 금지** — 메모리 룰에 따라 사용자가 "푸쉬" 명시 시에만.
+**푸시 자동** — 검증 게이트 통과 후 브랜치를 자동 push (2026-06-12 운영자 지시: feedback_auto_commit_push). main 머지는 운영자 결정.
 
 ## 4. OPERATE phase — 운영 가동
 

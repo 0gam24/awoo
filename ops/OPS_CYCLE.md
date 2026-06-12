@@ -58,6 +58,6 @@ PLAN → REVIEW → EXECUTE → OPERATE → OBSERVE → (PLAN 재진입, cycle_n
 ## 안전장치
 
 - **EXECUTE phase는 항상 새 브랜치** `cycle/{cycle_no}-{date}` — main 직접 커밋 금지
-- **푸시는 사용자가 "푸쉬" 명시 시에만** (메모리 룰: feedback_git_workflow)
+- **커밋·푸시 자동** (2026-06-12 운영자 지시, 메모리 룰: feedback_auto_commit_push) — 변경사항이 있으면 fetch+rebase 후 자동 commit+push. pre-push 훅의 전체 build가 게이트. 포스팅 GATE-D 발행 결재는 유지
 - **REVIEW phase는 외부의존 키워드 필터** 통과 후에만 EXECUTE 진입 (`backlog-external.md` 키워드 사전)
 - 모든 phase 결과는 `ops/` 안에 git-tracked 파일로 남김 → diff로 검토 가능
