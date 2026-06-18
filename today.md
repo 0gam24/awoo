@@ -2,9 +2,13 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-06-18 20:03 KST
+> 마지막 갱신: 2026-06-19 07:50 KST
 
-## 2026-06-18 (오늘)
+## 2026-06-19 (오늘)
+
+_신규/갱신 콘텐츠 없음._
+
+## 2026-06-18
 
 ### 📰 신규 이슈 포스트 (5건)
 - `복지` [2026 재난적 의료비 지원 자격·지원율·신청기한 총정리](https://awoo.or.kr/issues/2026-06-18/catastrophic-medical-expense-support-2026-06-18/)
