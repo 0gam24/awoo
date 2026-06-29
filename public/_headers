@@ -27,15 +27,31 @@
   Cache-Control: public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400
 /sitemap-news.xml
   Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
+# 한글 깨짐 방지 — .txt는 in-band 인코딩 선언이 없어 HTTP charset이 유일 신호.
+# Cloudflare 기본 text/plain(charset 없음) + nosniff → 브라우저가 CP949로 오해석 → 정정.
 /llms.txt
+  Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400
 /llms-full.txt
+  Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400
 /feed.xml
+  Content-Type: application/rss+xml; charset=utf-8
   Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
 /feed-issues.xml
+  Content-Type: application/rss+xml; charset=utf-8
+  Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
+/atom.xml
+  Content-Type: application/atom+xml; charset=utf-8
+  Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
+/feed.json
+  Content-Type: application/feed+json; charset=utf-8
+  Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
+/rss/*
+  Content-Type: application/rss+xml; charset=utf-8
   Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
 /robots.txt
+  Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=86400
 /manifest.webmanifest
   Cache-Control: public, max-age=86400
