@@ -32,6 +32,17 @@ const feeds = [
   },
 ];
 
+// 카테고리별 RSS — 이슈를 분야 채널로 분리 구독
+const categoryFeeds = [
+  { ko: '복지', href: '/rss/welfare.xml' },
+  { ko: '자산', href: '/rss/assets.xml' },
+  { ko: '교육', href: '/rss/education.xml' },
+  { ko: '주거', href: '/rss/housing.xml' },
+  { ko: '농업', href: '/rss/agriculture.xml' },
+  { ko: '창업', href: '/rss/startup.xml' },
+  { ko: '취업', href: '/rss/employment.xml' },
+];
+
 // AI·검색 엔진용 파일
 const machineFiles = [
   {
@@ -100,6 +111,25 @@ const pageSchema = {
                 </div>
                 <p>{f.desc}</p>
                 <code>{SITE}{f.href}</code>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section>
+        <h2>카테고리별 RSS</h2>
+        <p class="sub">
+          관심 분야의 이슈 글만 골라 구독하세요. 전체 이슈 RSS의 카테고리 필터판입니다.
+        </p>
+        <ul class="cat-list">
+          {
+            categoryFeeds.map((c) => (
+              <li class="cat-item">
+                <a href={c.href}>
+                  {c.ko} 이슈 <span class="badge">RSS</span>
+                </a>
+                <code>{SITE}{c.href}</code>
               </li>
             ))
           }
@@ -230,6 +260,38 @@ const pageSchema = {
     background: var(--bg-2, #f9fafb);
     border-radius: 6px;
     padding: 4px 8px;
+    word-break: break-all;
+  }
+  .cat-list {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+  .cat-item {
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .cat-item a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-1, #111827);
+    text-decoration: none;
+  }
+  .cat-item a:hover {
+    text-decoration: underline;
+  }
+  .cat-item code {
+    display: block;
+    font-size: 12px;
+    color: var(--text-2);
+    margin-top: 6px;
     word-break: break-all;
   }
   section p {
