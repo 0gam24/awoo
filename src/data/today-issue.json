@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-06-29T11:51:55.474Z",
+  "syncedAt": "2026-06-29T22:02:47.195Z",
   "source": "naver-news",
   "method": "trending-ngram",
   "headline": "고유가 피해지원금 '효과'..소상공인 매출 13.3% 늘어",
@@ -10,20 +10,20 @@
   "category": "창업",
   "score": 100,
   "trendingTopic": "피해지원금",
-  "trendingTopicCount": 5,
+  "trendingTopicCount": 6,
   "summary": {
     "headline": "피해지원금 — 주요 매체 5곳 동시 보도",
-    "subhead": "매체 누적 70회 언급 · 관련 지원금 4건 매칭",
+    "subhead": "포항시 시행 · 매체 누적 71회 언급 · 관련 지원금 4건 매칭",
     "hookCopy": "5개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요.",
     "coreFacts": [
       {
         "label": "시행 지역",
-        "value": "확인 필요",
-        "sub": ""
+        "value": "1곳",
+        "sub": "포항시"
       },
       {
         "label": "보도 건수",
-        "value": "70건",
+        "value": "71건",
         "sub": "5개 매체 보도"
       },
       {
@@ -39,29 +39,31 @@
     ]
   },
   "aggregate": {
-    "cities": [],
+    "cities": [
+      "포항시"
+    ],
     "publisherCount": 5,
     "publishers": [
       "phmbc.co.kr",
-      "andongmbc.co.kr",
-      "kjdaily.com",
-      "ujeil.com",
-      "dynews.co.kr"
+      "kado.net",
+      "sentv.co.kr",
+      "idaegu.co.kr",
+      "ujeil.com"
     ],
     "newestArticle": {
-      "title": "고유가 피해지원금 '효과'..소상공인 매출 13.3% 늘어",
-      "description": "정부의 고유가 피해지원금이 지역 골목상권 소비 회복에 효과를 낸 것으로 나타났습니다. 중소벤처기업부에 따르면 고유가 피해지원금 2차 지급이 시작된 지난달 18일부터 3주간 경북의 소상공인 매출은 지난해 같은...",
-      "pubDate": "Mon, 29 Jun 2026 20:42:00 +0900",
-      "link": "http://www.phmbc.co.kr/www/news/desk_news?idx=203289&mode=view",
-      "naverLink": "http://www.phmbc.co.kr/www/news/desk_news?idx=203289&mode=view",
+      "title": "동해 동쪽바다중앙시장 매출 두배 껑충…고유가 피해지원금 실질 효과",
+      "description": "정부의 고유가 피해지원금이 강원지역 소상공인과 골목상권의 매출 회복에 긍정적인 효과를 낸 것으로 나타났다. 중소벤처기업부는 추가경정예산을 통해 지급한 고유가 피해지원금의 소비 진작 효과를 분석한...",
+      "pubDate": "Tue, 30 Jun 2026 00:09:00 +0900",
+      "link": "https://www.kado.net/news/articleView.html?idxno=2058530",
+      "naverLink": "https://www.kado.net/news/articleView.html?idxno=2058530",
       "category": "창업",
-      "score": 100,
+      "score": 85,
       "govCount": 3
     },
-    "newestPubDate": "Mon, 29 Jun 2026 20:42:00 +0900"
+    "newestPubDate": "Tue, 30 Jun 2026 00:09:00 +0900"
   },
   "daysActive": 8,
-  "totalCount": 70,
+  "totalCount": 71,
   "matchedSubsidies": [
     {
       "id": "small-biz-loan",
@@ -158,12 +160,70 @@
         "amount": 50000,
         "amountLabel": "월 지원"
       }
+    ],
+    "정부지원금": [
+      {
+        "id": "basic-livelihood",
+        "title": "기초생활보장 생계급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 8400000,
+        "amountLabel": "연 (1인)"
+      },
+      {
+        "id": "maternity-grant",
+        "title": "첫만남이용권 + 부모급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-baby",
+        "amount": 22000000,
+        "amountLabel": "0~1세 누적"
+      },
+      {
+        "id": "allowance-000739",
+        "title": "아이 꿈 수당 지급",
+        "agency": "인천광역시",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 50000,
+        "amountLabel": "월 지원"
+      }
+    ],
+    "통합지원금": [
+      {
+        "id": "basic-livelihood",
+        "title": "기초생활보장 생계급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 8400000,
+        "amountLabel": "연 (1인)"
+      },
+      {
+        "id": "maternity-grant",
+        "title": "첫만남이용권 + 부모급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-baby",
+        "amount": 22000000,
+        "amountLabel": "0~1세 누적"
+      },
+      {
+        "id": "allowance-000739",
+        "title": "아이 꿈 수당 지급",
+        "agency": "인천광역시",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 50000,
+        "amountLabel": "월 지원"
+      }
     ]
   },
   "trending": [
     {
       "term": "피해지원금",
-      "count": 5,
+      "count": 6,
       "mediaCount": 5,
       "articleCount": 5,
       "topArticle": {
@@ -175,19 +235,21 @@
       },
       "summary": {
         "headline": "피해지원금 — 주요 매체 5곳 동시 보도",
-        "subhead": "매체 누적 70회 언급 · 관련 지원금 3건 매칭",
+        "subhead": "포항시 시행 · 매체 누적 71회 언급 · 관련 지원금 3건 매칭",
         "hookCopy": "5개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요."
       },
-      "cities": [],
+      "cities": [
+        "포항시"
+      ],
       "publisherCount": 5,
       "daysActive": 8,
       "matchedCount": 3
     },
     {
       "term": "민생지원금",
-      "count": 2,
+      "count": 3,
       "mediaCount": 2,
-      "articleCount": 2,
+      "articleCount": 3,
       "topArticle": {
         "title": "\"군산 300억 민생지원금, 올해는 글쎄\".. 현금성 공약 '흔들'",
         "link": "http://www.jmbc.co.kr/news/view/65818",
@@ -197,12 +259,58 @@
       },
       "summary": {
         "headline": "민생지원금 — 이번 주 화제",
-        "subhead": "매체 누적 4회 언급 · 관련 지원금 3건 매칭",
+        "subhead": "매체 누적 5회 언급 · 관련 지원금 3건 매칭",
         "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
       },
       "cities": [],
       "publisherCount": 2,
       "daysActive": 2,
+      "matchedCount": 3
+    },
+    {
+      "term": "정부지원금",
+      "count": 2,
+      "mediaCount": 2,
+      "articleCount": 2,
+      "topArticle": {
+        "title": "LG화학, 나프타 정부지원금 활용해 중소기업 납품가격 인하",
+        "link": "https://www.webeconomy.co.kr/news/articleView.html?idxno=2215930",
+        "pubDate": "Mon, 29 Jun 2026 20:10:00 +0900",
+        "pubDateKR": "2026.06.29",
+        "category": "복지"
+      },
+      "summary": {
+        "headline": "정부지원금 — 이번 주 화제",
+        "subhead": "매체 2회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
+      },
+      "cities": [],
+      "publisherCount": 2,
+      "daysActive": 1,
+      "matchedCount": 3
+    },
+    {
+      "term": "통합지원금",
+      "count": 2,
+      "mediaCount": 1,
+      "articleCount": 1,
+      "topArticle": {
+        "title": "전남광주 통합지원금 20조, 반도체 인프라에 집중 투입",
+        "link": "http://www.kwangju.co.kr/article.php?aid=1782732600800700277",
+        "pubDate": "Mon, 29 Jun 2026 20:34:00 +0900",
+        "pubDateKR": "2026.06.29",
+        "category": "복지"
+      },
+      "summary": {
+        "headline": "통합지원금 — 이번 주 화제",
+        "subhead": "통합특별시 시행 · 매체 2회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
+      },
+      "cities": [
+        "통합특별시"
+      ],
+      "publisherCount": 1,
+      "daysActive": 1,
       "matchedCount": 3
     }
   ],
@@ -217,21 +325,30 @@
       "category": "창업"
     },
     {
-      "title": "고유가 피해지원금 '효과'..소상공인 매출 13.3% 늘어",
-      "description": "정부의 고유가 피해지원금이 지역 골목상권 소비 회복에 효과를 낸 것으로 나타났습니다. 중소벤처기업부에 따르면 고유가 피해지원금 2차 지급이 시작된 지난달 18일부터 3주간 경북의 소상공인 매출은 지난해 같은...",
-      "pubDate": "Mon, 29 Jun 2026 18:02:00 +0900",
+      "title": "동해 동쪽바다중앙시장 매출 두배 껑충…고유가 피해지원금 실질 효과",
+      "description": "정부의 고유가 피해지원금이 강원지역 소상공인과 골목상권의 매출 회복에 긍정적인 효과를 낸 것으로 나타났다. 중소벤처기업부는 추가경정예산을 통해 지급한 고유가 피해지원금의 소비 진작 효과를 분석한...",
+      "pubDate": "Tue, 30 Jun 2026 00:09:00 +0900",
       "pubDateKR": "2026.06.29",
-      "link": "http://andongmbc.co.kr/adboard/NewsView83333",
-      "publisher": "andongmbc.co.kr",
+      "link": "https://www.kado.net/news/articleView.html?idxno=2058530",
+      "publisher": "kado.net",
       "category": "창업"
     },
     {
-      "title": "[사설]골목상권 소비 회복에 고유가 피해지원금 실질 효과",
-      "description": "이재명 정부가 올해 추가경정예산 편성을 통해 지급한 고유가 피해지원금이 골목상권 소비 회복에... 고유가 지원금 신청은 7월3일 마감한다. 지난 4월27일부터 1차로 취약계층부터 지급을 시작했으며, 광주의 경우...",
-      "pubDate": "Mon, 29 Jun 2026 18:36:00 +0900",
+      "title": "포항시, 고유가 피해지원금 신청 내달 3일 마감…미신청자 기한 내 신청...",
+      "description": "포항시가 고유가 장기화에 따른 시민 생활 부담을 덜기 위해 추진 중인 고유가 피해지원금 2차 신청이 오는... 지급 대상자 선정 결과나 지원 금액에 이의가 있는 경우에는 별도 이의신청도 가능하다. 온라인 이의신청은...",
+      "pubDate": "Mon, 29 Jun 2026 22:06:00 +0900",
       "pubDateKR": "2026.06.29",
-      "link": "http://www.kjdaily.com/article.php?aid=1782725447681259018",
-      "publisher": "kjdaily.com",
+      "link": "https://www.sentv.co.kr/article/view/sentv202606290149",
+      "publisher": "sentv.co.kr",
+      "category": "자산"
+    },
+    {
+      "title": "고유가 피해지원금 신청 내달 3일 마감",
+      "description": "고유가 피해지원금 신청에 따른 온라인·오프라인 지급이 오는 7월 3일 오후 6시에 마감된다. 기한 내에 신청하지 않은 경우 지원금을 지급받을 수 없다. 29일 행정안전부에 따르면 지난 25일 기준 전체 지급 대상자의...",
+      "pubDate": "Mon, 29 Jun 2026 21:44:00 +0900",
+      "pubDateKR": "2026.06.29",
+      "link": "https://www.idaegu.co.kr/news/articleView.html?idxno=552443",
+      "publisher": "idaegu.co.kr",
       "category": "자산"
     },
     {
@@ -242,15 +359,6 @@
       "link": "http://www.ujeil.com/news/articleView.html?idxno=388001",
       "publisher": "ujeil.com",
       "category": "창업"
-    },
-    {
-      "title": "충북 2만6천명 고유가 피해지원금 신청 안 해",
-      "description": "［동양일보 지영수 기자］ 고유가 피해지원금 신청 마감이 닷새 앞으로 다가온 가운데 충북도내 대상자 중 2만여 명이 아직까지 신청하지 않은 것으로 나타났다. 충북도는 고유가 피해지원금 신청 마감일인 오는 7월...",
-      "pubDate": "Mon, 29 Jun 2026 17:50:00 +0900",
-      "pubDateKR": "2026.06.29",
-      "link": "http://www.dynews.co.kr/news/articleView.html?idxno=855925",
-      "publisher": "dynews.co.kr",
-      "category": "자산"
     }
   ],
   "trendingArticlesByTerm": {
@@ -264,20 +372,28 @@
         "publisher": "phmbc.co.kr"
       },
       {
-        "title": "고유가 피해지원금 '효과'..소상공인 매출 13.3% 늘어",
-        "description": "정부의 고유가 피해지원금이 지역 골목상권 소비 회복에 효과를 낸 것으로 나타났습니다. 중소벤처기업부에 따르면 고유가 피해지원금 2차 지급이 시작된 지난달 18일부터 3주간 경북의 소상공인 매출은 지난해 같은...",
-        "link": "http://andongmbc.co.kr/adboard/NewsView83333",
-        "pubDate": "Mon, 29 Jun 2026 18:02:00 +0900",
+        "title": "동해 동쪽바다중앙시장 매출 두배 껑충…고유가 피해지원금 실질 효과",
+        "description": "정부의 고유가 피해지원금이 강원지역 소상공인과 골목상권의 매출 회복에 긍정적인 효과를 낸 것으로 나타났다. 중소벤처기업부는 추가경정예산을 통해 지급한 고유가 피해지원금의 소비 진작 효과를 분석한...",
+        "link": "https://www.kado.net/news/articleView.html?idxno=2058530",
+        "pubDate": "Tue, 30 Jun 2026 00:09:00 +0900",
         "pubDateKR": "2026.06.29",
-        "publisher": "andongmbc.co.kr"
+        "publisher": "kado.net"
       },
       {
-        "title": "[사설]골목상권 소비 회복에 고유가 피해지원금 실질 효과",
-        "description": "이재명 정부가 올해 추가경정예산 편성을 통해 지급한 고유가 피해지원금이 골목상권 소비 회복에... 고유가 지원금 신청은 7월3일 마감한다. 지난 4월27일부터 1차로 취약계층부터 지급을 시작했으며, 광주의 경우...",
-        "link": "http://www.kjdaily.com/article.php?aid=1782725447681259018",
-        "pubDate": "Mon, 29 Jun 2026 18:36:00 +0900",
+        "title": "포항시, 고유가 피해지원금 신청 내달 3일 마감…미신청자 기한 내 신청...",
+        "description": "포항시가 고유가 장기화에 따른 시민 생활 부담을 덜기 위해 추진 중인 고유가 피해지원금 2차 신청이 오는... 지급 대상자 선정 결과나 지원 금액에 이의가 있는 경우에는 별도 이의신청도 가능하다. 온라인 이의신청은...",
+        "link": "https://www.sentv.co.kr/article/view/sentv202606290149",
+        "pubDate": "Mon, 29 Jun 2026 22:06:00 +0900",
         "pubDateKR": "2026.06.29",
-        "publisher": "kjdaily.com"
+        "publisher": "sentv.co.kr"
+      },
+      {
+        "title": "고유가 피해지원금 신청 내달 3일 마감",
+        "description": "고유가 피해지원금 신청에 따른 온라인·오프라인 지급이 오는 7월 3일 오후 6시에 마감된다. 기한 내에 신청하지 않은 경우 지원금을 지급받을 수 없다. 29일 행정안전부에 따르면 지난 25일 기준 전체 지급 대상자의...",
+        "link": "https://www.idaegu.co.kr/news/articleView.html?idxno=552443",
+        "pubDate": "Mon, 29 Jun 2026 21:44:00 +0900",
+        "pubDateKR": "2026.06.29",
+        "publisher": "idaegu.co.kr"
       },
       {
         "title": "울산 소상공인, 고유가 피해지원금 효과 '긍정적'",
@@ -286,14 +402,6 @@
         "pubDate": "Mon, 29 Jun 2026 20:24:00 +0900",
         "pubDateKR": "2026.06.29",
         "publisher": "ujeil.com"
-      },
-      {
-        "title": "충북 2만6천명 고유가 피해지원금 신청 안 해",
-        "description": "［동양일보 지영수 기자］ 고유가 피해지원금 신청 마감이 닷새 앞으로 다가온 가운데 충북도내 대상자 중 2만여 명이 아직까지 신청하지 않은 것으로 나타났다. 충북도는 고유가 피해지원금 신청 마감일인 오는 7월...",
-        "link": "http://www.dynews.co.kr/news/articleView.html?idxno=855925",
-        "pubDate": "Mon, 29 Jun 2026 17:50:00 +0900",
-        "pubDateKR": "2026.06.29",
-        "publisher": "dynews.co.kr"
       }
     ],
     "민생지원금": [
@@ -308,20 +416,64 @@
       {
         "title": "김재준 당선인 군산 민생지원금 공약, 취임 전부터 ‘흔들’",
         "description": "김재준 군산시장 당선인의 주요 공약인 민생지원금 지급이 취임 전부터 벽에 부딪혔습니다. 김재준 군산시장직 인수팀은 군산시청에서 브리핑을 열고 당선인의 후보자 시절 주요 공약 중 하나였던 민생지원금 지급...",
+        "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8597671&ref=A",
+        "pubDate": "Mon, 29 Jun 2026 21:50:00 +0900",
+        "pubDateKR": "2026.06.29",
+        "publisher": "KBS"
+      },
+      {
+        "title": "김재준 당선인 군산 민생지원금 공약, 취임 전부터 ‘흔들’",
+        "description": "김재준 군산시장 당선인의 주요 공약인 민생지원금 지급이 취임 전부터 벽에 부딪혔습니다. 김재준 군산시장직 인수팀은 군산시청에서 브리핑을 열고 당선인의 후보자 시절 주요 공약 중 하나였던 민생지원금 지급...",
         "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8597499&ref=A",
         "pubDate": "Mon, 29 Jun 2026 19:46:00 +0900",
         "pubDateKR": "2026.06.29",
         "publisher": "KBS"
+      }
+    ],
+    "정부지원금": [
+      {
+        "title": "LG화학, 나프타 정부지원금 활용해 중소기업 납품가격 인하",
+        "description": "LG화학이 나프타 정부지원금을 활용해 중소 고객사 지원에 나선다고 29일 밝혔다. 비닐과 포장재 등 생활... 이번 조치는 정부의 나프타 지원금 정책에 따라 시행되며, 6월부터 적용될 예정이다. LG화학은 중소 고객사의...",
+        "link": "https://www.webeconomy.co.kr/news/articleView.html?idxno=2215930",
+        "pubDate": "Mon, 29 Jun 2026 20:10:00 +0900",
+        "pubDateKR": "2026.06.29",
+        "publisher": "webeconomy.co.kr"
+      },
+      {
+        "title": "LG화학, 나프타 정부지원금 활용…중소 고객사 위해 나프타 제품 가격 ...",
+        "description": "이번 가격 인하는 정부가 국내 석유화학 산업의 경쟁력 저하를 방어하기 위해 나프타 관련 지원금을 선제적으로 책정하고 대기업과 중소기업 간의 상생 유도 방향성을 제시한 것에 대응한 모범 사례다. 최근 중국발...",
+        "link": "http://www.ttlnews.com/news/articleView.html?idxno=3120963",
+        "pubDate": "Mon, 29 Jun 2026 21:26:00 +0900",
+        "pubDateKR": "2026.06.29",
+        "publisher": "ttlnews.com"
+      }
+    ],
+    "통합지원금": [
+      {
+        "title": "전남광주 통합지원금 20조, 반도체 인프라에 집중 투입",
+        "description": "전남광주통합특별시가 정부에서 지원을 약속한 통합지원금 20조원을 호남 반도체 클러스터 인프라 구축에... 통합지원금을 적게는 5조원, 많게는 20조원까지 투입하겠다는 입장을 밝힌 만큼 정부의 판단과 행동 여지가...",
+        "link": "http://www.kwangju.co.kr/article.php?aid=1782732600800700277",
+        "pubDate": "Mon, 29 Jun 2026 20:34:00 +0900",
+        "pubDateKR": "2026.06.29",
+        "publisher": "kwangju.co.kr"
       }
     ]
   },
   "trendingAll": [
     {
       "term": "피해지원금",
-      "count": 5
+      "count": 6
     },
     {
       "term": "민생지원금",
+      "count": 3
+    },
+    {
+      "term": "정부지원금",
+      "count": 2
+    },
+    {
+      "term": "통합지원금",
       "count": 2
     }
   ]
