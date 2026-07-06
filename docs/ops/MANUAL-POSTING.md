@@ -106,9 +106,11 @@ STEP 8  발행 후처리 ── IndexNow + SC 안내 + today.md 갱신 + (선택
 | 위치 | 1순위 패턴 | 효과 |
 |---|---|---|
 | `title` ≤60자 | 시드 + 2026 + 페르소나/지역 + 숫자 | SEO CTR |
-| `metaDescription` 150~160 | 시드 + 금액·마감 수치 | SERP 클릭 유도 |
+| `metaDescription` 60~110자 | 시드 + 금액·마감 수치 (lint 게이트와 동일 범위) | SERP 클릭 유도 |
+| `answer` ≤120자 **(v2)** | 시드 질문에 대한 직답 한 문장 + 수치 | **AEO 정답 박스 (H1 직후 + abstract/speakable)** |
 | `sections[].heading` (H2) | 자격·금액·마감 각 1개, 질문형 권장 | SEO 구조 + AEO 발췌 |
 | `tldr` 5개 | 첫 항목 첫 문장에 수치 | **AEO 직접답변 최우선** |
+| `definitions` 1~3개 **(v2)** | 본문 전문용어 {term, definition, glossarySlug} | 용어 박스(`<dfn>`) + DefinedTerm entity |
 | `faq` 5개 / 답변 80자 | "누가/얼마/언제까지/어디서/중복?" | Google FAQ + ChatGPT 인용 |
 | `table` headers | 구분·대상·금액·마감·신청처 | AEO 표 발췌 |
 | `tags` 5~8 | 시드 + 페르소나ID + 카테고리 + "2026" | 내부 4축 cross-ref |
@@ -116,6 +118,7 @@ STEP 8  발행 후처리 ── IndexNow + SC 안내 + today.md 갱신 + (선택
 | `sections[].body` 내부링크 | relatedSubsidies/glossary 용어 첫 등장 시 `[용어](/경로)` 1개 이상 | 내부링크 가중·AI 본문 인용 |
 
 ### AEO·GEO 즉시 인용 트리거 (필수)
+- `answer` = 시드 질문에 대한 직답 한 문장 (수치 포함, tldr[0] 재서술 금지 — 더 압축)
 - `tldr` 첫 항목 첫 문장 = 단독으로 답이 되도록
 - `faq.acceptedAnswer.text` 첫 문장에 수치 포함, "네, 가능합니다" 금지
 - atomic facts: 한 줄 한 문장, 끝에 `(출처: 기관명 고시 YYYY-NNN)` 인라인 인용
@@ -129,7 +132,8 @@ STEP 8  발행 후처리 ── IndexNow + SC 안내 + today.md 갱신 + (선택
 {
   "title": "...",              // ≤60자, 시드+연도+페르소나/지역+숫자
   "slug": "...",               // {topic}-{type}-{YYYY-MM-DD}, 영문 소문자·하이픈
-  "metaDescription": "...",    // 150~160자
+  "metaDescription": "...",    // 60~110자 (lint warn 범위)
+  "answer": "...",             // v2: 한 줄 정답 ≤120자, 수치 포함 — 신규 포스트 필수 (없으면 tldr[0] 폴백 렌더)
   "tldr": ["...", "..."],      // ≥3 권장 5, 첫 항목 첫 문장에 수치
   "category": "...",           // 주거/취업/창업/교육/복지/자산/농업 중 1
   "tags": ["..."],             // 5~8개
@@ -149,6 +153,12 @@ STEP 8  발행 후처리 ── IndexNow + SC 안내 + today.md 갱신 + (선택
   },
   "faq": [                     // ≥3 권장 5
     { "q": "...", "a": "..." }
+  ],
+  "definitions": [             // v2 선택 1~3개: 본문 전문용어 — 용어 박스 + DefinedTerm JSON-LD
+    { "term": "...", "definition": "...", "glossarySlug": "..." }
+  ],
+  "updates": [                 // v2 선택: 갱신 발행 시 append — 가시 이력 + dateModified 반영
+    { "date": "YYYY-MM-DD", "note": "..." }
   ],
   "relatedSubsidies": ["..."], // 실제 존재하는 ID만
   "relatedPersonas": ["..."],  // 6종 중

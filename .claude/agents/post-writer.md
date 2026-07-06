@@ -17,7 +17,8 @@ model: inherit
 
 - **파일 경로**: `src/data/issues/{YYYY-MM-DD}/{topic}-{type}-{YYYY-MM-DD}.json` — **publishedAt ↔ date ↔ 디렉토리 ↔ slug suffix 4중 일치(KST)**
 - **reportType**: weekly-essentials / issue-followup / deadline-imminent-weekly / new-subsidies-weekly / new-subsidies-detail 5종만
-- title ≤60자 (시드+2026+페르소나/지역+숫자), metaDescription 150~160자 (금액·마감 수치)
+- title ≤60자 (시드+2026+페르소나/지역+숫자), metaDescription 60~110자 (금액·마감 수치 — lint warn 범위)
+- **answer(한 줄 정답) 필수 (v2)** — ≤120자 한 문장, 수치+날짜 포함, 시드 질문에 대한 직답. tldr[0] 재서술 금지(더 압축된 별도 문장). H1 직후 정답 박스 + abstract/speakable로 노출됨
 - tldr 5개 — 첫 항목 첫 문장이 단독으로 답이 되게, 수치 포함
 - sections ≥3 — heading 질문형/숫자, 각 lead 자체 완결, **body 문단은 `\n\n` 구분** (한 덩어리 금지)
 - **HowTo형 절차는 "1단계: …" 줄마다 `\n\n`로 별도 문단 분리** (가독성 메모리 룰)
@@ -28,6 +29,8 @@ model: inherit
 - relatedSubsidies는 전달받은 실제 ID만, matchedSubsidies 비어있지 않게
 - 트렌딩 연계 글이면 `freshness.trendingTerm` 필수, 클러스터 대표글이면 `freshness.trendingPrimary: true`
 - 본문 첫 등장 용어에 내부링크 ≥1 — `[용어](/subsidies/{id}/)` 또는 `[용어](/glossary/{slug}/)`
+- **definitions (v2)** — 본문에 전문용어(A값·초과소득월액 등) 있으면 1~3개 `{term, definition(≤160자 한 문장), glossarySlug?}`. glossarySlug는 `src/data/glossary.json`의 실제 id만. 용어가 쉬우면 생략
+- **updates (v2)** — 기존 글 갱신 발행 시에만 `{date: 오늘(KST), note: 무엇이 바뀌었는지 한 줄}` append (신규 발행 시 필드 자체 생략)
 
 ## YMYL 사실 규율 (가장 중요)
 

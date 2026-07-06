@@ -172,6 +172,15 @@ const SOURCE_CONFIDENCE = ['high', 'medium', 'low'];
 // metaDescription 전역 중복 검사용 (이슈 간 동일 문자열 → warn)
 const metaDescSeen = new Map(); // metaDescription → "date/slug"
 
+// v2: definitions[].glossarySlug 검증용 — glossary.json id 인덱스
+const GLOSSARY_FILE = path.join(ROOT, 'src/data/glossary.json');
+const glossaryIds = new Set(
+  existsSync(GLOSSARY_FILE) ? readJson(GLOSSARY_FILE).map((g) => g.id) : [],
+);
+
+// 수치/날짜 토큰 휴리스틱 (tldr[0]·answer 공용)
+const NUMERIC_TOKEN_RE = /[0-9０-９]|만원|원|일|%|건|명/;
+
 // 헤드라인 클릭베이트·과장 패턴 — Google Discover 정책 준수용
 // 발견 시 warn (포스트별 사람 검토 신호)
 const CLICKBAIT_PATTERNS = [
@@ -457,6 +466,69 @@ for (const { date, slug, file } of issueFiles) {
     const hasStepPattern = /\*\*\s*\d+\s*단계/.test(bodies);
     if (hasProcedureHeading && !hasStepPattern) {
       warn(`이슈 신청/절차 섹션에 "**N단계:**" 패턴 없음 (HowTo 자동생성 권장): ${date}/${slug}`);
+    }
+  }
+
+  // --- v2: answer(한 줄 정답) — H1 직후 직접답변 청크. 존재 시 형식 검사 ---
+  // 누락은 warn (레거시는 tldr[0] 폴백으로 렌더되므로 회귀 없음, 신규 작성 유도)
+  if (post.answer !== undefined && post.answer !== null) {
+    if (typeof post.answer !== 'string' || post.answer.trim().length === 0) {
+      err(`이슈 answer 타입/빈값 오류 (비어있지 않은 문자열 필요): ${date}/${slug}`);
+    } else {
+      if (post.answer.length > 200) {
+        warn(`이슈 answer ${post.answer.length}자 (권장 ≤120자 — 한 줄 정답): ${date}/${slug}`);
+      }
+      if (!NUMERIC_TOKEN_RE.test(post.answer)) {
+        warn(`이슈 answer에 수치/날짜 토큰 없음 (직접답변 자격 약함): ${date}/${slug}`);
+      }
+    }
+  } else if (date >= '2026-07-07') {
+    // v2 도입일 이후 발행분만 — 레거시(tldr[0] 폴백 렌더)는 침묵해 warn 홍수 방지
+    warn(
+      `이슈 answer(한 줄 정답) 없음 — tldr[0] 폴백 렌더 (신규 포스트는 명시 권장): ${date}/${slug}`,
+    );
+  }
+
+  // --- v2: updates[] 갱신 이력 — 신규 필드라 결정적 형식은 err (기존 포스트에 없음 → 회귀 0) ---
+  if (post.updates !== undefined && post.updates !== null) {
+    if (!Array.isArray(post.updates)) {
+      err(`이슈 updates 배열 아님: ${date}/${slug}`);
+    } else {
+      post.updates.forEach((u, i) => {
+        const dateOk = typeof u?.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(u.date);
+        const noteOk = typeof u?.note === 'string' && u.note.trim().length > 0;
+        if (!dateOk || !noteOk) {
+          err(
+            `이슈 updates[${i}] 형식 오류 ({date: "YYYY-MM-DD", note: "..."} 필수): ${date}/${slug}`,
+          );
+        } else if (u.date < date) {
+          warn(`이슈 updates[${i}].date(${u.date})가 발행일(${date})보다 과거: ${date}/${slug}`);
+        }
+      });
+    }
+  }
+
+  // --- v2: definitions[] 용어 정의 — term/definition 결정적 err + glossarySlug 존재 warn ---
+  if (post.definitions !== undefined && post.definitions !== null) {
+    if (!Array.isArray(post.definitions)) {
+      err(`이슈 definitions 배열 아님: ${date}/${slug}`);
+    } else {
+      post.definitions.forEach((d, i) => {
+        const termOk = typeof d?.term === 'string' && d.term.trim().length > 0;
+        const defOk = typeof d?.definition === 'string' && d.definition.trim().length > 0;
+        if (!termOk || !defOk) {
+          err(`이슈 definitions[${i}] 형식 오류 ({term, definition} 필수): ${date}/${slug}`);
+          return;
+        }
+        if (d.glossarySlug && !glossaryIds.has(d.glossarySlug)) {
+          warn(`이슈 definitions[${i}].glossarySlug 미존재 (${d.glossarySlug}): ${date}/${slug}`);
+        }
+        if (d.definition.length > 200) {
+          warn(
+            `이슈 definitions[${i}].definition ${d.definition.length}자 (권장 ≤160자 한 문장): ${date}/${slug}`,
+          );
+        }
+      });
     }
   }
 }

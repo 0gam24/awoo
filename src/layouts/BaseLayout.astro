@@ -112,6 +112,10 @@ const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
     <title>{title}</title>
     <meta name="description" content={description} />
     {keywords && keywords.length > 0 && <meta name="keywords" content={keywords.slice(0, 8).join(', ')} />}
+    {/* v2: news_keywords — Google News/뉴스면 토픽 매핑 신호 (article 한정, keywords와 동일 소스) */}
+    {ogType === 'article' && keywords && keywords.length > 0 && (
+      <meta name="news_keywords" content={keywords.slice(0, 8).join(', ')} />
+    )}
     {ogType === 'article' && <meta name="author" content={ogArticle?.author ?? '김준혁'} />}
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

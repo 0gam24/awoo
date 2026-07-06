@@ -29,10 +29,23 @@ interface PostTable {
   headers: string[];
   rows: string[][];
 }
+/** v2: 용어 한 줄 정의 — 화면 용어 박스(<dfn>) + DefinedTermSet JSON-LD */
+interface Definition {
+  term: string;
+  definition: string;
+  glossarySlug?: string;
+}
+/** v2: 갱신 이력 — 가시 업데이트 로그 + dateModified freshness 신호 */
+interface UpdateEntry {
+  date: string;
+  note: string;
+}
 interface PostData {
   title: string;
   slug: string;
   metaDescription: string;
+  /** v2 AEO: 한 줄 정답(≤120자 권장, 수치 포함) — 없으면 tldr[0] 폴백 */
+  answer?: string;
   tldr: string[];
   category: string;
   tags: string[];
@@ -41,6 +54,8 @@ interface PostData {
   sections: Section[];
   table?: PostTable;
   faq: FaqItem[];
+  definitions?: Definition[];
+  updates?: UpdateEntry[];
   relatedSubsidies: string[];
   relatedPersonas: string[];
   sources: Source[];
@@ -130,8 +145,13 @@ const lastSeenForTrend =
   post.freshness?.trendingTerm && historyByTerm[post.freshness.trendingTerm]?.lastSeen
     ? historyByTerm[post.freshness.trendingTerm]!.lastSeen
     : null;
-const lastSeenIso = lastSeenForTrend ? `${lastSeenForTrend}T00:00:00.000Z` : post.publishedAt;
-const isUpdated = lastSeenForTrend != null && lastSeenForTrend > post.date;
+// v2: updates[] 수동 갱신 이력 — 최신 갱신일도 dateModified 후보 (트렌딩 lastSeen과 max 취함)
+const updates = post.updates ?? [];
+const latestUpdateDate = updates.length > 0 ? [...updates].map((u) => u.date).sort().at(-1) ?? null : null;
+const modifiedCandidates = [lastSeenForTrend, latestUpdateDate].filter((d): d is string => Boolean(d));
+const modifiedDate = modifiedCandidates.length > 0 ? modifiedCandidates.sort().at(-1)! : null;
+const lastSeenIso = modifiedDate ? `${modifiedDate}T00:00:00.000Z` : post.publishedAt;
+const isUpdated = modifiedDate != null && modifiedDate > post.date;
 
 // 토픽 hub는 한국어 키워드 + totalCount≥1 일 때만 빌드됨([term].astro 가드와 동일).
 // 미빌드 term에는 pill을 링크하지 않는다 — 죽은 hub 링크(dangling) 차단.
@@ -142,6 +162,15 @@ const topicHubExists = Boolean(
 
 // 독자용 공식 안내·신청 외부 링크 — sources 중 정부 도메인 우선 (applyUrl은 JSON-LD에만 있어 화면에 노출)
 const officialSource = (post.sources ?? []).find((s) => /\.go\.kr|\.gov\.kr|bokjiro/.test(s.url ?? '')) ?? null;
+
+// v2 AEO: 한 줄 정답 — post.answer 우선, 없으면 tldr[0] 폴백.
+// 폴백 시 tldr 리스트에서 첫 항목을 빼서 화면 중복을 없앤다 (기존 포스트도 자동으로 정답 박스 획득).
+const answerText = (post.answer ?? post.tldr?.[0] ?? '').trim() || null;
+const usesTldrAsAnswer = !post.answer?.trim() && Boolean(post.tldr?.[0]);
+const tldrList = usesTldrAsAnswer ? (post.tldr ?? []).slice(1) : (post.tldr ?? []);
+
+// v2: 용어 정의 — 화면 박스 + DefinedTermSet JSON-LD
+const definitions = post.definitions ?? [];
 
 // 코어팩트 값에서 핵심 숫자/금액/날짜를 시각 강조(.cf-num) — 데이터 구조 변경 없이 긴 문장 속 '25만원'이 묻히지 않게
 function escapeHtml(s: string): string {
@@ -189,6 +218,24 @@ const isBasedOnList = reportType
       }))
   : [];
 
+// v2 GEO: 전체 출처를 citation으로 승격 — isBasedOn(정부 1차 한정)과 별개로
+// 언론·기관 출처 전부를 인용 그래프에 노출 (AI 답변 엔진 attribution 소스)
+const citationList = (post.sources ?? []).slice(0, 8).map((s) => ({
+  '@type': 'CreativeWork',
+  name: s.title,
+  url: s.url,
+  ...(s.publisher
+    ? {
+        publisher: {
+          '@type': /\.gov\.kr|\.go\.kr|bokjiro/.test(s.url ?? '')
+            ? 'GovernmentOrganization'
+            : 'Organization',
+          name: s.publisher,
+        },
+      }
+    : {}),
+}));
+
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': articleType,
@@ -203,7 +250,21 @@ const articleSchema = {
   dateModified: lastSeenIso,
   articleSection: post.category,
   keywords: post.tags.join(', '),
-  about: post.freshness?.trendingTerm ?? post.tags[0],
+  // v2: about을 string → Thing entity로 승격 — 토픽 hub 존재 시 url 연결 (entity 그래프)
+  about: {
+    '@type': 'Thing',
+    name: post.freshness?.trendingTerm ?? post.tags[0],
+    ...(topicHubExists && trendTerm
+      ? { url: `https://awoo.or.kr/issues/topics/${encodeURIComponent(trendTerm)}/` }
+      : {}),
+  },
+  // v2 AEO: abstract = 한 줄 정답 — AI 답변 엔진이 요약 청크로 즉시 발췌
+  ...(answerText ? { abstract: answerText } : {}),
+  // v2 AEO: speakable을 Article 레벨에도 명시 (spec상 Article/WebPage 소속) — 정답 박스 + TL;DR 청크
+  speakable: {
+    '@type': 'SpeakableSpecification',
+    cssSelector: ['.answer-box', '.tldr li'],
+  },
   // 본 사이트는 AI 보조 + 사람 편집 정책 (editorial-policy 페이지 명시)
   // E-E-A-T 강화 — 책임 편집자 실명 명시 (Discover YMYL 영역 가산)
   author: [
@@ -267,6 +328,8 @@ const articleSchema = {
     : {}),
   // Cycle #78: Article 분기 시 정부 공식 출처 명시 (AI 인용 신뢰도 강화)
   ...(isBasedOnList.length > 0 ? { isBasedOn: isBasedOnList } : {}),
+  // v2 GEO: 전체 출처 인용 그래프 (언론 포함 최대 8건)
+  ...(citationList.length > 0 ? { citation: citationList } : {}),
   // Cycle #88: NewsArticle 한국어 신호 — Naver Yeti·SmartBlock 인식 강화
   // dateline = 발신지, copyrightHolder/Year = entity 그래프 + 저작권 신호
   dateline: '지원금가이드',
@@ -397,6 +460,25 @@ const tableSchema = post.table && Array.isArray(post.table.headers) && Array.isA
     }
   : null;
 
+// v2 AEO/GEO: definitions[] → DefinedTermSet — 용어 정의를 entity로 노출.
+// AI 답변 엔진이 사용자 질문의 용어를 본 포스트 정의로 매핑 (glossary hub와 그래프 연결).
+const definedTermSchema = definitions.length > 0
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'DefinedTermSet',
+      '@id': `${canonicalUrl}#terms`,
+      name: `${post.title} — 핵심 용어`,
+      inLanguage: 'ko-KR',
+      isPartOf: { '@id': canonicalUrl },
+      hasDefinedTerm: definitions.map((d) => ({
+        '@type': 'DefinedTerm',
+        name: d.term,
+        description: d.definition,
+        ...(d.glossarySlug ? { url: `https://awoo.or.kr/glossary/${d.glossarySlug}/` } : {}),
+      })),
+    }
+  : null;
+
 // Cycle #26: speakable schema — FAQ를 음성 검색 (Google Assistant, Bixby 등) 친화적으로 마킹
 // Cycle #88: cssSelector 확장 — sentence-level chunk(.lead-sentence) + 자기충족 청크(.tldr li) 추가.
 // AI 답변 엔진(Perplexity/ChatGPT Search/Claude)이 self-contained 문장을 우선 인용.
@@ -418,7 +500,8 @@ const faqSchema = post.faq.length > 0 ? {
   speakable: {
     '@type': 'SpeakableSpecification',
     // P2: .lead 과다매칭(모든 섹션 리드) 제거 → 자기충족 청크만 음성 발췌
-    cssSelector: ['.tldr', '.tldr li', '.faq-section'],
+    // v2: 한 줄 정답 박스 추가 — 최우선 음성/발췌 청크
+    cssSelector: ['.answer-box', '.tldr', '.tldr li', '.faq-section'],
   },
 } : null;
 
@@ -496,6 +579,10 @@ const reportTypeBadge = rt && rt in RT_LABELS
   {howToSchema && <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />}
   {/* Cycle #78: Table schema (비교표) — Featured Snippet 후보 */}
   {tableSchema && <script type="application/ld+json" set:html={JSON.stringify(tableSchema)} />}
+  {/* v2: DefinedTermSet — 용어 정의 entity (AI 답변 용어 매핑 + glossary 그래프) */}
+  {definedTermSchema && (
+    <script type="application/ld+json" set:html={JSON.stringify(definedTermSchema)} />
+  )}
 
   <script>
     // 공유 — Web Share API 우선, 없으면 clipboard, 모두 실패 시 prompt
@@ -585,7 +672,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
             </span>
           )}
           <span class="cat-pill">{post.category}</span>
-          <span class="date">{post.date}{isUpdated && ` · 업데이트 ${lastSeenForTrend}`}</span>
+          <span class="date"><time datetime={post.date}>{post.date}</time>{isUpdated && ` · 업데이트 ${modifiedDate}`}</span>
           <span class="read-time" aria-label={`${readMin}분 분량`}>📖 {readMin}분</span>
           <button
             type="button"
@@ -598,6 +685,14 @@ const reportTypeBadge = rt && rt in RT_LABELS
         </div>
 
         <h1 class="title">{post.title}</h1>
+
+        {/* v2 AEO: 한 줄 정답 — H1 직후 직접 답변 청크 (Featured Snippet·AI Overviews·음성 발췌 표적) */}
+        {answerText && (
+          <div class="answer-box" id="answer">
+            <div class="ab-label">한 줄 정답</div>
+            <p class="ab-text">{answerText}</p>
+          </div>
+        )}
 
         {/* 독자 우선: 핵심 정보를 H1 직후로 — 첫 화면에서 자격/금액/마감/신청 즉답 */}
         <h2 class="sr-only">핵심 정보</h2>
@@ -615,12 +710,13 @@ const reportTypeBadge = rt && rt in RT_LABELS
           </a>
         )}
 
-        {post.tldr.length > 0 && (
+        {/* v2: 정답 박스가 tldr[0] 폴백일 땐 리스트에서 첫 항목 제외 (화면 중복 방지) */}
+        {tldrList.length > 0 && (
           <div class="tldr">
             <h2 class="sr-only">핵심 요약</h2>
             <div class="tldr-label">핵심 요약</div>
             <ul>
-              {post.tldr.map((t) => <li>{t}</li>)}
+              {tldrList.map((t) => <li>{t}</li>)}
             </ul>
           </div>
         )}
@@ -634,6 +730,20 @@ const reportTypeBadge = rt && rt in RT_LABELS
             <a class="ai-policy" href="/editorial-policy/">편집 정책</a>
           </span>
         </aside>
+
+        {/* v2: 갱신 이력 — 무엇이 언제 바뀌었는지 가시화 (freshness 신호 + YMYL 신뢰) */}
+        {updates.length > 0 && (
+          <aside class="updates-log" aria-label="업데이트 내역">
+            <div class="ul-label">업데이트 내역</div>
+            <ul>
+              {updates.map((u) => (
+                <li>
+                  <time datetime={u.date}>{u.date}</time> — {u.note}
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )}
 
         {/* Cycle #70: sourceConfidence='low' 정보 제한 disclaimer — Top 3 보장 시 단일/소수 매체 보도 명시 */}
         {(post as { sourceConfidence?: string }).sourceConfidence === 'low' && (
@@ -684,6 +794,26 @@ const reportTypeBadge = rt && rt in RT_LABELS
 
       <div class="body-grid">
         <div class="body">
+          {/* v2 AEO/GEO: 용어 먼저 정리 — <dfn> 격리 청크 (AGENTS §12-2) + DefinedTermSet 대응 */}
+          {definitions.length > 0 && (
+            <section class="post-section terms-box" id="terms">
+              <h2>용어 먼저 정리</h2>
+              <dl class="terms-list">
+                {definitions.map((d) => (
+                  <div class="term-row">
+                    <dt><dfn>{d.term}</dfn></dt>
+                    <dd>
+                      {d.definition}
+                      {d.glossarySlug && (
+                        <a class="term-more" href={`/glossary/${d.glossarySlug}/`}>자세히 →</a>
+                      )}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
+
           {post.sections.map((s, i) => {
             // Cycle #35: anchor id 자동 생성 — AI 답변 엔진 + 검색 결과 deep-link
             const anchorId = `sec-${i + 1}`;
@@ -1373,6 +1503,92 @@ const reportTypeBadge = rt && rt in RT_LABELS
     margin-left: auto;
     font-weight: 600;
   }
+
+  /* v2 AEO: 한 줄 정답 박스 — H1 직후 직접 답변 청크 */
+  .answer-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 20px;
+    margin: 0 0 20px;
+    background: color-mix(in oklch, var(--accent), transparent 94%);
+    border: 1px solid color-mix(in oklch, var(--accent), transparent 80%);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-md);
+  }
+  .ab-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .ab-text {
+    margin: 0;
+    font-size: 16.5px;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--text);
+    word-break: keep-all;
+  }
+
+  /* v2: 갱신 이력 로그 */
+  .updates-log {
+    padding: 12px 16px;
+    margin: 0 0 20px;
+    background: var(--surface-2);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .ul-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .updates-log ul { margin: 0; padding-left: 16px; }
+  .updates-log li { margin: 2px 0; line-height: 1.55; }
+  .updates-log time {
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* v2: 용어 먼저 정리 박스 */
+  .terms-list {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .term-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-radius: var(--radius-md);
+  }
+  .term-row dt { font-weight: 700; font-size: 14.5px; }
+  .term-row dfn { font-style: normal; }
+  .term-row dd {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-2);
+  }
+  .term-more {
+    margin-left: 6px;
+    font-size: 13px;
+    color: var(--accent-link);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .term-more:hover { text-decoration: underline; }
 
   .tldr {
     background: var(--surface-2);

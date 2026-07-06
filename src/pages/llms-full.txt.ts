@@ -16,6 +16,9 @@ interface IssuePostFile {
   title?: string;
   slug?: string;
   metaDescription?: string;
+  /** v2 AEO: 한 줄 정답 — 합본 최상단 발췌 청크 */
+  answer?: string;
+  definitions?: Array<{ term?: string; definition?: string; glossarySlug?: string }>;
   tldr?: string[];
   category?: string;
   tags?: string[];
@@ -351,6 +354,12 @@ export const GET: APIRoute = async () => {
         }
         lines.push('');
 
+        // v2 AEO: 한 줄 정답 — AI 크롤러가 합본에서 가장 먼저 집는 직접답변 청크
+        if (d.answer) {
+          lines.push(`**한 줄 정답**: ${d.answer}`);
+          lines.push('');
+        }
+
         if (d.tldr && d.tldr.length > 0) {
           lines.push('**TL;DR**');
           for (const t of d.tldr) lines.push(`- ${t}`);
@@ -363,6 +372,15 @@ export const GET: APIRoute = async () => {
           if (d.coreFacts.amount) lines.push(`- 금액: ${d.coreFacts.amount}`);
           if (d.coreFacts.deadline) lines.push(`- 마감: ${d.coreFacts.deadline}`);
           if (d.coreFacts.where) lines.push(`- 신청처: ${d.coreFacts.where}`);
+          lines.push('');
+        }
+
+        // v2 AEO/GEO: 용어 정의 — AI 답변 엔진의 용어→개념 매핑 청크
+        if (Array.isArray(d.definitions) && d.definitions.length > 0) {
+          lines.push('**핵심 용어**');
+          for (const t of d.definitions) {
+            if (t.term && t.definition) lines.push(`- ${t.term}: ${t.definition}`);
+          }
           lines.push('');
         }
 

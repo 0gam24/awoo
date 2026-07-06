@@ -3,7 +3,7 @@
 > 목적: 운영자 1인이 **매번 이 문서대로만 작성하면 모든 포스트가 자동으로 최대 노출 구조**를 갖추도록 한다.
 > 범위: `src/data/issues/<date>/<slug>.json` 이슈 포스트.
 > 관계: 발행 절차는 `docs/ops/MANUAL-POSTING.md`(단일 진실 소스), 본 문서는 **구조·필드·노출 표준**.
-> 검증일: 2026-06-02 (repo 직접 확인 — 추측 아님).
+> 검증일: 2026-06-02 (repo 직접 확인 — 추측 아님). **v2 확장: 2026-07-07 (§9 — v1 P0~P2 전부 코드 반영 확인 후 신규 필드 3종 + JSON-LD 강화 적용).**
 
 ---
 
@@ -57,6 +57,9 @@ repo 검증으로 확인된 **진짜 갭**은 6가지이며, 모두 "신규 포�
 | `factCheckScore` | 0~1 숫자. ≥0.7이면 ClaimReview/reviewedBy emit, <0.6이면 noindex | err(범위/타입) |
 | `sourceConfidence` | high\|medium\|low. low면 disclaimer 노출 | err(enum) |
 | `sourcePublisherCount` | **= `new Set(sources.map(s=>s.publisher)).size` 와 일치** | **err(불일치 — 결정적 계산값)** |
+| `answer` **(v2)** | **한 줄 정답 ≤120자, 수치+날짜 포함, 그 자체로 답.** H1 직후 정답 박스로 렌더 + Article `abstract`/speakable. 없으면 tldr[0] 폴백(이때 tldr 리스트에서 첫 항목 제외 렌더) | warn(누락·2026-07-07 이후 발행분 / >200자 / 수치 없음), err(빈 문자열) |
+| `definitions[]` **(v2)** | 선택 1~3개. `{term, definition(≤160자 한 문장), glossarySlug?}` — 본문 전문용어를 "용어 먼저 정리" 박스(`<dfn>`) + DefinedTermSet JSON-LD로 노출 | err(term/definition 누락), warn(glossarySlug 미존재·정의 200자+) |
+| `updates[]` **(v2)** | 갱신 발행 시 `{date: "YYYY-MM-DD", note}` append. 가시 "업데이트 내역" 로그 + dateModified(트렌딩 lastSeen과 max) 반영 | err(형식 위반), warn(발행일보다 과거) |
 | `sections[]` | 3개 이상(미만이면 path skip). 각 heading/lead/body 필수 | err(필드 누락) |
 | `table` | **필수**. headers 2~5열, **모든 rows 셀 수 = headers 길이**, rows 3행 이상 권장 | **err(셀 수 불일치)** / warn(부재·3행 미만) |
 | `faq[]` | 3~7개. **각 답변 첫 문장 단독 완결 + 수치/고유명사, "네,"/"예," 시작 금지** | lint warn |
@@ -114,6 +117,10 @@ repo 검증으로 확인된 **진짜 갭**은 6가지이며, 모두 "신규 포�
   "title": "고유가 피해지원금 이의신청 13만건 — 사유·기한·방법 총정리",
   "slug": "oil-relief-objection-guide-2026-06-02",
   "metaDescription": "고유가 피해지원금 이의신청이 열흘 만에 13만건을 넘었습니다. 신청 사유, 지자체별 기한, 온라인·방문 신청 방법을 한 번에 정리했습니다.",
+  "answer": "고유가 피해지원금 이의신청은 정부24 또는 주민센터에서 지급 후 30일 이내 접수하며, 인용 시 1인당 최대 25만원까지 차액이 지급됩니다.",
+  "definitions": [
+    { "term": "건강보험료 기준", "definition": "소득 하위 70% 판정에 쓰는 기준으로, 가구원 수별 건강보험료 납부액으로 소득 구간을 가르는 방식입니다.", "glossarySlug": "health-insurance-premium" }
+  ],
   "tldr": [
     "고유가 피해지원금 이의신청이 지급 시작 5월 18일부터 열흘 만에 13만건을 넘어섰습니다(연합뉴스·이데일리 2026-05-31 보도).",
     "이의신청 기한은 지자체별 공고로 다르며 대부분 지급 후 30일 이내입니다.",
@@ -177,11 +184,11 @@ repo 검증으로 확인된 **진짜 갭**은 6가지이며, 모두 "신규 포�
 }
 ```
 
-> 채움 가이드: tldr[0]=수치+날짜+출처괄호 / 모든 section.heading 질문형 / 신청섹션은 N단계 / body에 내부링크·출처링크 / table 셀수 일치 / faq 답변 "네," 금지 / sourcePublisherCount=고유 publisher 수.
+> 채움 가이드: **answer=시드 질문에 대한 직답 한 문장(수치 필수, tldr[0] 재서술 금지 — 더 압축)** / tldr[0]=수치+날짜+출처괄호 / 모든 section.heading 질문형 / 신청섹션은 N단계 / body에 내부링크·출처링크 / table 셀수 일치 / faq 답변 "네," 금지 / sourcePublisherCount=고유 publisher 수 / definitions=본문 전문용어 1~3개(쉬우면 생략) / 갱신 발행 시 updates append.
 
 ---
 
-## 7. 코드 · lint 변경 (우선순위·적용 위치)
+## 7. 코드 · lint 변경 (우선순위·적용 위치) — ✅ 전 항목 적용 완료 (2026-07-07 repo 재검증)
 
 ### P0 — 즉시, 저비용, 신규 자동화의 핵심
 1. **reportType enum 동기화** — `src/pages/issues/[date]/[slug].astro` `RT_LABELS`(L421-428)에 `weekly-essentials`/`issue-followup` 라벨·색상 추가, 죽은 3종(persona-weekly/category-weekly/trending-persona-angle) 제거. `MANUAL-POSTING.md §6` 표를 실사용 5종으로 정정(regional-detail 삭제).
@@ -208,6 +215,9 @@ repo 검증으로 확인된 **진짜 갭**은 6가지이며, 모두 "신규 포�
 
 ## 8. 발행 전 체크리스트
 
+- [ ] **(v2) answer(한 줄 정답) ≤120자, 수치 포함, tldr[0] 재서술 아닌 직답인가**
+- [ ] (v2) 본문에 전문용어 있으면 definitions 1~3개(한 문장 정의, glossarySlug 연결)인가
+- [ ] (v2) 갱신 발행이면 updates[]에 {date, note} append 했는가
 - [ ] reportType이 정식 enum 5종 중 하나인가
 - [ ] tldr 3~6개, tldr[0] 첫 문장에 수치+날짜, 출처는 끝 괄호 1개인가
 - [ ] 모든 section.heading 질문형, 최소 1개에 tags[0]/trendingTerm 토큰 포함인가
@@ -222,3 +232,39 @@ repo 검증으로 확인된 **진짜 갭**은 6가지이며, 모두 "신규 포�
 - [ ] title(접미사 포함) 40자 이하, metaDescription 60~110자·중복 아님인가
 - [ ] 트렌딩 포스트면 freshness.trendingTerm 채웠는가
 - [ ] `npm run lint:content` err 0건(warn은 검토)인가
+
+---
+
+## 9. v2 업그레이드 (2026-07-07 적용) — 정답 청크 · 인용 그래프 · 갱신 이력
+
+v1(§7)이 전부 코드에 반영된 상태에서 repo 재검증으로 확인된 다음 갭을 적용했다. 원칙 동일: **신규 필드는 전부 optional(레거시 회귀 0), err은 신규 필드의 결정적 형식만.**
+
+### 신규 필드 3종 (작성자 인터페이스)
+
+1. **`answer` — 한 줄 정답 (AEO 핵심)**: H1 직후 `.answer-box`로 렌더 + Article `abstract` + speakable 1순위 청크 + llms-full 최상단. 없으면 tldr[0] 자동 폴백(이때 tldr 리스트에서 첫 항목 제외 렌더 → 레거시 60여건도 정답 박스 자동 획득). Featured Snippet·AI Overviews·네이버 지식스니펫이 집는 "그 자체로 답인 한 문장".
+2. **`definitions[]` — 용어 먼저 정리 (AEO/GEO)**: 본문 최상단 `<dfn>` 박스 + `DefinedTermSet`/`DefinedTerm` JSON-LD + glossary hub 링크 + llms-full "핵심 용어" 청크. AGENTS §12-2 "핵심 정의 격리" 표준의 이슈 포스트 구현.
+3. **`updates[]` — 갱신 이력 (freshness)**: 가시 "업데이트 내역" 로그 + `dateModified`=max(트렌딩 lastSeen, 최신 update date) 단일 변수(JSON-LD·OG·hero 칩 동일). 갱신 발행 워크플로우(/traffic 갱신 후보)의 구조 지원.
+
+### JSON-LD·메타 강화 (자동 — 작성자 작업 없음)
+
+4. **`citation` 전 출처 승격**: isBasedOn(정부 1차 한정)과 별개로 언론 포함 전체 sources(최대 8건)를 Article `citation`으로 emit — 정부 도메인은 GovernmentOrganization publisher. GEO attribution 그래프 완성.
+5. **`about` entity 승격**: string → `Thing{name, url(토픽 hub 존재 시)}` — 토픽 hub와 entity 연결.
+6. **`speakable`을 Article 레벨에도 명시** (spec상 Article/WebPage 소속): `['.answer-box','.tldr li']`. FAQPage speakable에도 `.answer-box` 추가.
+7. **`news_keywords` 메타** (BaseLayout, article 한정): keywords와 동일 소스 — Google News 토픽 매핑.
+8. **`<time datetime>` 시맨틱**: hero 발행일·업데이트 내역 날짜.
+
+### lint 게이트 (v2)
+
+- err: `answer` 빈 문자열 / `updates[]` 형식(`{date: "YYYY-MM-DD", note}`) / `definitions[]` term·definition 누락
+- warn: answer 누락(**2026-07-07 이후 발행분만** — 레거시 침묵) / answer 200자+·수치 없음 / definitions.glossarySlug 미존재 / updates.date가 발행일보다 과거
+
+### 문서 정합 정정
+
+- MANUAL-POSTING §5·§6, post-writer agent의 `metaDescription 150~160자` → **60~110자**로 정정 (lint·본 문서 §3과 드리프트 제거).
+
+### 적용 파일
+
+- `src/pages/issues/[date]/[slug].astro` — answer 박스·용어 박스·업데이트 로그 렌더 + abstract/citation/about/speakable/DefinedTermSet JSON-LD + `<time>`
+- `src/layouts/BaseLayout.astro` — news_keywords 메타
+- `scripts/lint-content.mjs` — v2 필드 게이트 (glossary.json id 인덱스 검증 포함)
+- `src/pages/llms-full.txt.ts` — 한 줄 정답 + 핵심 용어 청크
