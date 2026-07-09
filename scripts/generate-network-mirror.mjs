@@ -17,6 +17,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { issueUrlPath } from '../src/lib/issue-url.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
@@ -103,7 +104,7 @@ function collectIssues() {
       if (!data?.slug) continue;
       const slug = data.slug;
       out.push({
-        url: `${DOMAIN}/issues/${dateDir}/${slug}/`,
+        url: `${DOMAIN}${issueUrlPath(dateDir, slug)}`,
         title: data.title ?? null,
         category: data.category ?? null,
         persona: Array.isArray(data.relatedPersonas) ? data.relatedPersonas : [],

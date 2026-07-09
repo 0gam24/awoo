@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // Cycle #33: Google News sitemap — 영구 포스트만 대상 (NewsArticle 자격)
 // Google News 인덱싱: 발행 ≤ 2일 이내 글만 사용. 오래된 글 자동 제거 (Google 정책).
@@ -30,7 +31,7 @@ export const GET: APIRoute = () => {
     const publishedAt = mod.default.publishedAt || `${date}T00:00:00.000Z`;
     if (new Date(publishedAt).getTime() < cutoffMs) continue;
     recent.push({
-      url: `https://awoo.or.kr/issues/${date}/${slug}/`,
+      url: `https://awoo.or.kr${issueUrlPath(date, slug)}`,
       title: mod.default.title,
       publishedAt,
       tags: mod.default.tags ?? [],

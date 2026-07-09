@@ -18,6 +18,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { issueUrlPath } from '../src/lib/issue-url.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -121,7 +122,7 @@ if (existsSync(issuesDir)) {
     for (const f of readdirSync(path.join(issuesDir, dateDir.name))) {
       if (!f.endsWith('.json') || f.startsWith('_')) continue;
       const slug = f.replace(/\.json$/, '');
-      recent.push(`/issues/${dateDir.name}/${slug}/`);
+      recent.push(`${issueUrlPath(dateDir.name, slug)}`);
     }
   }
   // llms-full.txt에 본문 일부라도 포함되는지 (느슨한 검사 — 슬러그 키워드 매칭)

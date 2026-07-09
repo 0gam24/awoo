@@ -1,5 +1,6 @@
 ---
 import BlufBox from '@/components/BlufBox.astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
@@ -212,7 +213,7 @@ const collectionSchema = !isThin
           name: s.data.title,
         })),
         ...relatedPosts.map((p) => ({
-          url: `/issues/${p.date}/${p.slug}/`,
+          url: `${issueUrlPath(p.date, p.slug)}`,
           name: p.title,
         })),
       ],
@@ -280,7 +281,7 @@ const collectionSchema = !isThin
       {post && (
         <section class="post-link-card">
           <div class="plc-eyebrow">관련 포스트</div>
-          <a class="plc-link" href={`/issues/${post.date}/${post.slug}/`}>
+          <a class="plc-link" href={`${issueUrlPath(post.date, post.slug)}`}>
             <div class="plc-title">{post.title}</div>
             <div class="plc-meta">
               {post.category} · {post.date}
@@ -302,7 +303,7 @@ const collectionSchema = !isThin
           <ul class="tp-list">
             {relatedPosts.filter((p) => p.slug !== post?.slug).map((p) => (
               <li>
-                <a class="tp-card" href={`/issues/${p.date}/${p.slug}/`}>
+                <a class="tp-card" href={`${issueUrlPath(p.date, p.slug)}`}>
                   <span class="tp-meta">{p.category} · {p.date}</span>
                   <span class="tp-title">{p.title}</span>
                 </a>

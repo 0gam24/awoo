@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // JSON Feed 1.1 — 오늘의 이슈 포스트 (AI 에이전트·모던 리더 친화)
 // feed-issues.xml(RSS)과 동일 콘텐츠를 JSON Feed 포맷으로 제공
@@ -50,7 +51,7 @@ export const GET: APIRoute = async () => {
     language: 'ko-KR',
     authors: [{ name: '김준혁' }],
     items: top.map(({ date, slug, data }) => {
-      const url = `${SITE}/issues/${date}/${slug}/`;
+      const url = `${SITE}${issueUrlPath(date, slug)}`;
       const iso = new Date(data.publishedAt ?? date).toISOString();
       const trending = data.freshness?.trendingTerm
         ? `[트렌딩 ${data.freshness.trendingTerm} · ${data.freshness.daysActive ?? 1}일 연속] `

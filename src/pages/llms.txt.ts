@@ -2,6 +2,7 @@ import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
 import { CATEGORIES } from '@/data/site-data';
 import situationsData from '@/data/situations.json';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 import {
   formatDateKR,
   lastBatchAtISO,
@@ -169,7 +170,7 @@ export const GET: APIRoute = async () => {
     lines.push('');
     for (const p of issuePosts.slice(0, 30)) {
       lines.push(
-        `- [${p.title}](https://awoo.or.kr/issues/${p.date}/${p.slug}/): ${p.metaDescription.slice(0, 100)}`,
+        `- [${p.title}](https://awoo.or.kr${issueUrlPath(p.date, p.slug)}): ${p.metaDescription.slice(0, 100)}`,
       );
     }
     lines.push('');

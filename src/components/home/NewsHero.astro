@@ -1,5 +1,6 @@
 ---
 import Container from '@/components/Container.astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 import todayIssue from '@/data/today-issue.json';
 import { formatWon } from '@/data/site-data';
 
@@ -23,7 +24,7 @@ function findTopicPostUrl(term: string | undefined): string | null {
   const entry = history.byTerm?.[term];
   if (!entry?.postSlug || !entry?.firstSeen) return null;
   const postDate = entry.postDate ?? entry.firstSeen;
-  return `/issues/${postDate}/${entry.postSlug}/`;
+  return `${issueUrlPath(postDate, entry.postSlug)}`;
 }
 
 // Cycle #9: thinness 가드 완화 — 모든 트렌딩 키워드(totalCount ≥ 1) 에 토픽 hub 생성됨.
@@ -427,7 +428,7 @@ void hookCopy;
         <ul class="recent-posts-list">
           {recentPosts.map((p) => (
             <li>
-              <a class={`rp-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
+              <a class={`rp-card cat-${p.data.category}`} href={`${issueUrlPath(p.date, p.slug)}`}>
                 <div class="rp-meta">
                   {/* Cycle #76: reportType 배지 — 홈에서 분석 유형 즉시 인지 */}
                   {p.data.reportType && (() => {

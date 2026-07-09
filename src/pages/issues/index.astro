@@ -1,5 +1,6 @@
 ---
 import Container from '@/components/Container.astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import todayIssue from '@/data/today-issue.json';
 
@@ -145,7 +146,7 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
         <section class="hero-section" aria-label="이번 주 화제 Top 3">
           {heroCards[0] && (
             heroCards[0].post ? (
-              <a class={`hero-lg cat-${heroCards[0].post.data.category}`} href={`/issues/${heroCards[0].post.date}/${heroCards[0].post.slug}/`}>
+              <a class={`hero-lg cat-${heroCards[0].post.data.category}`} href={`${issueUrlPath(heroCards[0].post.date, heroCards[0].post.slug)}`}>
                 <div class="hero-meta">
                   <span class="hero-rank">1위 화제</span>
                   {today.daysActive && today.daysActive >= 3 && (
@@ -181,7 +182,7 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
             <div class="hero-sub-grid">
               {heroCards.slice(1, 3).map((c) =>
                 c.post ? (
-                  <a class={`hero-sm cat-${c.post.data.category}`} href={`/issues/${c.post.date}/${c.post.slug}/`}>
+                  <a class={`hero-sm cat-${c.post.data.category}`} href={`${issueUrlPath(c.post.date, c.post.slug)}`}>
                     <div class="hero-sm-meta">
                       <span class="hero-rank-sm">{c.rank}위</span>
                       <span class="hero-cat-sm">{c.post.data.category}</span>
@@ -218,7 +219,7 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
                   const tHref = topicHref(t.term);
                   const post = findPost(t.term);
                   const groupHref = post
-                    ? `/issues/${post.date}/${post.slug}/`
+                    ? `${issueUrlPath(post.date, post.slug)}`
                     : tHref;
                   return (
                     <li class="term-group">
@@ -291,7 +292,7 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
                 <ul class="post-list">
                   {(byMonth[ym] ?? []).map((p) => (
                     <li data-post-cat={p.data.category}>
-                      <a class={`post-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
+                      <a class={`post-card cat-${p.data.category}`} href={`${issueUrlPath(p.date, p.slug)}`}>
                         <div class="pc-meta">
                           {/* Cycle #76: reportType 배지 — 분석 유형 시각 */}
                           {p.data.reportType && (() => {
@@ -345,7 +346,7 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
                   const matchedPost = findPost(t.term);
                   const tHref = topicHref(t.term);
                   const href = matchedPost
-                    ? `/issues/${matchedPost.date}/${matchedPost.slug}/`
+                    ? `${issueUrlPath(matchedPost.date, matchedPost.slug)}`
                     : tHref;
                   const tier = matchedPost ? 'post' : tHref ? 'topic' : 'dead';
                   const inner = (

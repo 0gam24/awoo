@@ -6,6 +6,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
 import { buildImageObject } from '@/lib/schema';
 import { paragraphsAndLists } from '@/lib/inline-markdown';
+import { issuePathParam, issueUrlPath, toUrlSlug, isDateless, RESERVED_ISSUE_SLUGS } from '@/lib/issue-url.mjs';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -88,6 +89,11 @@ export const getStaticPaths = (() => {
       console.warn(`[issues] 본문 콘텐츠 누락으로 path 생성 skip: ${date}/${slug} (sections=${data?.sections?.length ?? 0}, faq=${data?.faq?.length ?? 0}, sources=${data?.sources?.length ?? 0})`);
       continue;
     }
+    // 날짜 없는 URL 대상(2026-07-10+)인데 URL slug가 예약어면 /issues/all 등과 충돌 → skip(빌드 보호)
+    if (isDateless(date) && RESERVED_ISSUE_SLUGS.has(toUrlSlug(slug))) {
+      console.warn(`[issues] 예약어 URL slug 충돌로 skip: ${date}/${slug} → /issues/${toUrlSlug(slug)}/`);
+      continue;
+    }
     all.push({ date, slug, data });
   }
   // 시간 desc 정렬 (최신순)
@@ -99,9 +105,12 @@ export const getStaticPaths = (() => {
     const prev = all[i + 1]; // desc 정렬: 다음 인덱스는 더 옛날 (prev = older)
     const next = all[i - 1]; // 이전 인덱스는 더 최근 (next = newer)
     return {
-      params: { date: entry.date, slug: entry.slug },
+      // catch-all [...path]: 구 URL은 'YYYY-MM-DD/slug', 신 URL(2026-07-10+)은 'slug'(날짜 제거)
+      params: { path: issuePathParam(entry.date, entry.slug) },
       props: {
         post: entry.data,
+        date: entry.date,
+        slug: entry.slug,
         prevPost: prev
           ? { date: prev.date, slug: prev.slug, title: prev.data.title }
           : null,
@@ -113,12 +122,13 @@ export const getStaticPaths = (() => {
   });
 }) satisfies GetStaticPaths;
 
-const { post, prevPost, nextPost } = Astro.props as {
+const { post, date, slug, prevPost, nextPost } = Astro.props as {
   post: PostData;
+  date: string;
+  slug: string;
   prevPost: { date: string; slug: string; title: string } | null;
   nextPost: { date: string; slug: string; title: string } | null;
 };
-const { date, slug } = Astro.params;
 
 const subsidies = await getCollection('subsidies');
 const subsidyById = new Map(subsidies.map((s) => [s.data.id, s.data]));
@@ -185,7 +195,7 @@ function highlightFact(raw: string | undefined): string {
 }
 
 // JSON-LD — NewsArticle 강화 (mainEntityOfPage·articleSection·inLanguage 등)
-const canonicalUrl = `https://awoo.or.kr/issues/${date}/${slug}/`;
+const canonicalUrl = `https://awoo.or.kr${issueUrlPath(date, slug)}`;
 // Cycle #88: factCheckScore — articleSchema reviewedBy + ClaimReview emit 조건. 하단 isThinPost 검사에서도 재사용.
 const factCheckScore = (post as { factCheckScore?: number }).factCheckScore ?? 1;
 // Cycle #11 P0-1: wordCount — AI 인용 confidence 신호 (콘텐츠 depth 명시)
@@ -508,7 +518,7 @@ const faqSchema = post.faq.length > 0 ? {
 const breadcrumbs = [
   { name: '홈', href: '/' },
   { name: '오늘의 이슈', href: '/issues/' },
-  { name: post.title, href: `/issues/${date}/${slug}/` },
+  { name: post.title, href: issueUrlPath(date, slug) },
 ];
 
 // 읽기 시간 — 한국어 분당 평균 500자 기준
@@ -678,7 +688,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
             type="button"
             class="share-btn"
             data-share-btn
-            data-share-url={`https://awoo.or.kr/issues/${date}/${slug}/`}
+            data-share-url={`https://awoo.or.kr${issueUrlPath(date, slug)}`}
             data-share-title={post.title}
             aria-live="polite"
           >🔗 공유</button>
@@ -1016,7 +1026,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
               <a class="rail-cta" href={`/subsidies/${s.id}/`}>💸 {s.title}</a>
             ))}
             {nextPost && (
-              <a class="rail-cta" href={`/issues/${nextPost.date}/${nextPost.slug}/`}>📄 다음 글 보기</a>
+              <a class="rail-cta" href={issueUrlPath(nextPost.date, nextPost.slug)}>📄 다음 글 보기</a>
             )}
             <a class="rail-cta" href="/guide/">📋 신청 가이드</a>
           </div>
@@ -1026,7 +1036,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
       {(prevPost || nextPost) && (
         <nav class="post-nav" aria-label="다른 분석 포스트">
           {prevPost ? (
-            <a class="pn-link prev" href={`/issues/${prevPost.date}/${prevPost.slug}/`} rel="prev">
+            <a class="pn-link prev" href={issueUrlPath(prevPost.date, prevPost.slug)} rel="prev">
               <span class="pn-label">← 이전 포스트</span>
               <span class="pn-title">{prevPost.title}</span>
             </a>
@@ -1034,7 +1044,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
             <span class="pn-spacer"></span>
           )}
           {nextPost ? (
-            <a class="pn-link next" href={`/issues/${nextPost.date}/${nextPost.slug}/`} rel="next">
+            <a class="pn-link next" href={issueUrlPath(nextPost.date, nextPost.slug)} rel="next">
               <span class="pn-label">다음 포스트 →</span>
               <span class="pn-title">{nextPost.title}</span>
             </a>

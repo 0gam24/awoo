@@ -15,7 +15,8 @@ model: inherit
 
 ## 핵심 규칙 (lint 실패·noindex 방지)
 
-- **파일 경로**: `src/data/issues/{YYYY-MM-DD}/{topic}-{type}-{YYYY-MM-DD}.json` — **publishedAt ↔ date ↔ 디렉토리 ↔ slug suffix 4중 일치(KST)**
+- **파일 경로**: `src/data/issues/{YYYY-MM-DD}/{topic}-{type}-{YYYY-MM-DD}.json` — **publishedAt ↔ date ↔ 디렉토리 ↔ slug suffix 4중 일치(KST)** (파일 slug는 계속 날짜 접미사 유지)
+- **URL은 날짜 없음(2026-07-10+ 발행분, 운영자 지시)**: 발행 URL은 `https://awoo.or.kr/issues/{날짜접미사 제거한 slug}/` 다 (예: 파일 `paju-youth-rent-support-2026-07-11.json` → URL `/issues/paju-youth-rent-support/`). `src/lib/issue-url.mjs`가 자동 파생하므로 파일 slug는 규칙대로 날짜 접미사를 붙인다. **본문 cross-link**: 상대 다른 글로 링크할 때 2026-07-10 이후 발행 글이면 `[텍스트](/issues/{날짜없는-slug}/)`, 그 이전 글이면 기존 `[텍스트](/issues/{date}/{slug}/)` 형태를 쓴다. URL slug는 예약어(all/main/new/topics/index/archived/feed/rss) 금지·전역 유일해야 한다(lint err).
 - **reportType**: weekly-essentials / issue-followup / deadline-imminent-weekly / new-subsidies-weekly / new-subsidies-detail 5종만
 - title ≤40자 — **롱테일 우선(2026-07-09 운영자 지시)**: 브로드 헤드("정부 지원금"·"청년 지원금") 금지, `지역명 + 지원금 + 대상자/조건` 형태로 구체화(예: "파주시 청년 월세 지원 대상자·소득기준"). 지역 무관 전국 정책은 대상자+수치+조건으로 좁힌다(예: "월 519만원 국민연금 감액 대상 재직자"). 시드+연도+페르소나/지역+숫자 포함. metaDescription 60~110자 (금액·마감 수치 — lint warn 범위)
 - **answer(한 줄 정답) 필수 (v2)** — ≤120자 한 문장, 수치+날짜 포함, 시드 질문에 대한 직답. tldr[0] 재서술 금지(더 압축된 별도 문장). H1 직후 정답 박스 + abstract/speakable로 노출됨

@@ -1,5 +1,6 @@
 ---
 import Container from '@/components/Container.astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildCollectionPage } from '@/lib/schema';
 import type { GetStaticPaths } from 'astro';
@@ -67,7 +68,7 @@ const collectionSchema = buildCollectionPage({
   description: `정부 지원금 정책 분석 포스트 ${page.total}건 전체 아카이브 (페이지 ${page.currentPage})`,
   pageUrl,
   items: posts.slice(0, SCHEMA_ITEM_CAP).map((p) => ({
-    url: `/issues/${p.date}/${p.slug}/`,
+    url: `${issueUrlPath(p.date, p.slug)}`,
     name: p.data.title,
   })),
 });
@@ -119,7 +120,7 @@ const collectionSchema = buildCollectionPage({
         <ul class="all-list" data-all-list>
           {posts.map((p) => (
             <li data-post-cat={p.data.category}>
-              <a class={`post-card cat-${p.data.category}`} href={`/issues/${p.date}/${p.slug}/`}>
+              <a class={`post-card cat-${p.data.category}`} href={`${issueUrlPath(p.date, p.slug)}`}>
                 <div class="pc-meta">
                   {p.data.freshness && p.data.freshness.daysActive >= 3 && (
                     <span class="freshness">

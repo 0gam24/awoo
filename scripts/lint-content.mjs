@@ -10,6 +10,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isDateless, RESERVED_ISSUE_SLUGS, toUrlSlug } from '../src/lib/issue-url.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -172,6 +173,9 @@ const SOURCE_CONFIDENCE = ['high', 'medium', 'low'];
 // metaDescription 전역 중복 검사용 (이슈 간 동일 문자열 → warn)
 const metaDescSeen = new Map(); // metaDescription → "date/slug"
 
+// 날짜 없는 URL(2026-07-10+) 전환: URL slug 전역 중복·예약어 검사용 (충돌 시 빌드 깨짐 → err)
+const urlSlugSeen = new Map(); // urlSlug → "date/slug"
+
 // v2: definitions[].glossarySlug 검증용 — glossary.json id 인덱스
 const GLOSSARY_FILE = path.join(ROOT, 'src/data/glossary.json');
 const glossaryIds = new Set(
@@ -316,6 +320,23 @@ for (const { date, slug, file } of issueFiles) {
   }
   if (post.date && post.date !== date) {
     err(`이슈 date 디렉토리 불일치 (필드: ${post.date} / 디렉토리: ${date}): ${date}/${slug}`);
+  }
+
+  // --- 날짜 없는 URL 전환(2026-07-10+): URL slug 예약어·전역 중복 검사 (충돌 시 빌드 라우트 깨짐 → err) ---
+  if (isDateless(date)) {
+    const urlSlug = toUrlSlug(slug);
+    if (RESERVED_ISSUE_SLUGS.has(urlSlug)) {
+      err(
+        `이슈 URL slug 예약어 충돌 (${urlSlug}) — /issues/${urlSlug}/ 는 정적 라우트와 겹침. slug 변경 필요: ${date}/${slug}`,
+      );
+    }
+    if (urlSlugSeen.has(urlSlug)) {
+      err(
+        `이슈 URL slug 전역 중복 (${urlSlug}) — ${urlSlugSeen.get(urlSlug)} 와 날짜 없는 URL이 겹침. slug 변경 필요: ${date}/${slug}`,
+      );
+    } else {
+      urlSlugSeen.set(urlSlug, `${date}/${slug}`);
+    }
   }
 
   // --- P0: reportType enum (존재할 때만 검사 / 누락은 무시 — 레거시 안전) ---

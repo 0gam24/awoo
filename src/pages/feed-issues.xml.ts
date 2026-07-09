@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // 오늘의 이슈 포스트 전용 RSS — Substack·AI agent 인용 친화
 // /feed.xml (지원금 신규)와 분리 — 검색 봇·뉴스 큐레이터가 카테고리별 구독 가능
@@ -52,7 +53,7 @@ export const GET: APIRoute = async () => {
 
   const xmlItems = top
     .map(({ date, slug, data }) => {
-      const url = `${SITE}/issues/${date}/${slug}/`;
+      const url = `${SITE}${issueUrlPath(date, slug)}`;
       const pubDate = new Date(data.publishedAt ?? date).toUTCString();
       const categories = (data.tags ?? []).slice(0, 5);
       const trending = data.freshness?.trendingTerm

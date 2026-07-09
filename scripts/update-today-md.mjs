@@ -18,6 +18,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { issueUrlPath } from '../src/lib/issue-url.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
@@ -84,7 +85,7 @@ function collectIssuesBucketed() {
       if (!byDate.has(kstDate)) byDate.set(kstDate, []);
       byDate.get(kstDate).push({
         title: data.title ?? data.slug,
-        url: `${DOMAIN}/issues/${dateDir}/${data.slug}/`,
+        url: `${DOMAIN}${issueUrlPath(dateDir, data.slug)}`,
         summary: truncate(data.metaDescription ?? data.tldr?.[0] ?? ''),
         category: data.category ?? '',
       });

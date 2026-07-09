@@ -1,5 +1,6 @@
 ---
 import Container from '@/components/Container.astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 import Icon from '@/components/Icon.astro';
 import todayIssue from '@/data/today-issue.json';
 import { getCollection } from 'astro:content';
@@ -51,7 +52,7 @@ function findPostUrl(term: string): string | null {
   const e = historyByTerm[term];
   if (!e?.postSlug || !e?.firstSeen) return null;
   // postDate(실제 글 날짜) 우선, 없으면 firstSeen 폴백 — NewsHero/topics와 동일 규칙
-  return `/issues/${e.postDate ?? e.firstSeen}/${e.postSlug}/`;
+  return `${issueUrlPath(e.postDate ?? e.firstSeen, e.postSlug)}`;
 }
 function findTopicHubUrl(term: string): string | null {
   const e = historyByTerm[term];

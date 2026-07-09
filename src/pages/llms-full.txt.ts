@@ -2,6 +2,7 @@ import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
 import { CATEGORIES, formatWon, INCOME_THRESHOLDS, MEDIAN_INCOME } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 interface IssuePostSection {
   heading: string;
@@ -331,7 +332,7 @@ export const GET: APIRoute = async () => {
 
       for (const post of posts) {
         const d = post.data;
-        const url = `https://awoo.or.kr/issues/${post.date}/${post.slug}/`;
+        const url = `https://awoo.or.kr${issueUrlPath(post.date, post.slug)}`;
         lines.push(`#### [${post.date}] ${d.title ?? post.slug}`);
         lines.push('');
         if (d.metaDescription) {

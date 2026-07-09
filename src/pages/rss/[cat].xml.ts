@@ -1,4 +1,5 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // 카테고리별 RSS — 이슈 포스트를 카테고리 채널로 분리 구독
 // /rss/welfare.xml, /rss/housing.xml 등. feed-issues.xml(전체)의 카테고리 필터판.
@@ -73,7 +74,7 @@ export const GET: APIRoute = async ({ params }) => {
 
   const xmlItems = top
     .map(({ date, slug, data }) => {
-      const url = `${SITE}/issues/${date}/${slug}/`;
+      const url = `${SITE}${issueUrlPath(date, slug)}`;
       const pubDate = new Date(data.publishedAt ?? date).toUTCString();
       const tagCats = (data.tags ?? [])
         .slice(0, 5)

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // Atom 1.0 — 오늘의 이슈 포스트 (RSS·JSON Feed와 동일 콘텐츠, 표준 Atom 구독자용)
 // feed-issues.xml(RSS)·feed.json(JSON Feed)과 3종 세트
@@ -51,7 +52,7 @@ export const GET: APIRoute = async () => {
 
   const entries = top
     .map(({ date, slug, data }) => {
-      const url = `${SITE}/issues/${date}/${slug}/`;
+      const url = `${SITE}${issueUrlPath(date, slug)}`;
       const iso = new Date(data.publishedAt ?? date).toISOString();
       const cats = [data.category, ...(data.tags ?? []).slice(0, 5)]
         .map((c) => `\n    <category term="${escapeXml(c)}" />`)
