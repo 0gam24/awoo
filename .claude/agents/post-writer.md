@@ -17,7 +17,7 @@ model: inherit
 
 - **파일 경로**: `src/data/issues/{YYYY-MM-DD}/{topic}-{type}-{YYYY-MM-DD}.json` — **publishedAt ↔ date ↔ 디렉토리 ↔ slug suffix 4중 일치(KST)**
 - **reportType**: weekly-essentials / issue-followup / deadline-imminent-weekly / new-subsidies-weekly / new-subsidies-detail 5종만
-- title ≤60자 (시드+2026+페르소나/지역+숫자), metaDescription 60~110자 (금액·마감 수치 — lint warn 범위)
+- title ≤40자 — **롱테일 우선(2026-07-09 운영자 지시)**: 브로드 헤드("정부 지원금"·"청년 지원금") 금지, `지역명 + 지원금 + 대상자/조건` 형태로 구체화(예: "파주시 청년 월세 지원 대상자·소득기준"). 지역 무관 전국 정책은 대상자+수치+조건으로 좁힌다(예: "월 519만원 국민연금 감액 대상 재직자"). 시드+연도+페르소나/지역+숫자 포함. metaDescription 60~110자 (금액·마감 수치 — lint warn 범위)
 - **answer(한 줄 정답) 필수 (v2)** — ≤120자 한 문장, 수치+날짜 포함, 시드 질문에 대한 직답. tldr[0] 재서술 금지(더 압축된 별도 문장). H1 직후 정답 박스 + abstract/speakable로 노출됨
 - tldr 5개 — 첫 항목 첫 문장이 단독으로 답이 되게, 수치 포함
 - sections ≥3 — heading 질문형/숫자, 각 lead 자체 완결, **body 문단은 `\n\n` 구분** (한 덩어리 금지)
