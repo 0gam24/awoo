@@ -10,10 +10,13 @@ argument-hint: "(선택) 키워드 또는 N건 — 비우면 scout 추천"
 
 ## 실행 순서 (멈추지 말고 끝까지)
 
-### PHASE 0 — 동기화
+### PHASE 0 — 동기화 + 오늘 날짜(KST) 확정
 ```bash
 git fetch origin && git rebase origin/main
+TODAY_KST=$(TZ=Asia/Seoul date +%F)   # 예: 2026-07-11 — 반드시 이 값을 오늘로 쓴다
+echo "오늘(KST) = $TODAY_KST"
 ```
+⚠️ **오늘 날짜는 반드시 KST(`TZ=Asia/Seoul date +%F`)로 확정한다.** 스케줄은 클라우드(UTC)에서 03:00 KST에 도는데, 그 시각 UTC 날짜는 **전날**이다 — `date`(UTC 기본)나 대화 컨텍스트 날짜를 그대로 쓰면 발행물이 하루 밀린다(디렉토리·URL·제목 규칙 cutoff 전부 어긋남). 모든 발행물의 **디렉토리명·slug의 `-YYYY-MM-DD` 접미사·`date` 필드·`publishedAt`(KST 기준)** 을 위 `$TODAY_KST`로 통일하고, post-writer에 발행일 전달 시에도 이 값을 넘긴다.
 
 ### PHASE 1 — 점검 (/traffic 실행)
 Skill 도구로 `traffic` 호출, args: `"갱신·색인 점검 우선 — 내일 추천(scout)은 생략, PHASE 2가 수행"`
