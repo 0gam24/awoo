@@ -185,6 +185,17 @@ const glossaryIds = new Set(
 // 수치/날짜 토큰 휴리스틱 (tldr[0]·answer 공용)
 const NUMERIC_TOKEN_RE = /[0-9０-９]|만원|원|일|%|건|명/;
 
+// AI 티 제거 정책 시행일 (2026-07-10 운영자 지시). 이 날짜 이후 발행분부터 제목 긴 줄표 err.
+// 07-10 발행분은 이미 색인돼 제목 유지 → 07-11부터 적용.
+const TITLE_STYLE_CUTOFF = '2026-07-11';
+// 글마다 반복되면 AI 티가 나는 대표 말버릇 — 신규 포스트 warn (다양화 유도)
+const AI_TELL_PHRASES = [
+  /핵심은 (세|3) ?가지/,
+  /결론부터 (말씀드리면|말하면)/,
+  /한마디로 (말하면|요약하면)/,
+  /지금부터 (하나씩|차근차근)/,
+];
+
 // 헤드라인 클릭베이트·과장 패턴 — Google Discover 정책 준수용
 // 발견 시 warn (포스트별 사람 검토 신호)
 const CLICKBAIT_PATTERNS = [
@@ -457,6 +468,24 @@ for (const { date, slug, file } of issueFiles) {
   // title 길이
   if (typeof post.title === 'string' && post.title.length > 40) {
     warn(`이슈 title 40자 초과 (${post.title.length}자): ${date}/${slug}`);
+  }
+  // AI 티 제거 (2026-07-10 운영자 지시, 애드센스 재승인): 제목의 긴 줄표(— em-dash / – en-dash) 금지.
+  // 사람은 거의 안 쓰는데 AI가 즐겨 써 'AI가 쓴 티'가 남 → 콤마나 자연스러운 구로 대체.
+  // 이미 색인된 기존 글 제목은 바꾸지 않으므로(제목 변경=SEO 손해) 신규(2026-07-11+)만 err.
+  if (typeof post.title === 'string' && /[—–]/.test(post.title) && date >= TITLE_STYLE_CUTOFF) {
+    err(
+      `이슈 title에 긴 줄표(— / –) 사용 = AI 티 — 콤마나 자연스러운 구로 교체("A 2026, B" 형): ${date}/${slug} — "${post.title}"`,
+    );
+  }
+  // AI 티 반복 말버릇 — 글마다 표현을 다양화(신규 2026-07-11+만 warn, 하드블록 아님)
+  if (date >= TITLE_STYLE_CUTOFF) {
+    const aiTellText = `${post.title ?? ''} ${(post.sections ?? []).map((s) => `${s.lead ?? ''} ${s.body ?? ''}`).join(' ')}`;
+    const hit = AI_TELL_PHRASES.find((re) => re.test(aiTellText));
+    if (hit) {
+      warn(
+        `이슈 본문에 AI 티 반복 표현(${hit.source}) — 글마다 다른 표현 사용 권장: ${date}/${slug}`,
+      );
+    }
   }
   // metaDescription 길이 + 전역 중복
   if (typeof post.metaDescription === 'string') {

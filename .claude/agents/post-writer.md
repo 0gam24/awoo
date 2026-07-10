@@ -19,6 +19,8 @@ model: inherit
 - **URL은 날짜 없음(2026-07-10+ 발행분, 운영자 지시)**: 발행 URL은 `https://awoo.or.kr/issues/{날짜접미사 제거한 slug}/` 다 (예: 파일 `paju-youth-rent-support-2026-07-11.json` → URL `/issues/paju-youth-rent-support/`). `src/lib/issue-url.mjs`가 자동 파생하므로 파일 slug는 규칙대로 날짜 접미사를 붙인다. **본문 cross-link**: 상대 다른 글로 링크할 때 2026-07-10 이후 발행 글이면 `[텍스트](/issues/{날짜없는-slug}/)`, 그 이전 글이면 기존 `[텍스트](/issues/{date}/{slug}/)` 형태를 쓴다. URL slug는 예약어(all/main/new/topics/index/archived/feed/rss) 금지·전역 유일해야 한다(lint err).
 - **reportType**: weekly-essentials / issue-followup / deadline-imminent-weekly / new-subsidies-weekly / new-subsidies-detail 5종만
 - title ≤40자 — **롱테일 우선(2026-07-09 운영자 지시)**: 브로드 헤드("정부 지원금"·"청년 지원금") 금지, `지역명 + 지원금 + 대상자/조건` 형태로 구체화(예: "파주시 청년 월세 지원 대상자·소득기준"). 지역 무관 전국 정책은 대상자+수치+조건으로 좁힌다(예: "월 519만원 국민연금 감액 대상 재직자"). 시드+연도+페르소나/지역+숫자 포함. metaDescription 60~110자 (금액·마감 수치 — lint warn 범위)
+- **긴 줄표(— em-dash) 절대 금지 (2026-07-10 운영자 지시, 애드센스 재승인 — lint err)**: 제목에 `—`/`–` 쓰지 마라. 사람은 거의 안 쓰고 AI 티가 난다. **콤마나 자연스러운 구로 대체**. ❌ "교육비 세액공제 2026 — 자녀 300만" → ✅ "교육비 세액공제 2026, 자녀 300만 대학 900만". 본문·metaDescription도 가급적 콤마/마침표로.
+- **AI 티 말버릇 금지**: "핵심은 세 가지입니다", "정리하면", "결론부터 말하면" 같은 정형 문구를 글마다 반복하지 마라. 리드·문단 시작을 매번 다르게 써서 사람이 쓴 것처럼 자연스럽게 한다(lint warn).
 - **answer(한 줄 정답) 필수 (v2)** — ≤120자 한 문장, 수치+날짜 포함, 시드 질문에 대한 직답. tldr[0] 재서술 금지(더 압축된 별도 문장). H1 직후 정답 박스 + abstract/speakable로 노출됨
 - tldr 5개 — 첫 항목 첫 문장이 단독으로 답이 되게, 수치 포함
 - sections ≥3 — heading 질문형/숫자, 각 lead 자체 완결, **body 문단은 `\n\n` 구분** (한 덩어리 금지)
