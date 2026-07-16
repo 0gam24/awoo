@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-16T09:07:13.792Z",
+  "syncedAt": "2026-07-16T21:53:36.281Z",
   "source": "naver-news",
   "method": "trending-ngram",
   "headline": "지방보조금 부정 수급 605건 적발…147억 원 규모",
@@ -10,21 +10,21 @@
   "category": "복지",
   "score": 84,
   "trendingTopic": "지방보조금",
-  "trendingTopicCount": 24,
+  "trendingTopicCount": 13,
   "summary": {
-    "headline": "지방보조금 — 주요 매체 7곳 동시 보도",
-    "subhead": "종로구 시행 · 매체 24회 언급 · 관련 지원금 4건 매칭",
-    "hookCopy": "7개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요.",
+    "headline": "지방보조금 — 주요 매체 4곳 동시 보도",
+    "subhead": "운동기구 시행 · 매체 13회 언급 · 관련 지원금 4건 매칭",
+    "hookCopy": "4개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요.",
     "coreFacts": [
       {
         "label": "시행 지역",
         "value": "1곳",
-        "sub": "종로구"
+        "sub": "운동기구"
       },
       {
         "label": "보도 건수",
-        "value": "24건",
-        "sub": "7개 매체 보도"
+        "value": "13건",
+        "sub": "4개 매체 보도"
       },
       {
         "label": "트렌드",
@@ -40,32 +40,29 @@
   },
   "aggregate": {
     "cities": [
-      "종로구"
+      "운동기구"
     ],
-    "publisherCount": 7,
+    "publisherCount": 4,
     "publishers": [
       "KBS",
-      "연합뉴스",
-      "nocutnews.co.kr",
-      "fnnews.com",
-      "조선일보",
-      "news1.kr",
-      "뉴시스"
+      "yonhapnewstv.co.kr",
+      "hankookilbo.com",
+      "nocutnews.co.kr"
     ],
     "newestArticle": {
-      "title": "지방보조금 부정 수급 605건 적발…147억 원 규모",
-      "description": "인건비를 중복 지급하고 허위로 정산 보고서를 작성하는 등 지방보조금을 부정 수급한 사례 6백여 건이 적발됐습니다. 행정안전부 각 지방정부와 함께 지난 4월 20일부터 6월 20일까지 점검을 벌인 결과 지방보조금 부정...",
-      "pubDate": "Thu, 16 Jul 2026 18:04:00 +0900",
-      "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8612764&ref=A",
-      "naverLink": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8612764&ref=A",
+      "title": "1000만 원 운동기구가 1300만 원으로… 지방보조금 부정수급 147억 적발",
+      "description": "물품 구매 가격을 부풀리거나 허위 인건비를 지급하는 등 147억1,600만 원 규모의 지방보조금 부정수급 605건이 적발됐다. 행정안전부는 4월 20일부터 지난달 20일까지 지방정부와 함께 지방보조금 부정수급 일제 점검을...",
+      "pubDate": "Thu, 16 Jul 2026 18:45:00 +0900",
+      "link": "https://www.hankookilbo.com/news/article/A2026071617230001041?did=NA",
+      "naverLink": "https://www.hankookilbo.com/news/article/A2026071617230001041?did=NA",
       "category": "복지",
-      "score": 84,
+      "score": 69,
       "govCount": 2
     },
-    "newestPubDate": "Thu, 16 Jul 2026 18:04:00 +0900"
+    "newestPubDate": "Thu, 16 Jul 2026 18:45:00 +0900"
   },
   "daysActive": 1,
-  "totalCount": 24,
+  "totalCount": 13,
   "matchedSubsidies": [
     {
       "id": "basic-livelihood",
@@ -134,7 +131,7 @@
         "amountLabel": "월 지원"
       }
     ],
-    "민생회복지원금": [
+    "실업수당": [
       {
         "id": "basic-livelihood",
         "title": "기초생활보장 생계급여",
@@ -191,14 +188,72 @@
         "amount": 50000,
         "amountLabel": "월 지원"
       }
+    ],
+    "민생회복지원금": [
+      {
+        "id": "basic-livelihood",
+        "title": "기초생활보장 생계급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 8400000,
+        "amountLabel": "연 (1인)"
+      },
+      {
+        "id": "maternity-grant",
+        "title": "첫만남이용권 + 부모급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-baby",
+        "amount": 22000000,
+        "amountLabel": "0~1세 누적"
+      },
+      {
+        "id": "allowance-000739",
+        "title": "아이 꿈 수당 지급",
+        "agency": "인천광역시",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 50000,
+        "amountLabel": "월 지원"
+      }
+    ],
+    "유가보조금": [
+      {
+        "id": "housing-monthly",
+        "title": "청년 월세 특별지원",
+        "agency": "국토교통부",
+        "category": "주거",
+        "icon": "cat-housing",
+        "amount": 3600000,
+        "amountLabel": "연 최대"
+      },
+      {
+        "id": "newlywed-housing",
+        "title": "신혼·신생아 특별공급 주택",
+        "agency": "국토교통부",
+        "category": "주거",
+        "icon": "cat-housing",
+        "amount": 0,
+        "amountLabel": "특별공급"
+      },
+      {
+        "id": "housing-000026",
+        "title": "행복주택 공급",
+        "agency": "국토교통부",
+        "category": "주거",
+        "icon": "cat-housing",
+        "amount": 0,
+        "amountLabel": "지원금"
+      }
     ]
   },
   "trending": [
     {
       "term": "지방보조금",
-      "count": 24,
-      "mediaCount": 7,
-      "articleCount": 13,
+      "count": 13,
+      "mediaCount": 4,
+      "articleCount": 4,
       "topArticle": {
         "title": "지방보조금 부정 수급 605건 적발…147억 원 규모",
         "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8612764&ref=A",
@@ -207,66 +262,112 @@
         "category": "복지"
       },
       "summary": {
-        "headline": "지방보조금 — 주요 매체 7곳 동시 보도",
-        "subhead": "종로구 시행 · 매체 24회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "7개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요."
+        "headline": "지방보조금 — 주요 매체 4곳 동시 보도",
+        "subhead": "운동기구 시행 · 매체 13회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "4개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요."
       },
       "cities": [
-        "종로구"
-      ],
-      "publisherCount": 7,
-      "daysActive": 1,
-      "matchedCount": 3
-    },
-    {
-      "term": "민생회복지원금",
-      "count": 4,
-      "mediaCount": 4,
-      "articleCount": 4,
-      "topArticle": {
-        "title": "나주시, 전 시민 20만 원 민생회복지원금 추진…추석 전 지급 속도전",
-        "link": "https://www.pressian.com/pages/articles/2026071616395112286?utm_source=naver&utm_medium=search",
-        "pubDate": "Thu, 16 Jul 2026 16:43:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "category": "복지"
-      },
-      "summary": {
-        "headline": "민생회복지원금 — 3개 지자체 동시 시행 중",
-        "subhead": "나주시·통합특별시·전남광주시 신청 접수 · 매체 4회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "나주시·통합특별시 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다."
-      },
-      "cities": [
-        "나주시",
-        "통합특별시",
-        "전남광주시"
+        "운동기구"
       ],
       "publisherCount": 4,
       "daysActive": 1,
       "matchedCount": 3
     },
     {
-      "term": "민생지원금",
-      "count": 3,
+      "term": "실업수당",
+      "count": 12,
       "mediaCount": 3,
       "articleCount": 3,
       "topArticle": {
-        "title": "속초시, ‘1인당 20만원’ 민생지원금 20일부터 신청…1호 공약 속전속...",
-        "link": "https://www.seoul.co.kr/news/society/2026/07/16/20260716500184?wlog_tag3=naver",
-        "pubDate": "Thu, 16 Jul 2026 16:19:00 +0900",
+        "title": "美 실업수당 신규 청구 20만8000건…전망치 밑돌아",
+        "link": "https://www.mt.co.kr/world/2026/07/16/2026071622162042378",
+        "pubDate": "Thu, 16 Jul 2026 22:18:00 +0900",
         "pubDateKR": "2026.07.16",
         "category": "복지"
       },
       "summary": {
-        "headline": "민생지원금 — 2개 지자체 동시 시행 중",
-        "subhead": "속초시·나주시 신청 접수 · 매체 누적 5회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "속초시·나주시 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다."
+        "headline": "실업수당 — 4일째 매체 주목",
+        "subhead": "뉴욕증시 시행 · 매체 누적 23회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
       },
       "cities": [
-        "속초시",
-        "나주시"
+        "뉴욕증시"
       ],
       "publisherCount": 3,
+      "daysActive": 4,
+      "matchedCount": 3
+    },
+    {
+      "term": "민생지원금",
+      "count": 2,
+      "mediaCount": 2,
+      "articleCount": 2,
+      "topArticle": {
+        "title": "\"추석 전 1인당 20만원 지급\"…민생지원금 푼다",
+        "link": "http://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202607160359&t=NN",
+        "pubDate": "Thu, 16 Jul 2026 17:03:00 +0900",
+        "pubDateKR": "2026.07.16",
+        "category": "복지"
+      },
+      "summary": {
+        "headline": "민생지원금 — 이번 주 화제",
+        "subhead": "나주시 시행 · 매체 누적 4회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
+      },
+      "cities": [
+        "나주시"
+      ],
+      "publisherCount": 2,
       "daysActive": 2,
+      "matchedCount": 3
+    },
+    {
+      "term": "민생회복지원금",
+      "count": 2,
+      "mediaCount": 2,
+      "articleCount": 2,
+      "topArticle": {
+        "title": "나주시, 민생회복지원금 추석 전 지급 추진…1인당 20만원",
+        "link": "https://www.siminsori.com/news/articleView.html?idxno=400516",
+        "pubDate": "Thu, 16 Jul 2026 18:08:00 +0900",
+        "pubDateKR": "2026.07.16",
+        "category": "복지"
+      },
+      "summary": {
+        "headline": "민생회복지원금 — 2개 지자체 동시 시행 중",
+        "subhead": "나주시·통합특별시 신청 접수 · 매체 2회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "나주시·통합특별시 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다."
+      },
+      "cities": [
+        "나주시",
+        "통합특별시"
+      ],
+      "publisherCount": 2,
+      "daysActive": 1,
+      "matchedCount": 3
+    },
+    {
+      "term": "유가보조금",
+      "count": 2,
+      "mediaCount": 2,
+      "articleCount": 2,
+      "topArticle": {
+        "title": "전세버스 유가보조금 지급…월 25만 원 수준",
+        "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8612971&ref=A",
+        "pubDate": "Thu, 16 Jul 2026 19:55:00 +0900",
+        "pubDateKR": "2026.07.16",
+        "category": "주거"
+      },
+      "summary": {
+        "headline": "유가보조금 — 이번 주 화제",
+        "subhead": "과천시 시행 · 매체 2회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
+      },
+      "cities": [
+        "과천시"
+      ],
+      "publisherCount": 2,
+      "daysActive": 1,
       "matchedCount": 3
     }
   ],
@@ -281,12 +382,21 @@
       "category": "복지"
     },
     {
-      "title": "지방보조금 부정수급 605건·147억 적발…신고포상금 대폭 상향",
-      "description": "지방보조사업자인 A 주민지원협의체는 지방보조금으로 운동 기구를 구입하는 과정에서 1천만원인... 행정안전부와 지방정부는 올해 4월 20일부터 6월 20일까지 지방보조금 부정수급 근절을 위한 상반기 일제 점검을 벌여...",
-      "pubDate": "Thu, 16 Jul 2026 16:00:00 +0900",
+      "title": "행안부, 지방보조금 부정수급 147억 원 적발…신고포상금 상향",
+      "description": "행정안전부와 지방정부가 지방보조금 부정수급 점검에 나선 결과, 지난 4월 20일부터 두 달 동안 605건을 적발했습니다. 부정수급 규모는 147억 1,600만 원에 달합니다. 기존 점검 때는 지방정부에서 지방보조금...",
+      "pubDate": "Thu, 16 Jul 2026 18:21:00 +0900",
       "pubDateKR": "2026.07.16",
-      "link": "https://www.yna.co.kr/view/AKR20260716090900530?input=1195m",
-      "publisher": "연합뉴스",
+      "link": "http://www.yonhapnewstv.co.kr/news/AKR2026071618202858S",
+      "publisher": "yonhapnewstv.co.kr",
+      "category": "복지"
+    },
+    {
+      "title": "1000만 원 운동기구가 1300만 원으로… 지방보조금 부정수급 147억 적발",
+      "description": "물품 구매 가격을 부풀리거나 허위 인건비를 지급하는 등 147억1,600만 원 규모의 지방보조금 부정수급 605건이 적발됐다. 행정안전부는 4월 20일부터 지난달 20일까지 지방정부와 함께 지방보조금 부정수급 일제 점검을...",
+      "pubDate": "Thu, 16 Jul 2026 18:45:00 +0900",
+      "pubDateKR": "2026.07.16",
+      "link": "https://www.hankookilbo.com/news/article/A2026071617230001041?did=NA",
+      "publisher": "hankookilbo.com",
       "category": "복지"
     },
     {
@@ -296,96 +406,6 @@
       "pubDateKR": "2026.07.16",
       "link": "https://www.nocutnews.co.kr/news/6549012?utm_source=naver&utm_medium=article&utm_campaign=20260716040049",
       "publisher": "nocutnews.co.kr",
-      "category": "복지"
-    },
-    {
-      "title": "'눈먼 돈' 지방보조금 상반기 147억 적발",
-      "description": "정부가 올해 상반기 지방보조금 부정수급 일제 점검을 벌여 총 605건, 147억원에 달하는 부정수급 사례를... 행정안전부는 16일 윤호중 장관 주재로 제1회 지방보조금 부정수급 책임관 회의를 열고 이 같은 내용의 상반기...",
-      "pubDate": "Thu, 16 Jul 2026 16:01:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "http://www.fnnews.com/news/202607161056197753",
-      "publisher": "fnnews.com",
-      "category": "복지"
-    },
-    {
-      "title": "상반기 지방보조금 부정수급 605건·147억원 적발",
-      "description": "중앙정부와 지방정부가 올해 상반기 지방보조금 부정수급 605건을 적발했다. 금액으로 총 147억원 규모다. 행정안전부는 올해 제1회 ‘지방보조금 부정수급 책임관 회의’를 개최했다고 16일 밝혔다. 이번 회의는 지난...",
-      "pubDate": "Thu, 16 Jul 2026 16:01:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://biz.chosun.com/topics/topics_social/2026/07/16/GUW26HQJP5HA3GHBEN7KHIEE6Y/?utm_source=naver&utm_medium=original&utm_campaign=biz",
-      "publisher": "조선일보",
-      "category": "복지"
-    },
-    {
-      "title": "지방보조금 부정수급 147억원 적발…'쪼개기 계약'만 64억원",
-      "description": "지방보조금 부정수급 행위 605건, 147억1600만원어치가 정부와 지방정부의 상반기 합동 점검에서 적발됐다. 행정안전부는 16일 2026년 제1회 지방보조금 부정수급 책임관 회의를 열고 이 같은 내용의 상반기 일제 점검...",
-      "pubDate": "Thu, 16 Jul 2026 16:00:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://www.news1.kr/local/moi/6229918",
-      "publisher": "news1.kr",
-      "category": "복지"
-    },
-    {
-      "title": "김민재 차관, 제1회 지방보조금부정수급책임관회의 주재",
-      "description": "김민재 행정안전부 차관이 16일 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금부정수급책임관회의'를 주재하며 상반기 지방보조금 부정수급 일제 점검 결과와 향후 계획 등에 대해 논의하고 있다. 2026.7.16...",
-      "pubDate": "Thu, 16 Jul 2026 15:30:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://www.yna.co.kr/view/PYH20260716165700013?input=1196m",
-      "publisher": "연합뉴스",
-      "category": "복지"
-    },
-    {
-      "title": "김민재 차관, 제1회 지방보조금부정수급책임관회의 주재",
-      "description": "김민재 행정안전부 차관이 16일 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금부정수급책임관회의'를 주재하며 상반기 지방보조금 부정수급 일제 점검 결과와 향후 계획 등에 대해 논의하고 있다. 2026.7.16...",
-      "pubDate": "Thu, 16 Jul 2026 15:29:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://www.yna.co.kr/view/PYH20260716165300013?input=1196m",
-      "publisher": "연합뉴스",
-      "category": "복지"
-    },
-    {
-      "title": "김민재 차관, 제1회 지방보조금부정수급책임관회의 주재",
-      "description": "김민재 행정안전부 차관이 16일 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금부정수급책임관회의'를 주재하며 상반기 지방보조금 부정수급 일제 점검 결과와 향후 계획 등에 대해 논의하고 있다. 2026.7.16...",
-      "pubDate": "Thu, 16 Jul 2026 15:29:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://www.yna.co.kr/view/PYH20260716165200013?input=1196m",
-      "publisher": "연합뉴스",
-      "category": "복지"
-    },
-    {
-      "title": "제1회 지방보조금 부정수급 책임관 회의",
-      "description": "김민재 행정안전부 차관이 16일 오후 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금 부정수급 책임관 회의'를 주재하고 있다. (사진=행정안전부 제공) 2026.07.16. photo@newsis.com *재판매 및 DB 금지",
-      "pubDate": "Thu, 16 Jul 2026 15:13:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://www.newsis.com/view/NISI20260716_0021367242",
-      "publisher": "뉴시스",
-      "category": "복지"
-    },
-    {
-      "title": "제1회 지방보조금 부정수급 책임관 회의",
-      "description": "김민재 행정안전부 차관이 16일 오후 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금 부정수급 책임관 회의'를 주재하고 있다. (사진=행정안전부 제공) 2026.07.16. photo@newsis.com *재판매 및 DB 금지",
-      "pubDate": "Thu, 16 Jul 2026 15:13:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://www.newsis.com/view/NISI20260716_0021367243",
-      "publisher": "뉴시스",
-      "category": "복지"
-    },
-    {
-      "title": "제1회 지방보조금 부정수급 책임관 회의",
-      "description": "김민재 행정안전부 차관이 16일 오후 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금 부정수급 책임관 회의'를 주재하고 있다. (사진=행정안전부 제공) 2026.07.16. photo@newsis.com *재판매 및 DB 금지",
-      "pubDate": "Thu, 16 Jul 2026 15:13:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://www.newsis.com/view/NISI20260716_0021367244",
-      "publisher": "뉴시스",
-      "category": "복지"
-    },
-    {
-      "title": "제1회 지방보조금부정수급책임관회의",
-      "description": "= 김민재 행정안전부 차관이 16일 오후 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금부정수급책임관회의'를 주재하고 있다. (행정안전부 제공. 재판매 및 DB금지) 2026.7.16/뉴스1",
-      "pubDate": "Thu, 16 Jul 2026 14:53:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://www.news1.kr/photos/8012304",
-      "publisher": "news1.kr",
       "category": "복지"
     }
   ],
@@ -400,12 +420,20 @@
         "publisher": "KBS"
       },
       {
-        "title": "지방보조금 부정수급 605건·147억 적발…신고포상금 대폭 상향",
-        "description": "지방보조사업자인 A 주민지원협의체는 지방보조금으로 운동 기구를 구입하는 과정에서 1천만원인... 행정안전부와 지방정부는 올해 4월 20일부터 6월 20일까지 지방보조금 부정수급 근절을 위한 상반기 일제 점검을 벌여...",
-        "link": "https://www.yna.co.kr/view/AKR20260716090900530?input=1195m",
-        "pubDate": "Thu, 16 Jul 2026 16:00:00 +0900",
+        "title": "행안부, 지방보조금 부정수급 147억 원 적발…신고포상금 상향",
+        "description": "행정안전부와 지방정부가 지방보조금 부정수급 점검에 나선 결과, 지난 4월 20일부터 두 달 동안 605건을 적발했습니다. 부정수급 규모는 147억 1,600만 원에 달합니다. 기존 점검 때는 지방정부에서 지방보조금...",
+        "link": "http://www.yonhapnewstv.co.kr/news/AKR2026071618202858S",
+        "pubDate": "Thu, 16 Jul 2026 18:21:00 +0900",
         "pubDateKR": "2026.07.16",
-        "publisher": "연합뉴스"
+        "publisher": "yonhapnewstv.co.kr"
+      },
+      {
+        "title": "1000만 원 운동기구가 1300만 원으로… 지방보조금 부정수급 147억 적발",
+        "description": "물품 구매 가격을 부풀리거나 허위 인건비를 지급하는 등 147억1,600만 원 규모의 지방보조금 부정수급 605건이 적발됐다. 행정안전부는 4월 20일부터 지난달 20일까지 지방정부와 함께 지방보조금 부정수급 일제 점검을...",
+        "link": "https://www.hankookilbo.com/news/article/A2026071617230001041?did=NA",
+        "pubDate": "Thu, 16 Jul 2026 18:45:00 +0900",
+        "pubDateKR": "2026.07.16",
+        "publisher": "hankookilbo.com"
       },
       {
         "title": "147억 지방보조금 줄줄 샜다…포상금 늘리고 끝까지 추적",
@@ -414,123 +442,35 @@
         "pubDate": "Thu, 16 Jul 2026 16:01:00 +0900",
         "pubDateKR": "2026.07.16",
         "publisher": "nocutnews.co.kr"
-      },
-      {
-        "title": "'눈먼 돈' 지방보조금 상반기 147억 적발",
-        "description": "정부가 올해 상반기 지방보조금 부정수급 일제 점검을 벌여 총 605건, 147억원에 달하는 부정수급 사례를... 행정안전부는 16일 윤호중 장관 주재로 제1회 지방보조금 부정수급 책임관 회의를 열고 이 같은 내용의 상반기...",
-        "link": "http://www.fnnews.com/news/202607161056197753",
-        "pubDate": "Thu, 16 Jul 2026 16:01:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "fnnews.com"
-      },
-      {
-        "title": "상반기 지방보조금 부정수급 605건·147억원 적발",
-        "description": "중앙정부와 지방정부가 올해 상반기 지방보조금 부정수급 605건을 적발했다. 금액으로 총 147억원 규모다. 행정안전부는 올해 제1회 ‘지방보조금 부정수급 책임관 회의’를 개최했다고 16일 밝혔다. 이번 회의는 지난...",
-        "link": "https://biz.chosun.com/topics/topics_social/2026/07/16/GUW26HQJP5HA3GHBEN7KHIEE6Y/?utm_source=naver&utm_medium=original&utm_campaign=biz",
-        "pubDate": "Thu, 16 Jul 2026 16:01:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "조선일보"
-      },
-      {
-        "title": "지방보조금 부정수급 147억원 적발…'쪼개기 계약'만 64억원",
-        "description": "지방보조금 부정수급 행위 605건, 147억1600만원어치가 정부와 지방정부의 상반기 합동 점검에서 적발됐다. 행정안전부는 16일 2026년 제1회 지방보조금 부정수급 책임관 회의를 열고 이 같은 내용의 상반기 일제 점검...",
-        "link": "https://www.news1.kr/local/moi/6229918",
-        "pubDate": "Thu, 16 Jul 2026 16:00:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "news1.kr"
-      },
-      {
-        "title": "제1회 지방보조금 부정수급 책임관 회의",
-        "description": "김민재 행정안전부 차관이 16일 오후 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금 부정수급 책임관 회의'를 주재하고 있다. (사진=행정안전부 제공) 2026.07.16. photo@newsis.com *재판매 및 DB 금지",
-        "link": "https://www.newsis.com/view/NISI20260716_0021367242",
-        "pubDate": "Thu, 16 Jul 2026 15:13:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "뉴시스"
-      },
-      {
-        "title": "김민재 차관, 제1회 지방보조금부정수급책임관회의 주재",
-        "description": "김민재 행정안전부 차관이 16일 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금부정수급책임관회의'를 주재하며 상반기 지방보조금 부정수급 일제 점검 결과와 향후 계획 등에 대해 논의하고 있다. 2026.7.16...",
-        "link": "https://www.yna.co.kr/view/PYH20260716165700013?input=1196m",
-        "pubDate": "Thu, 16 Jul 2026 15:30:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "연합뉴스"
-      },
-      {
-        "title": "김민재 차관, 제1회 지방보조금부정수급책임관회의 주재",
-        "description": "김민재 행정안전부 차관이 16일 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금부정수급책임관회의'를 주재하며 상반기 지방보조금 부정수급 일제 점검 결과와 향후 계획 등에 대해 논의하고 있다. 2026.7.16...",
-        "link": "https://www.yna.co.kr/view/PYH20260716165300013?input=1196m",
-        "pubDate": "Thu, 16 Jul 2026 15:29:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "연합뉴스"
-      },
-      {
-        "title": "김민재 차관, 제1회 지방보조금부정수급책임관회의 주재",
-        "description": "김민재 행정안전부 차관이 16일 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금부정수급책임관회의'를 주재하며 상반기 지방보조금 부정수급 일제 점검 결과와 향후 계획 등에 대해 논의하고 있다. 2026.7.16...",
-        "link": "https://www.yna.co.kr/view/PYH20260716165200013?input=1196m",
-        "pubDate": "Thu, 16 Jul 2026 15:29:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "연합뉴스"
-      },
-      {
-        "title": "제1회 지방보조금 부정수급 책임관 회의",
-        "description": "김민재 행정안전부 차관이 16일 오후 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금 부정수급 책임관 회의'를 주재하고 있다. (사진=행정안전부 제공) 2026.07.16. photo@newsis.com *재판매 및 DB 금지",
-        "link": "https://www.newsis.com/view/NISI20260716_0021367243",
-        "pubDate": "Thu, 16 Jul 2026 15:13:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "뉴시스"
-      },
-      {
-        "title": "제1회 지방보조금 부정수급 책임관 회의",
-        "description": "김민재 행정안전부 차관이 16일 오후 서울 종로구 정부서울청사에서 열린 '제1회 지방보조금 부정수급 책임관 회의'를 주재하고 있다. (사진=행정안전부 제공) 2026.07.16. photo@newsis.com *재판매 및 DB 금지",
-        "link": "https://www.newsis.com/view/NISI20260716_0021367244",
-        "pubDate": "Thu, 16 Jul 2026 15:13:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "뉴시스"
       }
     ],
-    "민생회복지원금": [
+    "실업수당": [
       {
-        "title": "나주시, 전 시민 20만 원 민생회복지원금 추진…추석 전 지급 속도전",
-        "description": "민생회복지원금을 추석 전에 지급하는 것을 목표로 본격적인 준비에 들어갔다. 나주시는 민생경제 회복과 골목상권 활성화를 위해 민생회복지원금 지급계획을 마련하고 있으며, 오는 9월 제2회 추가경정예산이 확정되는...",
-        "link": "https://www.pressian.com/pages/articles/2026071616395112286?utm_source=naver&utm_medium=search",
-        "pubDate": "Thu, 16 Jul 2026 16:43:00 +0900",
+        "title": "美 실업수당 신규 청구 20만8000건…전망치 밑돌아",
+        "description": "실업수당 신규 청구 건수가 20만8000건으로 한 주 전보다 8000건 감소했다고 미 노동부가 16일(현지시간) 밝혔다. 다우존스가 집계한 전문가 전망치(21만8000건)를 밑도는 수치다. 2주 이상 실업수당을 신청한...",
+        "link": "https://www.mt.co.kr/world/2026/07/16/2026071622162042378",
+        "pubDate": "Thu, 16 Jul 2026 22:18:00 +0900",
         "pubDateKR": "2026.07.16",
-        "publisher": "pressian.com"
+        "publisher": "머니투데이"
       },
       {
-        "title": "나주시, 추석 전 민생회복지원금 지급 추진…1인당 20만 원",
-        "description": "사진=나주시 매일일보 = 김윤걸 기자 | 전남광주통합특별시 나주시가 시민 1인당 20만원의 민생회복지원금을 추석 전에 지급할 계획이라고 16일 밝혔다. 나주시는 민생회복지원금 지급계획을 마련하고 있으며, 오는...",
-        "link": "https://www.m-i.kr/news/articleView.html?idxno=1392479",
-        "pubDate": "Thu, 16 Jul 2026 16:42:00 +0900",
+        "title": "美 주간 신규 실업수당 청구 20만8000건…전망치 하회",
+        "description": "실업수당 청구 건수가 20만8000건으로 전주 대비 8000건 감소했다고 16일(현지시간) 밝혔다. 이는 다우존스가 집계한 전문가 전망치(21만8000건)보다 밑도는 수치다. 2주 이상 실업수당을 신청한 '계속...",
+        "link": "https://www.hankyung.com/article/2026071604847",
+        "pubDate": "Thu, 16 Jul 2026 22:02:00 +0900",
         "pubDateKR": "2026.07.16",
-        "publisher": "m-i.kr"
+        "publisher": "한국경제"
       },
       {
-        "title": "나주시, 시민 1인당 20만원 민생회복지원금 추석 전 지급 목표",
-        "description": "민생회복지원금을 추석 전 지급하는 것을 목표로 본격 준비에 나섰다. 고물가·경기침체로 어려움을 겪는 시민들의 생활 안정과 지역 소비 촉진을 위한 조치다. 나주시(시장 윤병태)는 16일 민생회복지원금 지급계획을...",
-        "link": "https://www.polinews.co.kr/news/articleView.html?idxno=737271",
-        "pubDate": "Thu, 16 Jul 2026 17:20:00 +0900",
+        "title": "미국 뉴욕증시, 6월 실업수당 청구·소매판매 발표...다우 나스닥 혼조",
+        "description": "실업수당 청구 건수가 20만 8000건으로 한 주 전보다 8000건 감소했다고 밝혔다. 이는 다우존스가 집계한 전문가 전망치(21만 8000건)를 밑도는 수치다. 2주 이상 실업수당을 신청한 '계속 실업수당' 청구...",
+        "link": "https://www.gukjenews.com/news/articleView.html?idxno=3638658",
+        "pubDate": "Fri, 17 Jul 2026 00:02:00 +0900",
         "pubDateKR": "2026.07.16",
-        "publisher": "polinews.co.kr"
-      },
-      {
-        "title": "나주시, 시민 1인당 20만원 민생회복지원금 추석 전 지급 추진",
-        "description": "전남광주시 나주시는 민생경제 회복과 지역 상권 활성화를 위해 시민 1인당 20만원의 민생회복지원금을 추석 전 지급하는 방안을 추진한다고 16일 밝혔다. 이번 지원금은 고물가와 경기 침체로 어려움을 겪는 시민들의...",
-        "link": "https://www.discoverynews.kr/news/articleView.html?idxno=1096319",
-        "pubDate": "Thu, 16 Jul 2026 16:26:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "discoverynews.kr"
+        "publisher": "gukjenews.com"
       }
     ],
     "민생지원금": [
-      {
-        "title": "속초시, ‘1인당 20만원’ 민생지원금 20일부터 신청…1호 공약 속전속...",
-        "description": "강원 속초시가 오는 20일부터 모든 시민에게 1인당 20만원씩 민생회복지원금을 지급한다. 시는 이날부터 지원금 신청을 온·오프라인으로 받는다고 16일 밝혔다. 거동이 어려운 고령자와 장애인을 위해 찾아가는 신청...",
-        "link": "https://www.seoul.co.kr/news/society/2026/07/16/20260716500184?wlog_tag3=naver",
-        "pubDate": "Thu, 16 Jul 2026 16:19:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "seoul.co.kr"
-      },
       {
         "title": "\"추석 전 1인당 20만원 지급\"…민생지원금 푼다",
         "description": "민생회복지원금을 추석 전에 풀기로 했다. 16일 시에 따르면 지원 대상은 지급 기준일인 2026년 7월 1일 현재 나주시에 주민등록을 둔 시민이다. 결혼이민자와 영주권자도 포함된다. 지원금은 나주사랑상품권으로...",
@@ -547,20 +487,64 @@
         "pubDateKR": "2026.07.16",
         "publisher": "topstarnews.net"
       }
+    ],
+    "민생회복지원금": [
+      {
+        "title": "나주시, 민생회복지원금 추석 전 지급 추진…1인당 20만원",
+        "description": "전남광주통합특별시 나주시가 시민 1인당 20만원의 민생회복지원금을 추석 전에 지급하기 위한 준비에 본격... 지원금은 모바일 앱(CHAK) 충전 방식과 선불카드 방식으로 지급되며 사용기한은 2026년 11월 30일까지다....",
+        "link": "https://www.siminsori.com/news/articleView.html?idxno=400516",
+        "pubDate": "Thu, 16 Jul 2026 18:08:00 +0900",
+        "pubDateKR": "2026.07.16",
+        "publisher": "siminsori.com"
+      },
+      {
+        "title": "나주시, 시민 1인당 20만원 민생회복지원금 추석 전 지급 목표",
+        "description": "민생회복지원금을 추석 전 지급하는 것을 목표로 본격 준비에 나섰다. 고물가·경기침체로 어려움을 겪는 시민들의 생활 안정과 지역 소비 촉진을 위한 조치다. 나주시(시장 윤병태)는 16일 민생회복지원금 지급계획을...",
+        "link": "https://www.polinews.co.kr/news/articleView.html?idxno=737271",
+        "pubDate": "Thu, 16 Jul 2026 17:20:00 +0900",
+        "pubDateKR": "2026.07.16",
+        "publisher": "polinews.co.kr"
+      }
+    ],
+    "유가보조금": [
+      {
+        "title": "전세버스 유가보조금 지급…월 25만 원 수준",
+        "description": "국토교통부가 오늘(16)부터 전세버스 경유 유가보조금을 지급합니다. 대상은 경유를 연료로 쓰는 전세버스로, 유류세 연동 보조금과 유가 연동 보조금을 모두 지급하되, 노선버스의 70% 수준에서 단가를 정했습니다. 차...",
+        "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8612971&ref=A",
+        "pubDate": "Thu, 16 Jul 2026 19:55:00 +0900",
+        "pubDateKR": "2026.07.16",
+        "publisher": "KBS"
+      },
+      {
+        "title": "전세버스에도 월평균 25만원 유가보조금 지급",
+        "description": "국토교통부가 16일부터 전세버스에 경유 유가 보조금 지급을 시작했다. 차량 한 대당 월 25만원 수준이다. 사진은 이날 경기 과천시 서울대공원 주차장에 주차된 전세버스 모습.",
+        "link": "https://www.seoul.co.kr/news/economy/2026/07/17/20260717031002?wlog_tag3=naver",
+        "pubDate": "Fri, 17 Jul 2026 05:04:00 +0900",
+        "pubDateKR": "2026.07.16",
+        "publisher": "seoul.co.kr"
+      }
     ]
   },
   "trendingAll": [
     {
       "term": "지방보조금",
-      "count": 24
+      "count": 13
+    },
+    {
+      "term": "실업수당",
+      "count": 12
     },
     {
       "term": "민생회복지원금",
-      "count": 4
+      "count": 2
     },
     {
       "term": "민생지원금",
-      "count": 3
+      "count": 2
+    },
+    {
+      "term": "유가보조금",
+      "count": 2
     }
   ]
 }
