@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-16T21:53:36.281Z",
+  "syncedAt": "2026-07-17T09:02:15.364Z",
   "source": "naver-news",
   "method": "trending-ngram",
   "headline": "지방보조금 부정 수급 605건 적발…147억 원 규모",
@@ -10,11 +10,11 @@
   "category": "복지",
   "score": 84,
   "trendingTopic": "지방보조금",
-  "trendingTopicCount": 13,
+  "trendingTopicCount": 7,
   "summary": {
-    "headline": "지방보조금 — 주요 매체 4곳 동시 보도",
-    "subhead": "운동기구 시행 · 매체 13회 언급 · 관련 지원금 4건 매칭",
-    "hookCopy": "4개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요.",
+    "headline": "지방보조금 — 이번 주 화제",
+    "subhead": "운동기구 시행 · 매체 7회 언급 · 관련 지원금 4건 매칭",
+    "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다.",
     "coreFacts": [
       {
         "label": "시행 지역",
@@ -23,8 +23,8 @@
       },
       {
         "label": "보도 건수",
-        "value": "13건",
-        "sub": "4개 매체 보도"
+        "value": "7건",
+        "sub": "3개 매체 보도"
       },
       {
         "label": "트렌드",
@@ -42,12 +42,11 @@
     "cities": [
       "운동기구"
     ],
-    "publisherCount": 4,
+    "publisherCount": 3,
     "publishers": [
       "KBS",
       "yonhapnewstv.co.kr",
-      "hankookilbo.com",
-      "nocutnews.co.kr"
+      "hankookilbo.com"
     ],
     "newestArticle": {
       "title": "1000만 원 운동기구가 1300만 원으로… 지방보조금 부정수급 147억 적발",
@@ -62,7 +61,7 @@
     "newestPubDate": "Thu, 16 Jul 2026 18:45:00 +0900"
   },
   "daysActive": 1,
-  "totalCount": 13,
+  "totalCount": 7,
   "matchedSubsidies": [
     {
       "id": "basic-livelihood",
@@ -131,33 +130,33 @@
         "amountLabel": "월 지원"
       }
     ],
-    "실업수당": [
+    "유가보조금": [
       {
-        "id": "basic-livelihood",
-        "title": "기초생활보장 생계급여",
-        "agency": "보건복지부",
-        "category": "복지",
-        "icon": "cat-welfare",
-        "amount": 8400000,
-        "amountLabel": "연 (1인)"
+        "id": "housing-monthly",
+        "title": "청년 월세 특별지원",
+        "agency": "국토교통부",
+        "category": "주거",
+        "icon": "cat-housing",
+        "amount": 3600000,
+        "amountLabel": "연 최대"
       },
       {
-        "id": "maternity-grant",
-        "title": "첫만남이용권 + 부모급여",
-        "agency": "보건복지부",
-        "category": "복지",
-        "icon": "cat-baby",
-        "amount": 22000000,
-        "amountLabel": "0~1세 누적"
+        "id": "newlywed-housing",
+        "title": "신혼·신생아 특별공급 주택",
+        "agency": "국토교통부",
+        "category": "주거",
+        "icon": "cat-housing",
+        "amount": 0,
+        "amountLabel": "특별공급"
       },
       {
-        "id": "allowance-000739",
-        "title": "아이 꿈 수당 지급",
-        "agency": "인천광역시",
-        "category": "복지",
-        "icon": "cat-welfare",
-        "amount": 50000,
-        "amountLabel": "월 지원"
+        "id": "housing-000026",
+        "title": "행복주택 공급",
+        "agency": "국토교통부",
+        "category": "주거",
+        "icon": "cat-housing",
+        "amount": 0,
+        "amountLabel": "지원금"
       }
     ],
     "민생지원금": [
@@ -188,72 +187,14 @@
         "amount": 50000,
         "amountLabel": "월 지원"
       }
-    ],
-    "민생회복지원금": [
-      {
-        "id": "basic-livelihood",
-        "title": "기초생활보장 생계급여",
-        "agency": "보건복지부",
-        "category": "복지",
-        "icon": "cat-welfare",
-        "amount": 8400000,
-        "amountLabel": "연 (1인)"
-      },
-      {
-        "id": "maternity-grant",
-        "title": "첫만남이용권 + 부모급여",
-        "agency": "보건복지부",
-        "category": "복지",
-        "icon": "cat-baby",
-        "amount": 22000000,
-        "amountLabel": "0~1세 누적"
-      },
-      {
-        "id": "allowance-000739",
-        "title": "아이 꿈 수당 지급",
-        "agency": "인천광역시",
-        "category": "복지",
-        "icon": "cat-welfare",
-        "amount": 50000,
-        "amountLabel": "월 지원"
-      }
-    ],
-    "유가보조금": [
-      {
-        "id": "housing-monthly",
-        "title": "청년 월세 특별지원",
-        "agency": "국토교통부",
-        "category": "주거",
-        "icon": "cat-housing",
-        "amount": 3600000,
-        "amountLabel": "연 최대"
-      },
-      {
-        "id": "newlywed-housing",
-        "title": "신혼·신생아 특별공급 주택",
-        "agency": "국토교통부",
-        "category": "주거",
-        "icon": "cat-housing",
-        "amount": 0,
-        "amountLabel": "특별공급"
-      },
-      {
-        "id": "housing-000026",
-        "title": "행복주택 공급",
-        "agency": "국토교통부",
-        "category": "주거",
-        "icon": "cat-housing",
-        "amount": 0,
-        "amountLabel": "지원금"
-      }
     ]
   },
   "trending": [
     {
       "term": "지방보조금",
-      "count": 13,
-      "mediaCount": 4,
-      "articleCount": 4,
+      "count": 7,
+      "mediaCount": 3,
+      "articleCount": 3,
       "topArticle": {
         "title": "지방보조금 부정 수급 605건 적발…147억 원 규모",
         "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8612764&ref=A",
@@ -262,39 +203,39 @@
         "category": "복지"
       },
       "summary": {
-        "headline": "지방보조금 — 주요 매체 4곳 동시 보도",
-        "subhead": "운동기구 시행 · 매체 13회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "4개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요."
+        "headline": "지방보조금 — 이번 주 화제",
+        "subhead": "운동기구 시행 · 매체 7회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
       },
       "cities": [
         "운동기구"
       ],
-      "publisherCount": 4,
+      "publisherCount": 3,
       "daysActive": 1,
       "matchedCount": 3
     },
     {
-      "term": "실업수당",
-      "count": 12,
-      "mediaCount": 3,
+      "term": "유가보조금",
+      "count": 3,
+      "mediaCount": 2,
       "articleCount": 3,
       "topArticle": {
-        "title": "美 실업수당 신규 청구 20만8000건…전망치 밑돌아",
-        "link": "https://www.mt.co.kr/world/2026/07/16/2026071622162042378",
-        "pubDate": "Thu, 16 Jul 2026 22:18:00 +0900",
+        "title": "전세버스 유가보조금 지급…월 25만 원 수준",
+        "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8613360&ref=A",
+        "pubDate": "Fri, 17 Jul 2026 07:41:00 +0900",
         "pubDateKR": "2026.07.16",
-        "category": "복지"
+        "category": "주거"
       },
       "summary": {
-        "headline": "실업수당 — 4일째 매체 주목",
-        "subhead": "뉴욕증시 시행 · 매체 누적 23회 언급 · 관련 지원금 3건 매칭",
+        "headline": "유가보조금 — 이번 주 화제",
+        "subhead": "과천시 시행 · 매체 3회 언급 · 관련 지원금 3건 매칭",
         "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
       },
       "cities": [
-        "뉴욕증시"
+        "과천시"
       ],
-      "publisherCount": 3,
-      "daysActive": 4,
+      "publisherCount": 2,
+      "daysActive": 1,
       "matchedCount": 3
     },
     {
@@ -303,10 +244,10 @@
       "mediaCount": 2,
       "articleCount": 2,
       "topArticle": {
-        "title": "\"추석 전 1인당 20만원 지급\"…민생지원금 푼다",
-        "link": "http://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202607160359&t=NN",
-        "pubDate": "Thu, 16 Jul 2026 17:03:00 +0900",
-        "pubDateKR": "2026.07.16",
+        "title": "“추석 전에 1인당 20만원 지급한다”…민생지원금 소식 들리자 난리 났...",
+        "link": "https://www.sedaily.com/article/20068873?ref=naver",
+        "pubDate": "Fri, 17 Jul 2026 12:06:00 +0900",
+        "pubDateKR": "2026.07.17",
         "category": "복지"
       },
       "summary": {
@@ -319,55 +260,6 @@
       ],
       "publisherCount": 2,
       "daysActive": 2,
-      "matchedCount": 3
-    },
-    {
-      "term": "민생회복지원금",
-      "count": 2,
-      "mediaCount": 2,
-      "articleCount": 2,
-      "topArticle": {
-        "title": "나주시, 민생회복지원금 추석 전 지급 추진…1인당 20만원",
-        "link": "https://www.siminsori.com/news/articleView.html?idxno=400516",
-        "pubDate": "Thu, 16 Jul 2026 18:08:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "category": "복지"
-      },
-      "summary": {
-        "headline": "민생회복지원금 — 2개 지자체 동시 시행 중",
-        "subhead": "나주시·통합특별시 신청 접수 · 매체 2회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "나주시·통합특별시 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다."
-      },
-      "cities": [
-        "나주시",
-        "통합특별시"
-      ],
-      "publisherCount": 2,
-      "daysActive": 1,
-      "matchedCount": 3
-    },
-    {
-      "term": "유가보조금",
-      "count": 2,
-      "mediaCount": 2,
-      "articleCount": 2,
-      "topArticle": {
-        "title": "전세버스 유가보조금 지급…월 25만 원 수준",
-        "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8612971&ref=A",
-        "pubDate": "Thu, 16 Jul 2026 19:55:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "category": "주거"
-      },
-      "summary": {
-        "headline": "유가보조금 — 이번 주 화제",
-        "subhead": "과천시 시행 · 매체 2회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
-      },
-      "cities": [
-        "과천시"
-      ],
-      "publisherCount": 2,
-      "daysActive": 1,
       "matchedCount": 3
     }
   ],
@@ -398,15 +290,6 @@
       "link": "https://www.hankookilbo.com/news/article/A2026071617230001041?did=NA",
       "publisher": "hankookilbo.com",
       "category": "복지"
-    },
-    {
-      "title": "147억 지방보조금 줄줄 샜다…포상금 늘리고 끝까지 추적",
-      "description": "정부·지방정부가 지방보조금 부정수급 사례를 합동점검한 결과, 부정수급 급액 147억여 원을 적발해냈다. 행정안전부는 16일 제1회 '지방보조금 부정수급 책임관 회의'를 개최했다. 이번 회의에서 지난 4월 발표했던...",
-      "pubDate": "Thu, 16 Jul 2026 16:01:00 +0900",
-      "pubDateKR": "2026.07.16",
-      "link": "https://www.nocutnews.co.kr/news/6549012?utm_source=naver&utm_medium=article&utm_campaign=20260716040049",
-      "publisher": "nocutnews.co.kr",
-      "category": "복지"
     }
   ],
   "trendingArticlesByTerm": {
@@ -434,84 +317,14 @@
         "pubDate": "Thu, 16 Jul 2026 18:45:00 +0900",
         "pubDateKR": "2026.07.16",
         "publisher": "hankookilbo.com"
-      },
-      {
-        "title": "147억 지방보조금 줄줄 샜다…포상금 늘리고 끝까지 추적",
-        "description": "정부·지방정부가 지방보조금 부정수급 사례를 합동점검한 결과, 부정수급 급액 147억여 원을 적발해냈다. 행정안전부는 16일 제1회 '지방보조금 부정수급 책임관 회의'를 개최했다. 이번 회의에서 지난 4월 발표했던...",
-        "link": "https://www.nocutnews.co.kr/news/6549012?utm_source=naver&utm_medium=article&utm_campaign=20260716040049",
-        "pubDate": "Thu, 16 Jul 2026 16:01:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "nocutnews.co.kr"
-      }
-    ],
-    "실업수당": [
-      {
-        "title": "美 실업수당 신규 청구 20만8000건…전망치 밑돌아",
-        "description": "실업수당 신규 청구 건수가 20만8000건으로 한 주 전보다 8000건 감소했다고 미 노동부가 16일(현지시간) 밝혔다. 다우존스가 집계한 전문가 전망치(21만8000건)를 밑도는 수치다. 2주 이상 실업수당을 신청한...",
-        "link": "https://www.mt.co.kr/world/2026/07/16/2026071622162042378",
-        "pubDate": "Thu, 16 Jul 2026 22:18:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "머니투데이"
-      },
-      {
-        "title": "美 주간 신규 실업수당 청구 20만8000건…전망치 하회",
-        "description": "실업수당 청구 건수가 20만8000건으로 전주 대비 8000건 감소했다고 16일(현지시간) 밝혔다. 이는 다우존스가 집계한 전문가 전망치(21만8000건)보다 밑도는 수치다. 2주 이상 실업수당을 신청한 '계속...",
-        "link": "https://www.hankyung.com/article/2026071604847",
-        "pubDate": "Thu, 16 Jul 2026 22:02:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "한국경제"
-      },
-      {
-        "title": "미국 뉴욕증시, 6월 실업수당 청구·소매판매 발표...다우 나스닥 혼조",
-        "description": "실업수당 청구 건수가 20만 8000건으로 한 주 전보다 8000건 감소했다고 밝혔다. 이는 다우존스가 집계한 전문가 전망치(21만 8000건)를 밑도는 수치다. 2주 이상 실업수당을 신청한 '계속 실업수당' 청구...",
-        "link": "https://www.gukjenews.com/news/articleView.html?idxno=3638658",
-        "pubDate": "Fri, 17 Jul 2026 00:02:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "gukjenews.com"
-      }
-    ],
-    "민생지원금": [
-      {
-        "title": "\"추석 전 1인당 20만원 지급\"…민생지원금 푼다",
-        "description": "민생회복지원금을 추석 전에 풀기로 했다. 16일 시에 따르면 지원 대상은 지급 기준일인 2026년 7월 1일 현재 나주시에 주민등록을 둔 시민이다. 결혼이민자와 영주권자도 포함된다. 지원금은 나주사랑상품권으로...",
-        "link": "http://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202607160359&t=NN",
-        "pubDate": "Thu, 16 Jul 2026 17:03:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "wowtv.co.kr"
-      },
-      {
-        "title": "[TOP이슈] 고유가피해지원금 다음 달 사용 기간 만료→4차 민생지원금 ...",
-        "description": "3차 민생지원금으로 불리는 고유가피해지원금의 사용 기한 만료가 약 한달 앞으로 다가오면서 4차 민생지원금 지급 여부에 대한 국민적 관심이 커지고 있다. 고유가피해지원금의 사용 기한은 다음 달 31일까지다. 해당...",
-        "link": "https://www.topstarnews.net/news/articleView.html?idxno=16136880",
-        "pubDate": "Thu, 16 Jul 2026 17:00:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "topstarnews.net"
-      }
-    ],
-    "민생회복지원금": [
-      {
-        "title": "나주시, 민생회복지원금 추석 전 지급 추진…1인당 20만원",
-        "description": "전남광주통합특별시 나주시가 시민 1인당 20만원의 민생회복지원금을 추석 전에 지급하기 위한 준비에 본격... 지원금은 모바일 앱(CHAK) 충전 방식과 선불카드 방식으로 지급되며 사용기한은 2026년 11월 30일까지다....",
-        "link": "https://www.siminsori.com/news/articleView.html?idxno=400516",
-        "pubDate": "Thu, 16 Jul 2026 18:08:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "siminsori.com"
-      },
-      {
-        "title": "나주시, 시민 1인당 20만원 민생회복지원금 추석 전 지급 목표",
-        "description": "민생회복지원금을 추석 전 지급하는 것을 목표로 본격 준비에 나섰다. 고물가·경기침체로 어려움을 겪는 시민들의 생활 안정과 지역 소비 촉진을 위한 조치다. 나주시(시장 윤병태)는 16일 민생회복지원금 지급계획을...",
-        "link": "https://www.polinews.co.kr/news/articleView.html?idxno=737271",
-        "pubDate": "Thu, 16 Jul 2026 17:20:00 +0900",
-        "pubDateKR": "2026.07.16",
-        "publisher": "polinews.co.kr"
       }
     ],
     "유가보조금": [
       {
         "title": "전세버스 유가보조금 지급…월 25만 원 수준",
-        "description": "국토교통부가 오늘(16)부터 전세버스 경유 유가보조금을 지급합니다. 대상은 경유를 연료로 쓰는 전세버스로, 유류세 연동 보조금과 유가 연동 보조금을 모두 지급하되, 노선버스의 70% 수준에서 단가를 정했습니다. 차...",
-        "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8612971&ref=A",
-        "pubDate": "Thu, 16 Jul 2026 19:55:00 +0900",
+        "description": "국토교통부가 전세버스 경유 유가보조금 지급을 시작했습니다. 대상은 경유를 연료로 쓰는 전세버스로, 유류세 연동 보조금과 유가 연동 보조금을 모두 지급하되, 노선버스의 70% 수준에서 단가를 정했습니다. 차 한...",
+        "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8613360&ref=A",
+        "pubDate": "Fri, 17 Jul 2026 07:41:00 +0900",
         "pubDateKR": "2026.07.16",
         "publisher": "KBS"
       },
@@ -522,28 +335,50 @@
         "pubDate": "Fri, 17 Jul 2026 05:04:00 +0900",
         "pubDateKR": "2026.07.16",
         "publisher": "seoul.co.kr"
+      },
+      {
+        "title": "전세버스 유가보조금 지급…월 25만 원 수준",
+        "description": "국토교통부가 오늘(16)부터 전세버스 경유 유가보조금을 지급합니다. 대상은 경유를 연료로 쓰는 전세버스로, 유류세 연동 보조금과 유가 연동 보조금을 모두 지급하되, 노선버스의 70% 수준에서 단가를 정했습니다. 차...",
+        "link": "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8612971&ref=A",
+        "pubDate": "Thu, 16 Jul 2026 19:55:00 +0900",
+        "pubDateKR": "2026.07.16",
+        "publisher": "KBS"
+      }
+    ],
+    "민생지원금": [
+      {
+        "title": "“추석 전에 1인당 20만원 지급한다”…민생지원금 소식 들리자 난리 났...",
+        "description": "나주시가 지역경제 회복과 상권 활성화를 위해 시민 1인당 20만원의 민생회복지원금을 추석 전 지급하기로... 지원금은 나주사랑상품권으로 지급되고, 오는 9월 제2회 추가경정예산안이 시의회를 통과하는 즉시 지급...",
+        "link": "https://www.sedaily.com/article/20068873?ref=naver",
+        "pubDate": "Fri, 17 Jul 2026 12:06:00 +0900",
+        "pubDateKR": "2026.07.17",
+        "publisher": "서울경제"
+      },
+      {
+        "title": "\"추석 전 1인당 20만원씩 준다\"…민생지원금 푼다는 소식에 난리난 '이 ...",
+        "description": "민생회복지원금을 추석 전까지 지급한다. 17일 나주시에 따르면 지원 대상은 지급 기준일인 2026년 7월 1일 기준 나주시에 주민등록이 된 시민이다. 결혼이민자와 영주권자도 지급 대상에 포함된다. 지원금은...",
+        "link": "https://view.asiae.co.kr/article/2026071714343780363",
+        "pubDate": "Fri, 17 Jul 2026 14:46:00 +0900",
+        "pubDateKR": "2026.07.17",
+        "publisher": "아시아경제"
       }
     ]
   },
   "trendingAll": [
     {
       "term": "지방보조금",
-      "count": 13
+      "count": 7
     },
     {
-      "term": "실업수당",
-      "count": 12
-    },
-    {
-      "term": "민생회복지원금",
-      "count": 2
+      "term": "유가보조금",
+      "count": 3
     },
     {
       "term": "민생지원금",
       "count": 2
     },
     {
-      "term": "유가보조금",
+      "term": "실업수당",
       "count": 2
     }
   ]
