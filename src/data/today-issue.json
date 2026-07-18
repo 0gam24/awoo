@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-18T08:29:48.803Z",
+  "syncedAt": "2026-07-18T21:38:42.184Z",
   "source": "naver-news",
   "method": "trending-ngram",
   "headline": "이 대통령 \"농업은 안보 전략사업…농업보조금 확대해야\"",
@@ -47,9 +47,9 @@
       "biz.heraldcorp.com",
       "newdaily.co.kr",
       "hidomin.com",
-      "뉴시스",
       "SBS",
-      "shinailbo.co.kr"
+      "shinailbo.co.kr",
+      "segye.com"
     ],
     "newestArticle": {
       "title": "“농업보조금 519만 원”… 송미령 해명에 李 “더 늘려야”",
@@ -106,64 +106,6 @@
         "amountLabel": "3년간"
       }
     ],
-    "민생지원금": [
-      {
-        "id": "basic-livelihood",
-        "title": "기초생활보장 생계급여",
-        "agency": "보건복지부",
-        "category": "복지",
-        "icon": "cat-welfare",
-        "amount": 8400000,
-        "amountLabel": "연 (1인)"
-      },
-      {
-        "id": "maternity-grant",
-        "title": "첫만남이용권 + 부모급여",
-        "agency": "보건복지부",
-        "category": "복지",
-        "icon": "cat-baby",
-        "amount": 22000000,
-        "amountLabel": "0~1세 누적"
-      },
-      {
-        "id": "allowance-000739",
-        "title": "아이 꿈 수당 지급",
-        "agency": "인천광역시",
-        "category": "복지",
-        "icon": "cat-welfare",
-        "amount": 50000,
-        "amountLabel": "월 지원"
-      }
-    ],
-    "민생회복지원금": [
-      {
-        "id": "basic-livelihood",
-        "title": "기초생활보장 생계급여",
-        "agency": "보건복지부",
-        "category": "복지",
-        "icon": "cat-welfare",
-        "amount": 8400000,
-        "amountLabel": "연 (1인)"
-      },
-      {
-        "id": "maternity-grant",
-        "title": "첫만남이용권 + 부모급여",
-        "agency": "보건복지부",
-        "category": "복지",
-        "icon": "cat-baby",
-        "amount": 22000000,
-        "amountLabel": "0~1세 누적"
-      },
-      {
-        "id": "allowance-000739",
-        "title": "아이 꿈 수당 지급",
-        "agency": "인천광역시",
-        "category": "복지",
-        "icon": "cat-welfare",
-        "amount": 50000,
-        "amountLabel": "월 지원"
-      }
-    ],
     "실업급여": [
       {
         "id": "basic-livelihood",
@@ -191,6 +133,26 @@
         "icon": "cat-welfare",
         "amount": 50000,
         "amountLabel": "월 지원"
+      }
+    ],
+    "민생지원금": [
+      {
+        "id": "savings-account",
+        "title": "청년도약계좌",
+        "agency": "서민금융진흥원",
+        "category": "자산",
+        "icon": "cat-wealth",
+        "amount": 50000000,
+        "amountLabel": "5년 만기"
+      },
+      {
+        "id": "youth-future-savings",
+        "title": "청년미래적금",
+        "agency": "서민금융진흥원",
+        "category": "자산",
+        "icon": "cat-wealth",
+        "amount": 18000000,
+        "amountLabel": "3년 (월 50만 납입 원금)"
       }
     ],
     "유가보조금": [
@@ -247,82 +209,58 @@
       "matchedCount": 2
     },
     {
-      "term": "민생지원금",
+      "term": "실업급여",
       "count": 4,
       "mediaCount": 4,
       "articleCount": 4,
       "topArticle": {
-        "title": "1인당 20만원 지급...민생지원금 푼다",
-        "link": "https://magazine.hankyung.com/business/article/202607181625b",
-        "pubDate": "Sat, 18 Jul 2026 08:29:00 +0900",
-        "pubDateKR": "2026.07.17",
-        "category": "복지"
-      },
-      "summary": {
-        "headline": "민생지원금 — 2개 지자체 동시 시행 중",
-        "subhead": "나주시·통합특별시 신청 접수 · 매체 누적 6회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "나주시·통합특별시 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다."
-      },
-      "cities": [
-        "나주시",
-        "통합특별시"
-      ],
-      "publisherCount": 4,
-      "daysActive": 2,
-      "matchedCount": 3
-    },
-    {
-      "term": "민생회복지원금",
-      "count": 2,
-      "mediaCount": 2,
-      "articleCount": 2,
-      "topArticle": {
-        "title": "나주시, 민생회복지원금 추석 전 지급 추진…시민 1인당 20만 원",
-        "link": "https://view.asiae.co.kr/article/2026071709260462929",
-        "pubDate": "Fri, 17 Jul 2026 20:01:00 +0900",
-        "pubDateKR": "2026.07.17",
-        "category": "복지"
-      },
-      "summary": {
-        "headline": "민생회복지원금 — 2개 지자체 동시 시행 중",
-        "subhead": "나주시·통합특별시 신청 접수 · 매체 2회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "나주시·통합특별시 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다."
-      },
-      "cities": [
-        "나주시",
-        "통합특별시"
-      ],
-      "publisherCount": 2,
-      "daysActive": 1,
-      "matchedCount": 3
-    },
-    {
-      "term": "실업급여",
-      "count": 2,
-      "mediaCount": 2,
-      "articleCount": 2,
-      "topArticle": {
-        "title": "[자막뉴스] 최저임금보다 많은 실업급여?…\"왜 일하나, 의욕 떨어뜨려\"...",
-        "link": "https://news.sbs.co.kr/news/endPage.do?news_id=N1008663286&plink=ORI&cooper=NAVER",
-        "pubDate": "Sat, 18 Jul 2026 17:26:00 +0900",
+        "title": "정부, 실업급여·최저임금 ‘소득 역전’ 해소 위해 지급체계 전면 손질",
+        "link": "https://www.m-economynews.com/news/article.html?no=68860",
+        "pubDate": "Sat, 18 Jul 2026 22:10:00 +0900",
         "pubDateKR": "2026.07.18",
         "category": "복지"
       },
       "summary": {
-        "headline": "실업급여 — 이번 주 화제",
-        "subhead": "매체 2회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
+        "headline": "실업급여 — 주요 매체 4곳 동시 보도",
+        "subhead": "매체 4회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "4개 매체가 동시 보도한 정책입니다. 자격·금액·신청 방법을 한 번에 확인하세요."
       },
       "cities": [],
-      "publisherCount": 2,
+      "publisherCount": 4,
       "daysActive": 1,
       "matchedCount": 3
     },
     {
+      "term": "민생지원금",
+      "count": 4,
+      "mediaCount": 3,
+      "articleCount": 4,
+      "topArticle": {
+        "title": "'민생지원금 4차 지급일 챙기자'...추석 전 최고 1인당 30만 원",
+        "link": "https://www.gukjenews.com/news/articleView.html?idxno=3639482",
+        "pubDate": "Sun, 19 Jul 2026 00:06:00 +0900",
+        "pubDateKR": "2026.07.18",
+        "category": "자산"
+      },
+      "summary": {
+        "headline": "민생지원금 — 3개 지자체 동시 시행 중",
+        "subhead": "나주시·통합특별시·고흥군 신청 접수 · 매체 누적 6회 언급 · 관련 지원금 2건 매칭",
+        "hookCopy": "나주시·통합특별시 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다."
+      },
+      "cities": [
+        "나주시",
+        "통합특별시",
+        "고흥군"
+      ],
+      "publisherCount": 3,
+      "daysActive": 2,
+      "matchedCount": 2
+    },
+    {
       "term": "유가보조금",
-      "count": 2,
-      "mediaCount": 2,
-      "articleCount": 2,
+      "count": 3,
+      "mediaCount": 3,
+      "articleCount": 3,
       "topArticle": {
         "title": "전세버스 경유 유가보조금 16일부터 지급…차량당 월 최대 25만원 지원",
         "link": "https://www.cbci.co.kr/news/articleView.html?idxno=590096",
@@ -332,11 +270,11 @@
       },
       "summary": {
         "headline": "유가보조금 — 이번 주 화제",
-        "subhead": "매체 2회 언급 · 관련 지원금 3건 매칭",
+        "subhead": "매체 3회 언급 · 관련 지원금 3건 매칭",
         "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
       },
       "cities": [],
-      "publisherCount": 2,
+      "publisherCount": 3,
       "daysActive": 1,
       "matchedCount": 3
     }
@@ -394,15 +332,6 @@
       "pubDateKR": "2026.07.18",
       "link": "https://www.hidomin.com/news/articleView.html?idxno=713655",
       "publisher": "hidomin.com",
-      "category": "농업"
-    },
-    {
-      "title": "李 \"농업보조금 늘려야…증시 활성화로 농어촌특별세 폭증해 재원 충분...",
-      "description": "이어 \"이 때문에 각국이 농업보조금을 지급하는데 우리는 여타 선진국에 비해 보조금이 매우 적다는 사실\"이라며 \"효율성 높은 농어촌기본소득이 농업지원금 증액 효과를 조금은 내고 있고, 증시 활성화로...",
-      "pubDate": "Sat, 18 Jul 2026 00:07:00 +0900",
-      "pubDateKR": "2026.07.17",
-      "link": "https://www.newsis.com/view/NISX20260718_0003713461",
-      "publisher": "뉴시스",
       "category": "농업"
     },
     {
@@ -523,21 +452,21 @@
       "category": "농업"
     },
     {
-      "title": "이 대통령 \"농업은 안보 전략산업…농업보조금 늘려야\"",
-      "description": "이 대통령은 \"농어촌기본소득이 농업지원금 증액 효과를 일부 내고 있고, 증시 활성화로 농어촌특별세가 폭증해 재원도 충분해지고 있다\"고 설명했습니다. 또 \"개방적 통상국가로서 시장 개방은 불가피한데 그에 따른...",
-      "pubDate": "Sat, 18 Jul 2026 00:04:00 +0900",
-      "pubDateKR": "2026.07.17",
-      "link": "http://www.yonhapnewstv.co.kr/news/AKR20260718000343c1w",
-      "publisher": "yonhapnewstv.co.kr",
-      "category": "농업"
-    },
-    {
       "title": "李대통령 \"농업보조금 늘려야…증시 활성화로 충분\"",
       "description": "이 대통령은 \"이 때문에 각국이 농업보조금을 지급하는데 우리는 여타 선진국에 비해 보조금이 매우 적다는 사실\"이라며 \"효율성 높은 농어촌기본소득이 농업지원금 증액 효과를 조금은 내고 있고, 증시 활성화로...",
       "pubDate": "Sat, 18 Jul 2026 12:40:00 +0900",
       "pubDateKR": "2026.07.18",
       "link": "https://www.ajunews.com/view/20260718123805969",
       "publisher": "ajunews.com",
+      "category": "농업"
+    },
+    {
+      "title": "李 \"농업보조금 늘려야…증시 활성화로 농어촌특별세 폭증해 재원 충분...",
+      "description": "이어 \"이 때문에 각국이 농업보조금을 지급하는데 우리는 여타 선진국에 비해 보조금이 매우 적다는 사실\"이라며 \"효율성 높은 농어촌기본소득이 농업지원금 증액 효과를 조금은 내고 있고, 증시 활성화로...",
+      "pubDate": "Sat, 18 Jul 2026 00:07:00 +0900",
+      "pubDateKR": "2026.07.17",
+      "link": "https://www.newsis.com/view/NISX20260718_0003713461",
+      "publisher": "뉴시스",
       "category": "농업"
     },
     {
@@ -556,6 +485,15 @@
       "pubDateKR": "2026.07.18",
       "link": "https://www.sedaily.com/article/20068976?ref=naver",
       "publisher": "서울경제",
+      "category": "농업"
+    },
+    {
+      "title": "이 대통령 \"농업은 안보 전략산업…농업보조금 늘려야\"",
+      "description": "이 대통령은 \"농어촌기본소득이 농업지원금 증액 효과를 일부 내고 있고, 증시 활성화로 농어촌특별세가 폭증해 재원도 충분해지고 있다\"고 설명했습니다. 또 \"개방적 통상국가로서 시장 개방은 불가피한데 그에 따른...",
+      "pubDate": "Sat, 18 Jul 2026 00:04:00 +0900",
+      "pubDateKR": "2026.07.17",
+      "link": "http://www.yonhapnewstv.co.kr/news/AKR20260718000343c1w",
+      "publisher": "yonhapnewstv.co.kr",
       "category": "농업"
     },
     {
@@ -737,14 +675,6 @@
         "publisher": "hidomin.com"
       },
       {
-        "title": "李 \"농업보조금 늘려야…증시 활성화로 농어촌특별세 폭증해 재원 충분...",
-        "description": "이어 \"이 때문에 각국이 농업보조금을 지급하는데 우리는 여타 선진국에 비해 보조금이 매우 적다는 사실\"이라며 \"효율성 높은 농어촌기본소득이 농업지원금 증액 효과를 조금은 내고 있고, 증시 활성화로...",
-        "link": "https://www.newsis.com/view/NISX20260718_0003713461",
-        "pubDate": "Sat, 18 Jul 2026 00:07:00 +0900",
-        "pubDateKR": "2026.07.17",
-        "publisher": "뉴시스"
-      },
-      {
         "title": "이 대통령 \"농업보조금 늘려야\"…송미령 \"한국, 선진국보다 적어\"",
         "description": "농업보조금 확대 필요성에 한목소리를 냈습니다. 오늘(18일) 농림축산식품부에 따르면 송 장관은 전날 자신의 엑스에 지난 16일 업무보고 과정에서 언급된 농가보조금 현황을 상세히 설명했습니다. 송 장관은 지난해...",
         "link": "https://news.sbs.co.kr/news/endPage.do?news_id=N1008663244&plink=ORI&cooper=NAVER",
@@ -791,9 +721,59 @@
         "pubDate": "Sat, 18 Jul 2026 11:40:00 +0900",
         "pubDateKR": "2026.07.18",
         "publisher": "economist.co.kr"
+      },
+      {
+        "title": "송미령 장관 \"농업보조금 선진국보다 적어\"…李 대통령 \"더 늘려야\" 동의",
+        "description": "아울러 \"효율성이 높은 농어촌기본소득이 농업지원금 증액 효과를 일부 내고 있고, 증시 활성화로 농어촌특별세가 크게 늘어 재원도 충분해지고 있다\"며 \"개방적 통상국가로서 시장 개척을 위한 개방이 불가피한 만큼...",
+        "link": "https://www.newspim.com/news/view/20260718000035",
+        "pubDate": "Sat, 18 Jul 2026 11:39:00 +0900",
+        "pubDateKR": "2026.07.18",
+        "publisher": "뉴스핌"
+      }
+    ],
+    "실업급여": [
+      {
+        "title": "정부, 실업급여·최저임금 ‘소득 역전’ 해소 위해 지급체계 전면 손질",
+        "description": "현행 실업급여 제도에서는 주 5일 근무하는 근로자가 일주일 동안 받는 임금이 기본급 5일분과 주휴수당을 포함해 총 6일분이다. 반면 실업급여 수급자는 최저임금의 80%를 하한액으로 적용받으며, 이를 휴일을 포함한...",
+        "link": "https://www.m-economynews.com/news/article.html?no=68860",
+        "pubDate": "Sat, 18 Jul 2026 22:10:00 +0900",
+        "pubDateKR": "2026.07.18",
+        "publisher": "m-economynews.com"
+      },
+      {
+        "title": "\"실업급여 받아서 최저임금 수령액 넘었다\" 논란 터지자",
+        "description": "현행 제도에서 주 5일 근무하는 근로자의 경우 1주일 치 임금을 분석해 보면, 5일 치 임금과 주휴 수당을 포함해 총 6일 치 임금을 받습니다. 반면 실업급여 수급자는 최저임금의 80%를 7일간 받는 구조입니다. 여기에...",
+        "link": "https://news.sbs.co.kr/news/endPage.do?news_id=N1008663286&plink=ORI&cooper=NAVER",
+        "pubDate": "Sat, 18 Jul 2026 17:26:00 +0900",
+        "pubDateKR": "2026.07.18",
+        "publisher": "SBS"
+      },
+      {
+        "title": "실업급여 월 26만 원 줄이고 수급 기간 연장…'소득 역전' 손질",
+        "description": "주 5일 근로자는 5일분 임금에 주휴수당을 더해 일주일에 6일분의 임금을 받지만 실업급여 수급자는 휴무일을 포함해 7일분을 받는 구조다. 세금과 사회보험료 부과 여부도 실수령액의 차이를 키웠다. 최저임금 근로자는...",
+        "link": "https://www.daejonilbo.com/news/articleView.html?idxno=2288643",
+        "pubDate": "Sat, 18 Jul 2026 21:08:00 +0900",
+        "pubDateKR": "2026.07.18",
+        "publisher": "daejonilbo.com"
+      },
+      {
+        "title": "[단독] 최저임금보다 더 받는 실업급여 손본다",
+        "description": "현행 제도에서는 주 5일 근무하는 근로자의 경우 1주일 치 임금을 분석해보면, 5일 치 임금과 주휴 수당을 포함해 총 6일 치 임금을 받는다. 반면 실업급여 수급자는 최저임금의 80%(하한액)를 7일간 받는 구조다. 여기에...",
+        "link": "https://www.chosun.com/national/labor/2026/07/18/26L7RN2OP5G3TELVAWWLZC56GA/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news",
+        "pubDate": "Sat, 18 Jul 2026 05:01:00 +0900",
+        "pubDateKR": "2026.07.17",
+        "publisher": "조선일보"
       }
     ],
     "민생지원금": [
+      {
+        "title": "'민생지원금 4차 지급일 챙기자'...추석 전 최고 1인당 30만 원",
+        "description": "민생지원금, 3차 소비쿠폰, 현금, 현찰, 5만원 (사진=국제뉴스DB) 전 국민을 대상으로 고유가 피해지원금이 지급된 이후 지자체 곳곳이 민생지원금 추가 지급에 나서고 있다. 전남광주통합특별시 고흥군이 모든 군민에게...",
+        "link": "https://www.gukjenews.com/news/articleView.html?idxno=3639482",
+        "pubDate": "Sun, 19 Jul 2026 00:06:00 +0900",
+        "pubDateKR": "2026.07.18",
+        "publisher": "gukjenews.com"
+      },
       {
         "title": "1인당 20만원 지급...민생지원금 푼다",
         "description": "전남광주통합특별시 나주시가 시민 1인당 20만원의 민생회복지원금을 추석 전에 풀기로 했다. 침체한... 지원금은 나주사랑상품권으로 지급하기로 했다.. 오는 9월 제2회 추가경정예산안이 시의회를 통과하면 곧바로...",
@@ -811,56 +791,12 @@
         "publisher": "bntnews.co.kr"
       },
       {
-        "title": "\"추석 전 1인당 20만원씩 드려요\"…민생지원금 주는 이곳",
-        "description": "민생회복지원금을 추석 전 지급하기로 하고 세부계획 마련에 들어갔다. 나주시청 전경.(사진=나주시 제공) 지난 16일 나주시는 시민 1인당 20만원씩, 총 238억원 규모의 민생회복지원금을 추석 전에 지급하겠다는 세부...",
-        "link": "https://www.edaily.co.kr/news/newspath.asp?newsid=03050406645515504",
-        "pubDate": "Fri, 17 Jul 2026 18:48:00 +0900",
-        "pubDateKR": "2026.07.17",
-        "publisher": "이데일리"
-      },
-      {
         "title": "전 시민에 1인당 20만 원 민생지원금 푼다…추석 전 지급",
         "description": "4차 민생지원금, 현금, 현찰, 5만원 (사진=국제뉴스DB) / 본 기사의 이해를 돕기 위해 AI로 제작된 이미지 전남 나주시가 침체한 지역 경제에 활력을 불어넣고 상권을 살리기 위해 전 시민을 대상으로 민생회복지원금을...",
         "link": "https://www.gukjenews.com/news/articleView.html?idxno=3639319",
         "pubDate": "Sat, 18 Jul 2026 11:20:00 +0900",
         "pubDateKR": "2026.07.18",
         "publisher": "gukjenews.com"
-      }
-    ],
-    "민생회복지원금": [
-      {
-        "title": "나주시, 민생회복지원금 추석 전 지급 추진…시민 1인당 20만 원",
-        "description": "전남광주통합특별시 나주시가 시민 1인당 20만 원의 민생회복지원금을 추석 전 지급하는 방안을 추진한다. 나주시는 민생경제 회복과 지역 상권 활성화를 위해 나주사랑상품권 형태의 민생회복지원금 지급 계획을...",
-        "link": "https://view.asiae.co.kr/article/2026071709260462929",
-        "pubDate": "Fri, 17 Jul 2026 20:01:00 +0900",
-        "pubDateKR": "2026.07.17",
-        "publisher": "아시아경제"
-      },
-      {
-        "title": "나주시, 민생회복지원금 20만원 추석 전 지급 추진",
-        "description": "나주시가 고물가와 경기 침체로 어려움을 겪는 시민들의 생활 안정과 지역 상권 활성화를 위해 민생회복지원금 지급을 준비하고 있다. 나주시는 모든 시민에게 1인당 20만원의 민생회복지원금을 추석 전 지급하는 것을...",
-        "link": "https://www.pointdaily.co.kr/news/articleView.html?idxno=312287",
-        "pubDate": "Sat, 18 Jul 2026 06:06:00 +0900",
-        "pubDateKR": "2026.07.17",
-        "publisher": "pointdaily.co.kr"
-      }
-    ],
-    "실업급여": [
-      {
-        "title": "[자막뉴스] 최저임금보다 많은 실업급여?…\"왜 일하나, 의욕 떨어뜨려\"...",
-        "description": "현행 제도에서 주 5일 근무하는 근로자의 경우 1주일 치 임금을 분석해 보면, 5일 치 임금과 주휴 수당을 포함해 총 6일 치 임금을 받습니다. 반면 실업급여 수급자는 최저임금의 80%를 7일간 받는 구조입니다. 여기에...",
-        "link": "https://news.sbs.co.kr/news/endPage.do?news_id=N1008663286&plink=ORI&cooper=NAVER",
-        "pubDate": "Sat, 18 Jul 2026 17:26:00 +0900",
-        "pubDateKR": "2026.07.18",
-        "publisher": "SBS"
-      },
-      {
-        "title": "[단독] 최저임금보다 더 받는 실업급여 손본다",
-        "description": "현행 제도에서는 주 5일 근무하는 근로자의 경우 1주일 치 임금을 분석해보면, 5일 치 임금과 주휴 수당을 포함해 총 6일 치 임금을 받는다. 반면 실업급여 수급자는 최저임금의 80%(하한액)를 7일간 받는 구조다. 여기에...",
-        "link": "https://www.chosun.com/national/labor/2026/07/18/26L7RN2OP5G3TELVAWWLZC56GA/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news",
-        "pubDate": "Sat, 18 Jul 2026 05:01:00 +0900",
-        "pubDateKR": "2026.07.17",
-        "publisher": "조선일보"
       }
     ],
     "유가보조금": [
@@ -871,6 +807,14 @@
         "pubDate": "Sat, 18 Jul 2026 16:46:00 +0900",
         "pubDateKR": "2026.07.18",
         "publisher": "cbci.co.kr"
+      },
+      {
+        "title": "정부, 전세버스에도 유가보조금 지급",
+        "description": "정부가 전세버스에게도 유가보조금을 지원하기로 했다. 차량당 월 평균 25만원이다. 18일 국토교통부에 따르면 '여객자동차법 유가보조금 지급지침'을 개정해 전세버스 경유 유가보조금을 이달부터 지급키로 했다....",
+        "link": "https://www.jnilbo.com/news/articleView.html?idxno=90000050645",
+        "pubDate": "Sat, 18 Jul 2026 22:27:00 +0900",
+        "pubDateKR": "2026.07.18",
+        "publisher": "jnilbo.com"
       },
       {
         "title": "전세버스 경유 유가보조금 16일부터 지급…3만9000대 대상",
@@ -892,16 +836,12 @@
       "count": 4
     },
     {
-      "term": "민생회복지원금",
-      "count": 2
+      "term": "실업급여",
+      "count": 4
     },
     {
       "term": "유가보조금",
-      "count": 2
-    },
-    {
-      "term": "실업급여",
-      "count": 2
+      "count": 3
     }
   ]
 }
