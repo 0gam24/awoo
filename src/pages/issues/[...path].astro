@@ -158,7 +158,11 @@ const lastSeenForTrend =
 // v2: updates[] 수동 갱신 이력 — 최신 갱신일도 dateModified 후보 (트렌딩 lastSeen과 max 취함)
 const updates = post.updates ?? [];
 const latestUpdateDate = updates.length > 0 ? [...updates].map((u) => u.date).sort().at(-1) ?? null : null;
-const modifiedCandidates = [lastSeenForTrend, latestUpdateDate].filter((d): d is string => Boolean(d));
+// 발행일보다 과거인 후보는 버린다 — 트렌딩 term의 lastSeen이 글보다 오래된 경우
+// dateModified가 datePublished보다 과거로 emit돼 '오래된 글'로 보이는 SEO 역전 방지.
+const modifiedCandidates = [lastSeenForTrend, latestUpdateDate].filter(
+  (d): d is string => Boolean(d) && (d as string) > post.date,
+);
 const modifiedDate = modifiedCandidates.length > 0 ? modifiedCandidates.sort().at(-1)! : null;
 const lastSeenIso = modifiedDate ? `${modifiedDate}T00:00:00.000Z` : post.publishedAt;
 const isUpdated = modifiedDate != null && modifiedDate > post.date;
