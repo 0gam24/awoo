@@ -2,9 +2,15 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-07-22 19:36 KST
+> 마지막 갱신: 2026-07-23 03:26 KST
 
-## 2026-07-22 (오늘)
+## 2026-07-23 (오늘)
+
+### 📰 신규 이슈 포스트 (1건)
+- `복지` [다자녀 고속도로 통행료 감면 2026, 3자녀 20% 사전등록](https://awoo.or.kr/issues/multi-child-highway-toll-discount/)
+  - 만 19세 미만 자녀 2명 이상 가구는 고속도로 통행료가 2자녀 10%, 3자녀 20% 감면됩니다. 3자녀는 7월 28일, 2자녀는 8월 22일 시행이며 통행료플러스 사전등록이 필수입니다.
+
+## 2026-07-22
 
 ### 📰 신규 이슈 포스트 (2건)
 - `복지` [국민연금 조기수령하면 기초연금 깎이나? 2026 감액기준](https://awoo.or.kr/issues/national-pension-early-basic-pension-reduction/)
