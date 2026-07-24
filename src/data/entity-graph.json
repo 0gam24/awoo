@@ -4,7 +4,7 @@
   "source": {
     "personas": 6,
     "situations": 12,
-    "glossary": 33,
+    "glossary": 39,
     "topics": 3,
     "subsidies": 112
   },
@@ -829,6 +829,94 @@
         ],
         "related_dangling": [],
         "category": "재난·생계"
+      },
+      "bokjiro": {
+        "@id": "https://awoo.or.kr/glossary/bokjiro/",
+        "term": "복지로",
+        "synonyms": [
+          "복지로 포털",
+          "bokjiro"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/basic-livelihood/",
+          "https://awoo.or.kr/glossary/median-income/",
+          "https://awoo.or.kr/glossary/low-income-support/"
+        ],
+        "related_dangling": [],
+        "category": "복지"
+      },
+      "near-poor": {
+        "@id": "https://awoo.or.kr/glossary/near-poor/",
+        "term": "차상위계층",
+        "synonyms": [
+          "차상위",
+          "차상위 계층"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/median-income/",
+          "https://awoo.or.kr/glossary/basic-livelihood/",
+          "https://awoo.or.kr/glossary/low-income-support/"
+        ],
+        "related_dangling": [],
+        "category": "소득·자격"
+      },
+      "single-parent-family": {
+        "@id": "https://awoo.or.kr/glossary/single-parent-family/",
+        "term": "한부모가족",
+        "synonyms": [
+          "한부모",
+          "한부모 가정"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/child-allowance/",
+          "https://awoo.or.kr/glossary/median-income/"
+        ],
+        "related_dangling": [],
+        "category": "복지"
+      },
+      "self-reliance-youth": {
+        "@id": "https://awoo.or.kr/glossary/self-reliance-youth/",
+        "term": "자립준비청년",
+        "synonyms": [
+          "보호종료아동",
+          "자립준비 청년"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/basic-livelihood/",
+          "https://awoo.or.kr/glossary/youth-leap-account/",
+          "https://awoo.or.kr/glossary/low-income-support/"
+        ],
+        "related_dangling": [],
+        "category": "복지"
+      },
+      "early-onset-dementia": {
+        "@id": "https://awoo.or.kr/glossary/early-onset-dementia/",
+        "term": "초로기 치매",
+        "synonyms": [
+          "조발성 치매",
+          "젊은 치매"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/dementia-care-center/",
+          "https://awoo.or.kr/glossary/basic-livelihood/"
+        ],
+        "related_dangling": [],
+        "category": "복지"
+      },
+      "dementia-care-center": {
+        "@id": "https://awoo.or.kr/glossary/dementia-care-center/",
+        "term": "치매안심센터",
+        "synonyms": [
+          "치매지원센터",
+          "광역치매센터"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/early-onset-dementia/",
+          "https://awoo.or.kr/glossary/basic-pension/"
+        ],
+        "related_dangling": [],
+        "category": "복지"
       }
     },
     "topics": {
@@ -1148,7 +1236,8 @@
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/median-income/",
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "business-national-000053": {
@@ -1185,7 +1274,8 @@
         "mentionedInTopics": [],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "couple-health-support-000659": {
@@ -1249,7 +1339,8 @@
         "mentionedInTopics": [],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "discount-000002": {
@@ -1274,7 +1365,8 @@
         "mentionedInTopics": [],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "education-allowance-000003": {
@@ -1336,7 +1428,8 @@
         "mentionedInTopics": [],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "funds-support-000300": {
@@ -1370,7 +1463,8 @@
         ],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "housing-allowance-customized-000096": {
@@ -1427,7 +1521,8 @@
         ],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "housing-rental-jeonse-business-support-000022": {
@@ -1446,7 +1541,9 @@
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/low-income-support/",
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/near-poor/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "housing-sale-001470": {
@@ -1608,7 +1705,8 @@
         ],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/homeless/",
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "loan-funds-000009": {
@@ -1650,7 +1748,8 @@
         ],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "maternity-allowance-000004": {
@@ -1789,7 +1888,8 @@
           "https://awoo.or.kr/glossary/median-income/",
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/national-employment-support/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "parenting-allowance-000008": {
@@ -1803,7 +1903,8 @@
         ],
         "mentionedInTopics": [],
         "mentionedGlossary": [
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "preschool-tuition-support-465790": {
@@ -1818,7 +1919,9 @@
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/low-income-support/",
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/near-poor/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "reduction-000008": {
@@ -1844,7 +1947,8 @@
           "https://awoo.or.kr/glossary/median-income/",
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/basic-pension/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "regional-000139": {
@@ -1898,7 +2002,8 @@
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/national-scholarship/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "scholarship-national-005002": {
@@ -1925,7 +2030,9 @@
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/low-income-support/",
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/near-poor/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "single-parent-child-parenting-support-000020": {
@@ -1939,7 +2046,8 @@
         ],
         "mentionedInTopics": [],
         "mentionedGlossary": [
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "smb-loan-funds-special-support-007429": {
@@ -1966,7 +2074,8 @@
           "https://awoo.or.kr/topics/youth-housing/"
         ],
         "mentionedGlossary": [
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "sports-customized-support-regional-000033": {
@@ -1989,7 +2098,8 @@
         "mentionedInTopics": [],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "student-scholarship-support-national-004508": {
@@ -2004,7 +2114,8 @@
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/national-scholarship/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "subsidy-000006": {
@@ -2024,7 +2135,8 @@
         ],
         "mentionedInTopics": [],
         "mentionedGlossary": [
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "subsidy-000310": {
@@ -2049,7 +2161,8 @@
         "mentionedInTopics": [],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "support-000007": {
@@ -2071,7 +2184,9 @@
           "https://awoo.or.kr/personas/senior/"
         ],
         "mentionedInTopics": [],
-        "mentionedGlossary": []
+        "mentionedGlossary": [
+          "https://awoo.or.kr/glossary/dementia-care-center/"
+        ]
       },
       "support-000129": {
         "@id": "https://awoo.or.kr/subsidies/support-000129/",
@@ -2117,7 +2232,9 @@
           "https://awoo.or.kr/glossary/median-income/",
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/low-income-support/",
-          "https://awoo.or.kr/glossary/single-parent-support/"
+          "https://awoo.or.kr/glossary/single-parent-support/",
+          "https://awoo.or.kr/glossary/near-poor/",
+          "https://awoo.or.kr/glossary/single-parent-family/"
         ]
       },
       "support-500004": {
@@ -2168,7 +2285,9 @@
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/energy-voucher/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/bokjiro/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "vocational-allowance-005001": {
@@ -2195,7 +2314,8 @@
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/lifelong-learning-voucher/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "voucher-welfare-000176": {
@@ -2210,7 +2330,8 @@
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/child-allowance/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "welfare-000030": {
@@ -2234,7 +2355,8 @@
         "mentionedInTopics": [],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/basic-livelihood/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "welfare-livelihood-support-005003": {
@@ -2305,7 +2427,8 @@
         ],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/median-income/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "youth-business-regional-000044": {
@@ -2336,7 +2459,8 @@
           "https://awoo.or.kr/glossary/median-income/",
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/youth-savings/",
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "youth-housing-000088": {
@@ -2367,7 +2491,8 @@
           "https://awoo.or.kr/topics/youth-housing/"
         ],
         "mentionedGlossary": [
-          "https://awoo.or.kr/glossary/low-income-support/"
+          "https://awoo.or.kr/glossary/low-income-support/",
+          "https://awoo.or.kr/glossary/near-poor/"
         ]
       },
       "youth-rent-support-000099": {
@@ -2391,7 +2516,7 @@
   "stats": {
     "glossary_dangling_count": 0,
     "topics_glossary_dangling_count": 0,
-    "subsidies_with_glossary_mentions": 65,
+    "subsidies_with_glossary_mentions": 66,
     "topics_with_subsidy_matches": 2,
     "topics_total": 3,
     "topics_without_matches": 1,
