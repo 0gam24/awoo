@@ -547,7 +547,9 @@ const fullText = [
   ...post.faq.map((f) => `${f.q} ${f.a}`),
 ].join(' ');
 const totalChars = fullText.replace(/\s+/g, '').length;
-const vagueCount = (fullText.match(/(확인\s*필요|문의\s*요망|확인\s*해|공식\s*공고\s*참조)/g) ?? []).length;
+// '확인해'(정상 안내문: "공고를 확인해 두세요")는 제외 — YMYL 프레이밍 규칙이 권장하는 표현이
+// noindex 오탐을 일으켰음(2026-07-25 GSC noindex 보고 5건). 진짜 placeholder성 모호 표현만 계수.
+const vagueCount = (fullText.match(/(확인\s*필요|문의\s*요망|공식\s*공고\s*참조|추후\s*공지\s*예정|내용\s*미정)/g) ?? []).length;
 // factCheckScore는 frontmatter 상단에서 이미 선언됨 (articleSchema reviewedBy + ClaimReview emit에서 우선 사용)
 // thin 기준: 본문 1500자 미만 OR vague 표현 5건 이상 OR factCheck < 0.6
 const isThinPost = totalChars < 1500 || vagueCount >= 5 || factCheckScore < 0.6;
