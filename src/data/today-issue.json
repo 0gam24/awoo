@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-26T09:06:48.058Z",
+  "syncedAt": "2026-07-26T21:45:56.240Z",
   "source": "naver-news",
   "method": "trending-ngram",
   "headline": "트럼프 행정부, 대선 당시 해리스 지지한 주들에 연방보조금 중단 인정",
@@ -130,6 +130,35 @@
         "amount": 50000,
         "amountLabel": "월 지원"
       }
+    ],
+    "상병수당": [
+      {
+        "id": "basic-livelihood",
+        "title": "기초생활보장 생계급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 8400000,
+        "amountLabel": "연 (1인)"
+      },
+      {
+        "id": "maternity-grant",
+        "title": "첫만남이용권 + 부모급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-baby",
+        "amount": 22000000,
+        "amountLabel": "0~1세 누적"
+      },
+      {
+        "id": "allowance-000739",
+        "title": "아이 꿈 수당 지급",
+        "agency": "인천광역시",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 50000,
+        "amountLabel": "월 지원"
+      }
     ]
   },
   "trending": [
@@ -153,6 +182,28 @@
       "cities": [],
       "publisherCount": 6,
       "daysActive": 1,
+      "matchedCount": 3
+    },
+    {
+      "term": "상병수당",
+      "count": 2,
+      "mediaCount": 1,
+      "articleCount": 1,
+      "topArticle": {
+        "title": "[누구나 차별 없는 상병수당을 ①] 65세 넘었다고 아플 권리까지 사라지...",
+        "link": "https://www.labortoday.co.kr/news/articleView.html?idxno=235903",
+        "pubDate": "Mon, 27 Jul 2026 06:32:00 +0900",
+        "pubDateKR": "2026.07.26",
+        "category": "복지"
+      },
+      "summary": {
+        "headline": "상병수당 — 4일째 매체 주목",
+        "subhead": "매체 누적 5회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
+      },
+      "cities": [],
+      "publisherCount": 1,
+      "daysActive": 4,
       "matchedCount": 3
     }
   ],
@@ -262,6 +313,16 @@
         "pubDateKR": "2026.07.26",
         "publisher": "munhwa.com"
       }
+    ],
+    "상병수당": [
+      {
+        "title": "[누구나 차별 없는 상병수당을 ①] 65세 넘었다고 아플 권리까지 사라지...",
+        "description": "정부가 시범사업 중인 상병수당 제도의 본사업 시행 시점을 내년 9월 이후로 늦출 것으로 보인다. 시행 시점뿐만 아니라 적용 대상이나 수당을 수령할 때까지 걸리는 대기기간 등이 논란이 되고 있다. 정부가 설계하고...",
+        "link": "https://www.labortoday.co.kr/news/articleView.html?idxno=235903",
+        "pubDate": "Mon, 27 Jul 2026 06:32:00 +0900",
+        "pubDateKR": "2026.07.26",
+        "publisher": "labortoday.co.kr"
+      }
     ]
   },
   "trendingAll": [
@@ -271,7 +332,11 @@
     },
     {
       "term": "피해지원금",
-      "count": 3
+      "count": 5
+    },
+    {
+      "term": "상병수당",
+      "count": 2
     }
   ]
 }
