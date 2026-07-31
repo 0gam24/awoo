@@ -1,5 +1,5 @@
 {
-  "syncedAt": "2026-07-31T09:36:11.150Z",
+  "syncedAt": "2026-07-31T21:54:51.937Z",
   "source": "naver-news",
   "method": "trending-ngram",
   "headline": "대전 물류·운수업 종사자에 생활안정지원금 지급 ··· 내달 3일 모집...",
@@ -128,7 +128,7 @@
         "amountLabel": "월 지원"
       }
     ],
-    "효행지원금": [
+    "민생지원금": [
       {
         "id": "basic-livelihood",
         "title": "기초생활보장 생계급여",
@@ -186,7 +186,7 @@
         "amountLabel": "월 지원"
       }
     ],
-    "민생지원금": [
+    "역외보조금": [
       {
         "id": "basic-livelihood",
         "title": "기초생활보장 생계급여",
@@ -215,25 +215,7 @@
         "amountLabel": "월 지원"
       }
     ],
-    "손주돌봄수당": [
-      {
-        "id": "housing-rental-jeonse-business-support-000022",
-        "title": "기존주택 전세임대주택 지원사업",
-        "agency": "국토교통부",
-        "category": "주거",
-        "icon": "cat-housing",
-        "amount": 0,
-        "amountLabel": "지원금"
-      },
-      {
-        "id": "youth-business-savings-account-assets-support-005013",
-        "title": "자산형성지원사업(청년내일저축계좌)",
-        "agency": "보건복지부",
-        "category": "주거",
-        "icon": "cat-housing",
-        "amount": 300000,
-        "amountLabel": "월 지원"
-      },
+    "효행지원금": [
       {
         "id": "basic-livelihood",
         "title": "기초생활보장 생계급여",
@@ -242,6 +224,24 @@
         "icon": "cat-welfare",
         "amount": 8400000,
         "amountLabel": "연 (1인)"
+      },
+      {
+        "id": "maternity-grant",
+        "title": "첫만남이용권 + 부모급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-baby",
+        "amount": 22000000,
+        "amountLabel": "0~1세 누적"
+      },
+      {
+        "id": "allowance-000739",
+        "title": "아이 꿈 수당 지급",
+        "agency": "인천광역시",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 50000,
+        "amountLabel": "월 지원"
       }
     ]
   },
@@ -269,27 +269,27 @@
       "matchedCount": 3
     },
     {
-      "term": "효행지원금",
+      "term": "민생지원금",
       "count": 3,
-      "mediaCount": 3,
+      "mediaCount": 2,
       "articleCount": 3,
       "topArticle": {
-        "title": "[인천] 인천 제물포구, 삼대 같이 살면 '효행지원금' 지급",
-        "link": "https://www.ytn.co.kr/_ln/0115_202607311438451946",
-        "pubDate": "Fri, 31 Jul 2026 14:38:00 +0900",
+        "title": "\"김중남 역점 사업 모두 막겠다?\" 국민의힘, 민생지원금 부결·영화 예산...",
+        "link": "https://www.mbceg.co.kr/post/138771",
+        "pubDate": "Fri, 31 Jul 2026 20:40:00 +0900",
         "pubDateKR": "2026.07.31",
         "category": "복지"
       },
       "summary": {
-        "headline": "효행지원금 — 이번 주 화제",
-        "subhead": "제물포구 시행 · 매체 3회 언급 · 관련 지원금 3건 매칭",
+        "headline": "민생지원금 — 이번 주 화제",
+        "subhead": "강릉시 시행 · 매체 누적 5회 언급 · 관련 지원금 3건 매칭",
         "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
       },
       "cities": [
-        "제물포구"
+        "강릉시"
       ],
-      "publisherCount": 3,
-      "daysActive": 1,
+      "publisherCount": 2,
+      "daysActive": 2,
       "matchedCount": 3
     },
     {
@@ -298,9 +298,9 @@
       "mediaCount": 2,
       "articleCount": 2,
       "topArticle": {
-        "title": "[발언 전문] 강릉 민생안정지원금... 고견 담아 수정안 발표한 김용남 ...",
-        "link": "https://www.mbceg.co.kr/post/138760",
-        "pubDate": "Fri, 31 Jul 2026 17:00:00 +0900",
+        "title": "[의회 판읽기] 강릉시의회 제331회 임시회 폐회…민생안정지원금 조례 ...",
+        "link": "https://www.nspna.com/news/?mode=view&newsid=822739",
+        "pubDate": "Fri, 31 Jul 2026 19:14:00 +0900",
         "pubDateKR": "2026.07.31",
         "category": "복지"
       },
@@ -317,50 +317,48 @@
       "matchedCount": 3
     },
     {
-      "term": "민생지원금",
+      "term": "역외보조금",
       "count": 2,
       "mediaCount": 2,
       "articleCount": 2,
       "topArticle": {
-        "title": "찬성 9표 vs 반대 10표 \"강릉시 민생지원금 지원\" 결국 부결",
-        "link": "https://www.mbceg.co.kr/post/138765",
-        "pubDate": "Fri, 31 Jul 2026 18:10:00 +0900",
+        "title": "EU \"中 테무, 작년 EU 역외보조금 규정 조사 방해\"",
+        "link": "http://www.yonhapnewstv.co.kr/news/AKR20260731225200hZ3",
+        "pubDate": "Fri, 31 Jul 2026 22:52:00 +0900",
         "pubDateKR": "2026.07.31",
         "category": "복지"
       },
       "summary": {
-        "headline": "민생지원금 — 이번 주 화제",
-        "subhead": "강릉시 시행 · 매체 누적 4회 언급 · 관련 지원금 3건 매칭",
+        "headline": "역외보조금 — 이번 주 화제",
+        "subhead": "매체 2회 언급 · 관련 지원금 3건 매칭",
         "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
       },
-      "cities": [
-        "강릉시"
-      ],
+      "cities": [],
       "publisherCount": 2,
-      "daysActive": 2,
+      "daysActive": 1,
       "matchedCount": 3
     },
     {
-      "term": "손주돌봄수당",
+      "term": "효행지원금",
       "count": 2,
-      "mediaCount": 2,
-      "articleCount": 2,
+      "mediaCount": 1,
+      "articleCount": 1,
       "topArticle": {
-        "title": "서귀포시 '손주돌봄수당 지원사업' 수혜자 90% 만족",
-        "link": "https://www.newsjeju.net/news/articleView.html?idxno=424051",
-        "pubDate": "Fri, 31 Jul 2026 16:48:00 +0900",
+        "title": "인천 제물포구, 3 대 같이 살면 '효행지원금' 지급...연간 50만원",
+        "link": "https://ic.newdaily.co.kr/site/data/html/2026/08/01/2026080100013.html",
+        "pubDate": "Sat, 01 Aug 2026 04:42:00 +0900",
         "pubDateKR": "2026.07.31",
         "category": "복지"
       },
       "summary": {
-        "headline": "손주돌봄수당 — 이번 주 화제",
-        "subhead": "서귀포시 시행 · 매체 2회 언급 · 관련 지원금 3건 매칭",
+        "headline": "효행지원금 — 이번 주 화제",
+        "subhead": "제물포구 시행 · 매체 2회 언급 · 관련 지원금 3건 매칭",
         "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
       },
       "cities": [
-        "서귀포시"
+        "제물포구"
       ],
-      "publisherCount": 2,
+      "publisherCount": 1,
       "daysActive": 1,
       "matchedCount": 3
     }
@@ -421,56 +419,12 @@
         "publisher": "it-b.co.kr"
       }
     ],
-    "효행지원금": [
-      {
-        "title": "[인천] 인천 제물포구, 삼대 같이 살면 '효행지원금' 지급",
-        "description": "다음 달 3∼28일 신청자 접수를 거쳐 오는 9월 18일에 효행지원금을 지급할 계획입니다. 이 사업은 제물포구 출범 전 동구의 효행 수당 월 10만 원과 중구의 효사랑 지원금 연 50만 원을 하나로 통합한 것입니다.",
-        "link": "https://www.ytn.co.kr/_ln/0115_202607311438451946",
-        "pubDate": "Fri, 31 Jul 2026 14:38:00 +0900",
-        "pubDateKR": "2026.07.31",
-        "publisher": "YTN"
-      },
-      {
-        "title": "삼대 이상 함께 살면 효행지원금 50만원",
-        "description": "이 제도는 제물포구 출범 전 동구의 효행 수당(월 10만원)과 중구의 효사랑 지원금(연 50만원)을 하나로 통합한 것이다. 제물포구는 다음 달 3∼28일 신청을 접수한 후 추석을 일주일가량 앞둔 9월 18일 효행지원금을...",
-        "link": "https://www.jasm.co.kr/news/articleView.html?idxno=306078",
-        "pubDate": "Fri, 31 Jul 2026 14:54:00 +0900",
-        "pubDateKR": "2026.07.31",
-        "publisher": "jasm.co.kr"
-      },
-      {
-        "title": "인천 제물포구, 3대(代)가 함께 살면 ‘효행지원금’ 지급",
-        "description": "제물포구 출범 전 동구의 효행 수당(월 10만 원)과 중구의 효사랑 지원금(연 50만 원)을 하나로 통합한 사업이다. 지원 대상은 70세 이상을 포함한 3대가 한 세대를 이루고, 가족 모두가 제물포구(옛 동구·중구 내륙지역)에...",
-        "link": "https://www.seoul.co.kr/news/publicnews/local_govern/2026/07/31/20260731500146?wlog_tag3=naver",
-        "pubDate": "Fri, 31 Jul 2026 13:36:00 +0900",
-        "pubDateKR": "2026.07.31",
-        "publisher": "seoul.co.kr"
-      }
-    ],
-    "민생안정지원금": [
-      {
-        "title": "[발언 전문] 강릉 민생안정지원금... 고견 담아 수정안 발표한 김용남 ...",
-        "description": "존경하는 의장님과 동료 의원 여러분 오늘 본 의원은 상임위원회에서 상정된 강릉시 민생안정지원금 지급... 지원금이 간절히 필요한 지금 고통받는 시기를 놓치면 만시지탄의 후회로 남을 것입니다. 지적된 미비점은 이번...",
-        "link": "https://www.mbceg.co.kr/post/138760",
-        "pubDate": "Fri, 31 Jul 2026 17:00:00 +0900",
-        "pubDateKR": "2026.07.31",
-        "publisher": "mbceg.co.kr"
-      },
-      {
-        "title": "강릉시의회, 민생안정지원금 지급 조례안 부결...제331회 임시회 마무리",
-        "description": "com 또 산업위원회에서 심사한 4개의 안건 중 '강릉 도시관리계획(용도지역, 시설: 유통업무 설비) 결정(변경) 의견청취안'을 포함한 3건이 통과했지만 '강릉시 민생안정지원금 지급 조례안'은 김용남 의원 외 8인이...",
-        "link": "https://www.newspim.com/news/view/20260731001273",
-        "pubDate": "Fri, 31 Jul 2026 16:30:00 +0900",
-        "pubDateKR": "2026.07.31",
-        "publisher": "뉴스핌"
-      }
-    ],
     "민생지원금": [
       {
-        "title": "찬성 9표 vs 반대 10표 \"강릉시 민생지원금 지원\" 결국 부결",
-        "description": "그러면 김용남 의원님 등 9분이 발의한 의사일정 제4항 강릉시 민생안전지원금 지급 조례안에 대한 수정안에... 재석 의원 19명 중 찬성 9, 반대 10, 김용남 의원님 등 9분이 발의한 의사일정 제4항 강릉시 민생안전지원금...",
-        "link": "https://www.mbceg.co.kr/post/138765",
-        "pubDate": "Fri, 31 Jul 2026 18:10:00 +0900",
+        "title": "\"김중남 역점 사업 모두 막겠다?\" 국민의힘, 민생지원금 부결·영화 예산...",
+        "description": "강릉시가 강릉시의회에 제출한 민생안정지원금 지급 조례안이 부결됐습니다. 영화 관련 추경예산 3건도... 강릉시가 제출한 민생안정지원금 지급 조례안은 상임위 당시 국민의힘 의원들의 반대로 수정안이 재발의됐고...",
+        "link": "https://www.mbceg.co.kr/post/138771",
+        "pubDate": "Fri, 31 Jul 2026 20:40:00 +0900",
         "pubDateKR": "2026.07.31",
         "publisher": "mbceg.co.kr"
       },
@@ -481,38 +435,74 @@
         "pubDate": "Fri, 31 Jul 2026 17:43:00 +0900",
         "pubDateKR": "2026.07.31",
         "publisher": "nocutnews.co.kr"
-      }
-    ],
-    "손주돌봄수당": [
-      {
-        "title": "서귀포시 '손주돌봄수당 지원사업' 수혜자 90% 만족",
-        "description": "서귀포시가 추진하고 있는 '손주돌봄수당 지원사업'이 수혜자들로부터 큰 호응을 얻고 있다. 31일 시에... 확대, 수당 지원 금액 인상\" 등 건의사항도 제출됐다. 강현수 시 복지위생국장은 \"이번 만족도 조사를 통해...",
-        "link": "https://www.newsjeju.net/news/articleView.html?idxno=424051",
-        "pubDate": "Fri, 31 Jul 2026 16:48:00 +0900",
-        "pubDateKR": "2026.07.31",
-        "publisher": "newsjeju.net"
       },
       {
-        "title": "서귀포시 '손주돌봄수당 지원사업' 호응...90% 만족",
-        "description": "서귀포시가 '손주돌봄수당 지원사업'이 수혜자들로부터 좋은 반응을 얻고 있다고 31일 밝혔다. 서귀포시가... 확대, 수당 지원 금액 인상\" 등 건의사항도 제안됐다. 강현수 서귀포시 복지위생국장은 \"이번 만족도 조사를...",
-        "link": "https://www.jejudomin.co.kr/news/articleView.html?idxno=321035",
-        "pubDate": "Fri, 31 Jul 2026 13:54:00 +0900",
+        "title": "찬성 9표 vs 반대 10표 \"강릉시 민생지원금 지원\" 결국 부결",
+        "description": "그러면 김용남 의원님 등 9분이 발의한 의사일정 제4항 강릉시 민생안전지원금 지급 조례안에 대한 수정안에... 재석 의원 19명 중 찬성 9, 반대 10, 김용남 의원님 등 9분이 발의한 의사일정 제4항 강릉시 민생안전지원금...",
+        "link": "https://www.mbceg.co.kr/post/138765",
+        "pubDate": "Fri, 31 Jul 2026 18:10:00 +0900",
         "pubDateKR": "2026.07.31",
-        "publisher": "jejudomin.co.kr"
+        "publisher": "mbceg.co.kr"
+      }
+    ],
+    "민생안정지원금": [
+      {
+        "title": "[의회 판읽기] 강릉시의회 제331회 임시회 폐회…민생안정지원금 조례 ...",
+        "description": "이번 임시회에서는 추가경정예산안과 주요 조례안이 처리되고 행정사무감사 계획서가 승인된 반면, 관심이 집중됐던 민생안정지원금 지급 조례안은 표결 끝에 부결됐다. 상임위 안건 6건 처리…‘민생안정지원금...",
+        "link": "https://www.nspna.com/news/?mode=view&newsid=822739",
+        "pubDate": "Fri, 31 Jul 2026 19:14:00 +0900",
+        "pubDateKR": "2026.07.31",
+        "publisher": "nspna.com"
+      },
+      {
+        "title": "강릉시 민생안정지원금 지급..시의회 제동",
+        "description": "민선 9기 김중남 강릉시장의 핵심 공약이었던 민생안정지원금 관련 조례안이 강릉시의회에서 제동이 걸렸습니다. 강릉시의회는 제331회 임시회 2차 본회의에서 강릉시가 제출한 '민생안정지원금 지급 조례안' 에 대해 찬반...",
+        "link": "https://www.g1tv.co.kr/news?mid=1_207_6&newsid=346764",
+        "pubDate": "Fri, 31 Jul 2026 21:19:00 +0900",
+        "pubDateKR": "2026.07.31",
+        "publisher": "g1tv.co.kr"
+      }
+    ],
+    "역외보조금": [
+      {
+        "title": "EU \"中 테무, 작년 EU 역외보조금 규정 조사 방해\"",
+        "description": "중국 전자상거래 업체 테무가 작년 12월 유럽연합(EU)의 역외 보조금 규정에 따른 조사를 방해했다고 EU가... 앞서 EU 집행위원회는 당시 테무가 중국 정부에서 보조금을 받아 유럽 시장에서 부당한 경쟁 우위를 확보했을...",
+        "link": "http://www.yonhapnewstv.co.kr/news/AKR20260731225200hZ3",
+        "pubDate": "Fri, 31 Jul 2026 22:52:00 +0900",
+        "pubDateKR": "2026.07.31",
+        "publisher": "yonhapnewstv.co.kr"
+      },
+      {
+        "title": "EU \"테무, 작년 EU 역외보조금 규정 조사 방해\"",
+        "description": "역외 보조금 규정에 따른 조사를 방해했다고 EU가 지적했다. EU 집행위원회는 31일(현지시간) 테무가 작년... EU 집행위원회는 당시 테무가 중국 정부에서 보조금을 받아 유럽 시장에서 부당한 경쟁 우위를 확보했을 수...",
+        "link": "https://www.yna.co.kr/view/AKR20260731172500098?input=1195m",
+        "pubDate": "Fri, 31 Jul 2026 22:24:00 +0900",
+        "pubDateKR": "2026.07.31",
+        "publisher": "연합뉴스"
+      }
+    ],
+    "효행지원금": [
+      {
+        "title": "인천 제물포구, 3 대 같이 살면 '효행지원금' 지급...연간 50만원",
+        "description": "50만원씩 '효행지원금'을 지급한다고 31일 밝혔다. 지원 대상은 70세 이상 노인을 포함해 삼대 이상이... 이 사업은 제물포구 출범 전 동구의 효행 수당(월 10만원)과 중구의 효사랑 지원금(연 50만원)을 하나로 통합한...",
+        "link": "https://ic.newdaily.co.kr/site/data/html/2026/08/01/2026080100013.html",
+        "pubDate": "Sat, 01 Aug 2026 04:42:00 +0900",
+        "pubDateKR": "2026.07.31",
+        "publisher": "ic.newdaily.co.kr"
       }
     ]
   },
   "trendingAll": [
+    {
+      "term": "민생지원금",
+      "count": 3
+    },
     {
       "term": "생활안정지원금",
       "count": 3
     },
     {
       "term": "효행지원금",
-      "count": 3
-    },
-    {
-      "term": "민생지원금",
       "count": 2
     },
     {
@@ -520,7 +510,7 @@
       "count": 2
     },
     {
-      "term": "손주돌봄수당",
+      "term": "역외보조금",
       "count": 2
     }
   ]
