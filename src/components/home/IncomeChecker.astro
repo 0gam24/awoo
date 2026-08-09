@@ -22,7 +22,10 @@ import { IncomeChecker } from './IncomeChecker';
       <div class="ic-followup-text">
         <strong>받을 수 있는 지원금까지 매칭</strong>해서 보고 싶다면?
       </div>
-      <a class="ic-followup-cta" href="/quick/">5분 진단 시작 →</a>
+      <div class="ic-followup-actions">
+        <a class="ic-followup-cta" href="/quick/">5분 진단 시작 →</a>
+        <a class="ic-followup-more" href="/calculators/">근로장려금 등 계산기 더 보기</a>
+      </div>
     </div>
   </Container>
 </section>
@@ -52,6 +55,18 @@ import { IncomeChecker } from './IncomeChecker';
     line-height: 1.5;
   }
   .ic-followup-text strong { color: var(--accent); }
+  .ic-followup-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .ic-followup-more {
+    font-size: 13px;
+    color: var(--accent-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
   .ic-followup-cta {
     display: inline-flex;
     align-items: center;

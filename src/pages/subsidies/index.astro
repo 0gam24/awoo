@@ -120,6 +120,22 @@ const crossIndex: CrossEntry[] = [
         lead={`전 국민 대상 정부 지원금 <strong>${subsidies.length}개</strong>를 분야·페르소나별로 살펴보세요.`}
       />
 
+      {/* 지역·도구 진입점 — 지역 허브·계산기를 지원금 탐색 동선에 연결 (SEO 감사 분기 전략 후속) */}
+      <div class="explore-rail" aria-label="다른 방식으로 찾기">
+        <a class="explore-card" href="/regions/">
+          <strong>지역별로 보기</strong>
+          <span>나주·고창 등 지자체 지원금을 지역 단위로</span>
+        </a>
+        <a class="explore-card" href="/calculators/">
+          <strong>계산기로 확인</strong>
+          <span>근로장려금 수령액·중위소득 % 바로 계산</span>
+        </a>
+        <a class="explore-card" href="/personas/">
+          <strong>내 상황으로 찾기</strong>
+          <span>청년·신혼·자영업 등 페르소나별 매칭</span>
+        </a>
+      </div>
+
       {/* Cycle #64: 활성 검색어 표시 — 클라이언트 JS가 q 파라미터 있을 때 unhide */}
       <div class="active-search" data-active-search hidden>
         <span class="as-label">검색어:</span>
@@ -466,6 +482,36 @@ const crossIndex: CrossEntry[] = [
   }
   .cr-chip:hover .cr-arrow {
     color: var(--accent);
+  }
+
+  /* 지역·도구 진입점 카드 행 */
+  .explore-rail {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 14px 0 18px;
+  }
+  .explore-card {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text);
+  }
+  .explore-card:hover {
+    border-color: var(--accent);
+  }
+  .explore-card strong {
+    font-size: 14px;
+  }
+  .explore-card span {
+    font-size: 12px;
+    color: var(--text-2);
+    line-height: 1.4;
   }
 
   /* Cycle #54: filter + sort sticky 컨테이너 — 카드 스크롤 중에도 재선택 */
