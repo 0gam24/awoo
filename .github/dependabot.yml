@@ -18,6 +18,14 @@ updates:
       include: 'scope'
     labels:
       - 'dependencies'
+    ignore:
+      # astro 7 + @astrojs/cloudflare 14 조합은 output:'static'+어댑터 구성에서
+      # "Could not find the prerender entry point" 빌드 실패 (2026-08-09 워크트리 재현,
+      # 최신 7.2.0+14.2.0도 동일). 메이저 업그레이드는 수동 마이그레이션으로만 진행.
+      - dependency-name: 'astro'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@astrojs/*'
+        update-types: ['version-update:semver-major']
     groups:
       astro:
         patterns:
