@@ -1,0 +1,94 @@
+name: Publish scheduled posts
+
+# 예약 발행 — _scheduled 대기 글을 기일 도래 시 본 폴더로 이동 후 커밋·배포.
+# 매일 18:15 KST(= 09:15 UTC): 사이트 관행(전날 저녁 다음 날짜 글 발행)에 맞춘 시각.
+# 미래 일자 글을 낮에 커밋하면 목록에 미리 노출되는 문제의 구조적 해결 (2026-08-09 운영자 지시).
+on:
+  schedule:
+    - cron: '15 9 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: publish-scheduled
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Move due posts + commit + deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Move due scheduled posts
+        run: npm run publish:scheduled
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain src/data/issues/)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "Due posts moved"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No due posts — nothing to publish"
+          fi
+
+      # 실행 순서 엄수: 이동 → sync:history(매핑) → lint:content(무결성 게이트)
+      - name: Sync trending→post mapping
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run sync:history
+
+      - name: Verify content (lint)
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run lint:content
+
+      - name: Update today.md
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run update:today
+
+      - name: Commit changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          git add src/data/issues/ today.md
+          DATE=$(TZ=Asia/Seoul date +"%Y-%m-%d")
+          N=$(git diff --cached --name-only --diff-filter=A -- 'src/data/issues/*' | grep -c '\.json$' || true)
+          git commit -m "feat(issues): 예약 발행 ${N}건 — ${DATE}
+
+          [skip ci]"
+          git push origin main
+
+      # [skip ci] 커밋이라 deploy.yml 미트리거 → sync-issues.yml과 동일 패턴으로 직접 배포
+      - name: Build (astro)
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run build
+
+      - name: IndexNow ping
+        if: steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != ''
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+        continue-on-error: true
+        run: npm run indexnow:ping
+
+      - name: Deploy to Cloudflare Workers
+        if: steps.diff.outputs.changed == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
