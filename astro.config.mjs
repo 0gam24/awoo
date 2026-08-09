@@ -10,6 +10,8 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
+import { issueUrlPath } from './src/lib/issue-url.mjs';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // 빌드타임에 _gov24/_manifest.json 읽어 slug → regDate(ISO) 맵 구축
@@ -46,8 +48,13 @@ try {
       try {
         const post = JSON.parse(readFileSync(join(dayPath, f), 'utf8'));
         const slug = f.replace(/\.json$/, '');
-        const iso = post.publishedAt || `${dirent.name}T00:00:00.000Z`;
-        issuePostLastmod.set(`/issues/${dirent.name}/${slug}/`, iso);
+        // lastmod = 발행일과 updates 정정 이력 중 가장 최신 (freshness 신호 정확화)
+        let iso = post.publishedAt || `${dirent.name}T00:00:00.000Z`;
+        for (const u of post.updates ?? []) {
+          if (u?.date && `${u.date}T00:00:00.000Z` > iso) iso = `${u.date}T00:00:00.000Z`;
+        }
+        // 무날짜 URL(2026-07-10 이후 발행분)과 날짜 경로(그 이전) 모두 실제 URL 기준으로 매핑
+        issuePostLastmod.set(issueUrlPath(dirent.name, slug), iso);
       } catch {}
     }
   }
@@ -62,6 +69,34 @@ try {
   }
 } catch {
   // graceful fallback
+}
+
+// Cross-ref 허브(카테고리×페르소나) 중 noindex(thin, 매칭 <5건) 페이지 — sitemap 제외 세트.
+// 라우트는 MIN_RESULTS=2로 생성돼 내부 네비게이션은 유지하되, noindex 페이지가 sitemap에
+// 실리는 GSC 충돌만 차단한다. 임계값은 persona/[persona].astro의 NOINDEX_THRESHOLD=5와 동기.
+const thinCrossRefPaths = new Set();
+try {
+  const pairCounts = new Map(); // `${category}|${personaId}` → n
+  for (const d of ['src/data/subsidies/_gov24', 'src/data/subsidies/_curated']) {
+    for (const f of readdirSync(join(__dirname, d))) {
+      if (!f.endsWith('.json') || f.startsWith('_')) continue;
+      try {
+        const s = JSON.parse(readFileSync(join(__dirname, d, f), 'utf8'));
+        for (const pid of s.targetPersonas ?? []) {
+          const k = `${s.category}|${pid}`;
+          pairCounts.set(k, (pairCounts.get(k) ?? 0) + 1);
+        }
+      } catch {}
+    }
+  }
+  for (const [k, n] of pairCounts) {
+    if (n >= 2 && n < 5) {
+      const [category, pid] = k.split('|');
+      thinCrossRefPaths.add(`/subsidies/category/${encodeURIComponent(category)}/persona/${pid}/`);
+    }
+  }
+} catch {
+  // graceful fallback — 세트가 비면 제외 없이 기존 동작
 }
 
 // https://astro.build/config
@@ -94,7 +129,10 @@ export default defineConfig({
         !page.endsWith('/demo/') &&
         !page.endsWith('/preferences/') &&
         // 마감 sweep 된 지원금 안내(noindex) — 색인·orphan 차단
-        !page.includes('/subsidies/archived/'),
+        !page.includes('/subsidies/archived/') &&
+        // noindex 페이지는 sitemap에서도 제외 (GSC "noindex URL in sitemap" 충돌 차단)
+        !/\/issues\/all\/\d+\/$/.test(new URL(page).pathname) &&
+        !thinCrossRefPaths.has(new URL(page).pathname),
       i18n: {
         defaultLocale: 'ko',
         locales: { ko: 'ko-KR' },
@@ -146,7 +184,10 @@ export default defineConfig({
         }
 
         // weekly / 0.8 — 개별 콘텐츠
+        // 이슈 포스트는 issuePostLastmod 키(실제 URL: 날짜 경로·무날짜 모두)로 판별 —
+        // 정규식만 쓰면 무날짜 URL(2026-07-10+)이 기본 0.7로 새는 버그가 있었다.
         if (
+          issuePostLastmod.has(path) ||
           /^\/issues\/\d{4}-\d{2}-\d{2}\/[^/]+\/$/.test(path) ||
           /^\/subsidies\/[^/]+\/$/.test(path) ||
           /^\/personas\/[^/]+\/$/.test(path) ||

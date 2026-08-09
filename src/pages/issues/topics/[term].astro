@@ -206,7 +206,7 @@ const collectionSchema = !isThin
   ? buildCollectionPage({
       name: `${term} 정부 지원금 ${matchedSubsidies.length}건`,
       description: `'${term}' 트렌딩 키워드 관련 정부 지원금 + 보도 ${entry.totalCount}건 (${entry.daysActive}일 화제)`,
-      pageUrl: `/issues/topics/${term}/`,
+      pageUrl: `/issues/topics/${encodeURIComponent(term)}/`,
       items: [
         ...matchedSubsidies.map(({ s }) => ({
           url: `/subsidies/${s.data.id}/`,

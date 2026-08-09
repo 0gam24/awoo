@@ -221,6 +221,8 @@
           "https://awoo.or.kr/subsidies/voucher-education-support-000045/",
           "https://awoo.or.kr/subsidies/voucher-welfare-000176/",
           "https://awoo.or.kr/subsidies/welfare-discount-200003/",
+          "https://awoo.or.kr/subsidies/welfare-livelihood-support-005003/",
+          "https://awoo.or.kr/subsidies/welfare-support-005004/",
           "https://awoo.or.kr/subsidies/worker-support-000020/",
           "https://awoo.or.kr/subsidies/youth-allowance-support-000126/",
           "https://awoo.or.kr/subsidies/youth-business-savings-account-assets-support-005013/",
@@ -228,7 +230,7 @@
           "https://awoo.or.kr/subsidies/youth-loan-100042/",
           "https://awoo.or.kr/subsidies/youth-rent-support-000099/"
         ],
-        "subsidiesCount": 55
+        "subsidiesCount": 57
       },
       "farmer": {
         "@id": "https://awoo.or.kr/personas/farmer/",
@@ -2363,7 +2365,9 @@
         "@id": "https://awoo.or.kr/subsidies/welfare-livelihood-support-005003/",
         "title": "긴급복지 생계지원",
         "category": "복지",
-        "targetPersonas": [],
+        "targetPersonas": [
+          "https://awoo.or.kr/personas/low-income/"
+        ],
         "mentionedInTopics": [],
         "mentionedGlossary": []
       },
@@ -2371,7 +2375,9 @@
         "@id": "https://awoo.or.kr/subsidies/welfare-support-005004/",
         "title": "긴급복지 연료비 및 전기요금 지원",
         "category": "복지",
-        "targetPersonas": [],
+        "targetPersonas": [
+          "https://awoo.or.kr/personas/low-income/"
+        ],
         "mentionedInTopics": [],
         "mentionedGlossary": []
       },
@@ -2521,7 +2527,7 @@
     "topics_total": 3,
     "topics_without_matches": 1,
     "subsidies_total": 112,
-    "subsidies_orphan_count": 5,
-    "subsidies_inbound_coverage_pct": 96
+    "subsidies_orphan_count": 3,
+    "subsidies_inbound_coverage_pct": 97
   }
 }

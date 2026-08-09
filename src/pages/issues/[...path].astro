@@ -302,7 +302,7 @@ const articleSchema = {
   publisher: { '@id': 'https://awoo.or.kr/#organization' },
   image: [
     buildImageObject({
-      url: 'https://awoo.or.kr/og-default.png',
+      url: `https://awoo.or.kr/og/issues/${slug}.png`,
       caption: post.title,
     }),
   ],
@@ -391,49 +391,9 @@ const articleSchema = {
     : {}),
 };
 
-// Cycle #88: ClaimReview JSON-LD — fact-checker 자체 검증 결과 entity 노출.
-// Google YMYL/Discover에서 ClaimReview rich-result 자격 카테고리 (정부 지원금 등).
-// factCheckScore >= 0.7 시에만 emit — 신뢰도 낮은 포스트는 클레임 노출 X.
-const claimReviewSchema =
-  typeof factCheckScore === 'number' && factCheckScore >= 0.7 && (post.tldr?.[0] ?? '').trim().length > 0
-    ? {
-        '@context': 'https://schema.org',
-        '@type': 'ClaimReview',
-        '@id': `${canonicalUrl}#claimreview`,
-        url: canonicalUrl,
-        datePublished: post.publishedAt,
-        inLanguage: 'ko-KR',
-        author: {
-          '@type': 'Organization',
-          '@id': 'https://awoo.or.kr/#organization',
-        },
-        itemReviewed: {
-          '@type': 'Claim',
-          appearance: canonicalUrl,
-          author: (post.sources ?? []).slice(0, 3).map((s) => ({
-            '@type': 'NewsMediaOrganization',
-            name: s.publisher,
-          })),
-          firstAppearance: (post.sources ?? [])[0]?.url,
-          datePublished: (post.sources ?? [])[0]?.pubDate,
-          claimReviewed: (post.tldr?.[0] ?? '').trim().slice(0, 280),
-        },
-        reviewRating: {
-          '@type': 'Rating',
-          // factCheck 0~1 → 1~5 stars 매핑 (0.7→3.5, 1.0→5.0)
-          ratingValue: Number((factCheckScore * 5).toFixed(1)),
-          bestRating: 5,
-          worstRating: 1,
-          alternateName:
-            factCheckScore >= 0.9 ? '교차 검증됨' : factCheckScore >= 0.8 ? '주요 사실 확인' : '부분 검증',
-        },
-        claimInterpreter: {
-          '@type': 'Person',
-          name: '김준혁',
-          url: 'https://awoo.or.kr/about/',
-        },
-      }
-    : null;
+// ClaimReview는 emit하지 않는다 — 구글 팩트체크 가이드라인상 리뷰 대상 클레임은
+// 제3자 발화여야 하며, 자기 글 요약을 자기 조직이 평점 매기는 구조는 YMYL 사이트에서
+// 기만적 구조화 데이터로 판정될 수 있다. 검증 신호는 NewsArticle의 reviewedBy로 유지.
 
 // Cycle #78: HowTo schema 자동 생성 — body에서 "**N단계:**" 패턴 감지 시
 // "어떻게 신청하나요?" 등 신청 절차 섹션의 단계를 HowToStep으로 변환.
@@ -462,17 +422,6 @@ for (const sec of post.sections ?? []) {
   };
   break; // 첫 신청 절차 섹션만 HowTo로
 }
-
-// Cycle #78: Table schema — post.table → schema:Table 마크업 (Featured Snippet 후보)
-const tableSchema = post.table && Array.isArray(post.table.headers) && Array.isArray(post.table.rows)
-  ? {
-      '@context': 'https://schema.org',
-      '@type': 'Table',
-      '@id': `${canonicalUrl}#table`,
-      about: post.table.title ?? post.title,
-      name: post.table.title ?? '비교표',
-    }
-  : null;
 
 // v2 AEO/GEO: definitions[] → DefinedTermSet — 용어 정의를 entity로 노출.
 // AI 답변 엔진이 사용자 질문의 용어를 본 포스트 정의로 매핑 (glossary hub와 그래프 연결).
@@ -576,6 +525,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
   breadcrumbs={breadcrumbs}
   noindex={isThinPost}
   keywords={post.tags?.slice(0, 8)}
+  ogImage={`/og/issues/${slug}.png`}
   ogType="article"
   ogArticle={{
     publishedTime: post.publishedAt,
@@ -587,14 +537,8 @@ const reportTypeBadge = rt && rt in RT_LABELS
 >
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
-  {/* Cycle #88: ClaimReview — fact-checker 자체 검증 결과 entity (Google YMYL rich-result) */}
-  {claimReviewSchema && (
-    <script type="application/ld+json" set:html={JSON.stringify(claimReviewSchema)} />
-  )}
   {/* Cycle #78: HowTo schema (단계별 신청 절차) — Google rich result + AI 답변 엔진 인용 */}
   {howToSchema && <script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />}
-  {/* Cycle #78: Table schema (비교표) — Featured Snippet 후보 */}
-  {tableSchema && <script type="application/ld+json" set:html={JSON.stringify(tableSchema)} />}
   {/* v2: DefinedTermSet — 용어 정의 entity (AI 답변 용어 매핑 + glossary 그래프) */}
   {definedTermSchema && (
     <script type="application/ld+json" set:html={JSON.stringify(definedTermSchema)} />
@@ -721,7 +665,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
 
         {/* 독자 행동: 화면에서 공식 안내·신청처로 바로 가는 외부 링크 */}
         {officialSource && (
-          <a class="official-cta" href={officialSource.url} target="_blank" rel="nofollow noopener noreferrer">
+          <a class="official-cta" href={officialSource.url} target="_blank" rel="noopener noreferrer">
             🔗 공식 안내·신청 바로가기{officialSource.publisher ? ` (${officialSource.publisher})` : ''}<span class="sr-only"> (새 창)</span>
           </a>
         )}
@@ -1026,7 +970,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
           <div class="rail-card">
             <div class="rail-eyebrow">이 글 관련</div>
             {officialSource && (
-              <a class="rail-cta" href={officialSource.url} target="_blank" rel="nofollow noopener noreferrer">🔗 공식 안내·신청 바로가기</a>
+              <a class="rail-cta" href={officialSource.url} target="_blank" rel="noopener noreferrer">🔗 공식 안내·신청 바로가기</a>
             )}
             {relatedSubsidies.slice(0, 2).map((s) => (
               <a class="rail-cta" href={`/subsidies/${s.id}/`}>💸 {s.title}</a>

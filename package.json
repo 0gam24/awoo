@@ -7,10 +7,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "prebuild": "npm run generate:mirror",
+    "prebuild": "npm run generate:mirror && npm run generate:og",
     "build": "node scripts/build-entity-graph.mjs && astro build && node scripts/check-bundle-size.mjs",
     "build:graph": "node scripts/build-entity-graph.mjs",
     "generate:mirror": "node scripts/generate-network-mirror.mjs",
+    "generate:og": "node scripts/generate-og-images.mjs",
     "update:today": "node scripts/update-today-md.mjs",
     "preview": "npm run build && wrangler dev",
     "astro": "astro",
@@ -70,7 +71,9 @@
     "@astrojs/check": "0.9.9",
     "@biomejs/biome": "2.4.13",
     "@lhci/cli": "0.15.1",
+    "@resvg/resvg-js": "2.6.2",
     "lefthook": "2.1.6",
+    "satori": "0.29.0",
     "typescript": "5.9.3",
     "web-vitals": "5.2.0",
     "wrangler": "4.86.0"

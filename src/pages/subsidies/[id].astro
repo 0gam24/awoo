@@ -171,11 +171,28 @@ const breadcrumbs = [
   { name: s.category, href: `/categories/${encodeURIComponent(s.category)}/` },
   { name: s.title, href: `/subsidies/${s.id}/` },
 ];
+
+// meta description — gov24 원본 summary가 한 줄(20자 안팎)로 짧은 항목이 많아
+// 금액·대상·기관 팩트를 이어붙여 검색 스니펫 정보량을 확보한다 (150자 안에서 순차 누적)
+const descParts = [s.summary.trim().replace(/\.$/, '') + '.'];
+if (s.amount > 0) descParts.push(`${(s.amountLabel ?? '지원 금액').trim()} ${formatWon(s.amount)}.`);
+else if (s.monthly) descParts.push(`${s.monthly.trim()}.`);
+const firstEligibility = (s.eligibility?.[0] ?? '').trim();
+if (firstEligibility) {
+  descParts.push(`대상: ${firstEligibility.length > 45 ? `${firstEligibility.slice(0, 44)}…` : firstEligibility}.`);
+}
+descParts.push(`${s.agency} 신청 자격·방법·기간 정리.`);
+let metaDescription = descParts[0];
+for (const part of descParts.slice(1)) {
+  if (`${metaDescription} ${part}`.length > 150) break;
+  metaDescription = `${metaDescription} ${part}`;
+}
 ---
 
 <BaseLayout
   title={`${s.title} — ${s.agency} | 지원금가이드`}
-  description={s.summary}
+  description={metaDescription}
+  ogImage={`/og/subsidies/${s.id}.png`}
   activeNav="/subsidies/"
   breadcrumbs={breadcrumbs}
 >

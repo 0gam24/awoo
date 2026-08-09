@@ -119,10 +119,10 @@ const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
     {ogType === 'article' && <meta name="author" content={ogArticle?.author ?? '김준혁'} />}
     <link rel="canonical" href={canonicalURL} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate icon" type="image/png" href="/favicon.svg" />
     {/* Cycle #30: PWA manifest — Chrome installable, 빠른 재방문 신호 */}
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="/favicon.svg" />
+    {/* iOS는 SVG apple-touch-icon 미지원 — 빌드 시 favicon.svg에서 180px PNG 생성(generate-og-images.mjs) */}
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     {/* 피드 — RSS·Atom·JSON 구독 채널 (전체 안내: /feeds) */}
     <link rel="alternate" type="application/rss+xml" title="신규 정부 지원금" href="/feed.xml" />
@@ -139,7 +139,9 @@ const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
         먼저 그려지고 woff2 로드 후 CLS 없이 swap. preload하면 모바일 LCP가
         font 다운로드를 기다리느라 지연됨 (300KB / Slow 4G = ~1.5s 페널티). */}
 
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {/* noindex여도 follow 유지 — 페이지네이션(/issues/all/2+)이 nofollow면 뒤 페이지에만
+        실린 포스트로 가는 크롤 경로가 끊긴다. 색인 차단과 링크 발견은 별개 신호. */}
+    {noindex && <meta name="robots" content="noindex, follow" />}
     {!noindex && (
       <Fragment>
         {/* Discover·검색 결과에서 큰 이미지 미리보기 허용 (썸네일 → 와이드 카드) */}
