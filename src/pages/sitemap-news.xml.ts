@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { passesIssueGate } from '@/lib/issue-gate.mjs';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // Cycle #33: Google News sitemap — 영구 포스트만 대상 (NewsArticle 자격)
@@ -28,6 +29,8 @@ export const GET: APIRoute = () => {
     const date = m[1];
     const slug = m[2];
     if (!date || !slug || slug.startsWith('_')) continue;
+    // 발행 게이트 공유 판정 — 상세 페이지가 skip한 포스트를 뉴스 sitemap에 실으면 404 제출
+    if (!passesIssueGate(date, slug, mod.default)) continue;
     const publishedAt = mod.default.publishedAt || `${date}T00:00:00.000Z`;
     if (new Date(publishedAt).getTime() < cutoffMs) continue;
     recent.push({

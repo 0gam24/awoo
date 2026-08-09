@@ -1,6 +1,7 @@
 ---
 import Container from '@/components/Container.astro';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
+import { passesIssueGate } from '@/lib/issue-gate.mjs';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import todayIssue from '@/data/today-issue.json';
 
@@ -55,6 +56,8 @@ for (const [path, mod] of Object.entries(issueModules)) {
   const date = m[1];
   const slug = m[2];
   if (!date || !slug || slug.startsWith('_')) continue;
+  // 발행 게이트 공유 판정 — 상세 페이지가 skip한 포스트를 목록에 실으면 404 링크
+  if (!passesIssueGate(date, slug, mod.default)) continue;
   posts.push({ date, slug, data: mod.default });
 }
 
