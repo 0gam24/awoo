@@ -4,7 +4,7 @@
   "source": {
     "personas": 6,
     "situations": 12,
-    "glossary": 39,
+    "glossary": 42,
     "topics": 3,
     "subsidies": 112
   },
@@ -919,6 +919,46 @@
         ],
         "related_dangling": [],
         "category": "복지"
+      },
+      "weekly-holiday-pay": {
+        "@id": "https://awoo.or.kr/glossary/weekly-holiday-pay/",
+        "term": "주휴수당",
+        "synonyms": [
+          "주휴일 수당",
+          "주휴 수당"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/ordinary-wage/",
+          "https://awoo.or.kr/glossary/contractual-work-hours/"
+        ],
+        "related_dangling": [],
+        "category": "노동"
+      },
+      "ordinary-wage": {
+        "@id": "https://awoo.or.kr/glossary/ordinary-wage/",
+        "term": "통상임금",
+        "synonyms": [
+          "통상 임금"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/weekly-holiday-pay/",
+          "https://awoo.or.kr/glossary/contractual-work-hours/"
+        ],
+        "related_dangling": [],
+        "category": "노동"
+      },
+      "contractual-work-hours": {
+        "@id": "https://awoo.or.kr/glossary/contractual-work-hours/",
+        "term": "소정근로시간",
+        "synonyms": [
+          "소정 근로시간"
+        ],
+        "related": [
+          "https://awoo.or.kr/glossary/weekly-holiday-pay/",
+          "https://awoo.or.kr/glossary/ordinary-wage/"
+        ],
+        "related_dangling": [],
+        "category": "노동"
       }
     },
     "topics": {
@@ -1906,7 +1946,8 @@
         "mentionedInTopics": [],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/single-parent-support/",
-          "https://awoo.or.kr/glossary/single-parent-family/"
+          "https://awoo.or.kr/glossary/single-parent-family/",
+          "https://awoo.or.kr/glossary/ordinary-wage/"
         ]
       },
       "preschool-tuition-support-465790": {

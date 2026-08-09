@@ -1,0 +1,150 @@
+---
+// 근로장려금 예상 수령액 계산기 — 분기 전략 4 (SEO 감사 2026-08-09)
+// 산식: 조세특례제한법 제100조의5 (law.go.kr 원문 확인 2026-08-09)
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { EitcCalculator } from '@/components/calculators/EitcCalculator';
+
+const description =
+  '근로장려금 예상 수령액을 가구 유형(단독·홑벌이·맞벌이)과 연간 총급여로 바로 계산합니다. 단독 최대 165만원, 홑벌이 285만원, 맞벌이 330만원, 재산 1.7억 이상 50% 감액 기준을 반영했습니다.';
+
+const breadcrumbs = [
+  { name: '홈', href: '/' },
+  { name: '계산기', href: '/calculators/' },
+  { name: '근로장려금 계산기', href: '/calculators/eitc/' },
+];
+
+const faq = [
+  {
+    q: '근로장려금 계산 결과가 실제 지급액과 다를 수 있나요?',
+    a: '이 계산기는 조세특례제한법 제100조의5의 법정 산식을 그대로 적용한 추정치입니다. 실제 지급액은 시행령 근로장려금산정표(구간 단위)와 소득·재산 심사, 국세 체납 충당(30% 한도)에 따라 달라질 수 있습니다.',
+  },
+  {
+    q: '가구 유형은 어떻게 구분하나요?',
+    a: '단독가구는 배우자·부양자녀·70세 이상 부양부모가 없는 가구, 홑벌이가구는 배우자의 총급여가 300만원 미만인 가구, 맞벌이가구는 거주자와 배우자 각각 총급여가 300만원 이상인 가구입니다.',
+  },
+  {
+    q: '재산이 많으면 왜 절반만 받나요?',
+    a: '가구 재산 합계가 1억 7천만원 이상 2억 4천만원 미만이면 산정액의 50%만 지급됩니다(조세특례제한법 제100조의5 제4항). 2억 4천만원 이상이면 신청 자격 자체가 없습니다.',
+  },
+  {
+    q: '2026년 근로장려금은 언제 지급되나요?',
+    a: '2026년 정기신청분(5월 1일~6월 1일 신청)은 법정 기한보다 앞당겨 8월 27일에 지급됩니다. 기한후신청분은 별도 심사를 거쳐 순차 지급됩니다.',
+  },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': 'https://awoo.or.kr/calculators/eitc/#faq',
+  mainEntity: faq.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
+const appSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  '@id': 'https://awoo.or.kr/calculators/eitc/#app',
+  name: '근로장려금 예상 수령액 계산기',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  description,
+  offers: { '@type': 'Offer', price: 0, priceCurrency: 'KRW' },
+  publisher: { '@id': 'https://awoo.or.kr/#organization' },
+};
+---
+
+<BaseLayout
+  title="근로장려금 계산기 2026, 단독·홑벌이·맞벌이 예상 수령액 | 지원금가이드"
+  description={description}
+  activeNav="/subsidies/"
+  breadcrumbs={breadcrumbs}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(appSchema)} />
+
+  <section class="calc-hero">
+    <Container size="wide">
+      <h1 class="title">근로장려금 계산기</h1>
+      <p class="lead">
+        가구 유형과 연간 총급여액 등을 입력하면 조세특례제한법 법정 산식 기준 예상 수령액이
+        바로 계산됩니다. 정확한 결정금액은 국세청 심사로 확정됩니다.
+      </p>
+      <EitcCalculator client:visible />
+    </Container>
+  </section>
+
+  <Container size="wide">
+    <section class="calc-section">
+      <h2>산정 구조 한눈에 보기</h2>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">가구 유형별 근로장려금 산정 구간</caption>
+          <thead>
+            <tr><th scope="col">가구 유형</th><th scope="col">점증 구간</th><th scope="col">최대 지급</th><th scope="col">점감 구간</th><th scope="col">소득 상한</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>단독</td><td>400만원 미만</td><td>400만~900만원, 165만원</td><td>900만~2,200만원</td><td>2,200만원</td></tr>
+            <tr><td>홑벌이</td><td>700만원 미만</td><td>700만~1,400만원, 285만원</td><td>1,400만~3,200만원</td><td>3,200만원</td></tr>
+            <tr><td>맞벌이</td><td>800만원 미만</td><td>800만~1,700만원, 330만원</td><td>1,700만~4,400만원</td><td>4,400만원</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="calc-note">
+        출처: 조세특례제한법 제100조의5(근로장려금의 산정). 재산 합계 1억 7천만원 이상이면
+        산정액의 50%, 2억 4천만원 이상이면 신청 불가. 지급일·감액·수령 방법은
+        <a href="/issues/eitc-payment-date-august-27/">근로장려금 지급일 8월 27일 안내</a>와
+        <a href="/issues/eitc-payment-amount-reduction/">감액 사유 정리</a>,
+        <a href="/issues/eitc-refund-notice-cash-receipt/">통지서 현금 수령 방법</a>에서 확인하세요.
+      </p>
+    </section>
+
+    <section class="calc-section">
+      <h2>자주 묻는 질문</h2>
+      {faq.map((f) => (
+        <details class="calc-faq">
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </section>
+  </Container>
+</BaseLayout>
+
+<style is:global>
+  .calc-hero { padding: 40px 0 8px; }
+  .calc-hero .title { font-size: 28px; margin: 0 0 8px; }
+  .calc-hero .lead { color: var(--text-2); line-height: 1.6; max-width: 640px; margin-bottom: 20px; }
+  .calc-section { margin: 32px 0; }
+  .calc-section h2 { font-size: 19px; margin-bottom: 12px; }
+  .calc-note { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-top: 12px; }
+  .table-wrap { overflow-x: auto; }
+  .calc-section table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  .calc-section th, .calc-section td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+  .calc-section th { background: var(--surface-2); }
+  .calc-faq { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; }
+  .calc-faq summary { font-weight: 600; cursor: pointer; }
+  .calc-faq p { margin: 10px 0 2px; line-height: 1.7; color: var(--text); }
+
+  /* EitcCalculator island (is:global 필요) */
+  .ec-board { display: grid; gap: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; max-width: 720px; }
+  .ec-inputs { display: grid; gap: 16px; }
+  .ec-label { font-size: 13px; font-weight: 700; color: var(--text-2); display: block; margin-bottom: 6px; }
+  .ec-fieldset { border: 0; padding: 0; margin: 0; }
+  .ec-type-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ec-type-btn { padding: 8px 16px; border: 1px solid var(--border); border-radius: 999px; font-size: 14px; cursor: pointer; }
+  .ec-type-btn.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .ec-income-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .ec-income-row input[type='number'] { width: 120px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 15px; background: var(--bg); color: var(--text); }
+  .ec-unit { font-size: 14px; color: var(--text-2); }
+  .ec-board input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .ec-asset { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text); }
+  .ec-result { border-top: 1px solid var(--border); padding-top: 16px; }
+  .ec-zone { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+  .ec-amount { font-size: 24px; }
+  .ec-amount strong { color: var(--text); }
+  .ec-note { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-top: 8px; }
+</style>

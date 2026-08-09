@@ -1,0 +1,105 @@
+---
+// 중위소득 % 계산기 전용 페이지 — 홈 IncomeChecker 아일랜드 재사용 (분기 전략 4)
+// "중위소득 계산기" 검색 수요를 받는 색인 가능한 랜딩 (홈 섹션은 앵커 불가)
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { IncomeChecker } from '@/components/home/IncomeChecker';
+
+const description =
+  '가구원 수와 월소득을 입력하면 2026년 보건복지부 기준 중위소득 몇 %인지 바로 계산합니다. 기초생활보장·차상위·청년월세 등 소득 자격선과 비교해 어떤 지원 범위에 드는지 확인하세요.';
+
+const breadcrumbs = [
+  { name: '홈', href: '/' },
+  { name: '계산기', href: '/calculators/' },
+  { name: '중위소득 계산기', href: '/calculators/median-income/' },
+];
+
+const faq = [
+  {
+    q: '기준 중위소득이 무엇인가요?',
+    a: '전체 가구를 소득순으로 줄 세웠을 때 정확히 가운데 가구의 소득으로, 보건복지부가 매년 8월 고시합니다. 기초생활보장 급여와 다수 복지 사업의 소득 자격이 이 금액의 몇 %인지로 정해집니다.',
+  },
+  {
+    q: '세전 소득과 세후 소득 중 무엇을 입력하나요?',
+    a: '복지 자격 판정에 쓰이는 소득인정액은 세전 소득에 재산의 소득환산액을 더해 계산합니다. 이 계산기는 세전 월소득 기준의 간이 확인용이므로, 정확한 자격은 복지로 모의계산이나 주민센터 상담으로 확정하세요.',
+  },
+  {
+    q: '2027년에는 기준이 바뀌나요?',
+    a: '기준 중위소득은 매년 8월에 다음 해 금액이 고시됩니다. 2027년 적용 금액이 확정되면 이 계산기와 관련 글에 반영됩니다.',
+  },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': 'https://awoo.or.kr/calculators/median-income/#faq',
+  mainEntity: faq.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
+const appSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  '@id': 'https://awoo.or.kr/calculators/median-income/#app',
+  name: '중위소득 % 계산기',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  description,
+  offers: { '@type': 'Offer', price: 0, priceCurrency: 'KRW' },
+  publisher: { '@id': 'https://awoo.or.kr/#organization' },
+};
+---
+
+<BaseLayout
+  title="중위소득 계산기 2026, 우리 집은 중위소득 몇 %일까 | 지원금가이드"
+  description={description}
+  activeNav="/subsidies/"
+  breadcrumbs={breadcrumbs}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(appSchema)} />
+
+  <section class="calc-hero income-checker">
+    <Container size="wide">
+      <h1 class="title">중위소득 % 계산기</h1>
+      <p class="lead">
+        가구원 수와 세전 월소득만 입력하면 2026년 보건복지부 기준 중위소득 대비 몇 %인지,
+        어떤 지원 자격선 안에 드는지 바로 보여드립니다.
+      </p>
+      <IncomeChecker client:visible />
+    </Container>
+  </section>
+
+  <Container size="wide">
+    <section class="calc-section">
+      <h2>자주 묻는 질문</h2>
+      {faq.map((f) => (
+        <details class="calc-faq">
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+      <p class="calc-note">
+        용어가 낯설다면 <a href="/glossary/median-income/">기준 중위소득 용어 정리</a>를,
+        내년 기준선 변화는
+        <a href="/issues/median-income-2027-livelihood-benefit-threshold/">2027년 중위소득과 생계급여 기준</a>에서
+        확인하세요. 받을 수 있는 지원금 매칭은 <a href="/quick/">5분 진단</a>이 빠릅니다.
+      </p>
+    </section>
+  </Container>
+</BaseLayout>
+
+<style is:global>
+  .calc-hero { padding: 40px 0 8px; }
+  .calc-hero .title { font-size: 28px; margin: 0 0 8px; }
+  .calc-hero .lead { color: var(--text-2); line-height: 1.6; max-width: 640px; margin-bottom: 20px; }
+  .calc-section { margin: 32px 0; }
+  .calc-section h2 { font-size: 19px; margin-bottom: 12px; }
+  .calc-note { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-top: 12px; }
+  .calc-faq { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; }
+  .calc-faq summary { font-weight: 600; cursor: pointer; }
+  .calc-faq p { margin: 10px 0 2px; line-height: 1.7; color: var(--text); }
+</style>

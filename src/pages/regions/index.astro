@@ -1,0 +1,139 @@
+---
+// 지역별 허브 인덱스 — 콘텐츠가 있는 지역만 나열 ([id].astro와 동일 매칭·임계 공유)
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import regions from '@/data/regions.json';
+import { passesIssueGate } from '@/lib/issue-gate.mjs';
+import { buildCollectionPage } from '@/lib/schema';
+import { getCollection } from 'astro:content';
+
+interface PostData {
+  title: string;
+  tags?: string[];
+}
+
+const MIN_ITEMS = 2;
+
+const postModules = import.meta.glob<{ default: PostData }>('/src/data/issues/*/*.json', {
+  eager: true,
+});
+const posts: Array<{ data: PostData }> = [];
+for (const [path, mod] of Object.entries(postModules)) {
+  const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
+  if (!m) continue;
+  if (!m[2] || m[2].startsWith('_')) continue;
+  if (!passesIssueGate(m[1], m[2], mod.default)) continue;
+  posts.push({ data: mod.default });
+}
+const subsidies = await getCollection('subsidies');
+
+const rows = [];
+for (const region of regions) {
+  const needles = [region.name, ...region.aliases];
+  const matchText = (text: string) => needles.some((n) => text.includes(n));
+  const postCount = posts.filter(
+    (p) => matchText(p.data.title) || (p.data.tags ?? []).some((t) => matchText(t)),
+  ).length;
+  const subsidyCount = subsidies.filter(
+    (s) =>
+      matchText(s.data.title) ||
+      matchText(s.data.agency ?? '') ||
+      (s.data.tags ?? []).some((t: string) => matchText(t)),
+  ).length;
+  if (postCount + subsidyCount < MIN_ITEMS) continue;
+  rows.push({ region, postCount, subsidyCount, total: postCount + subsidyCount });
+}
+rows.sort((a, b) => b.total - a.total);
+
+const description = `지자체별 지원금과 이슈를 지역 단위로 모았습니다. ${rows.length}개 지역의 지급 확정 사례와 신청 방법을 확인하세요.`;
+
+const breadcrumbs = [
+  { name: '홈', href: '/' },
+  { name: '지역별', href: '/regions/' },
+];
+
+const collectionSchema = buildCollectionPage({
+  name: '지역별 지원금 허브',
+  description,
+  pageUrl: '/regions/',
+  items: rows.map(({ region }) => ({ url: `/regions/${region.id}/`, name: region.full })),
+});
+---
+
+<BaseLayout
+  title="지역별 지원금 모음, 우리 지역 지급 확정 확인 | 지원금가이드"
+  description={description}
+  activeNav="/subsidies/"
+  breadcrumbs={breadcrumbs}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  <section class="regions-hero">
+    <Container size="wide">
+      <h1 class="title">지역별 지원금</h1>
+      <p class="lead">
+        지자체 지원금은 지역마다 대상·금액·일정이 다릅니다. 콘텐츠가 쌓인 지역부터
+        지역 단위로 모아 보여드립니다. 내 지역이 없다면
+        <a href="/issues/chuseok-livelihood-recovery-region-check/">지역별 확인 방법</a>을 참고하세요.
+      </p>
+    </Container>
+  </section>
+
+  <Container size="wide">
+    <ul class="region-grid">
+      {rows.map(({ region, postCount, subsidyCount }) => (
+        <li>
+          <a class="region-card" href={`/regions/${region.id}/`}>
+            <strong class="region-name">{region.full}</strong>
+            <span class="region-counts">
+              이슈 {postCount}건{subsidyCount > 0 ? ` · 지원금 ${subsidyCount}건` : ''}
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </Container>
+</BaseLayout>
+
+<style>
+  .regions-hero {
+    padding: 40px 0 8px;
+  }
+  .title {
+    font-size: 28px;
+    margin: 0 0 8px;
+  }
+  .lead {
+    color: var(--text-2);
+    line-height: 1.6;
+    max-width: 640px;
+  }
+  .region-grid {
+    list-style: none;
+    margin: 24px 0 48px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .region-card {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+    text-decoration: none;
+    color: var(--text);
+  }
+  .region-card:hover {
+    border-color: var(--accent);
+  }
+  .region-name {
+    font-size: 16px;
+  }
+  .region-counts {
+    font-size: 13px;
+    color: var(--text-2);
+  }
+</style>

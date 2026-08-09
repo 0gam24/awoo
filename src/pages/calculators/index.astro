@@ -1,0 +1,70 @@
+---
+// 계산기 허브 — 온페이지 인터랙티브 도구 목록 (분기 전략 4)
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildCollectionPage } from '@/lib/schema';
+
+const description =
+  '근로장려금 예상 수령액, 중위소득 % 등 지원금 자격·금액을 바로 확인하는 무료 계산기 모음입니다. 법정 산식과 보건복지부 고시 기준을 그대로 반영했습니다.';
+
+const CALCULATORS = [
+  {
+    href: '/calculators/eitc/',
+    name: '근로장려금 계산기',
+    desc: '가구 유형·연 총급여로 예상 수령액 계산 (최대 330만원, 법정 산식 기준)',
+  },
+  {
+    href: '/calculators/median-income/',
+    name: '중위소득 % 계산기',
+    desc: '가구원 수·월소득으로 기준 중위소득 대비 %와 지원 자격선 확인',
+  },
+];
+
+const breadcrumbs = [
+  { name: '홈', href: '/' },
+  { name: '계산기', href: '/calculators/' },
+];
+
+const collectionSchema = buildCollectionPage({
+  name: '지원금 계산기 모음',
+  description,
+  pageUrl: '/calculators/',
+  items: CALCULATORS.map((c) => ({ url: c.href, name: c.name })),
+});
+---
+
+<BaseLayout
+  title="지원금 계산기 모음, 근로장려금·중위소득 바로 계산 | 지원금가이드"
+  description={description}
+  activeNav="/subsidies/"
+  breadcrumbs={breadcrumbs}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  <section class="calc-hero">
+    <Container size="wide">
+      <h1 class="title">지원금 계산기</h1>
+      <p class="lead">회원가입 없이 바로 쓰는 무료 계산기입니다. 결과는 공식 산식 기준 추정치이며, 최종 금액은 각 기관 심사로 확정됩니다.</p>
+      <ul class="calc-grid">
+        {CALCULATORS.map((c) => (
+          <li>
+            <a class="calc-card" href={c.href}>
+              <strong>{c.name}</strong>
+              <span>{c.desc}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </section>
+</BaseLayout>
+
+<style>
+  .calc-hero { padding: 40px 0 48px; }
+  .title { font-size: 28px; margin: 0 0 8px; }
+  .lead { color: var(--text-2); line-height: 1.6; max-width: 640px; margin-bottom: 20px; }
+  .calc-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .calc-card { display: flex; flex-direction: column; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 18px 20px; text-decoration: none; color: var(--text); }
+  .calc-card:hover { border-color: var(--accent); }
+  .calc-card strong { font-size: 16px; }
+  .calc-card span { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+</style>
