@@ -182,7 +182,7 @@ if (firstEligibility) {
   descParts.push(`대상: ${firstEligibility.length > 45 ? `${firstEligibility.slice(0, 44)}…` : firstEligibility}.`);
 }
 descParts.push(`${s.agency} 신청 자격·방법·기간 정리.`);
-let metaDescription = descParts[0];
+let metaDescription = descParts[0] ?? '';
 for (const part of descParts.slice(1)) {
   if (`${metaDescription} ${part}`.length > 150) break;
   metaDescription = `${metaDescription} ${part}`;
