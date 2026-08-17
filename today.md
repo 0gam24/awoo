@@ -2,9 +2,15 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-08-17 16:41 KST
+> 마지막 갱신: 2026-08-18 03:31 KST
 
-## 2026-08-17 (오늘)
+## 2026-08-18 (오늘)
+
+### 📰 신규 이슈 포스트 (1건)
+- `복지` [영동군 민생안정지원금 30만원 영동페이 온라인 신청](https://awoo.or.kr/issues/yeongdong-livelihood-stability-grant/)
+  - 영동군이 전 군민 1인당 30만원을 레인보우 영동페이로 지급합니다. 온라인 신청은 8월 17~28일, 방문은 8월 31일~10월 2일이며 사용기한은 12월 31일입니다.
+
+## 2026-08-17
 
 ### 📰 신규 이슈 포스트 (1건)
 - `복지` [고흥군 민생회복지원금 30만원, 추석 전 고흥사랑상품권 지급](https://awoo.or.kr/issues/goheung-livelihood-recovery-grant/)
