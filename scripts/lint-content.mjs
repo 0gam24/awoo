@@ -196,6 +196,15 @@ const AI_TELL_PHRASES = [
   /지금부터 (하나씩|차근차근)/,
 ];
 
+// 구글·네이버 이중노출 표준 시행일 — 구조 지문 희석 규칙 (docs/ops/GOOGLE-NAVER-DUAL-STANDARD.md)
+// 이 날짜 이후 발행분에만 v3 지문 규칙 적용 — 기존 글(~2026-08-27) lint 출력은 불변 보장.
+const DUAL_EXPOSURE_CUTOFF = '2026-08-28';
+// v3 확장 말버릇 — 기존 AI_TELL_PHRASES 배열에 합치면 2026-07-11~08-27 발행분에 새 warn이
+// 생기므로 별도 배열로 분리해 DUAL_EXPOSURE_CUTOFF 이후 발행분에만 검사한다.
+const AI_TELL_PHRASES_V2 = [/정리하면,/, /살펴보겠습니다/, /알아보겠습니다/];
+// coreFacts placeholder(미확정 팩트) 감지 — amount·deadline 둘 다 매치면 발행 차단(err)
+const PLACEHOLDER_FACT_RE = /(확인 필요|공식 공고|공고 기준|미공개|추후 안내|미정)/;
+
 // 헤드라인 클릭베이트·과장 패턴 — Google Discover 정책 준수용
 // 발견 시 warn (포스트별 사람 검토 신호)
 const CLICKBAIT_PATTERNS = [
@@ -214,6 +223,23 @@ function checkClickbait(title) {
     }
   }
   return null;
+}
+
+// v3(이중노출): 헤딩 전역 완전일치 검사용 사전 패스 — heading → 첫 사용처
+// (metaDescSeen 전역중복 패턴과 동일 구조. warn 발동은 신규 글(DUAL_EXPOSURE_CUTOFF+)에서만)
+const headingFirstSeen = new Map(); // heading → "date/slug"
+for (const { date, slug, file } of issueFiles) {
+  let pre;
+  try {
+    pre = readJson(file);
+  } catch {
+    continue; // parse 실패는 본 루프에서 err 처리
+  }
+  for (const s of Array.isArray(pre.sections) ? pre.sections : []) {
+    if (typeof s?.heading === 'string' && !headingFirstSeen.has(s.heading)) {
+      headingFirstSeen.set(s.heading, `${date}/${slug}`);
+    }
+  }
 }
 
 for (const { date, slug, file } of issueFiles) {
@@ -509,7 +535,8 @@ for (const { date, slug, file } of issueFiles) {
   }
 
   // --- P1: 신청/절차 섹션인데 "**N단계:**" 패턴 없음 → HowTo 자동생성 누락 — 작성 유도 warn ---
-  if (Array.isArray(post.sections)) {
+  // 이중노출 표준(DUAL_EXPOSURE_CUTOFF+) 이후 신규 글은 서식 로테이션 대상 — 균일 서식 유도 금지 → 구버전만 발동
+  if (Array.isArray(post.sections) && date < DUAL_EXPOSURE_CUTOFF) {
     const hasProcedureHeading = post.sections.some(
       (s) => typeof s.heading === 'string' && /신청|절차|방법|접수|단계/.test(s.heading),
     );
@@ -579,6 +606,102 @@ for (const { date, slug, file } of issueFiles) {
           );
         }
       });
+    }
+  }
+
+  // --- v3: 구글·네이버 이중노출 표준(DUAL_EXPOSURE_CUTOFF+) — 구조 지문 희석 ---
+  // 코퍼스 전체가 같은 골격(tldr 5·faq 5·질문형 H2·동일 종결)이면 기계 생성 지문으로 묶여
+  // 노출이 깎인다 → 신규 발행분부터 다양화 유도. 기존 글 출력은 불변.
+  if (date >= DUAL_EXPOSURE_CUTOFF) {
+    // 1) 구조 지문: tldr 5·faq 5 동시
+    if (
+      Array.isArray(post.tldr) &&
+      Array.isArray(post.faq) &&
+      post.tldr.length === 5 &&
+      post.faq.length === 5
+    ) {
+      warn(
+        `이슈 구조 지문(tldr 5·faq 5 동시) — 개수를 글마다 다르게 (기존 코퍼스 94%가 5·5): ${date}/${slug}`,
+      );
+    }
+
+    // 2) 질문형 헤딩 전면
+    if (
+      Array.isArray(post.sections) &&
+      post.sections.length >= 3 &&
+      post.sections.every((s) => typeof s.heading === 'string' && s.heading.trim().endsWith('?'))
+    ) {
+      warn(`이슈 H2 100% 질문형 — 질문형 40~60%로 혼합 권장: ${date}/${slug}`);
+    }
+
+    // 3) 헤딩 전역 완전일치 (사전 패스 headingFirstSeen 참조)
+    for (const s of Array.isArray(post.sections) ? post.sections : []) {
+      if (typeof s?.heading !== 'string') continue;
+      const firstUse = headingFirstSeen.get(s.heading);
+      if (firstUse && firstUse !== `${date}/${slug}`) {
+        warn(
+          `이슈 heading 전역 완전일치 ("${s.heading}" — ${firstUse} 와 동일) — 표현 변경 권장: ${date}/${slug}`,
+        );
+      }
+    }
+
+    // 4) 메타 종결 지문
+    if (
+      typeof post.metaDescription === 'string' &&
+      /정리했(습니다|어요)[.!]?$/.test(post.metaDescription)
+    ) {
+      warn(
+        `이슈 메타 종결 '정리했습니다' — 코퍼스 62%가 동일 종결, 다른 종결형 사용: ${date}/${slug}`,
+      );
+    }
+
+    // 5) AI 티 말버릇 v2 — 검사 범위 확장 (tldr·faq(q+a)·answer·metaDescription 포함)
+    const aiTellTextV2 = [
+      post.title ?? '',
+      ...(post.sections ?? []).map((s) => `${s.lead ?? ''} ${s.body ?? ''}`),
+      ...(Array.isArray(post.tldr) ? post.tldr : []),
+      ...(Array.isArray(post.faq) ? post.faq.flatMap((f) => [f?.q ?? '', f?.a ?? '']) : []),
+      post.answer ?? '',
+      post.metaDescription ?? '',
+    ].join(' ');
+    const hitV2 = AI_TELL_PHRASES_V2.find((re) => re.test(aiTellTextV2));
+    if (hitV2) {
+      warn(
+        `이슈 AI 티 반복 표현 v2(${hitV2.source}) — 글마다 다른 표현 사용 권장: ${date}/${slug}`,
+      );
+    }
+
+    // 6) 본문 줄표 — 제목은 기존 err(TITLE_STYLE_CUTOFF) 유지, 본문은 warn으로 희석 유도
+    const dashIdx = (post.sections ?? []).findIndex(
+      (s) => /[—–]/.test(String(s?.lead ?? '')) || /[—–]/.test(String(s?.body ?? '')),
+    );
+    if (dashIdx !== -1) {
+      warn(
+        `이슈 본문(sections[${dashIdx}] lead/body)에 긴 줄표(— / –) 사용 = AI 티 — 콤마·괄호 등으로 교체: ${date}/${slug}`,
+      );
+    }
+
+    // 7) 정각 발행 지문
+    if (typeof post.publishedAt === 'string') {
+      const t = post.publishedAt.match(/T\d{2}:(\d{2}):(\d{2})/);
+      if (t && (t[1] === '00' || t[1] === '30') && t[2] === '00') {
+        warn(
+          `이슈 발행시각 정각/30분 지문 — 분·초 랜덤화 권장 (코퍼스 02:00 집중 32%): ${date}/${slug}`,
+        );
+      }
+    }
+
+    // 8) placeholder 팩트 게이트 — 금액·마감 둘 다 미확정이면 발행 차단(err), 한쪽만이면 warn
+    if (post.coreFacts && typeof post.coreFacts === 'object') {
+      const amountPh = PLACEHOLDER_FACT_RE.test(String(post.coreFacts.amount ?? ''));
+      const deadlinePh = PLACEHOLDER_FACT_RE.test(String(post.coreFacts.deadline ?? ''));
+      if (amountPh && deadlinePh) {
+        err(`이슈 확정 팩트 0건 발행 금지 (금액·마감 중 최소 1개 확정 필요): ${date}/${slug}`);
+      } else if (amountPh || deadlinePh) {
+        warn(
+          `이슈 coreFacts.${amountPh ? 'amount' : 'deadline'} placeholder(미확정 팩트) — 확정 수치 보강 권장: ${date}/${slug}`,
+        );
+      }
     }
   }
 }

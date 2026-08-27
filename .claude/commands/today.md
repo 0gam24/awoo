@@ -30,12 +30,13 @@ Skill 도구로 `traffic` 호출, args: `"갱신·색인 점검 우선 — 내�
 AskUserQuestion **금지** — 다음 규칙으로 범위를 자동 확정:
 - **갱신 후보**(확정 발표 난 "발표 대기" 글)가 있으면 **전부 포함** (가장 빠른 트래픽)
 - **신규는 scout 1순위 1건 기본.** 시기성 오버라이드(마감 D-14·지급일 ±3일·확정 발표 24h) 후보가 더 있으면 최대 3건까지 확대
+- **구글 신뢰 회복기 규칙(2026-08-28~, GOOGLE-NAVER-DUAL-STANDARD §5)**: 신규 상한 3건 유지·갱신 우선. **지역명 치환 동시 발행 금지**(동일 템플릿 지역 변형 연발 대신 비교 허브 1건+날짜 분산). 1키워드 1페이지(분할 발행 금지)
 - hub 회수·trendingTerm 정비 등 발행 0건짜리 구조 작업은 발견 즉시 포함
 - GATE-A 중복 70%↑면 강행하지 않고 longtail-strategist가 제시한 빈 각도로 자동 전환, 빈 각도가 없으면 그 키워드는 제외
 - GATE-B 매칭 0건이면 그 키워드 제외 (외부 소스 단독 발행은 자율 모드에서 금지)
 
 ### PHASE 4 — 발행 (자동 결재)
-- post-writer(병렬) → fact-checker(병렬) + quality-gate(일괄) → lint:content + build.
+- post-writer(병렬) → fact-checker(병렬) + **google-quality-auditor(일괄, 2026-08-28+ 필수)** + quality-gate(일괄) → lint:content + build.
 - **GATE-D 자동 결재 규칙**: fact-checker PASS(또는 FIX 정정 후 재검증 PASS) + quality-gate PASS + lint err 0 + build 성공 = **즉시 발행** (commit·push·indexnow·update:today까지 무중단).
 - fact-checker **BLOCK** = 그 글만 자동 제외하고 나머지 발행. 전건 BLOCK이면 발행 0건으로 종료하고 사유 보고.
 - 갱신 건: 수치 교체 + lastSeen/dateModified 갱신 + fact-checker 검증 — 동일 자동 결재.
