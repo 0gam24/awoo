@@ -1,0 +1,112 @@
+# awoo 0400 자동 발행 PR 자동 병합
+#
+# 배경: 클라우드 루틴 'awoo 0400'(매일 KST 04:00)은 main 직접 push 권한이 없어
+# claude/* 브랜치로 PR을 연다. 이 워크플로가 운영자 승인을 대신해
+# [콘텐츠 파일만 변경 + Cloudflare Workers 빌드 성공] 조건을 검증하고 자동 병합한다.
+# (운영자 지시 2026-08-28: 새벽 자동 발행 1건은 승인 없이 온라인 공개까지 전권)
+#
+# 안전장치:
+#   - 같은 저장소의 claude/* 브랜치 + 제목에 '0400 자동 발행' 포함 PR만 대상 (fork 불가)
+#   - 변경 파일이 src/data/issues/** 와 today.md 뿐일 때만 병합 — 코드·설정·워크플로 변경이
+#     끼어 있으면 절대 병합하지 않고 라벨만 남긴다
+#   - 'Workers Builds: awoo' 체크 성공 필수 (Lighthouse 체크는 main 자체에서 실패하는
+#     기존 인프라 이슈라 게이트에서 제외 — 수정되면 아래 GATE_CHECK에 추가)
+#   - 병합 후 신규 이슈 URL을 IndexNow에 자동 핑 (키는 public/<KEY>.txt — IndexNow 키는
+#     공개가 전제인 값이라 시크릿 불필요)
+
+name: Auto publish 0400
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review, synchronize]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+concurrency:
+  group: auto-publish-0400-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  auto-merge:
+    if: >
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'claude/') &&
+      contains(github.event.pull_request.title, '0400 자동 발행')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - name: 변경 파일이 콘텐츠뿐인지 검증
+        id: files
+        run: |
+          files=$(gh api "repos/${{ github.repository }}/pulls/$PR/files" --paginate --jq '.[].filename')
+          echo "$files"
+          bad=0
+          while IFS= read -r f; do
+            case "$f" in
+              src/data/issues/*|today.md) ;;
+              *) echo "::warning::콘텐츠 외 파일 감지: $f"; bad=1 ;;
+            esac
+          done <<< "$files"
+          if [ "$bad" = "1" ]; then
+            gh pr comment "$PR" --body "auto-publish-0400: 콘텐츠 외 파일이 포함돼 자동 병합을 중단합니다. 운영자 수동 검토가 필요합니다."
+            echo "content_only=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "content_only=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Cloudflare Workers 빌드 성공 대기 (최대 20분)
+        if: steps.files.outputs.content_only == 'true'
+        id: gate
+        run: |
+          GATE_CHECK="Workers Builds: awoo"
+          for i in $(seq 1 40); do
+            state=$(gh api "repos/${{ github.repository }}/commits/$HEAD_SHA/check-runs" \
+              --jq "[.check_runs[] | select(.name == \"$GATE_CHECK\")] | first | .conclusion // .status")
+            echo "[$i/40] $GATE_CHECK = $state"
+            case "$state" in
+              success) echo "ok=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+              failure|cancelled|timed_out|action_required)
+                gh pr comment "$PR" --body "auto-publish-0400: '$GATE_CHECK' 체크가 $state 라 자동 병합을 중단합니다."
+                echo "ok=false" >> "$GITHUB_OUTPUT"; exit 0 ;;
+              *) sleep 30 ;;
+            esac
+          done
+          gh pr comment "$PR" --body "auto-publish-0400: '$GATE_CHECK' 체크가 20분 내에 끝나지 않아 자동 병합을 중단합니다."
+          echo "ok=false" >> "$GITHUB_OUTPUT"
+
+      - name: draft 해제 후 squash 병합
+        if: steps.files.outputs.content_only == 'true' && steps.gate.outputs.ok == 'true'
+        id: merge
+        run: |
+          gh pr ready "$PR" || true
+          gh pr merge "$PR" --squash --delete-branch
+          echo "merged=true" >> "$GITHUB_OUTPUT"
+
+      - name: 저장소 체크아웃 (IndexNow 키·URL 파생용)
+        if: steps.merge.outputs.merged == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: 신규 이슈 URL IndexNow 핑
+        if: steps.merge.outputs.merged == 'true'
+        run: |
+          KEY=$(ls public/ | grep -E '^[0-9a-f]{32}\.txt$' | head -1 | sed 's/\.txt$//')
+          if [ -z "$KEY" ]; then echo "::warning::IndexNow 키 파일 없음 — 핑 생략"; exit 0; fi
+          urls=$(gh api "repos/${{ github.repository }}/pulls/$PR/files" --paginate \
+            --jq '.[] | select(.status == "added") | .filename' \
+            | grep -E '^src/data/issues/[0-9]{4}-[0-9]{2}-[0-9]{2}/.+\.json$' \
+            | sed -E 's#^src/data/issues/[0-9-]+/##; s#-[0-9]{4}-[0-9]{2}-[0-9]{2}\.json$##' \
+            | sed 's#^#"https://awoo.or.kr/issues/#; s#$#/"#' | paste -sd, -)
+          if [ -z "$urls" ]; then echo "신규 이슈 파일 없음 (갱신 전용 PR) — 핑 생략"; exit 0; fi
+          echo "ping: $urls"
+          curl -s -X POST "https://api.indexnow.org/IndexNow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d "{\"host\":\"awoo.or.kr\",\"key\":\"$KEY\",\"keyLocation\":\"https://awoo.or.kr/$KEY.txt\",\"urlList\":[$urls]}" \
+            -w "\nHTTP %{http_code}\n"
