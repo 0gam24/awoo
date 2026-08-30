@@ -38,8 +38,12 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
+      # 이 잡은 저장소를 체크아웃하지 않으므로 gh pr 계열 명령이 로컬 git에서 대상
+      # 저장소를 찾지 못한다(fatal: not a git repository). GH_REPO로 명시해야 동작한다.
+      GH_REPO: ${{ github.repository }}
       PR: ${{ github.event.pull_request.number }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
     steps:
       - name: 변경 파일이 콘텐츠뿐인지 검증
         id: files
@@ -85,8 +89,12 @@ jobs:
         id: merge
         run: |
           gh pr ready "$PR" || true
-          gh pr merge "$PR" --squash --delete-branch
+          gh pr merge "$PR" --squash
           echo "merged=true" >> "$GITHUB_OUTPUT"
+          # 브랜치 삭제는 병합 성공을 확정한 뒤 별도로 — 삭제가 실패해도
+          # 병합·IndexNow 핑까지 되돌아가지 않게 한다(--delete-branch는 로컬 git 의존).
+          gh api -X DELETE "repos/${{ github.repository }}/git/refs/heads/$HEAD_REF" \
+            || echo "::warning::헤드 브랜치 '$HEAD_REF' 삭제 실패 — 병합 자체는 완료됨"
 
       - name: 저장소 체크아웃 (IndexNow 키·URL 파생용)
         if: steps.merge.outputs.merged == 'true'
