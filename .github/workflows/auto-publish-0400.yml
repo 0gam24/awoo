@@ -2,15 +2,22 @@
 #
 # 배경: 클라우드 루틴 'awoo 0400'(매일 KST 04:00)은 main 직접 push 권한이 없어
 # claude/* 브랜치로 PR을 연다. 이 워크플로가 운영자 승인을 대신해
-# [콘텐츠 파일만 변경 + Cloudflare Workers 빌드 성공] 조건을 검증하고 자동 병합한다.
+# [콘텐츠 파일만 변경 + 게이트 체크 전부 성공] 조건을 검증하고 자동 병합한다.
 # (운영자 지시 2026-08-28: 새벽 자동 발행 1건은 승인 없이 온라인 공개까지 전권)
 #
 # 안전장치:
 #   - 같은 저장소의 claude/* 브랜치 + 제목에 '0400 자동 발행' 포함 PR만 대상 (fork 불가)
 #   - 변경 파일이 src/data/issues/** 와 today.md 뿐일 때만 병합 — 코드·설정·워크플로 변경이
 #     끼어 있으면 절대 병합하지 않고 라벨만 남긴다
-#   - 'Workers Builds: awoo' 체크 성공 필수 (Lighthouse 체크는 main 자체에서 실패하는
-#     기존 인프라 이슈라 게이트에서 제외 — 수정되면 아래 GATE_CHECK에 추가)
+#   - 아래 GATE_CHECKS 의 체크가 전부 success 여야 병합 (하나라도 실패면 코멘트만 남기고 중단)
+#     2026-08-31: CI 'Lint · Typecheck · Build · Lighthouse 4×100' 을 게이트에 편입.
+#     기존에 제외했던 이유(main HEAD 자체 실패) 3건을 모두 처리했다 —
+#       (1) GA4·AdSense·wcslog 의 서드파티 쿠키로 best-practices 0.74 고정
+#           → lighthouserc.json blockedUrlPatterns 로 CI 측정에서만 차단
+#       (2) 정적 서버에 없는 /api/vitals 404 가 errors-in-console 0점
+#           → src/lib/vitals.ts 가 localhost 에서는 비콘 미전송
+#       (3) footer h3 가 h1 뒤에 와서 heading-order 위반 → footer 레이블 h2
+#     콘텐츠 PR에도 schema·번들 예산·LH 회귀 방어가 필요하므로 포함한다.
 #   - 병합 후 신규 이슈 URL을 IndexNow에 자동 핑 (키는 public/<KEY>.txt — IndexNow 키는
 #     공개가 전제인 값이라 시크릿 불필요)
 
@@ -60,25 +67,48 @@ jobs:
             echo "content_only=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Cloudflare Workers 빌드 성공 대기 (최대 20분)
+      - name: 게이트 체크 전부 성공 대기 (최대 20분)
         if: steps.files.outputs.content_only == 'true'
         id: gate
         run: |
-          GATE_CHECK="Workers Builds: awoo"
+          # Workers Builds  = 실제 배포 산출물이 빌드되는지
+          # CI(4×100)      = biome·astro check·lint:content(schema)·JS 예산·Lighthouse 회귀
+          GATE_CHECKS=(
+            "Workers Builds: awoo"
+            "Lint · Typecheck · Build · Lighthouse 4×100"
+          )
+
+          abort() {
+            gh pr comment "$PR" --body "auto-publish-0400: $1"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+
           for i in $(seq 1 40); do
-            state=$(gh api "repos/${{ github.repository }}/commits/$HEAD_SHA/check-runs" \
-              --jq "[.check_runs[] | select(.name == \"$GATE_CHECK\")] | first | .conclusion // .status")
-            echo "[$i/40] $GATE_CHECK = $state"
-            case "$state" in
-              success) echo "ok=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
-              failure|cancelled|timed_out|action_required)
-                gh pr comment "$PR" --body "auto-publish-0400: '$GATE_CHECK' 체크가 $state 라 자동 병합을 중단합니다."
-                echo "ok=false" >> "$GITHUB_OUTPUT"; exit 0 ;;
-              *) sleep 30 ;;
-            esac
+            gh api "repos/${{ github.repository }}/commits/$HEAD_SHA/check-runs" > "$RUNNER_TEMP/checks.json"
+            pending=0
+            for name in "${GATE_CHECKS[@]}"; do
+              # 같은 SHA에 동명 체크가 여러 개 붙을 수 있다(브랜치 2개·재실행).
+              # 하나라도 success면 통과, 아직 도는 게 있으면 대기, 전부 끝났는데 success가
+              # 없으면 중단.
+              states=$(jq -r --arg n "$name" \
+                '[.check_runs[] | select(.name == $n) | (.conclusion // .status // "unknown")] | join(" ")' \
+                "$RUNNER_TEMP/checks.json")
+              echo "[$i/40] $name = ${states:-(없음)}"
+              case " $states " in
+                *" success "*) ;;
+                *" queued "*|*" in_progress "*|*" waiting "*|*" pending "*|*" requested "*) pending=1 ;;
+                "  ") pending=1 ;;
+                *) abort "'$name' 체크가 [$states] 라 자동 병합을 중단합니다." ;;
+              esac
+            done
+            if [ "$pending" = "0" ]; then
+              echo "ok=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            sleep 30
           done
-          gh pr comment "$PR" --body "auto-publish-0400: '$GATE_CHECK' 체크가 20분 내에 끝나지 않아 자동 병합을 중단합니다."
-          echo "ok=false" >> "$GITHUB_OUTPUT"
+          abort "게이트 체크가 20분 내에 끝나지 않아 자동 병합을 중단합니다."
 
       - name: draft 해제 후 squash 병합
         if: steps.files.outputs.content_only == 'true' && steps.gate.outputs.ok == 'true'
