@@ -96,7 +96,7 @@ jobs:
       # 사전 설정: secrets.CLOUDFLARE_API_TOKEN + secrets.CLOUDFLARE_ACCOUNT_ID (deploy.yml과 공유)
       - name: Deploy to Cloudflare Workers (sync 결과 사이트 즉시 반영)
         if: steps.diff.outputs.changed == 'true'
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
