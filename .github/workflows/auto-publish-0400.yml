@@ -38,6 +38,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
+      # gh pr ready/merge/comment 는 저장소 컨텍스트를 git 원격에서 찾는데
+      # 이 잡은 checkout 을 하지 않아 "fatal: not a git repository" 로 실패한다.
+      # GH_REPO 를 주면 checkout 없이도 대상 저장소가 확정된다. (2026-09-02 수정)
+      GH_REPO: ${{ github.repository }}
       PR: ${{ github.event.pull_request.number }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
