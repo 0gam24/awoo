@@ -11,11 +11,24 @@
         "http://localhost/personas/index.html",
         "http://localhost/issues/all/index.html"
       ],
-      "numberOfRuns": 1,
+      "numberOfRuns": 3,
       "settings": {
         "preset": "desktop",
         "throttlingMethod": "simulate",
-        "chromeFlags": "--headless=new --no-sandbox --disable-dev-shm-usage"
+        "chromeFlags": "--headless=new --no-sandbox --disable-dev-shm-usage",
+        "blockedUrlPatterns": [
+          "*googletagmanager.com*",
+          "*google-analytics.com*",
+          "*googlesyndication.com*",
+          "*googleadservices.com*",
+          "*googletagservices.com*",
+          "*doubleclick.net*",
+          "*adtrafficquality.google*",
+          "*wcs.pstatic.net*",
+          "*wcs.naver.com*",
+          "*wcs.naver.net*",
+          "*veta.naver.com*"
+        ]
       }
     },
     "assert": {

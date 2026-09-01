@@ -94,7 +94,12 @@ const year = new Date().getFullYear();
       {
         linkGroups.map((g) => (
           <div class="link-col">
-            <h3 class="link-col-label">{g.label}</h3>
+            {/* h2 고정 — 본문이 h1만 쓰는 목록 페이지(/subsidies·/categories·/topics·
+                /issues/all 등 12개)에서 h3면 h1→h3 레벨 스킵이 되어
+                axe heading-order(a11y 가중치 3)가 깨진다.
+                .link-col-label 이 font-size·weight·margin 을 전부 지정하고
+                전역 heading 스타일이 없어 시각 변화는 없다. */}
+            <h2 class="link-col-label">{g.label}</h2>
             <ul>
               {g.items.map((l) => (
                 <li>

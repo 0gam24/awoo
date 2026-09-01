@@ -10,7 +10,17 @@ import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
 const ENDPOINT = '/api/vitals';
 
+// 로컬 호스트에서는 비콘을 쏘지 않는다.
+// Lighthouse CI는 dist/client를 정적 서버로 띄우므로 Worker 라우트인 /api/vitals가 없고,
+// 404 두 건이 콘솔 에러로 남아 best-practices의 errors-in-console 감사를 0점으로 만든다.
+// (dev 서버에서도 동일 — 실측 대상이 아닌 환경에서 굳이 쏠 이유가 없다.)
+// web-vitals 로딩·콜백 자체는 그대로 돌려 런타임 비용은 계속 측정한다.
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1', '']);
+const canSend = (): boolean => !LOCAL_HOSTS.has(location.hostname);
+
 const send = (metric: Metric): void => {
+  if (!canSend()) return;
+
   const body = JSON.stringify({
     name: metric.name,
     value: metric.value,
