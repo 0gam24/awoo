@@ -48,7 +48,7 @@ export function buildOrganization() {
       streetAddress: '새벌로 88',
     },
     inLanguage: 'ko-KR',
-    description: '정부 지원금을 페르소나·상황 단위로 정리한 비영리 정보 안내 사이트.',
+    description: '정부 지원금을 페르소나·상황 단위로 정리한 정보 안내 사이트. 스마트데이터샵 운영.',
     // Cycle #20: 영역 + 전문성 신호 (knowledge graph entity 강화)
     areaServed: { '@type': 'Country', name: '대한민국', identifier: 'KR' },
     knowsAbout: [

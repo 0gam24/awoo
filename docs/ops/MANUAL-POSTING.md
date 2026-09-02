@@ -189,7 +189,7 @@ STEP 8  발행 후처리 ── IndexNow + SC 안내 + today.md 갱신 + (선택
 
 ## 7. 운영자 18항목 체크리스트 (STEP 5 자동 검증)
 
-**메타** ① title 60자 + 연도/페르소나 ② metaDescription 150~160 + 금액·마감 수치 ③ slug = topic-type-YYYY-MM-DD ④ **publishedAt ↔ date ↔ 디렉토리 3중 일치** ⑤ reportType 정의된 5종
+**메타** ① title 60자 + 연도/페르소나 ② metaDescription 60~110자 + 금액·마감 수치 (lint 기준 — 2026-08 정정) ③ slug = topic-type-YYYY-MM-DD ④ **publishedAt ↔ date ↔ 디렉토리 3중 일치** ⑤ reportType 정의된 5종
 
 **본문** ⑥ tldr ≥3 권장 5, 첫 항목 첫 문장 수치 ⑦ sections ≥3, heading 질문형/숫자 ⑧ 각 lead 자체 완결 ⑨ coreFacts 4개 빈 문자열 금지 ⑩ table ≥3행 ⑪ FAQ ≥3 권장 5, 답변 첫 문장 단독 완결 + 수치
 

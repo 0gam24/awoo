@@ -30,7 +30,7 @@ AskUserQuestion으로 발행할 키워드 N개 + 각 angle 확정. 같은 시드
 클러스터면 카니발라이제이션 방지 배정표(글당 점유 의도 1개)를 각 writer 프롬프트에 명시.
 
 ### 5. 검증 — 2단 병렬
-1. **fact-checker** × N (글별 병렬) + **quality-gate** × 1 (일괄)
+1. **fact-checker** × N (글별 병렬) + **google-quality-auditor** × 1 (일괄, 2026-08-28+ 필수 — 구조 지문·정보 이득) + **quality-gate** × 1 (일괄)
 2. FIX → 메인 루프가 정정 → 해당 글만 재검증. BLOCK → 그 글만 제외하고 진행
 3. 메인 루프 최종: `npm run lint:content && npm run build`
 
@@ -51,6 +51,8 @@ git add today.md && git commit -m "chore(today): {M/D} 발행 반영" && git pus
 
 ## 안전 규칙
 - 같은 날 같은 trendingTerm 2건 이상이면 trendingPrimary 정확히 1개
+- **구글 신뢰 회복기(2026-08-28~): 신규 하루 1~3건** (GOOGLE-NAVER-DUAL-STANDARD §5 — 구글 색인률 30%+ 회복 시까지). 갱신은 무제한, 신규보다 갱신 우선
+- **지역명 치환 동시 발행 금지** — 같은 날 동일 템플릿 지역 변형 N건 연발 대신 비교 허브 1건 + 이후 날짜 분산, 지역 단건은 지역 고유 사실(조례·재원·인접 비교) 비중 확보
 - 하루 8건 초과 권고하지 않음 (06-03 8건 사례: thin 임계 근접 + 동일 일자 대량발행 리스크 — AdSense 감사 지적)
 - BLOCK·미확정 과다 글은 빼는 것이 낫다 — factCheckScore < 0.6 = noindex로 트래픽 0
 

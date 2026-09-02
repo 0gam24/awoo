@@ -28,6 +28,7 @@ git fetch origin && git rebase origin/main
 
 ### 5. 검증 (병렬)
 - **fact-checker** — 작성된 파일별 spawn (병렬)
+- **google-quality-auditor** — 전체 파일 일괄 1회 spawn (병렬, 2026-08-28+ 필수 — 구조 지문·정보 이득·패딩 검사, `docs/ops/GOOGLE-NAVER-DUAL-STANDARD.md`)
 - **quality-gate** — 전체 파일 일괄 1회 spawn
 - FIX 판정 → 메인 루프가 직접 정정 후 재검증 (최대 2회). BLOCK → 운영자 보고 후 중단
 - 마지막에 메인 루프가 직접: `npm run lint:content && npm run build` (실패 시 수정 재시도 2회)

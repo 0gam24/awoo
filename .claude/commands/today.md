@@ -13,10 +13,10 @@ argument-hint: "(선택) 키워드 또는 N건 — 비우면 scout 추천"
 ### PHASE 0 — 동기화 + 오늘 날짜(KST) 확정
 ```bash
 git fetch origin && git rebase origin/main
-TODAY_KST=$(TZ=Asia/Seoul date +%F)   # 예: 2026-07-11 — 반드시 이 값을 오늘로 쓴다
+TODAY_KST=$(node -e "console.log(new Date(Date.now()+9*3600*1000).toISOString().slice(0,10))")   # 예: 2026-07-11 — 반드시 이 값을 오늘로 쓴다
 echo "오늘(KST) = $TODAY_KST"
 ```
-⚠️ **오늘 날짜는 반드시 KST(`TZ=Asia/Seoul date +%F`)로 확정한다.** 스케줄은 클라우드(UTC)에서 03:00 KST에 도는데, 그 시각 UTC 날짜는 **전날**이다 — `date`(UTC 기본)나 대화 컨텍스트 날짜를 그대로 쓰면 발행물이 하루 밀린다(디렉토리·URL·제목 규칙 cutoff 전부 어긋남). 모든 발행물의 **디렉토리명·slug의 `-YYYY-MM-DD` 접미사·`date` 필드·`publishedAt`(KST 기준)** 을 위 `$TODAY_KST`로 통일하고, post-writer에 발행일 전달 시에도 이 값을 넘긴다.
+⚠️ **오늘 날짜는 반드시 위 node 한 줄(UTC+9 산출)로 확정한다.** 클라우드(UTC 03:00 KST 실행) 기준으로 `date`는 **전날**을 주고, **Windows Git Bash에서는 `TZ=Asia/Seoul date`가 tzdata 부재로 UTC로 조용히 폴백해 역시 전날을 준다**(2026-08-28 실측: TZ 지정 시 08-27 GMT 반환, 실제 KST는 08-28). 두 환경 모두에서 맞는 것은 UTC+9 산출뿐이다. 대화 컨텍스트 날짜를 그대로 쓰는 것도 금지 — 발행물이 하루 밀리면 디렉토리·URL·제목 규칙 cutoff가 전부 어긋난다. 모든 발행물의 **디렉토리명·slug의 `-YYYY-MM-DD` 접미사·`date` 필드·`publishedAt`(KST 기준)** 을 위 `$TODAY_KST`로 통일하고, post-writer에 발행일 전달 시에도 이 값을 넘긴다.
 
 ### PHASE 1 — 점검 (/traffic 실행)
 Skill 도구로 `traffic` 호출, args: `"갱신·색인 점검 우선 — 내일 추천(scout)은 생략, PHASE 2가 수행"`
@@ -30,12 +30,14 @@ Skill 도구로 `traffic` 호출, args: `"갱신·색인 점검 우선 — 내�
 AskUserQuestion **금지** — 다음 규칙으로 범위를 자동 확정:
 - **갱신 후보**(확정 발표 난 "발표 대기" 글)가 있으면 **전부 포함** (가장 빠른 트래픽)
 - **신규는 scout 1순위 1건 기본.** 시기성 오버라이드(마감 D-14·지급일 ±3일·확정 발표 24h) 후보가 더 있으면 최대 3건까지 확대
+- **구글 신뢰 회복기 규칙(2026-08-28~, GOOGLE-NAVER-DUAL-STANDARD §5)**: 신규 상한 3건 유지·갱신 우선. **지역명 치환 동시 발행 금지**(동일 템플릿 지역 변형 연발 대신 비교 허브 1건+날짜 분산). 1키워드 1페이지(분할 발행 금지)
+- **awoo 0400 자동 발행 반영(2026-08-29~)**: 클라우드 루틴이 매일 KST 04시에 신규 1건을 이미 발행했을 수 있다 — PHASE 0의 git pull로 받은 오늘 날짜 디렉토리를 확인해 ① 그 1건을 **오늘 신규 상한(1~3건)에 포함**하고 ② GATE-A 중복·점유 토큰 대조 대상에 넣어라 (자동 글과 같은 키워드·구조 프로파일 회피)
 - hub 회수·trendingTerm 정비 등 발행 0건짜리 구조 작업은 발견 즉시 포함
 - GATE-A 중복 70%↑면 강행하지 않고 longtail-strategist가 제시한 빈 각도로 자동 전환, 빈 각도가 없으면 그 키워드는 제외
 - GATE-B 매칭 0건이면 그 키워드 제외 (외부 소스 단독 발행은 자율 모드에서 금지)
 
 ### PHASE 4 — 발행 (자동 결재)
-- post-writer(병렬) → fact-checker(병렬) + quality-gate(일괄) → lint:content + build.
+- post-writer(병렬) → fact-checker(병렬) + **google-quality-auditor(일괄, 2026-08-28+ 필수)** + quality-gate(일괄) → lint:content + build.
 - **GATE-D 자동 결재 규칙**: fact-checker PASS(또는 FIX 정정 후 재검증 PASS) + quality-gate PASS + lint err 0 + build 성공 = **즉시 발행** (commit·push·indexnow·update:today까지 무중단).
 - fact-checker **BLOCK** = 그 글만 자동 제외하고 나머지 발행. 전건 BLOCK이면 발행 0건으로 종료하고 사유 보고.
 - 갱신 건: 수치 교체 + lastSeen/dateModified 갱신 + fact-checker 검증 — 동일 자동 결재.
