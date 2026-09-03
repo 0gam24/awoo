@@ -9,7 +9,7 @@
  * 디자인을 바꾸면 THUMB_VERSION을 올려 전체 재생성.
  */
 
-export const THUMB_VERSION = 'v2';
+export const THUMB_VERSION = 'v4';
 
 const INK = '#161a23';
 const MUTED = '#6b7280';
@@ -63,7 +63,8 @@ const THEME_RULES = [
   ],
   [
     'baby',
-    /출생|출산|아동|아기|육아|보육|임신|부모급여|아이맞이|어린이|첫만남|영아|유아|신생아|산후|난임|다자녀/,
+    // "출생연도 끝자리(요일제)"는 아동 주제가 아니므로 제외
+    /출생(?!연도|년도)|출산|아동|아기|육아|보육|임신|부모급여|아이맞이|어린이|첫만남|영아|유아|신생아|산후|난임|다자녀/,
   ],
   [
     'localpay',
@@ -176,7 +177,11 @@ const ICONS = {
           justifyContent: 'space-between',
         },
         box(0, 0, 58, 42, { borderRadius: 10, backgroundColor: COIN }),
-        h('div', { fontSize: 32, fontWeight: 700, color: WHITE }, x.cardLabel),
+        h(
+          'div',
+          { fontSize: x.cardLabel.length > 5 ? 26 : 32, fontWeight: 700, color: WHITE },
+          x.cardLabel,
+        ),
       ),
       coin(48, 262, 92, COIN, COIN_RIM),
       coin(112, 290, 92, COIN, COIN_RIM),
@@ -627,7 +632,14 @@ export function thumbTokens(post, dateStr) {
   const theme = pickTheme(post);
   const text = [post.title, ...(post.tags ?? []), post.coreFacts?.amount ?? ''].join(' ');
   const year = (text.match(/20\d\d/) ?? [String(new Date().getFullYear())])[0];
-  const payMatch = text.match(/[가-힣]{1,4}(?:페이|사랑상품권|상품권)/);
+  // 지역화폐 카드 라벨 — 제목·태그·금액에 없으면 용어 정의·핵심정보(where/deadline)까지 훑는다
+  const payText = [
+    text,
+    ...(post.definitions ?? []).map((d) => d.term ?? ''),
+    post.coreFacts?.where ?? '',
+    post.coreFacts?.deadline ?? '',
+  ].join(' ');
+  const payMatch = payText.match(/[가-힣]{1,4}(?:페이|사랑상품권|상품권)/);
   return {
     theme,
     date: dateStr.replaceAll('-', '.'),
@@ -638,7 +650,7 @@ export function thumbTokens(post, dateStr) {
     who: firstClause(post.coreFacts?.who, 24),
     status: statusLine(post),
     year,
-    cardLabel: payMatch ? cut(payMatch[0], 6) : '지역화폐',
+    cardLabel: payMatch ? payMatch[0].slice(0, 8) : '지역화폐',
   };
 }
 
