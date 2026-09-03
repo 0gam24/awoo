@@ -4,7 +4,8 @@
  * 페이지별 OG 이미지 + PNG 앱 아이콘 빌드타임 생성 (SEO 감사 2026-08-09 O1/W7)
  *
  * 산출물 (public/ 하위 — .gitignore, 빌드마다 생성):
- *   - public/og/issues/{fileSlug}.png     — 이슈 포스트 1200×630 카드
+ *   - public/og/issues/{fileSlug}.png     — 이슈 포스트 1200×630 카드 (og:image·카카오/네이버 공유 미리보기)
+ *   - public/og/issues/{fileSlug}.webp    — 같은 카드의 WebP — 본문 상단 대표 썸네일(네이버 본문 이미지·구글 디스커버 ≥1200px)
  *   - public/og/subsidies/{id}.png        — 지원금 상세 1200×630 카드
  *   - public/apple-touch-icon.png (180)   — iOS는 SVG 미지원
  *   - public/icon-192.png / icon-512.png  — PWA manifest용
@@ -21,6 +22,7 @@ import { fileURLToPath } from 'node:url';
 
 import { Resvg } from '@resvg/resvg-js';
 import satori from 'satori';
+import sharp from 'sharp';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -29,6 +31,9 @@ const MANIFEST_PATH = join(OG_DIR, '_manifest.json');
 
 /** 디자인 바꾸면 올려서 전체 재생성 */
 const TEMPLATE_VERSION = 'v1';
+
+/** 본문 썸네일 WebP — 흰 배경·단색 텍스트 카드라 무손실이 lossy보다 작고(≈9KB vs 18KB) 글자 번짐도 없다 */
+const WEBP_OPTS = { lossless: true };
 
 const BRAND = '#0071e3';
 const BRAND_DARK = '#003875';
@@ -151,16 +156,17 @@ function card({ title, badge, metaLeft, metaRight }) {
   );
 }
 
-async function renderPng(node, outPath) {
+async function renderCard(node, outPng, outWebp) {
   const svg = await satori(node, SATORI_OPTS);
   const png = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } }).render().asPng();
-  await writeFile(outPath, png);
+  await writeFile(outPng, png);
+  if (outWebp) await sharp(png).webp(WEBP_OPTS).toFile(outWebp);
 }
 
 // ─────────────────────────────────────────────────────────────
 // 대상 수집
 // ─────────────────────────────────────────────────────────────
-const jobs = []; // { out, hash, node }
+const jobs = []; // { out, webp?, hash, node }
 
 function hashOf(parts) {
   return createHash('sha1')
@@ -182,6 +188,7 @@ for (const dirent of await readdir(issuesDir, { withFileTypes: true })) {
       const category = post.category ?? '';
       jobs.push({
         out: join(OG_DIR, 'issues', `${slug}.png`),
+        webp: join(OG_DIR, 'issues', `${slug}.webp`),
         hash: hashOf([title, category, dirent.name]),
         node: card({
           title,
@@ -230,13 +237,21 @@ try {
 
 let made = 0;
 let skipped = 0;
+let converted = 0;
 for (const job of jobs) {
   const key = job.out.slice(OG_DIR.length + 1).replaceAll('\\', '/');
-  if (manifest[key] === job.hash && existsSync(job.out)) {
+  const cached = manifest[key] === job.hash && existsSync(job.out);
+  if (cached && (!job.webp || existsSync(job.webp))) {
     skipped += 1;
     continue;
   }
-  await renderPng(job.node, job.out);
+  if (cached && job.webp) {
+    // PNG는 캐시돼 있고 WebP만 없는 경우(썸네일 도입 전 캐시) — 재렌더 없이 변환만
+    await sharp(job.out).webp(WEBP_OPTS).toFile(job.webp);
+    converted += 1;
+    continue;
+  }
+  await renderCard(job.node, job.out, job.webp);
   manifest[key] = job.hash;
   made += 1;
   if (made % 50 === 0) console.log(`[og] ${made}장 생성...`);
@@ -264,4 +279,6 @@ for (const [file, size] of [
   console.log(`[og] 아이콘 생성: ${file} (${size}px)`);
 }
 
-console.log(`[og] 완료 — OG ${made}장 생성 / ${skipped}장 캐시 / 총 ${jobs.length}건`);
+console.log(
+  `[og] 완료 — OG ${made}장 생성 / WebP 보충 ${converted}장 / ${skipped}장 캐시 / 총 ${jobs.length}건`,
+);

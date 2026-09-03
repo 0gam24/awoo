@@ -298,6 +298,11 @@ const articleSchema = {
       url: `https://awoo.or.kr/og/issues/${slug}.png`,
       caption: post.title,
     }),
+    // 본문 상단 대표 썸네일(WebP) — 디스커버·이미지 검색이 본문 이미지와 동일 entity로 인식
+    buildImageObject({
+      url: `https://awoo.or.kr/og/issues/${slug}.webp`,
+      caption: post.title,
+    }),
   ],
   isAccessibleForFree: true,
   // Cycle #11 P0-1: AI 답변 엔진 인용 confidence 신호
@@ -638,6 +643,19 @@ const reportTypeBadge = rt && rt in RT_LABELS
         </div>
 
         <h1 class="title">{post.title}</h1>
+
+        {/* 대표 썸네일 — 빌드타임 WebP(1200×630, generate-og-images.mjs). 네이버 본문 이미지·구글 디스커버(≥1200px) 신호.
+            첫 화면 LCP 후보라 lazy 금지 + fetchpriority=high, width/height 명시로 CLS 0 */}
+        <figure class="hero-thumb">
+          <img
+            src={`/og/issues/${slug}.webp`}
+            width="1200"
+            height="630"
+            alt={post.title}
+            fetchpriority="high"
+            decoding="async"
+          />
+        </figure>
 
         {/* v2 AEO: 한 줄 정답 — H1 직후 직접 답변 청크 (Featured Snippet·AI Overviews·음성 발췌 표적) */}
         {answerText && (
@@ -1386,6 +1404,19 @@ const reportTypeBadge = rt && rt in RT_LABELS
     margin: 0 0 20px;
   }
 
+  .hero-thumb {
+    margin: 0 0 20px;
+  }
+
+  .hero-thumb img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+  }
+
   /* Cycle #23: AI disclosure box */
   .ai-disclosure {
     display: flex;
@@ -1641,16 +1672,17 @@ const reportTypeBadge = rt && rt in RT_LABELS
     margin: 4px 0;
     line-height: 1.6;
   }
-  .prose strong { font-weight: 700; color: var(--text); }
-  .prose em { font-style: italic; }
-  .prose code {
+  /* set:html로 렌더된 인라인 요소는 Astro 스코프 속성이 없어 :global 필요 (a 밑줄 = link-in-text-block 접근성) */
+  .prose :global(strong) { font-weight: 700; color: var(--text); }
+  .prose :global(em) { font-style: italic; }
+  .prose :global(code) {
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.9em;
     padding: 2px 6px;
     background: var(--surface-2);
     border-radius: 4px;
   }
-  .prose a {
+  .prose :global(a) {
     color: var(--accent-link);
     text-decoration: underline;
     text-underline-offset: 2px;
@@ -1985,7 +2017,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
   .official-cta:hover { background: color-mix(in oklch, var(--accent), black 8%); text-decoration: none; }
   /* 신청 절차 단계(HowTo) — 줄글 대신 시각 단계 */
   .prose p.step { position: relative; margin: 8px 0; padding: 12px 14px 12px 16px; background: var(--surface-2); border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
-  .prose p.step strong { color: var(--accent); }
+  .prose p.step :global(strong) { color: var(--accent); }
   /* FAQ 펼침 토글 표시 */
   .faq-item summary { position: relative; padding-right: 24px; }
   .faq-item summary::after { content: '⌄'; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); transition: transform 0.18s; color: var(--text-3); }
