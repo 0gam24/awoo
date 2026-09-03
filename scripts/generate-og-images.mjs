@@ -5,7 +5,7 @@
  *
  * 산출물 (public/ 하위 — .gitignore, 빌드마다 생성):
  *   - public/og/issues/{fileSlug}.png     — 이슈 포스트 1200×630 카드 (og:image·카카오/네이버 공유 미리보기)
- *   - public/og/issues/{fileSlug}.webp    — 같은 카드의 WebP — 본문 상단 대표 썸네일(네이버 본문 이미지·구글 디스커버 ≥1200px)
+ *   - public/og/issues/{fileSlug}.webp    — 본문 상단 대표 썸네일 "정보 카드"(lib/thumb-card.mjs): 제목 대신 주제 아이콘 + 지역·제도·금액·대상·상태 토큰
  *   - public/og/subsidies/{id}.png        — 지원금 상세 1200×630 카드
  *   - public/apple-touch-icon.png (180)   — iOS는 SVG 미지원
  *   - public/icon-192.png / icon-512.png  — PWA manifest용
@@ -24,6 +24,8 @@ import { Resvg } from '@resvg/resvg-js';
 import satori from 'satori';
 import sharp from 'sharp';
 
+import { buildThumbCard, thumbHash } from './lib/thumb-card.mjs';
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const OG_DIR = join(ROOT, 'public', 'og');
@@ -32,7 +34,7 @@ const MANIFEST_PATH = join(OG_DIR, '_manifest.json');
 /** 디자인 바꾸면 올려서 전체 재생성 */
 const TEMPLATE_VERSION = 'v1';
 
-/** 본문 썸네일 WebP — 흰 배경·단색 텍스트 카드라 무손실이 lossy보다 작고(≈9KB vs 18KB) 글자 번짐도 없다 */
+/** 본문 썸네일 WebP — 단색 평면 벡터 카드라 무손실이 lossy보다 작고(≈20KB) 글자 번짐도 없다 */
 const WEBP_OPTS = { lossless: true };
 
 const BRAND = '#0071e3';
@@ -156,17 +158,15 @@ function card({ title, badge, metaLeft, metaRight }) {
   );
 }
 
-async function renderCard(node, outPng, outWebp) {
+async function renderPng(node) {
   const svg = await satori(node, SATORI_OPTS);
-  const png = new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } }).render().asPng();
-  await writeFile(outPng, png);
-  if (outWebp) await sharp(png).webp(WEBP_OPTS).toFile(outWebp);
+  return new Resvg(svg, { fitTo: { mode: 'width', value: 1200 } }).render().asPng();
 }
 
 // ─────────────────────────────────────────────────────────────
 // 대상 수집
 // ─────────────────────────────────────────────────────────────
-const jobs = []; // { out, webp?, hash, node }
+const jobs = []; // { out, hash, make: () => Promise<Buffer> }
 
 function hashOf(parts) {
   return createHash('sha1')
@@ -186,16 +186,25 @@ for (const dirent of await readdir(issuesDir, { withFileTypes: true })) {
       const slug = f.replace(/\.json$/, '');
       const title = post.title ?? slug;
       const category = post.category ?? '';
+      const ogNode = card({
+        title,
+        badge: category ? `${category} 이슈` : '오늘의 이슈',
+        metaLeft: dirent.name.replaceAll('-', '.'),
+        metaRight: 'awoo.or.kr',
+      });
       jobs.push({
         out: join(OG_DIR, 'issues', `${slug}.png`),
-        webp: join(OG_DIR, 'issues', `${slug}.webp`),
         hash: hashOf([title, category, dirent.name]),
-        node: card({
-          title,
-          badge: category ? `${category} 이슈` : '오늘의 이슈',
-          metaLeft: dirent.name.replaceAll('-', '.'),
-          metaRight: 'awoo.or.kr',
-        }),
+        make: () => renderPng(ogNode),
+      });
+      // 본문 상단 정보 카드(WebP) — 입력 필드가 더 많아 해시를 따로 둔다
+      jobs.push({
+        out: join(OG_DIR, 'issues', `${slug}.webp`),
+        hash: hashOf([thumbHash(post, dirent.name)]),
+        make: async () =>
+          sharp(await renderPng(buildThumbCard(post, dirent.name)))
+            .webp(WEBP_OPTS)
+            .toBuffer(),
       });
     } catch {}
   }
@@ -210,15 +219,16 @@ for (const d of ['src/data/subsidies/_gov24', 'src/data/subsidies/_curated']) {
     try {
       const s = JSON.parse(await readFile(join(dir, f), 'utf8'));
       if (!s.id || !s.title) continue;
+      const node = card({
+        title: s.title,
+        badge: s.category ?? '정부 지원금',
+        metaLeft: s.agency ?? '',
+        metaRight: 'awoo.or.kr',
+      });
       jobs.push({
         out: join(OG_DIR, 'subsidies', `${s.id}.png`),
         hash: hashOf([s.title, s.category ?? '', s.agency ?? '']),
-        node: card({
-          title: s.title,
-          badge: s.category ?? '정부 지원금',
-          metaLeft: s.agency ?? '',
-          metaRight: 'awoo.or.kr',
-        }),
+        make: () => renderPng(node),
       });
     } catch {}
   }
@@ -236,25 +246,19 @@ try {
 } catch {}
 
 let made = 0;
+let madeThumb = 0;
 let skipped = 0;
-let converted = 0;
 for (const job of jobs) {
   const key = job.out.slice(OG_DIR.length + 1).replaceAll('\\', '/');
-  const cached = manifest[key] === job.hash && existsSync(job.out);
-  if (cached && (!job.webp || existsSync(job.webp))) {
+  if (manifest[key] === job.hash && existsSync(job.out)) {
     skipped += 1;
     continue;
   }
-  if (cached && job.webp) {
-    // PNG는 캐시돼 있고 WebP만 없는 경우(썸네일 도입 전 캐시) — 재렌더 없이 변환만
-    await sharp(job.out).webp(WEBP_OPTS).toFile(job.webp);
-    converted += 1;
-    continue;
-  }
-  await renderCard(job.node, job.out, job.webp);
+  await writeFile(job.out, await job.make());
   manifest[key] = job.hash;
-  made += 1;
-  if (made % 50 === 0) console.log(`[og] ${made}장 생성...`);
+  if (job.out.endsWith('.webp')) madeThumb += 1;
+  else made += 1;
+  if ((made + madeThumb) % 50 === 0) console.log(`[og] ${made + madeThumb}장 생성...`);
 }
 await writeFile(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
 
@@ -280,5 +284,5 @@ for (const [file, size] of [
 }
 
 console.log(
-  `[og] 완료 — OG ${made}장 생성 / WebP 보충 ${converted}장 / ${skipped}장 캐시 / 총 ${jobs.length}건`,
+  `[og] 완료 — OG ${made}장 / 썸네일 ${madeThumb}장 생성 / ${skipped}장 캐시 / 총 ${jobs.length}건`,
 );
