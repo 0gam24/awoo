@@ -2,7 +2,7 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-09-06 04:29 KST
+> 마지막 갱신: 2026-09-06 07:25 KST
 
 ## 2026-09-06 (오늘)
 
