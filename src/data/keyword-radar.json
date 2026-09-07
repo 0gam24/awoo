@@ -1,482 +1,6 @@
 {
-  "updatedAt": "2026-09-07T17:44:59.725Z",
+  "updatedAt": "2026-09-07T23:29:55.051Z",
   "snapshots": [
-    {
-      "ts": "2026-08-14T08:37:13.257Z",
-      "sourceStatus": {
-        "kin": "ok (295 questions)",
-        "news": "ok (5 terms)",
-        "datalab": "ok (10 terms)"
-      },
-      "keywords": [
-        {
-          "term": "실업급여",
-          "signals": {
-            "kinQuestions": 27,
-            "news": 0,
-            "datalab": 0.1
-          },
-          "questions": [
-            "육아휴직 1년 후 인원감축 퇴사 시 실업급여 기간·금액이 궁....",
-            "육아휴직 1년 후 인원감축 퇴사 시 실업급여 기간·금액이 궁....",
-            "육아휴직 1년 후 인원감축 퇴사 시 실업급여 기간·금액이 궁...."
-          ],
-          "matchedSubsidies": [
-            "support-500004"
-          ],
-          "score": 40.6
-        },
-        {
-          "term": "근로장려금",
-          "signals": {
-            "kinQuestions": 19,
-            "news": 0,
-            "datalab": 0.3
-          },
-          "questions": [
-            "근로장려금 지급일, 6월 25일 이후에도 신청 가능할까요?",
-            "근로장려금 지급, 예상보다 적게 나왔는데 왜 그럴까요?",
-            "근로장려금 받을 수 있을까요?"
-          ],
-          "matchedSubsidies": [
-            "incentive-work-000001",
-            "near-poor-basic-work-000100",
-            "worker-support-000020"
-          ],
-          "score": 28.8
-        },
-        {
-          "term": "청년내일저축계좌",
-          "signals": {
-            "kinQuestions": 15,
-            "news": 0,
-            "datalab": 0.1
-          },
-          "questions": [
-            "청년내일저축계좌 만기해지",
-            "청년내일저축계좌 가입하고 급여를 못 받은 경우",
-            "청년내일저축계좌 해지 신청"
-          ],
-          "matchedSubsidies": [
-            "youth-business-savings-account-assets-support-005013"
-          ],
-          "score": 22.6
-        },
-        {
-          "term": "청년미래적금",
-          "signals": {
-            "kinQuestions": 9,
-            "news": 0,
-            "datalab": 0.4
-          },
-          "questions": [
-            "청년미래적금과 청년도약계좌 가입 조건에 대해 알고 싶어....",
-            "청년미래적금",
-            "청년미래적금, 추가 가입 기회 있을까요?"
-          ],
-          "matchedSubsidies": [
-            "youth-future-savings"
-          ],
-          "score": 13.9
-        },
-        {
-          "term": "기초연금",
-          "signals": {
-            "kinQuestions": 9,
-            "news": 0,
-            "datalab": 0
-          },
-          "questions": [
-            "국민연금 130만원 받는데 기초연금 얼마받나요?",
-            "기초연금 신청, 재산 기준 초과 시 대처 방법?",
-            "기초연금 수급 가능성"
-          ],
-          "matchedSubsidies": [
-            "basic-livelihood",
-            "basic-pension-000170",
-            "basic-support-000116",
-            "near-poor-basic-work-000100"
-          ],
-          "score": 13.5
-        },
-        {
-          "term": "주휴수당",
-          "signals": {
-            "kinQuestions": 6,
-            "news": 2,
-            "datalab": 1
-          },
-          "questions": [
-            "주휴수당 질문",
-            "주말 주휴수당",
-            "주말 주휴수당"
-          ],
-          "matchedSubsidies": [],
-          "score": 12
-        },
-        {
-          "term": "에너지바우처",
-          "signals": {
-            "kinQuestions": 5,
-            "news": 0,
-            "datalab": 1.6
-          },
-          "questions": [
-            "2026 에너지바우처 냉방지원금, 온라인 신청 절차가 궁금해요....",
-            "2026 에너지바우처 냉방지원금, 온라인 신청 절차가 궁금해요....",
-            "에너지바우처 신청해 보신 분 계신가요?"
-          ],
-          "matchedSubsidies": [
-            "energy-400009",
-            "energy-business-welfare-support-000070",
-            "low-income-energy-heating-support-000006"
-          ],
-          "score": 9.1
-        },
-        {
-          "term": "질병실업급여",
-          "signals": {
-            "kinQuestions": 6,
-            "news": 0,
-            "datalab": 0
-          },
-          "questions": [
-            "질병실업급여 신청과 절차",
-            "질병실업급여 신청과 절차",
-            "질병실업급여 신청과 절차"
-          ],
-          "matchedSubsidies": [],
-          "score": 9
-        },
-        {
-          "term": "아동수당",
-          "signals": {
-            "kinQuestions": 5,
-            "news": 0,
-            "datalab": 0.3
-          },
-          "questions": [
-            "부모급여 아동수당등 바우처 질문드려요",
-            "부모급여 아동수당등 바우처 질문드려요",
-            "부모급여 아동수당등 바우처 질문드려요"
-          ],
-          "matchedSubsidies": [
-            "child-allowance-000120",
-            "single-parent-child-parenting-support-000020"
-          ],
-          "score": 7.8
-        },
-        {
-          "term": "부모급여",
-          "signals": {
-            "kinQuestions": 5,
-            "news": 0,
-            "datalab": 0.2
-          },
-          "questions": [
-            "부모급여 아동수당등 바우처 질문드려요",
-            "부모급여 아동수당등 바우처 질문드려요",
-            "부모급여 아동수당등 바우처 질문드려요"
-          ],
-          "matchedSubsidies": [
-            "maternity-grant",
-            "single-parent-child-parenting-support-000020",
-            "special-supply-single-parent-housing-rental-000017"
-          ],
-          "score": 7.7
-        },
-        {
-          "term": "교육급여",
-          "signals": {
-            "kinQuestions": 5,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "교육급여 바우처 신한선불카드 오류",
-            "교육급여 바우처 사용처, 주로 어디에서 쓸 수 있나요?",
-            "교육급여 바우처 신청, 처음이라 어디서부터 시작해야 할까...."
-          ],
-          "matchedSubsidies": [
-            "job-card",
-            "child-allowance-000120",
-            "disability-voucher-education-800002",
-            "disability-voucher-education-support-700011",
-            "discount-000002"
-          ],
-          "score": 7.5
-        },
-        {
-          "term": "국민연금",
-          "signals": {
-            "kinQuestions": 5,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "국민연금 130만원 받는데 기초연금 얼마받나요?",
-            "국민연금 130만원 받는데 기초연금 얼마받나요?",
-            "국민연금 130만원 받는데 기초연금 얼마받나요?"
-          ],
-          "matchedSubsidies": [
-            "job-card",
-            "national-employment-support-005007"
-          ],
-          "score": 7.5
-        },
-        {
-          "term": "청년도약계좌",
-          "signals": {
-            "kinQuestions": 4,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "청년미래적금과 청년도약계좌 가입 조건에 대해 알고 싶어....",
-            "청년도약계좌",
-            "청년미래적금과 청년도약계좌 가입 조건에 대해 알고 싶어...."
-          ],
-          "matchedSubsidies": [
-            "savings-account"
-          ],
-          "score": 6
-        },
-        {
-          "term": "냉방지원금",
-          "signals": {
-            "kinQuestions": 2,
-            "news": 2,
-            "datalab": null
-          },
-          "questions": [
-            "2026 에너지바우처 냉방지원금, 온라인 신청 절차가 궁금해요....",
-            "2026 에너지바우처 냉방지원금, 온라인 신청 절차가 궁금해요...."
-          ],
-          "matchedSubsidies": [],
-          "score": 5
-        },
-        {
-          "term": "청년적금계좌",
-          "signals": {
-            "kinQuestions": 3,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "지금 신청가능한 청년적금계좌",
-            "지금 신청가능한 청년적금계좌",
-            "지금 신청가능한 청년적금계좌"
-          ],
-          "matchedSubsidies": [],
-          "score": 4.5
-        },
-        {
-          "term": "보훈예우수당",
-          "signals": {
-            "kinQuestions": 0,
-            "news": 4,
-            "datalab": null
-          },
-          "questions": [],
-          "matchedSubsidies": [],
-          "score": 4
-        },
-        {
-          "term": "생계지원금",
-          "signals": {
-            "kinQuestions": 2,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "긴급복지 생계지원금 4차 연장 승인 후 5차 연장 신청 질문입....",
-            "긴급복지 생계지원금 4차 연장 승인 후 5차 연장 신청 질문입...."
-          ],
-          "matchedSubsidies": [
-            "basic-livelihood",
-            "livelihood-allowance-001410",
-            "welfare-livelihood-support-005003"
-          ],
-          "score": 3
-        },
-        {
-          "term": "철거지원금",
-          "signals": {
-            "kinQuestions": 2,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "폐업하는데 철거지원금 말고요.. 가게세 한달치 지원금 나온....",
-            "폐업하는데 철거지원금 말고요.. 가게세 한달치 지원금 나온...."
-          ],
-          "matchedSubsidies": [],
-          "score": 3
-        },
-        {
-          "term": "추가근무수당",
-          "signals": {
-            "kinQuestions": 2,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "휴게시간없는 근로계약의 추가근무수당",
-            "휴게시간없는 근로계약의 추가근무수당"
-          ],
-          "matchedSubsidies": [],
-          "score": 3
-        },
-        {
-          "term": "연차수당",
-          "signals": {
-            "kinQuestions": 2,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "일용직 연차수당 받을수 있나요?",
-            "포괄임금제 연차수당 관련하여 질문합니다?"
-          ],
-          "matchedSubsidies": [],
-          "score": 3
-        },
-        {
-          "term": "교육급여바우처",
-          "signals": {
-            "kinQuestions": 2,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "교육급여바우처 시장에서도 쓸수있나요?",
-            "교육급여바우처 카드 재발급 관련해서 문의드려요.."
-          ],
-          "matchedSubsidies": [
-            "education-allowance-000003"
-          ],
-          "score": 3
-        },
-        {
-          "term": "청년일자리도약장려금",
-          "signals": {
-            "kinQuestions": 2,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "청년일자리도약장려금은 누구한테 이득인건가요",
-            "청년일자리도약장려금은 누구한테 이득인건가요"
-          ],
-          "matchedSubsidies": [],
-          "score": 3
-        },
-        {
-          "term": "긴급복지생계지원금",
-          "signals": {
-            "kinQuestions": 0,
-            "news": 2,
-            "datalab": null
-          },
-          "questions": [],
-          "matchedSubsidies": [],
-          "score": 2
-        },
-        {
-          "term": "정읍민생지원금",
-          "signals": {
-            "kinQuestions": 0,
-            "news": 2,
-            "datalab": null
-          },
-          "questions": [],
-          "matchedSubsidies": [],
-          "score": 2
-        },
-        {
-          "term": "출산지원금",
-          "signals": {
-            "kinQuestions": 1,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "대구시 출산지원금, 다자녀가정 혜택 신청 방법은?"
-          ],
-          "matchedSubsidies": [
-            "maternity-grant",
-            "maternity-allowance-000004",
-            "maternity-allowance-001460",
-            "maternity-health-support-007672",
-            "maternity-integrated-000029"
-          ],
-          "score": 1.5
-        },
-        {
-          "term": "경영안정바우처",
-          "signals": {
-            "kinQuestions": 1,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "소상공인 경영안정바우처, 정말 효과 있었나요?"
-          ],
-          "matchedSubsidies": [
-            "smb-loan-funds-special-support-007429"
-          ],
-          "score": 1.5
-        },
-        {
-          "term": "장애인연금",
-          "signals": {
-            "kinQuestions": 1,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "장애인연금 신청 방법과 수급 조건은?"
-          ],
-          "matchedSubsidies": [
-            "disability-senior-customized-regional-000017",
-            "disability-voucher-education-800002",
-            "disability-voucher-education-support-700011"
-          ],
-          "score": 1.5
-        },
-        {
-          "term": "건강보험환급금",
-          "signals": {
-            "kinQuestions": 1,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "건강보험환급금 조회했는데,"
-          ],
-          "matchedSubsidies": [
-            "maternity-health-support-007672"
-          ],
-          "score": 1.5
-        },
-        {
-          "term": "미래적금",
-          "signals": {
-            "kinQuestions": 1,
-            "news": 0,
-            "datalab": null
-          },
-          "questions": [
-            "청년 미래적금 중복가능한 정책 알려주세요"
-          ],
-          "matchedSubsidies": [
-            "youth-future-savings",
-            "youth-loan-100042"
-          ],
-          "score": 1.5
-        }
-      ]
-    },
     {
       "ts": "2026-08-14T13:42:43.463Z",
       "sourceStatus": {
@@ -36373,26 +35897,304 @@
           "score": 1.5
         }
       ]
+    },
+    {
+      "ts": "2026-09-07T23:29:55.051Z",
+      "sourceStatus": {
+        "kin": "ok (284 questions)",
+        "news": "ok (1 terms)",
+        "datalab": "ok (10 terms)"
+      },
+      "keywords": [
+        {
+          "term": "실업급여",
+          "signals": {
+            "kinQuestions": 37,
+            "news": 0,
+            "datalab": 0.2
+          },
+          "questions": [
+            "실업급여 수급관련",
+            "실업급여 중 세금환급",
+            "실업급여 사업장이전"
+          ],
+          "matchedSubsidies": [
+            "support-500004"
+          ],
+          "score": 55.7
+        },
+        {
+          "term": "청년미래적금",
+          "signals": {
+            "kinQuestions": 25,
+            "news": 0,
+            "datalab": 0.4
+          },
+          "questions": [
+            "희망두배청년통장 청년미래적금",
+            "KB 청년미래적금 자동이체 관련 질문입니다.",
+            "Kb 청년미래적금 자동이체 질문"
+          ],
+          "matchedSubsidies": [
+            "youth-future-savings"
+          ],
+          "score": 37.9
+        },
+        {
+          "term": "근로장려금",
+          "signals": {
+            "kinQuestions": 19,
+            "news": 0,
+            "datalab": 0.8
+          },
+          "questions": [
+            "2026 상반기 근로장려금 신청, 사업소득 있을 땐 어떻게 하나....",
+            "알바중인데 근로장려금 신청 조건 아닌 이유",
+            "알바중인데 근로장려금 신청 조건 아닌 이유"
+          ],
+          "matchedSubsidies": [
+            "incentive-work-000001",
+            "near-poor-basic-work-000100",
+            "worker-support-000020"
+          ],
+          "score": 29.3
+        },
+        {
+          "term": "기초연금",
+          "signals": {
+            "kinQuestions": 13,
+            "news": 0,
+            "datalab": 0.1
+          },
+          "questions": [
+            "65세 기초연금 신청",
+            "72세 인데 기초연금 얼마나 받는지 알구 싶네요",
+            "65세 기초연금 신청"
+          ],
+          "matchedSubsidies": [
+            "basic-livelihood",
+            "basic-pension-000170",
+            "basic-support-000116",
+            "near-poor-basic-work-000100"
+          ],
+          "score": 19.6
+        },
+        {
+          "term": "국민연금",
+          "signals": {
+            "kinQuestions": 6,
+            "news": 0,
+            "datalab": 3.4
+          },
+          "questions": [
+            "파산중 의료보험 국민연금",
+            "기초수급자 신청 국민연금포기 관련?",
+            "국민연금? 기초연금? 공공근로 결격사유?"
+          ],
+          "matchedSubsidies": [
+            "job-card",
+            "national-employment-support-005007"
+          ],
+          "score": 12.4
+        },
+        {
+          "term": "에너지바우처",
+          "signals": {
+            "kinQuestions": 8,
+            "news": 0,
+            "datalab": 0.1
+          },
+          "questions": [
+            "기초수급자였다가 포기시 에너지바우처",
+            "기초수급자였다가 포기시 에너지바우처",
+            "기초수급자였다가 포기시 에너지바우처"
+          ],
+          "matchedSubsidies": [
+            "energy-400009",
+            "energy-business-welfare-support-000070",
+            "low-income-energy-heating-support-000006"
+          ],
+          "score": 12.1
+        },
+        {
+          "term": "민생지원금",
+          "signals": {
+            "kinQuestions": 1,
+            "news": 4,
+            "datalab": 2.1
+          },
+          "questions": [
+            "청주시에는 민생지원금 안나오나요"
+          ],
+          "matchedSubsidies": [],
+          "score": 7.6
+        },
+        {
+          "term": "청년내일저축계좌",
+          "signals": {
+            "kinQuestions": 4,
+            "news": 0,
+            "datalab": 0.4
+          },
+          "questions": [
+            "자산형성지원사업(청년내일저축계좌) 청년미래적금 중복가....",
+            "청년내일저축계좌",
+            "청년내일저축계좌"
+          ],
+          "matchedSubsidies": [
+            "youth-business-savings-account-assets-support-005013"
+          ],
+          "score": 6.4
+        },
+        {
+          "term": "안마바우처",
+          "signals": {
+            "kinQuestions": 3,
+            "news": 0,
+            "datalab": 0
+          },
+          "questions": [
+            "안마바우처",
+            "안마바우처",
+            "안마바우처"
+          ],
+          "matchedSubsidies": [],
+          "score": 4.5
+        },
+        {
+          "term": "국가장학금",
+          "signals": {
+            "kinQuestions": 2,
+            "news": 0,
+            "datalab": 1.2
+          },
+          "questions": [
+            "재학생도 국가장학금 2차 신청 가능? 구제 신청 조건은 어떻....",
+            "국가장학금 2차 신청 / 소득인정액 산정중…."
+          ],
+          "matchedSubsidies": [
+            "business-national-000053",
+            "scholarship-national-000090",
+            "scholarship-national-005002",
+            "student-scholarship-support-national-004508",
+            "support-national-000115"
+          ],
+          "score": 4.2
+        },
+        {
+          "term": "농식품바우처",
+          "signals": {
+            "kinQuestions": 2,
+            "news": 0,
+            "datalab": null
+          },
+          "questions": [
+            "농식품바우처 신청 방법, 처음이라 어렵지 않나요?",
+            "농식품바우처 사용처, 주로 어디에서 쓰시나요?"
+          ],
+          "matchedSubsidies": [],
+          "score": 3
+        },
+        {
+          "term": "평생교육바우처",
+          "signals": {
+            "kinQuestions": 2,
+            "news": 0,
+            "datalab": null
+          },
+          "questions": [
+            "학점은행제 평생교육바우처",
+            "학은제 평생교육바우처"
+          ],
+          "matchedSubsidies": [
+            "disability-voucher-education-800002",
+            "disability-voucher-education-support-700011",
+            "voucher-education-support-000045"
+          ],
+          "score": 3
+        },
+        {
+          "term": "분할연금",
+          "signals": {
+            "kinQuestions": 2,
+            "news": 0,
+            "datalab": null
+          },
+          "questions": [
+            "국민연금 분할연금 및 기초연금 수령중 근로소득 발생시 종....",
+            "국민연금 분할연금 및 기초연금 수령중 근로소득 발생시 종...."
+          ],
+          "matchedSubsidies": [],
+          "score": 3
+        },
+        {
+          "term": "청년월세지원금",
+          "signals": {
+            "kinQuestions": 1,
+            "news": 0,
+            "datalab": null
+          },
+          "questions": [
+            "청년월세지원금과 천원주택 입주"
+          ],
+          "matchedSubsidies": [
+            "youth-rent-support-000099"
+          ],
+          "score": 1.5
+        },
+        {
+          "term": "경영안정바우처",
+          "signals": {
+            "kinQuestions": 1,
+            "news": 0,
+            "datalab": null
+          },
+          "questions": [
+            "경영안정바우처로 주로 어떤 항목에 사용하시나요?"
+          ],
+          "matchedSubsidies": [
+            "smb-loan-funds-special-support-007429"
+          ],
+          "score": 1.5
+        },
+        {
+          "term": "장애급여",
+          "signals": {
+            "kinQuestions": 1,
+            "news": 0,
+            "datalab": null
+          },
+          "questions": [
+            "산재 장애급여신청은 핀제거 수술이후 바로하는것이 유리한...."
+          ],
+          "matchedSubsidies": [
+            "disability-senior-customized-regional-000017",
+            "disability-voucher-education-800002",
+            "disability-voucher-education-support-700011"
+          ],
+          "score": 1.5
+        }
+      ]
     }
   ],
   "byTerm": {
     "청년미래적금": {
       "firstSeen": "2026-06-12T05:14:03.648Z",
       "bestScore": 61.1,
-      "appearances": 337,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 338,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "실업급여": {
       "firstSeen": "2026-06-12T05:14:03.648Z",
       "bestScore": 87.1,
-      "appearances": 337,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 338,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "근로장려금": {
       "firstSeen": "2026-06-12T05:14:03.648Z",
       "bestScore": 63.7,
-      "appearances": 337,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 338,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "청년도약계좌": {
       "firstSeen": "2026-06-12T05:14:03.648Z",
@@ -36463,14 +36265,14 @@
     "기초연금": {
       "firstSeen": "2026-06-12T05:14:03.648Z",
       "bestScore": 39.1,
-      "appearances": 323,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 324,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "에너지바우처": {
       "firstSeen": "2026-06-12T05:14:03.648Z",
       "bestScore": 57.1,
-      "appearances": 331,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 332,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "상병수당": {
       "firstSeen": "2026-06-12T05:14:03.648Z",
@@ -36499,8 +36301,8 @@
     "청년내일저축계좌": {
       "firstSeen": "2026-06-12T06:28:27.176Z",
       "bestScore": 43.6,
-      "appearances": 266,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 267,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "재취업수당": {
       "firstSeen": "2026-06-12T06:28:27.176Z",
@@ -36523,8 +36325,8 @@
     "국가장학금": {
       "firstSeen": "2026-06-12T11:09:44.788Z",
       "bestScore": 20.1,
-      "appearances": 179,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 180,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "훈련장려금": {
       "firstSeen": "2026-06-12T11:09:44.788Z",
@@ -36541,8 +36343,8 @@
     "국민연금": {
       "firstSeen": "2026-06-12T15:40:17.575Z",
       "bestScore": 32,
-      "appearances": 284,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 285,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "민생회복지원금": {
       "firstSeen": "2026-06-13T06:32:44.487Z",
@@ -36559,8 +36361,8 @@
     "청년월세지원금": {
       "firstSeen": "2026-06-13T10:08:17.315Z",
       "bestScore": 7.5,
-      "appearances": 59,
-      "lastSeen": "2026-09-06T15:28:17.775Z"
+      "appearances": 60,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "해고예고수당": {
       "firstSeen": "2026-06-13T14:26:58.815Z",
@@ -36613,8 +36415,8 @@
     "민생지원금": {
       "firstSeen": "2026-06-15T23:09:33.765Z",
       "bestScore": 31.6,
-      "appearances": 129,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 130,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "장애인연금": {
       "firstSeen": "2026-06-15T23:09:33.765Z",
@@ -36637,8 +36439,8 @@
     "평생교육바우처": {
       "firstSeen": "2026-06-16T07:43:23.338Z",
       "bestScore": 8,
-      "appearances": 46,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 47,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "자녀장려금": {
       "firstSeen": "2026-06-16T17:21:35.758Z",
@@ -36697,8 +36499,8 @@
     "농식품바우처": {
       "firstSeen": "2026-06-20T10:14:17.403Z",
       "bestScore": 8.6,
-      "appearances": 21,
-      "lastSeen": "2026-08-18T07:53:52.834Z"
+      "appearances": 22,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "기초노령연금": {
       "firstSeen": "2026-06-22T07:41:33.685Z",
@@ -36751,8 +36553,8 @@
     "경영안정바우처": {
       "firstSeen": "2026-07-01T06:45:09.060Z",
       "bestScore": 18,
-      "appearances": 94,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 95,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "냉방지원금": {
       "firstSeen": "2026-07-01T06:45:09.060Z",
@@ -36999,12 +36801,6 @@
       "bestScore": 3,
       "appearances": 9,
       "lastSeen": "2026-08-09T03:53:10.160Z"
-    },
-    "생계계좌": {
-      "firstSeen": "2026-08-08T13:12:26.972Z",
-      "bestScore": 3,
-      "appearances": 2,
-      "lastSeen": "2026-08-08T21:45:41.127Z"
     },
     "입학지원금": {
       "firstSeen": "2026-08-09T13:15:39.677Z",
@@ -37411,8 +37207,8 @@
     "안마바우처": {
       "firstSeen": "2026-08-20T07:56:25.429Z",
       "bestScore": 5.1,
-      "appearances": 8,
-      "lastSeen": "2026-08-22T03:07:30.056Z"
+      "appearances": 9,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "제조혁신바우처": {
       "firstSeen": "2026-08-20T13:10:50.379Z",
@@ -37933,14 +37729,14 @@
     "분할연금": {
       "firstSeen": "2026-09-07T07:19:55.988Z",
       "bestScore": 9,
-      "appearances": 2,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 3,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     },
     "장애급여": {
       "firstSeen": "2026-09-07T07:19:55.988Z",
       "bestScore": 1.5,
-      "appearances": 2,
-      "lastSeen": "2026-09-07T17:44:59.725Z"
+      "appearances": 3,
+      "lastSeen": "2026-09-07T23:29:55.051Z"
     }
   },
   "updateCandidates": [
@@ -37950,12 +37746,12 @@
       "term": "청년미래적금",
       "markers": 2,
       "signal": {
-        "kinQuestions": 39,
+        "kinQuestions": 25,
         "news": 0,
         "datalab": 0.4
       },
-      "signalScore": 58.9,
-      "flaggedAt": "2026-09-07T17:44:59.725Z"
+      "signalScore": 37.9,
+      "flaggedAt": "2026-09-07T23:29:55.051Z"
     },
     {
       "slug": "youth-future-savings-cancel-risk-2026-06-03",
@@ -37963,12 +37759,12 @@
       "term": "청년미래적금",
       "markers": 5,
       "signal": {
-        "kinQuestions": 39,
+        "kinQuestions": 25,
         "news": 0,
         "datalab": 0.4
       },
-      "signalScore": 58.9,
-      "flaggedAt": "2026-09-07T17:44:59.725Z"
+      "signalScore": 37.9,
+      "flaggedAt": "2026-09-07T23:29:55.051Z"
     },
     {
       "slug": "youth-future-savings-eligibility-2026-06-03",
@@ -37976,12 +37772,12 @@
       "term": "청년미래적금",
       "markers": 1,
       "signal": {
-        "kinQuestions": 39,
+        "kinQuestions": 25,
         "news": 0,
         "datalab": 0.4
       },
-      "signalScore": 58.9,
-      "flaggedAt": "2026-09-07T17:44:59.725Z"
+      "signalScore": 37.9,
+      "flaggedAt": "2026-09-07T23:29:55.051Z"
     },
     {
       "slug": "youth-future-savings-types-personas-2026-06-03",
@@ -37989,12 +37785,12 @@
       "term": "청년미래적금",
       "markers": 1,
       "signal": {
-        "kinQuestions": 39,
+        "kinQuestions": 25,
         "news": 0,
         "datalab": 0.4
       },
-      "signalScore": 58.9,
-      "flaggedAt": "2026-09-07T17:44:59.725Z"
+      "signalScore": 37.9,
+      "flaggedAt": "2026-09-07T23:29:55.051Z"
     },
     {
       "slug": "youth-future-savings-result-account-2026-07-07",
@@ -38002,12 +37798,12 @@
       "term": "청년미래적금",
       "markers": 8,
       "signal": {
-        "kinQuestions": 39,
+        "kinQuestions": 25,
         "news": 0,
         "datalab": 0.4
       },
-      "signalScore": 58.9,
-      "flaggedAt": "2026-09-07T17:44:59.725Z"
+      "signalScore": 37.9,
+      "flaggedAt": "2026-09-07T23:29:55.051Z"
     },
     {
       "slug": "minsaeng-support-goseong-uiseong-may",
@@ -38015,12 +37811,12 @@
       "term": "민생지원금",
       "markers": 3,
       "signal": {
-        "kinQuestions": 4,
-        "news": 0,
-        "datalab": 2.4
+        "kinQuestions": 1,
+        "news": 4,
+        "datalab": 2.1
       },
-      "signalScore": 8.4,
-      "flaggedAt": "2026-09-07T17:44:59.725Z"
+      "signalScore": 7.6,
+      "flaggedAt": "2026-09-07T23:29:55.051Z"
     },
     {
       "slug": "changwon-livelihood-grant-not-paid-2026-08-28",
@@ -38028,12 +37824,12 @@
       "term": "민생지원금",
       "markers": 1,
       "signal": {
-        "kinQuestions": 4,
-        "news": 0,
-        "datalab": 2.4
+        "kinQuestions": 1,
+        "news": 4,
+        "datalab": 2.1
       },
-      "signalScore": 8.4,
-      "flaggedAt": "2026-09-07T17:44:59.725Z"
+      "signalScore": 7.6,
+      "flaggedAt": "2026-09-07T23:29:55.051Z"
     },
     {
       "slug": "disability-allowance-child-allowance-2026-06-27",
@@ -38041,25 +37837,12 @@
       "term": "장애수당",
       "markers": 1,
       "signal": {
-        "kinQuestions": 3,
+        "kinQuestions": 4,
         "news": 0,
         "datalab": 0
       },
-      "signalScore": 4.5,
-      "flaggedAt": "2026-09-07T17:44:59.725Z"
-    },
-    {
-      "slug": "farmer-fisher-public-allowance-jangseong",
-      "date": "2026-04-29",
-      "term": "공익수당",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 0,
-        "news": 4,
-        "datalab": 0
-      },
-      "signalScore": 4,
-      "flaggedAt": "2026-09-07T17:44:59.725Z"
+      "signalScore": 6,
+      "flaggedAt": "2026-09-07T23:29:55.051Z"
     }
   ]
 }
