@@ -4,15 +4,19 @@
 // 합법 소스만 사용 (KEYWORD-INTELLIGENCE-PLAN §3):
 //   [kin]     지식iN 검색 API (openapi.naver.com/v1/search/kin.json) — 신규 질문 수집
 //   [news]    기존 today-issue.json / _history.json 트렌딩 baseline (재수집 X)
-//   [datalab] 데이터랩 검색어트렌드 (openapi.naver.com/v1/datalab/search) — 상대수요
+//   [datalab] 데이터랩 검색어트렌드 (openapi.naver.com/v1/datalab/search) — 상대수요 + 모멘텀
+//   [demo]    같은 API의 연령 필터(ages) — 연령대 쏠림 → 페르소나 힌트
 //
 // 산출: src/data/keyword-radar.json (30일 롤링, 스냅샷당 top 30)
-// 소비: keyword-scout 에이전트 / /today / /traffic
+//   signals.datalab   최근 7일 상대수요 0~5
+//   signals.momentum  최근 7일 ÷ 직전 23일 (1.5↑ = 급상승, 점수 가산)
+//   demo              { young, middle, senior } % + peak + personaHint
+// 소비: keyword-scout 에이전트 / /today / /traffic / 0400 루틴
 //
 // 사용:
-//   node scripts/keyword-radar.mjs                 # 수집 + 적재
-//   node scripts/keyword-radar.mjs --dry-run       # 적재 없이 stdout 표만
-//   node scripts/keyword-radar.mjs --sources=kin   # 소스 한정
+//   node scripts/keyword-radar.mjs                  # 수집 + 적재
+//   node scripts/keyword-radar.mjs --dry-run        # 적재 없이 stdout 표만
+//   node scripts/keyword-radar.mjs --sources=kin    # 소스 한정 (kin,news,datalab,demo)
 // ─────────────────────────────────────────────────────────────
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -32,6 +36,12 @@ const ROLLING_DAYS = 30;
 const SNAPSHOT_TERM_CAP = 30;
 const FILE_SIZE_GUARD = 500 * 1024; // 500KB
 const FETCH_DELAY_MS = 150;
+
+// 데이터랩 호출 예산 (일 1,000회 한도, 하루 4회 실행 기준 여유 충분)
+const DATALAB_TOP = 20; // 상대수요·모멘텀 대상 (5개씩 4요청)
+const DEMO_TOP = 10; // 연령 프로파일 대상 (5개씩 2요청 × 3버킷 = 6요청)
+const MOMENTUM_SURGE = 1.5; // 최근 7일이 직전 23일의 1.5배 이상이면 급상승
+const MOMENTUM_BONUS = 2;
 
 // 지식iN 질문 수집 시드 (광역 도메인 질의)
 const SEED_QUERIES = [
@@ -147,8 +157,11 @@ async function collectNewsBaseline() {
   return signal;
 }
 
-// ── 소스 3: 데이터랩 상대수요 (상위 후보 10개만, 5그룹×2회) ──
-async function collectDatalab(env, terms) {
+// ── 데이터랩 공통 호출 (5키워드 1묶음, filter = {ages/gender/device}) ──
+// 주의: ratio는 "그 요청 안에서의" 최대값 100 기준 상대지수다. 서로 다른 요청
+// (연령 버킷이 다른 호출 등)의 ratio를 절대 비교하면 안 된다. 대신 같은 요청 안에서
+// 각 키워드가 차지하는 몫(share)을 구해 요청 간에 비교한다.
+async function datalabQuery(env, terms, { days = 29, timeUnit = 'date', filter = {} } = {}) {
   const headers = {
     'X-Naver-Client-Id': env.NAVER_CLIENT_ID,
     'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET,
@@ -156,8 +169,8 @@ async function collectDatalab(env, terms) {
   };
   const fmt = (d) => d.toISOString().slice(0, 10);
   const end = new Date();
-  const start = new Date(end.getTime() - 29 * 86400_000);
-  const demand = new Map(); // term → 0~5 지수
+  const start = new Date(end.getTime() - days * 86400_000);
+  const out = new Map(); // term → { points: [ratio...] }
   for (let i = 0; i < terms.length; i += 5) {
     const groups = terms.slice(i, i + 5).map((t) => ({ groupName: t, keywords: [t] }));
     const res = await fetch(DATALAB_API, {
@@ -166,22 +179,80 @@ async function collectDatalab(env, terms) {
       body: JSON.stringify({
         startDate: fmt(start),
         endDate: fmt(end),
-        timeUnit: 'date',
+        timeUnit,
         keywordGroups: groups,
+        ...filter,
       }),
     });
     if (!res.ok) throw new Error(`datalab ${res.status}`);
     const data = await res.json();
     for (const r of data.results ?? []) {
-      const points = r.data ?? [];
-      const last7 = points.slice(-7);
-      const avg7 = last7.reduce((s, p) => s + p.ratio, 0) / Math.max(last7.length, 1);
-      // ratio는 그룹 내 최대 100 상대지수 → 0~5로 압축
-      demand.set(r.title, Math.round((avg7 / 100) * 5 * 10) / 10);
+      out.set(
+        r.title,
+        (r.data ?? []).map((p) => p.ratio),
+      );
     }
     await sleep(FETCH_DELAY_MS);
   }
-  return demand;
+  return out;
+}
+
+const avg = (arr) => (arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : 0);
+
+// ── 소스 3: 데이터랩 상대수요 + 모멘텀(급상승) ────────────────
+// 30일 일별 시계열을 한 번만 받아 두 신호를 뽑는다 (추가 호출 없음).
+//   demand   최근 7일 평균을 0~5로 압축 (기존 점수 체계 유지)
+//   momentum 최근 7일 평균 ÷ 직전 23일 평균 → 1.0이면 보합, 1.5↑면 급상승
+async function collectDatalab(env, terms) {
+  const series = await datalabQuery(env, terms);
+  const demand = new Map();
+  const momentum = new Map();
+  for (const [term, points] of series) {
+    const last7 = points.slice(-7);
+    const prev = points.slice(0, -7);
+    const a7 = avg(last7);
+    const aPrev = avg(prev);
+    demand.set(term, Math.round((a7 / 100) * 5 * 10) / 10);
+    if (aPrev > 0 && prev.length >= 7) {
+      momentum.set(term, Math.round((a7 / aPrev) * 100) / 100);
+    }
+  }
+  return { demand, momentum };
+}
+
+// ── 소스 4: 연령대 쏠림 → 페르소나 힌트 ──────────────────────
+// 네이버 연령 코드: 3~5=19~34, 6~10=35~59, 11=60+
+// 버킷별로 따로 호출한 뒤 "그 요청 안에서 이 키워드가 차지하는 몫"을 비교한다.
+const AGE_BUCKETS = [
+  { key: 'young', label: '19~34', ages: ['3', '4', '5'] },
+  { key: 'middle', label: '35~59', ages: ['6', '7', '8', '9', '10'] },
+  { key: 'senior', label: '60+', ages: ['11'] },
+];
+const AGE_PERSONA = { young: 'office-rookie', middle: 'newlywed-family', senior: 'senior' };
+
+async function collectAgeProfile(env, terms) {
+  const shareByBucket = new Map(); // bucketKey → Map(term → share)
+  for (const b of AGE_BUCKETS) {
+    const series = await datalabQuery(env, terms, { filter: { ages: b.ages } });
+    const means = new Map();
+    for (const [term, points] of series) means.set(term, avg(points.slice(-14)));
+    const total = [...means.values()].reduce((s, v) => s + v, 0);
+    const shares = new Map();
+    for (const [term, m] of means) shares.set(term, total > 0 ? m / total : 0);
+    shareByBucket.set(b.key, shares);
+  }
+  const profile = new Map(); // term → { young, middle, senior, peak, personaHint }
+  for (const term of terms) {
+    const raw = {};
+    for (const b of AGE_BUCKETS) raw[b.key] = shareByBucket.get(b.key)?.get(term) ?? 0;
+    const sum = Object.values(raw).reduce((s, v) => s + v, 0);
+    if (sum <= 0) continue;
+    const norm = {};
+    for (const k of Object.keys(raw)) norm[k] = Math.round((raw[k] / sum) * 100);
+    const peak = Object.entries(norm).sort((a, b) => b[1] - a[1])[0][0];
+    profile.set(term, { ...norm, peak, personaHint: AGE_PERSONA[peak] });
+  }
+  return profile;
 }
 
 // ── 지원금 DB 매칭 ───────────────────────────────────────────
@@ -291,7 +362,7 @@ async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
   const srcArg = args.find((a) => a.startsWith('--sources='));
-  const sources = srcArg ? srcArg.split('=')[1].split(',') : ['kin', 'news', 'datalab'];
+  const sources = srcArg ? srcArg.split('=')[1].split(',') : ['kin', 'news', 'datalab', 'demo'];
 
   const env = await loadEnv();
   if (!env.NAVER_CLIENT_ID || !env.NAVER_CLIENT_SECRET) {
@@ -346,21 +417,42 @@ async function main() {
   );
   rows.sort((a, b) => b.score - a.score);
 
-  // 데이터랩: 상위 10개만 상대수요 검증
+  // 데이터랩: 상위 후보 상대수요 + 모멘텀 검증
   if (sources.includes('datalab') && rows.length > 0) {
     try {
-      const top = rows.slice(0, 10).map((r) => r.term);
-      const demand = await collectDatalab(env, top);
+      const top = rows.slice(0, DATALAB_TOP).map((r) => r.term);
+      const { demand, momentum } = await collectDatalab(env, top);
       for (const r of rows) {
         if (demand.has(r.term)) {
           r.signals.datalab = demand.get(r.term);
           r.score = Math.round((r.score + r.signals.datalab) * 10) / 10;
         }
+        if (momentum.has(r.term)) {
+          r.signals.momentum = momentum.get(r.term);
+          // 급상승 가산: 시기성 오버라이드(마감 D-14·발표 24h)와 같은 방향의 신호
+          if (r.signals.momentum >= MOMENTUM_SURGE) {
+            r.score = Math.round((r.score + MOMENTUM_BONUS) * 10) / 10;
+          }
+        }
       }
       rows.sort((a, b) => b.score - a.score);
-      sourceStatus.datalab = `ok (${demand.size} terms)`;
+      sourceStatus.datalab = `ok (${demand.size} terms, 모멘텀 ${momentum.size})`;
     } catch (e) {
       sourceStatus.datalab = `fail: ${e.message}`;
+    }
+  }
+
+  // 연령대 쏠림 → 페르소나 힌트 (상위 소수만, 실패해도 본 신호는 유지)
+  if (sources.includes('demo') && rows.length > 0) {
+    try {
+      const top = rows.slice(0, DEMO_TOP).map((r) => r.term);
+      const profile = await collectAgeProfile(env, top);
+      for (const r of rows) {
+        if (profile.has(r.term)) r.demo = profile.get(r.term);
+      }
+      sourceStatus.demo = `ok (${profile.size} terms)`;
+    } catch (e) {
+      sourceStatus.demo = `fail: ${e.message}`;
     }
   }
 
@@ -373,9 +465,20 @@ async function main() {
   console.log(`[radar] ${ts} — 소스: ${JSON.stringify(sourceStatus)}`);
   console.log('[radar] top 15:');
   for (const r of rows.slice(0, 15)) {
+    const mo = r.signals.momentum
+      ? ` mo:${r.signals.momentum}${r.signals.momentum >= MOMENTUM_SURGE ? '🔥' : ''}`
+      : '';
+    const demo = r.demo ? ` ${r.demo.peak}(${r.demo[r.demo.peak]}%)` : '';
     console.log(
-      `  ${String(r.score).padStart(6)}  ${r.term}  (kin:${r.signals.kinQuestions} news:${r.signals.news} dl:${r.signals.datalab ?? '-'} 매칭:${r.matchedSubsidies.length})`,
+      `  ${String(r.score).padStart(6)}  ${r.term}  (kin:${r.signals.kinQuestions} news:${r.signals.news} dl:${r.signals.datalab ?? '-'}${mo}${demo} 매칭:${r.matchedSubsidies.length})`,
     );
+  }
+  const surging = rows.filter((r) => (r.signals.momentum ?? 0) >= MOMENTUM_SURGE);
+  if (surging.length) {
+    console.log('[radar] 📈 급상승 (최근 7일 / 직전 23일):');
+    for (const r of surging.slice(0, 8)) {
+      console.log(`  ×${r.signals.momentum}  ${r.term}`);
+    }
   }
   if (updateCandidates.length) {
     console.log('[radar] 🔔 갱신 후보 (미확정 글 키워드 수요 감지):');
