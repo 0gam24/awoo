@@ -9,7 +9,11 @@ model: inherit
 
 ## 입력 소스 (모두 확인)
 
-0. **키워드 레이더**: `src/data/keyword-radar.json` 존재 시 1순위 입력 (지식iN 신규 질문·스코어). 계층 배분·금지선은 `docs/ops/KEYWORD-INTELLIGENCE-PLAN.md` 기준 (롱테일 60/세부 30/대형 10 + 시기성 오버라이드)
+0. **키워드 레이더**: `src/data/keyword-radar.json` 존재 시 1순위 입력. 계층 배분·금지선은 `docs/ops/KEYWORD-INTELLIGENCE-PLAN.md` 기준 (롱테일 60/세부 30/대형 10 + 시기성 오버라이드). 최신 스냅샷(`snapshots` 마지막 항목)의 신호를 이렇게 읽어라:
+   - `signals.kinQuestions` 지식iN 신규 질문 수 / `signals.datalab` 최근 7일 상대수요(0~5)
+   - **`signals.momentum` 최근 7일 ÷ 직전 23일 검색량.** 1.5 이상이면 급상승 — 즉시성 스코어를 5로 올리는 근거로 쓴다. 다만 "왜 오르는지"를 WebSearch로 확인하고, 확정 발표·마감이 원인이 아니면(단순 시즌성·연예 이슈 동음이의) 올리지 마라
+   - **`demo` 연령대 쏠림**(`young` 19~34 / `middle` 35~59 / `senior` 60+ 퍼센트, `peak`, `personaHint`). 권장 angle과 relatedPersonas를 이 쏠림에 맞춘다. 예: `senior` 86%면 신청 창구를 온라인이 아니라 방문·대리 신청 중심으로, `young` 70%면 앱·온라인 절차 중심으로 쓴다
+   - 신호가 `null`인 키워드는 상위 10~20위 밖이라 미측정일 뿐, 수요 없음이 아니다
 1. **트렌딩**: `src/data/today-issue.json` — trendingTopic, 매체 수, 연속 보도일, 매칭 지원금 수
 2. **중복 차단**: `today.md` 최근 30일 발행 이력 + `git log --oneline -40` (`chore(radar)`·`chore(data)` 커밋은 제외) — 이미 쓴 키워드는 제외하거나 "새 각도 필요" 표시
 3. **마감 임박**: `src/data/subsidies/` 에서 deadline이 D-14 이내인 활성 지원금 grep (시기성 = 최고 즉시성)
