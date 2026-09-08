@@ -1,10 +1,11 @@
 // ─────────────────────────────────────────────────────────────
 // keyword-radar — 지원금 키워드 수요 레이더
 //
-// 합법 소스만 사용 (KEYWORD-INTELLIGENCE-PLAN §3):
-//   [kin]     지식iN 검색 API (openapi.naver.com/v1/search/kin.json) — 신규 질문 수집
+// 합법 소스만 사용 (KEYWORD-INTELLIGENCE-PLAN §3). 엔드포인트는 레거시 오픈API와
+// NAVER API HUB(Ncloud)를 이중 지원 — NCP_API_KEY_ID/NCP_API_KEY가 있으면 HUB로 자동 전환:
+//   [kin]     지식iN 검색 API — 신규 질문 수집
 //   [news]    기존 today-issue.json / _history.json 트렌딩 baseline (재수집 X)
-//   [datalab] 데이터랩 검색어트렌드 (openapi.naver.com/v1/datalab/search) — 상대수요 + 모멘텀
+//   [datalab] 검색어트렌드(데이터랩) — 상대수요 + 모멘텀
 //   [market]  블로그·카페·뉴스 검색 API — 공급 규모·경쟁 신선도·최근 보도량 → 수요/공급 갭
 //   [demo]    같은 API의 연령 필터(ages) — 연령대 쏠림 → 페르소나 힌트
 //
@@ -32,11 +33,35 @@ const TODAY_ISSUE_FILE = join(ROOT, 'src', 'data', 'today-issue.json');
 const CURATED_DIR = join(ROOT, 'src', 'data', 'subsidies', '_curated');
 const GOV24_DIR = join(ROOT, 'src', 'data', 'subsidies', '_gov24');
 
-const KIN_API = 'https://openapi.naver.com/v1/search/kin.json';
-const DATALAB_API = 'https://openapi.naver.com/v1/datalab/search';
-const BLOG_API = 'https://openapi.naver.com/v1/search/blog.json';
-const CAFE_API = 'https://openapi.naver.com/v1/search/cafearticle.json';
-const NEWS_API = 'https://openapi.naver.com/v1/search/news.json';
+// ── API 경로·인증: 레거시 오픈API ↔ NAVER API HUB(Ncloud) 이중 지원 ──
+// 네이버가 오픈API를 Ncloud의 NAVER API HUB로 옮기는 중이다. 응답 스키마는 동일하고
+// 주소와 인증 헤더만 다르므로, NCP 키가 있으면 HUB를, 없으면 기존 키로 레거시를 쓴다.
+// 종료 일정은 공식 문서에 아직 없다(2026-09-08 확인) — 전환은 키만 넣으면 끝나게 해 둔다.
+const LEGACY = {
+  kin: 'https://openapi.naver.com/v1/search/kin.json',
+  blog: 'https://openapi.naver.com/v1/search/blog.json',
+  cafe: 'https://openapi.naver.com/v1/search/cafearticle.json',
+  news: 'https://openapi.naver.com/v1/search/news.json',
+  trend: 'https://openapi.naver.com/v1/datalab/search',
+};
+const HUB = {
+  kin: 'https://naverapihub.apigw.ntruss.com/search/v1/kin',
+  blog: 'https://naverapihub.apigw.ntruss.com/search/v1/blog',
+  cafe: 'https://naverapihub.apigw.ntruss.com/search/v1/cafearticle',
+  news: 'https://naverapihub.apigw.ntruss.com/search/v1/news',
+  trend: 'https://naverapihub.apigw.ntruss.com/search-trend/v1/search',
+};
+
+/** NCP 키가 있으면 NAVER API HUB 모드 */
+const isHubMode = (env) => Boolean(env.NCP_API_KEY_ID && env.NCP_API_KEY);
+const apiUrl = (env, name) => (isHubMode(env) ? HUB[name] : LEGACY[name]);
+const authHeaders = (env) =>
+  isHubMode(env)
+    ? { 'X-NCP-APIGW-API-KEY-ID': env.NCP_API_KEY_ID, 'X-NCP-APIGW-API-KEY': env.NCP_API_KEY }
+    : {
+        'X-Naver-Client-Id': env.NAVER_CLIENT_ID,
+        'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET,
+      };
 
 const ROLLING_DAYS = 30;
 const SNAPSHOT_TERM_CAP = 30;
@@ -124,13 +149,11 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // ── 소스 1: 지식iN 검색 API ──────────────────────────────────
 async function collectKin(env) {
-  const headers = {
-    'X-Naver-Client-Id': env.NAVER_CLIENT_ID,
-    'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET,
-  };
+  const headers = authHeaders(env);
+  const kinApi = apiUrl(env, 'kin');
   const questions = [];
   for (const seed of SEED_QUERIES) {
-    const url = `${KIN_API}?query=${encodeURIComponent(seed)}&display=30&sort=date`;
+    const url = `${kinApi}?query=${encodeURIComponent(seed)}&display=30&sort=date`;
     const res = await fetch(url, { headers });
     if (!res.ok) throw new Error(`kin.json ${res.status} (seed: ${seed})`);
     const data = await res.json();
@@ -173,10 +196,7 @@ async function collectNewsBaseline() {
 //   blogFresh   최신 30건 중 30일 이내 비율 0~1 (경쟁 활발도 — 높으면 레드오션)
 //   newsRecent  최근 7일 뉴스 건수 (시기성 실측 — 기존 news는 자체 파일 baseline이었다)
 async function searchCount(env, api, query, { sort = 'sim', display = 1 } = {}) {
-  const headers = {
-    'X-Naver-Client-Id': env.NAVER_CLIENT_ID,
-    'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET,
-  };
+  const headers = authHeaders(env);
   const url = `${api}?query=${encodeURIComponent(query)}&display=${display}&sort=${sort}`;
   const res = await fetch(url, { headers });
   if (!res.ok) throw new Error(`${api.split('/').pop()} ${res.status}`);
@@ -190,7 +210,7 @@ async function collectNaverMarket(env, terms) {
   for (const term of terms) {
     const rec = {};
     try {
-      const blog = await searchCount(env, BLOG_API, term, { sort: 'date', display: 30 });
+      const blog = await searchCount(env, apiUrl(env, 'blog'), term, { sort: 'date', display: 30 });
       rec.blogTotal = blog.total ?? 0;
       const items = blog.items ?? [];
       const cutoff = Date.now() - 30 * DAY;
@@ -204,12 +224,12 @@ async function collectNaverMarket(env, terms) {
       await sleep(FETCH_DELAY_MS);
     } catch {}
     try {
-      const cafe = await searchCount(env, CAFE_API, term);
+      const cafe = await searchCount(env, apiUrl(env, 'cafe'), term);
       rec.cafeTotal = cafe.total ?? 0;
       await sleep(FETCH_DELAY_MS);
     } catch {}
     try {
-      const news = await searchCount(env, NEWS_API, term, { sort: 'date', display: 30 });
+      const news = await searchCount(env, apiUrl(env, 'news'), term, { sort: 'date', display: 30 });
       const cutoff = Date.now() - 7 * DAY;
       rec.newsRecent = (news.items ?? []).filter(
         (it) => Date.parse(it.pubDate ?? 0) >= cutoff,
@@ -237,18 +257,14 @@ function gapScore({ kinQuestions = 0, newsRecent = 0, blogTotal = 0, blogFresh =
 // (연령 버킷이 다른 호출 등)의 ratio를 절대 비교하면 안 된다. 대신 같은 요청 안에서
 // 각 키워드가 차지하는 몫(share)을 구해 요청 간에 비교한다.
 async function datalabQuery(env, terms, { days = 29, timeUnit = 'date', filter = {} } = {}) {
-  const headers = {
-    'X-Naver-Client-Id': env.NAVER_CLIENT_ID,
-    'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET,
-    'Content-Type': 'application/json',
-  };
+  const headers = { ...authHeaders(env), 'Content-Type': 'application/json' };
   const fmt = (d) => d.toISOString().slice(0, 10);
   const end = new Date();
   const start = new Date(end.getTime() - days * 86400_000);
   const out = new Map(); // term → { points: [ratio...] }
   for (let i = 0; i < terms.length; i += 5) {
     const groups = terms.slice(i, i + 5).map((t) => ({ groupName: t, keywords: [t] }));
-    const res = await fetch(DATALAB_API, {
+    const res = await fetch(apiUrl(env, 'trend'), {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -442,10 +458,13 @@ async function main() {
     : ['kin', 'news', 'datalab', 'demo', 'market'];
 
   const env = await loadEnv();
-  if (!env.NAVER_CLIENT_ID || !env.NAVER_CLIENT_SECRET) {
-    console.error('[radar] NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 필요 (.env 또는 secrets)');
+  if (!isHubMode(env) && !(env.NAVER_CLIENT_ID && env.NAVER_CLIENT_SECRET)) {
+    console.error(
+      '[radar] 인증 키 필요 — NAVER API HUB는 NCP_API_KEY_ID/NCP_API_KEY, 레거시 오픈API는 NAVER_CLIENT_ID/NAVER_CLIENT_SECRET (.env 또는 secrets)',
+    );
     process.exit(1);
   }
+  console.log(`[radar] API 모드: ${isHubMode(env) ? 'NAVER API HUB (Ncloud)' : '레거시 오픈API'}`);
 
   const sourceStatus = {};
   let questions = [];
