@@ -23,7 +23,11 @@ jobs:
       INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
 
     steps:
+      # ref 없이 두면 실행이 "예약된 시점"의 커밋이 고정된다. 앞선 회차가 끝나기를
+      # 기다렸다가 시작한 실행은 그 회차의 push를 못 보고 옛 파일 위에 작업하게 된다.
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-node@v4
         with:

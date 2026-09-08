@@ -21,7 +21,11 @@ jobs:
     timeout-minutes: 20 # 2026-09-09 조사 폭 확대로 1회 4~6분 소요
 
     steps:
+      # ref 없이 두면 실행이 "예약된 시점"의 커밋이 고정된다. 앞선 회차가 끝나기를
+      # 기다렸다가 시작한 실행은 그 회차의 push를 못 보고 옛 파일 위에 작업하게 된다.
       - uses: actions/checkout@v4
+        with:
+          ref: main
 
       - uses: actions/setup-node@v4
         with:
@@ -55,11 +59,29 @@ jobs:
         run: |
           git config user.name "awoo-bot"
           git config user.email "noreply@awoo.or.kr"
-          git add src/data/keyword-radar.json
-          HOUR=$(TZ=Asia/Seoul date +"%m/%d %H시")
-          git commit -m "chore(radar): ${HOUR} 키워드 스냅샷
+          MSG="chore(radar): $(TZ=Asia/Seoul date +'%m/%d %H시') 키워드 스냅샷
 
           [skip ci]"
-          # 같은 시각대 다른 cron(sync-issues 등) 선행 push 대비
-          git pull --rebase origin main
-          git push origin main
+          git add src/data/keyword-radar.json
+          git commit -m "$MSG"
+
+          # 실행에 수 분이 걸려 그 사이 다른 회차가 push할 수 있다. 이 파일은
+          # "이전 상태 + 이번 회차"라 어느 한쪽을 고르면 회차가 통째로 날아간다.
+          # 그래서 원격을 base로 삼고 우리 결과를 다시 얹는다.
+          for i in 1 2 3; do
+            git fetch origin main
+            if git merge-base --is-ancestor origin/main HEAD; then
+              if git push origin main; then exit 0; fi
+            fi
+            echo "원격이 앞서 있다 — 병합 후 재시도 ($i/3)"
+            cp src/data/keyword-radar.json "$RUNNER_TEMP/ours.json"
+            git reset --hard origin/main
+            node scripts/merge-data-store.mjs src/data/keyword-radar.json "$RUNNER_TEMP/ours.json"
+            git add src/data/keyword-radar.json
+            if ! git commit -m "$MSG"; then
+              echo "병합 결과가 원격과 동일 — 적재할 것 없음"
+              exit 0
+            fi
+          done
+          echo "::error::3회 시도 후에도 push 실패"
+          exit 1
