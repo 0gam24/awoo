@@ -25,6 +25,7 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { countCall, formatUsage, usageReport } from './lib/api-quota.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT_FILE = join(ROOT, 'src', 'data', 'keyword-radar.json');
@@ -62,6 +63,10 @@ const authHeaders = (env) =>
         'X-Naver-Client-Id': env.NAVER_CLIENT_ID,
         'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET,
       };
+
+// 하루 몇 번 도는지 — .github/workflows/keyword-radar.yml 의 cron '17 21,2,7,12 * * *'
+// 여기와 cron이 어긋나면 사용량 추정이 틀어진다. cron을 바꾸면 이 값도 바꿔라.
+const RUNS_PER_DAY = 4;
 
 const ROLLING_DAYS = 30;
 const SNAPSHOT_TERM_CAP = 30;
@@ -154,6 +159,7 @@ async function collectKin(env) {
   const questions = [];
   for (const seed of SEED_QUERIES) {
     const url = `${kinApi}?query=${encodeURIComponent(seed)}&display=30&sort=date`;
+    countCall('search', 'kin');
     const res = await fetch(url, { headers });
     if (!res.ok) throw new Error(`kin.json ${res.status} (seed: ${seed})`);
     const data = await res.json();
@@ -198,6 +204,7 @@ async function collectNewsBaseline() {
 async function searchCount(env, api, query, { sort = 'sim', display = 1 } = {}) {
   const headers = authHeaders(env);
   const url = `${api}?query=${encodeURIComponent(query)}&display=${display}&sort=${sort}`;
+  countCall('search', (api.split('/').pop() ?? 'search').replace('.json', ''));
   const res = await fetch(url, { headers });
   if (!res.ok) throw new Error(`${api.split('/').pop()} ${res.status}`);
   return res.json();
@@ -264,6 +271,7 @@ async function datalabQuery(env, terms, { days = 29, timeUnit = 'date', filter =
   const out = new Map(); // term → { points: [ratio...] }
   for (let i = 0; i < terms.length; i += 5) {
     const groups = terms.slice(i, i + 5).map((t) => ({ groupName: t, keywords: [t] }));
+    countCall('datalab', 'trend');
     const res = await fetch(apiUrl(env, 'trend'), {
       method: 'POST',
       headers,
@@ -612,6 +620,9 @@ async function main() {
     }
   }
 
+  const usage = usageReport(RUNS_PER_DAY);
+  console.log(formatUsage(usage));
+
   if (dryRun) {
     console.log('[radar] --dry-run — 적재 생략');
     return;
@@ -619,6 +630,7 @@ async function main() {
 
   const store = await loadStore();
   store.updatedAt = ts;
+  store.apiUsage = { ts, mode: isHubMode(env) ? 'hub' : 'legacy', ...usage };
   store.updateCandidates = updateCandidates.map((c) => ({ ...c, flaggedAt: ts }));
   store.snapshots.push({ ts, sourceStatus, keywords: rows });
   for (const r of rows) {

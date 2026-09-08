@@ -33,6 +33,9 @@ jobs:
 
       - name: Run radar
         env:
+          # NAVER API HUB(Ncloud). 이 둘이 비어 있으면 레거시 오픈API로 자동 폴백한다.
+          NCP_API_KEY_ID: ${{ secrets.NCP_API_KEY_ID }}
+          NCP_API_KEY: ${{ secrets.NCP_API_KEY }}
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
           NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
         run: npm run radar:sync

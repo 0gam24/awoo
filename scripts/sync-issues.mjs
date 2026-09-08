@@ -19,6 +19,7 @@
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { countCall, formatUsage, usageReport } from './lib/api-quota.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -27,7 +28,23 @@ const HISTORY_PATH = join(ROOT, 'src', 'data', 'issues', '_history.json');
 const CURATED_DIR = join(ROOT, 'src', 'data', 'subsidies', '_curated');
 const GOV24_DIR = join(ROOT, 'src', 'data', 'subsidies', '_gov24');
 
-const NAVER_API = 'https://openapi.naver.com/v1/search/news.json';
+// 뉴스 검색 엔드포인트 — 레거시 오픈API ↔ NAVER API HUB(Ncloud) 이중 지원.
+// keyword-radar.mjs와 같은 규칙: NCP 키가 있으면 HUB, 없으면 기존 키로 레거시.
+const NEWS_LEGACY = 'https://openapi.naver.com/v1/search/news.json';
+const NEWS_HUB = 'https://naverapihub.apigw.ntruss.com/search/v1/news';
+
+const isHubMode = (env) => Boolean(env.NCP_API_KEY_ID && env.NCP_API_KEY);
+const newsApi = (env) => (isHubMode(env) ? NEWS_HUB : NEWS_LEGACY);
+const authHeaders = (env) =>
+  isHubMode(env)
+    ? { 'X-NCP-APIGW-API-KEY-ID': env.NCP_API_KEY_ID, 'X-NCP-APIGW-API-KEY': env.NCP_API_KEY }
+    : {
+        'X-Naver-Client-Id': env.NAVER_CLIENT_ID,
+        'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET,
+      };
+
+// 하루 몇 번 도는지 — .github/workflows/sync-issues.yml 의 cron '0 21,7 * * *'
+const RUNS_PER_DAY = 2;
 
 // ─────────────────────────────────────────────────────────────
 // .env 로딩 (값 비노출)
@@ -440,19 +457,20 @@ function cleanDesc(t) {
 // ─────────────────────────────────────────────────────────────
 // Naver News 검색 — 페이지네이션 (최대 100건/페이지, total ≤ 100)
 // ─────────────────────────────────────────────────────────────
-async function searchNaver(query, clientId, clientSecret, display = 100, start = 1) {
-  const url = `${NAVER_API}?query=${encodeURIComponent(query)}&display=${display}&start=${start}&sort=date`;
-  const res = await fetch(url, {
-    headers: {
-      'X-Naver-Client-Id': clientId,
-      'X-Naver-Client-Secret': clientSecret,
-    },
-  });
+async function searchNaver(env, query, display = 100, start = 1) {
+  const url = `${newsApi(env)}?query=${encodeURIComponent(query)}&display=${display}&start=${start}&sort=date`;
+  countCall('search', 'news');
+  const res = await fetch(url, { headers: authHeaders(env) });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    const safe = body
-      .replace(new RegExp(clientId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '***')
-      .replace(new RegExp(clientSecret.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '***');
+    // 응답 본문에 키가 되비칠 수 있어 보유 키를 전부 마스킹한 뒤 던진다
+    const secrets = [
+      env.NCP_API_KEY_ID,
+      env.NCP_API_KEY,
+      env.NAVER_CLIENT_ID,
+      env.NAVER_CLIENT_SECRET,
+    ].filter(Boolean);
+    const safe = secrets.reduce((acc, v) => acc.replaceAll(v, '***'), body);
     throw new Error(`Naver API ${res.status}: ${safe.slice(0, 200)}`);
   }
   const json = await res.json();
@@ -759,13 +777,13 @@ function scoreItem(item, cat) {
 // ─────────────────────────────────────────────────────────────
 async function main() {
   const env = await loadEnv();
-  const clientId = env.NAVER_CLIENT_ID;
-  const clientSecret = env.NAVER_CLIENT_SECRET;
-  if (!clientId || !clientSecret) {
-    console.error('❌ NAVER_CLIENT_ID / NAVER_CLIENT_SECRET 미설정');
+  if (!isHubMode(env) && !(env.NAVER_CLIENT_ID && env.NAVER_CLIENT_SECRET)) {
+    console.error(
+      '❌ 인증 키 필요 — NAVER API HUB는 NCP_API_KEY_ID/NCP_API_KEY, 레거시 오픈API는 NAVER_CLIENT_ID/NAVER_CLIENT_SECRET',
+    );
     process.exit(1);
   }
-  console.log('🔑 Naver API 키 로드 완료');
+  console.log(`🔑 Naver API 키 로드 완료 (${isHubMode(env) ? 'NAVER API HUB' : '레거시 오픈API'})`);
 
   // 1. 광역 fetch — 최신순 100건씩 × 3 쿼리 = 300건
   const articles = [];
@@ -773,7 +791,7 @@ async function main() {
   for (const q of BROAD_QUERIES) {
     try {
       process.stdout.write(`\r🔍 광역 fetch: ${q.padEnd(8)}`);
-      const items = await searchNaver(q, clientId, clientSecret, 100);
+      const items = await searchNaver(env, q, 100);
       for (const it of items) {
         const link = it.originallink || it.link;
         if (!link || seenLinks.has(link)) continue;
@@ -793,6 +811,7 @@ async function main() {
   }
   process.stdout.write('\n');
   console.log(`📦 광역 수집 ${articles.length}건 (중복 제거)`);
+  console.log(formatUsage(usageReport(RUNS_PER_DAY)));
 
   if (articles.length === 0) {
     console.error('❌ 기사 0건');
