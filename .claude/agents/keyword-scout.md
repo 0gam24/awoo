@@ -57,3 +57,20 @@ score = 즉시성 + 갭 + 연계 + 롱테일 구체성 - 중복
 ```
 
 규칙: 추정 검색량 수치를 지어내지 마라. 근거는 "매체 N곳 보도", "D-N 마감", "관련 글 0건" 같은 검증 가능한 사실만. reportType은 weekly-essentials / issue-followup / deadline-imminent-weekly / new-subsidies-weekly / new-subsidies-detail 5종만.
+
+## 신생·틈새 신호 (2026-09-09 추가)
+
+레이더가 조사 폭을 넓히면서(질문 280 → 2,661건, term 20 → 118개) 새 필드가 생겼다.
+
+| 필드 | 뜻 |
+|---|---|
+| `niche[]` | 공급 얇음 × 신생/성장/급상승을 모두 만족하는 후보. **gap 내림차순으로 이미 정렬돼 있다** |
+| `niche[].stage` | `new`(7일 내 최초 관측) / `rising`(추세 1.4배↑) / `mature` / `fading` |
+| `niche[].blogTotal` | 그 키워드의 블로그 문서 수. **작을수록 빈 자리다** |
+| `byTerm[t].hist` | `[날짜, 점수, gap]` 압축 시계열 (최근 30관측) |
+
+**점수(score)만 보면 안 된다.** score는 사실상 지식iN 질문 수라서 이미 큰 키워드가 항상 위에 온다. 이미 큰 키워드는 이미 남들이 다 썼다. **gap과 blogTotal을 같이 봐라.**
+
+`stage: "new"` + `age: 0`은 "이번 회차 최초 관측"이지 확정된 신생이 아니다. 관측 2회 이하면 **"표본 부족"** 으로 표시하고 단정하지 마라.
+
+깊은 발굴은 `emerging-keyword-hunter`가 한다. 너는 1차 스크리닝이다.

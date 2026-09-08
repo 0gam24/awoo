@@ -53,7 +53,9 @@
     "audit:rss": "node scripts/audit-rss.mjs",
     "audit:titles": "node scripts/audit-titles.mjs",
     "audit:specificity": "node scripts/audit-specificity.mjs",
-    "audit:content-depth": "node scripts/audit-content-depth.mjs"
+    "audit:content-depth": "node scripts/audit-content-depth.mjs",
+    "rank:check": "node scripts/naver-rank-check.mjs",
+    "rank:one": "node scripts/naver-rank-check.mjs --query="
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",

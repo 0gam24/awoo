@@ -18,7 +18,7 @@ jobs:
   radar:
     name: Collect keyword demand signals
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20 # 2026-09-09 조사 폭 확대로 1회 4~6분 소요
 
     steps:
       - uses: actions/checkout@v4

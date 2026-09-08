@@ -33,6 +33,7 @@ model: inherit
 - **1키워드 1페이지**: 같은 키워드의 신청방법/일정/금액표 분할 발행(doorway) 금지 — 하위 주제는 섹션으로 통합.
 - **reportType**: weekly-essentials / issue-followup / deadline-imminent-weekly / new-subsidies-weekly / new-subsidies-detail 5종만
 - title ≤40자 — **롱테일 우선**: 브로드 헤드 금지, `지역명 + 지원금 + 대상자/조건` 구체화. metaDescription 60~110자(수치·마감 포함)
+- **`targetQuery` 필수 (네이버 트랙)**: 이 글이 노리는 검색어 한 개를 그대로 넣는다. 2026-09-08 SERP 실측에서 이긴 글과 진 글을 가른 유일한 변수가 **제목이 쿼리 그 자체인가**였으므로, `targetQuery`는 **제목 맨 앞에 그대로 등장해야 한다**. 같은 키워드 2회 이상 반복은 네이버 명시 불이익이니 1회만. 이 필드가 있어야 다음날 `scripts/naver-rank-check.mjs`가 자동으로 순위를 재고 교정 루프가 이어진다 — **빠뜨리면 그 글은 성적을 영영 알 수 없다.**
 - **긴 줄표(—·–) 금지 (제목 err·본문 warn)**: 콤마나 자연스러운 구로. AI 정형 문구("핵심은 세 가지"·"정리하면"·"살펴보겠습니다" 류) 금지 — 리드·문단 시작을 글마다 다르게.
 - **answer(한 줄 정답) 필수** — ≤120자, 수치+날짜, 시드 질문 직답. tldr[0] 재서술 금지.
 - tldr 첫 항목 첫 문장이 단독으로 답이 되게, 수치 포함. tldr=맥락 / coreFacts=수치 / faq=후속질문 — 역할 분리(중복 시 lint warn)

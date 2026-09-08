@@ -69,36 +69,70 @@ const authHeaders = (env) =>
 const RUNS_PER_DAY = 4;
 
 const ROLLING_DAYS = 30;
-const SNAPSHOT_TERM_CAP = 30;
-const FILE_SIZE_GUARD = 500 * 1024; // 500KB
+const SNAPSHOT_TERM_CAP = 60;
+const FILE_SIZE_GUARD = 700 * 1024; // 700KB — 넘으면 오래된 스냅샷부터 버린다
 const FETCH_DELAY_MS = 150;
 
 // 데이터랩 호출 예산 (일 1,000회 한도, 하루 4회 실행 기준 여유 충분)
-const DATALAB_TOP = 20; // 상대수요·모멘텀 대상 (5개씩 4요청)
-const DEMO_TOP = 10; // 연령 프로파일 대상 (5개씩 2요청 × 3버킷 = 6요청)
+// 조사 폭. 한도의 1%도 안 쓰던 것을 2026-09-09에 넓혔다 —
+// 좁게 보면 상위권 밖의 "아직 아무도 안 쓴 자리"를 통째로 놓친다.
+// 확대 후에도 검색 일 3%, 데이터랩 월 6%대다(docs/ops/NAVER-API-QUOTA.md).
+const DATALAB_TOP = 40; // 상대수요·모멘텀 대상 (5개씩 8요청)
+const DEMO_TOP = 30; // 연령 프로파일 대상 (5개씩 6요청 × 3버킷 = 18요청)
 const MOMENTUM_SURGE = 1.5; // 최근 7일이 직전 23일의 1.5배 이상이면 급상승
 const MOMENTUM_BONUS = 2;
 // 네이버 공급·보도량 (검색 API 일 25,000회 — 키워드당 3콜)
-const MARKET_TOP = 15;
+const MARKET_TOP = 60; // 블로그·카페·뉴스 공급량 조사 (× 3 = 180요청)
 const GAP_STRONG = 3; // 이 이상이면 "수요 대비 공급이 빈 자리"
 
+// ── 신생·성장 키워드 판정 ──────────────────────────────────
+// 이미 큰 키워드는 이미 남들이 다 썼다. 트래픽이 "앞으로" 커질 자리를 잡으려면
+// 방금 생겼고(신생) 우상향 중인(성장) 키워드를 봐야 한다.
+const NEW_TERM_DAYS = 7; // 이 안에 처음 등장했으면 신생
+const TERM_HIST_CAP = 30; // byTerm에 남기는 관측치 수 (4회/일 × 약 7일)
+const GROWTH_MIN_OBS = 4; // 추세 판정 최소 관측치
+const GROWTH_STRONG = 1.4; // 후반 평균 ÷ 전반 평균이 이 이상이면 성장
+
 // 지식iN 질문 수집 시드 (광역 도메인 질의)
+// 시드가 곧 탐색 범위다. 좁으면 신생 키워드가 아예 시야에 안 들어온다.
+// 2026-09-09 확대: 10 → 28. 호출은 시드당 1회라 28회, 검색 한도의 0.1%다.
 const SEED_QUERIES = [
+  // 총칭
   '지원금 신청',
   '보조금',
   '수당 받을 수 있나요',
   '바우처',
   '장려금',
   '급여 신청 자격',
+  '환급 언제',
+  '지원 대상 되나요',
+  '신청 자격 조건',
+  '얼마 받나요',
+  // 생애·가구
+  '청년 지원',
+  '신혼부부 지원',
+  '출산 지원',
+  '육아 지원',
+  '노인 지원',
+  '장애인 지원',
+  '한부모 지원',
+  '저소득층 지원',
+  // 분야
   '기초연금',
   '실업급여',
-  '환급 언제',
   '청년 적금',
+  '주거 지원',
+  '월세 지원',
+  '학자금',
+  '의료비 지원',
+  '난방비 지원',
+  '소상공인 지원',
+  '농업 지원',
 ];
 
 // 키워드(term) 추출 — 이 접미사로 끝나는 n-gram만 도메인 후보로 인정
 const TERM_SUFFIX_RE =
-  /([가-힣A-Za-z0-9·]{1,14}(?:지원금|보조금|수당|바우처|장려금|급여|연금|적금|환급금|장학금|대출금리는?|계좌))/g;
+  /([가-힣A-Za-z0-9·]{1,14}(?:지원금|보조금|수당|바우처|장려금|급여|연금|적금|환급금|장학금|대출금리는?|계좌|공제|감면|지원사업|융자|보험료|등록금|보육료|급식비|난방비|위로금|격려금|생활비|상품권|통장))/g;
 
 // 스팸/저품질 필터 — 제목에 포함 시 해당 질문 폐기
 const SPAM_RE =
@@ -158,7 +192,8 @@ async function collectKin(env) {
   const kinApi = apiUrl(env, 'kin');
   const questions = [];
   for (const seed of SEED_QUERIES) {
-    const url = `${kinApi}?query=${encodeURIComponent(seed)}&display=30&sort=date`;
+    // display는 네이버 검색 API 상한인 100까지 공짜다 — 호출 1회로 3배를 받는다
+    const url = `${kinApi}?query=${encodeURIComponent(seed)}&display=100&sort=date`;
     countCall('search', 'kin');
     const res = await fetch(url, { headers });
     if (!res.ok) throw new Error(`kin.json ${res.status} (seed: ${seed})`);
@@ -456,6 +491,52 @@ function pruneStore(store) {
   }
 }
 
+// ── 신생·성장 판정 ───────────────────────────────────────────
+// 이미 큰 키워드는 이미 남들이 다 썼다. "앞으로" 커질 자리를 잡으려면
+// 방금 생겼거나(new) 우상향 중인(rising) 키워드를 봐야 한다.
+//   age    처음 관측된 뒤 지난 일수 (이번이 첫 관측이면 0)
+//   growth byTerm.hist 후반 평균 ÷ 전반 평균 (관측 4회 미만이면 판정 불가 → null)
+function classifyLifecycle(rows, store, ts) {
+  const now = Date.parse(ts);
+  for (const r of rows) {
+    const rec = store.byTerm?.[r.term];
+    const age = rec?.firstSeen
+      ? Math.max(0, Math.floor((now - Date.parse(rec.firstSeen)) / 86400_000))
+      : 0;
+    const hist = rec?.hist ?? [];
+    let growth = null;
+    if (hist.length >= GROWTH_MIN_OBS) {
+      const half = Math.floor(hist.length / 2);
+      const early = avg(hist.slice(0, half).map((h) => h[1]));
+      const late = avg(hist.slice(half).map((h) => h[1]));
+      if (early > 0) growth = Math.round((late / early) * 100) / 100;
+    }
+    let stage;
+    if (age <= NEW_TERM_DAYS) stage = 'new';
+    else if (growth != null && growth >= GROWTH_STRONG) stage = 'rising';
+    else if (growth != null && growth < 0.7) stage = 'fading';
+    else stage = 'mature';
+    r.lifecycle = { age, growth, stage, observations: hist.length };
+  }
+}
+
+/**
+ * 틈새 후보 — "공급이 얇은 자리" × "지금 막 커지는 중".
+ * gap만 높고 오래된 키워드는 이미 경쟁이 끝난 자리일 확률이 높다.
+ * 급상승(momentum)은 나이와 무관하게 편입한다 — 정책 발표로 갑자기 열린 자리가 있다.
+ */
+function nicheCandidates(rows) {
+  return rows
+    .filter((r) => {
+      const stage = r.lifecycle?.stage;
+      const fresh = stage === 'new' || stage === 'rising';
+      const room = (r.signals.gap ?? 0) >= GAP_STRONG;
+      const surging = (r.signals.momentum ?? 0) >= MOMENTUM_SURGE;
+      return room && (fresh || surging);
+    })
+    .sort((a, b) => (b.signals.gap ?? 0) - (a.signals.gap ?? 0));
+}
+
 // ── main ─────────────────────────────────────────────────────
 async function main() {
   const args = process.argv.slice(2);
@@ -506,6 +587,7 @@ async function main() {
   for (const [term] of newsSignal) {
     if (!termMap.has(term)) termMap.set(term, { count: 0, questions: [] });
   }
+  console.log(`[radar] 추출 term ${termMap.size}개 (질문 ${questions.length}건)`);
   const subsidyIdx = await loadSubsidyIndex();
   let rows = [...termMap.entries()].map(([term, rec]) => ({
     term,
@@ -581,6 +663,11 @@ async function main() {
   rows = rows.slice(0, SNAPSHOT_TERM_CAP);
   const ts = new Date().toISOString();
 
+  // 판정은 "이전 관측"을 봐야 하므로 적재 전에 store를 먼저 읽는다
+  const store = await loadStore();
+  classifyLifecycle(rows, store, ts);
+  const niche = nicheCandidates(rows);
+
   // 갱신 후보 감지 (미확정 글 × 수요 신호)
   const updateCandidates = await scanUpdateCandidates(questions, newsSignal, rows);
 
@@ -620,6 +707,25 @@ async function main() {
     }
   }
 
+  if (niche.length) {
+    console.log('[radar] 🌱 틈새 후보 (공급 얇음 × 신생/성장/급상승):');
+    for (const r of niche.slice(0, 12)) {
+      const lc = r.lifecycle;
+      const tag =
+        lc.stage === 'new'
+          ? `신생 ${lc.age}일`
+          : lc.stage === 'rising'
+            ? `성장 ×${lc.growth}`
+            : `급상승 ×${r.signals.momentum}`;
+      console.log(
+        `  gap ${String(r.signals.gap).padStart(4)}  ${r.term.padEnd(14)} ${tag}` +
+          `${r.market ? ` (블로그 ${r.market.blogTotal.toLocaleString()})` : ''}`,
+      );
+    }
+  } else {
+    console.log('[radar] 🌱 틈새 후보 없음 — gap 기준 미달이거나 전부 성숙 키워드');
+  }
+
   const usage = usageReport(RUNS_PER_DAY);
   console.log(formatUsage(usage));
 
@@ -628,16 +734,30 @@ async function main() {
     return;
   }
 
-  const store = await loadStore();
   store.updatedAt = ts;
   store.apiUsage = { ts, mode: isHubMode(env) ? 'hub' : 'legacy', ...usage };
   store.updateCandidates = updateCandidates.map((c) => ({ ...c, flaggedAt: ts }));
   store.snapshots.push({ ts, sourceStatus, keywords: rows });
+  store.niche = niche.slice(0, 20).map((r) => ({
+    term: r.term,
+    gap: r.signals.gap,
+    momentum: r.signals.momentum ?? null,
+    stage: r.lifecycle.stage,
+    age: r.lifecycle.age,
+    growth: r.lifecycle.growth,
+    blogTotal: r.market?.blogTotal ?? null,
+    demo: r.demo?.peak ?? null,
+    flaggedAt: ts,
+  }));
   for (const r of rows) {
     const rec = store.byTerm[r.term] ?? { firstSeen: ts, bestScore: 0, appearances: 0 };
     rec.lastSeen = ts;
     rec.bestScore = Math.max(rec.bestScore, r.score);
     rec.appearances += 1;
+    // 압축 시계열 — 스냅샷은 용량 가드에 밀려 짧아지지만 추세 판정은 길게 봐야 한다
+    rec.hist = [...(rec.hist ?? []), [ts.slice(0, 10), r.score, r.signals.gap ?? null]].slice(
+      -TERM_HIST_CAP,
+    );
     store.byTerm[r.term] = rec;
   }
   // byTerm도 30일 미등장 시 정리

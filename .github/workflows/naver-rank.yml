@@ -1,0 +1,65 @@
+name: Naver rank check
+
+# 발행한 글이 네이버에서 실제로 몇 위인지 매일 측정한다.
+# 병목은 색인이 아니라 랭킹이므로, 이 측정값이 다음 글의 각도를 정하는 근거가 된다.
+# KST 09:40 — 새벽 자동 발행(04:00) 결과가 색인될 시간을 준 뒤.
+# 산출 src/data/naver-ranks.json은 사이트 미사용 운영 데이터 → build/deploy 없음.
+on:
+  schedule:
+    - cron: '40 0 * * *'
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: '측정 건수 (기본 25)'
+        required: false
+        default: '25'
+
+concurrency:
+  group: naver-rank
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  rank:
+    name: Measure Naver SERP positions
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Check ranks
+        run: node scripts/naver-rank-check.mjs --limit=${{ github.event.inputs.limit || '25' }}
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain src/data/naver-ranks.json)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No rank change — skipping commit"
+          fi
+
+      - name: Commit changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          git add src/data/naver-ranks.json
+          DAY=$(TZ=Asia/Seoul date +"%m/%d")
+          git commit -m "chore(rank): ${DAY} 네이버 순위 측정
+
+          [skip ci]"
+          git pull --rebase origin main
+          git push origin main

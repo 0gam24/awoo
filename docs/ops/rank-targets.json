@@ -1,0 +1,72 @@
+{
+  "_comment": "네이버 순위를 추적할 쿼리. scripts/naver-rank-check.mjs가 읽는다. 신규 글은 포스트 JSON의 targetQuery 필드로 자동 편입되므로 여기엔 기존 글만 넣는다.",
+  "_baseline": "2026-09-08 SERP 실측. externalSeen은 그때 본 외부 웹문서 수 — 0이면 구조적으로 못 들어가는 자리다(대조군으로 남겨둔다).",
+  "targets": [
+    {
+      "query": "실업급여 조기재취업수당 조건",
+      "url": "/issues/early-reemployment-allowance-conditions/",
+      "externalSeen": 2,
+      "note": "2026-09-08 기준 웹문서 5위 — 유일한 상위 노출 확보 쿼리. 기준점"
+    },
+    {
+      "query": "에너지바우처 잔액 조회",
+      "url": null,
+      "externalSeen": 4,
+      "note": "외부 웹 4건 — 가장 열려 있는 자리. 아직 대응 글 없음"
+    },
+    {
+      "query": "청년월세 주거급여 중복",
+      "url": null,
+      "externalSeen": 3,
+      "note": "외부 웹 3건"
+    },
+    {
+      "query": "기초연금 수급자격 소득인정액 계산",
+      "url": null,
+      "externalSeen": 1
+    },
+    {
+      "query": "국가장학금 서류제출 안 하면",
+      "url": null,
+      "externalSeen": 1
+    },
+    {
+      "query": "근로장려금 반기신청 지급일",
+      "url": null,
+      "externalSeen": 0,
+      "note": "대조군 — 외부 웹 0건. 여기가 계속 0이면 진입 불가 판정이 맞다는 뜻"
+    },
+    {
+      "query": "본인부담상한액 초과금 환급",
+      "url": "/issues/medical-copay-cap-refund/"
+    },
+    {
+      "query": "노란우산공제 소득공제 한도",
+      "url": "/issues/yellow-umbrella-deduction-limit/"
+    },
+    {
+      "query": "공익직불금 이행점검 감액",
+      "url": "/issues/public-direct-payment-inspection-deduction/"
+    },
+    {
+      "query": "참전명예수당 2027 인상",
+      "url": "/issues/veterans-honor-allowance-2027-increase/"
+    },
+    {
+      "query": "배우자 유산 사산휴가 유급",
+      "url": "/issues/spouse-miscarriage-stillbirth-leave/"
+    },
+    {
+      "query": "나주 민생회복지원금 5부제",
+      "url": "/issues/naju-livelihood-grant-rotation-days/"
+    },
+    {
+      "query": "혼인지원금 혼인신고 시점",
+      "url": "/issues/marriage-grant-2027-timing-comparison/"
+    },
+    {
+      "query": "기초연금 2027 개편 부부",
+      "url": "/issues/basic-pension-2027-tiered-payment/"
+    }
+  ]
+}
