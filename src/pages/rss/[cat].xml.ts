@@ -1,10 +1,13 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
+import { escapeXml, type FeedPost, renderFullText, SITE, trendingPrefix } from '@/lib/feed-content';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // 카테고리별 RSS — 이슈 포스트를 카테고리 채널로 분리 구독
 // /rss/welfare.xml, /rss/housing.xml 등. feed-issues.xml(전체)의 카테고리 필터판.
-
-const SITE = 'https://awoo.or.kr';
+//
+// feed-issues.xml은 전체 최신 30건만 담기 때문에, 발행량이 적은 카테고리의 글은
+// 며칠 만에 밀려난다. 카테고리 피드는 그 글들이 계속 수집 대상에 남게 하는 경로다.
+// 따라서 여기에도 본문 전문(content:encoded)이 있어야 한다 — 네이버 RSS 가이드 요구사항.
 
 // 영문 슬러그 → 이슈 category(한글) 매핑
 const CATEGORIES: Record<string, string> = {
@@ -20,35 +23,16 @@ const CATEGORIES: Record<string, string> = {
 export const getStaticPaths: GetStaticPaths = () =>
   Object.keys(CATEGORIES).map((cat) => ({ params: { cat } }));
 
-interface PostMeta {
-  title: string;
-  slug: string;
-  metaDescription: string;
-  category: string;
-  tags?: string[];
-  publishedAt: string;
-  date: string;
-  freshness?: { trendingTerm?: string; daysActive?: number; totalCount?: number };
-}
-
-const escapeXml = (s: string): string =>
-  s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-
 export const GET: APIRoute = async ({ params }) => {
   const cat = String(params.cat ?? '');
   const ko = CATEGORIES[cat];
   if (!ko) return new Response('Not found', { status: 404 });
 
-  const issueModules = import.meta.glob<{ default: PostMeta }>('/src/data/issues/*/*.json', {
+  const issueModules = import.meta.glob<{ default: FeedPost }>('/src/data/issues/*/*.json', {
     eager: true,
   });
 
-  const posts: Array<{ date: string; slug: string; data: PostMeta }> = [];
+  const posts: Array<{ date: string; slug: string; data: FeedPost }> = [];
   for (const [path, mod] of Object.entries(issueModules)) {
     const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
     if (!m) continue;
@@ -80,9 +64,6 @@ export const GET: APIRoute = async ({ params }) => {
         .slice(0, 5)
         .map((c) => `\n      <category>${escapeXml(c)}</category>`)
         .join('');
-      const trending = data.freshness?.trendingTerm
-        ? `[트렌딩 ${data.freshness.trendingTerm} · ${data.freshness.daysActive ?? 1}일 연속] `
-        : '';
       return `    <item>
       <title>${escapeXml(data.title)}</title>
       <link>${url}</link>
@@ -90,13 +71,14 @@ export const GET: APIRoute = async ({ params }) => {
       <pubDate>${pubDate}</pubDate>
       <dc:creator>김준혁</dc:creator>
       <category>${escapeXml(data.category)}</category>${tagCats}
-      <description>${escapeXml(trending + data.metaDescription)}</description>
+      <description>${escapeXml(trendingPrefix(data) + data.metaDescription)}</description>
+      <content:encoded><![CDATA[${renderFullText(data, url)}]]></content:encoded>
     </item>`;
     })
     .join('\n');
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>지원금가이드 — ${escapeXml(ko)} 이슈</title>
     <link>${SITE}/issues/</link>

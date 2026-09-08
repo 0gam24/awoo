@@ -1,107 +1,17 @@
 import type { APIRoute } from 'astro';
+import { escapeXml, type FeedPost, renderFullText, SITE, trendingPrefix } from '@/lib/feed-content';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // 오늘의 이슈 포스트 전용 RSS — Substack·AI agent 인용 친화
 // /feed.xml (지원금 신규)와 분리 — 검색 봇·뉴스 큐레이터가 카테고리별 구독 가능
-
-const SITE = 'https://awoo.or.kr';
-
-interface PostMeta {
-  title: string;
-  slug: string;
-  metaDescription: string;
-  answer?: string;
-  tldr?: string[];
-  coreFacts?: Record<string, string>;
-  sections?: Array<{ heading: string; lead?: string; body: string }>;
-  table?: { title?: string; headers: string[]; rows: string[][] };
-  faq?: Array<{ q: string; a: string }>;
-  category: string;
-  tags?: string[];
-  publishedAt: string;
-  date: string;
-  freshness?: { trendingTerm?: string; daysActive?: number; totalCount?: number };
-}
-
-const escapeXml = (s: string): string =>
-  s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
-
-const escapeHtml = (s: string): string =>
-  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-/** 본문 인라인 마크다운 → HTML. 상대 링크는 절대 URL로 (피드 리더·검색봇이 따라갈 수 있게) */
-const inline = (s: string): string =>
-  escapeHtml(s)
-    .replace(/\[([^\]]+)\]\((\/[^)]+)\)/g, (_m, t, href) => `<a href="${SITE}${href}">${t}</a>`)
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2">$1</a>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-
-/**
- * 본문 전체 HTML — 네이버 서치어드바이저 RSS 가이드가 요구하는 "본문 전체 공개".
- * 요약(metaDescription)만 담으면 색인 대상이 되지 못한다.
- */
-function renderFullText(data: PostMeta, url: string): string {
-  const out: string[] = [];
-  if (data.answer) out.push(`<p><strong>${inline(data.answer)}</strong></p>`);
-  if (data.tldr?.length) {
-    out.push(`<ul>${data.tldr.map((t) => `<li>${inline(t)}</li>`).join('')}</ul>`);
-  }
-  if (data.coreFacts) {
-    const labels: Record<string, string> = {
-      who: '대상',
-      amount: '금액',
-      deadline: '기간',
-      where: '신청',
-    };
-    const rows = Object.entries(data.coreFacts)
-      .filter(([, v]) => typeof v === 'string' && v)
-      .map(([k, v]) => `<li><strong>${labels[k] ?? k}</strong> ${inline(v)}</li>`)
-      .join('');
-    if (rows) out.push(`<ul>${rows}</ul>`);
-  }
-  for (const s of data.sections ?? []) {
-    out.push(`<h2>${inline(s.heading)}</h2>`);
-    if (s.lead) out.push(`<p>${inline(s.lead)}</p>`);
-    for (const block of (s.body ?? '').split('\n\n')) {
-      const lines = block.split('\n');
-      if (lines.length > 0 && lines.every((l) => l.startsWith('- '))) {
-        out.push(`<ul>${lines.map((l) => `<li>${inline(l.slice(2))}</li>`).join('')}</ul>`);
-      } else if (block.trim()) {
-        out.push(`<p>${inline(block)}</p>`);
-      }
-    }
-  }
-  if (data.table?.headers?.length) {
-    const head = data.table.headers.map((h) => `<th>${escapeHtml(h)}</th>`).join('');
-    const body = (data.table.rows ?? [])
-      .map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`)
-      .join('');
-    out.push(
-      `${data.table.title ? `<h2>${escapeHtml(data.table.title)}</h2>` : ''}<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`,
-    );
-  }
-  if (data.faq?.length) {
-    out.push('<h2>자주 묻는 질문</h2>');
-    for (const f of data.faq) {
-      out.push(`<h3>${inline(f.q)}</h3><p>${inline(f.a)}</p>`);
-    }
-  }
-  out.push(`<p><a href="${url}">원문 보기</a></p>`);
-  // CDATA 조기 종료 방지
-  return out.join('\n').replaceAll(']]>', ']]&gt;');
-}
+// 본문 전문(content:encoded)은 네이버 RSS 가이드 요구사항. 렌더러는 @/lib/feed-content 공용.
 
 export const GET: APIRoute = async () => {
-  const issueModules = import.meta.glob<{ default: PostMeta }>('/src/data/issues/*/*.json', {
+  const issueModules = import.meta.glob<{ default: FeedPost }>('/src/data/issues/*/*.json', {
     eager: true,
   });
 
-  const posts: Array<{ date: string; slug: string; data: PostMeta }> = [];
+  const posts: Array<{ date: string; slug: string; data: FeedPost }> = [];
   for (const [path, mod] of Object.entries(issueModules)) {
     const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
     if (!m) continue;
@@ -128,9 +38,6 @@ export const GET: APIRoute = async () => {
       const url = `${SITE}${issueUrlPath(date, slug)}`;
       const pubDate = new Date(data.publishedAt ?? date).toUTCString();
       const categories = (data.tags ?? []).slice(0, 5);
-      const trending = data.freshness?.trendingTerm
-        ? `[트렌딩 ${data.freshness.trendingTerm} · ${data.freshness.daysActive ?? 1}일 연속] `
-        : '';
       return `    <item>
       <title>${escapeXml(data.title)}</title>
       <link>${url}</link>
@@ -140,7 +47,7 @@ export const GET: APIRoute = async () => {
       <category>${escapeXml(data.category)}</category>${categories
         .map((c) => `\n      <category>${escapeXml(c)}</category>`)
         .join('')}
-      <description>${escapeXml(trending + data.metaDescription)}</description>
+      <description>${escapeXml(trendingPrefix(data) + data.metaDescription)}</description>
       <content:encoded><![CDATA[${renderFullText(data, url)}]]></content:encoded>
     </item>`;
     })

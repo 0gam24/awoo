@@ -1,16 +1,10 @@
 import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
+import { escapeXml, renderSubsidyFullText, SITE } from '@/lib/feed-content';
 import { recentlyAddedSlugs } from '@/lib/subsidies-meta';
 
-const SITE = 'https://awoo.or.kr';
-
-const escapeXml = (s: string): string =>
-  s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
+// 신규 등록 지원금 RSS. 본문 전문(content:encoded)은 네이버 RSS 가이드 요구사항 —
+// 지원금은 산문 본문이 없는 레코드형 문서라 자격·혜택·서류 필드 전체가 곧 본문이다.
 
 export const GET: APIRoute = async () => {
   const subsidies = await getCollection('subsidies');
@@ -40,6 +34,7 @@ export const GET: APIRoute = async () => {
       <dc:creator>김준혁</dc:creator>
       <category>${escapeXml(s.category)}</category>
       <description>${escapeXml(s.summary)}</description>
+      <content:encoded><![CDATA[${renderSubsidyFullText(s, url)}]]></content:encoded>
     </item>`;
     })
     .join('\n');
@@ -50,7 +45,7 @@ export const GET: APIRoute = async () => {
 
   // Cycle #4 P0-5: dc:creator + atom:updated 추가 — Google News·AI 큐레이터 author 메타
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>지원금가이드 — 신규 정부 지원금</title>
     <link>${SITE}/</link>
