@@ -5,18 +5,21 @@
 //   [kin]     지식iN 검색 API (openapi.naver.com/v1/search/kin.json) — 신규 질문 수집
 //   [news]    기존 today-issue.json / _history.json 트렌딩 baseline (재수집 X)
 //   [datalab] 데이터랩 검색어트렌드 (openapi.naver.com/v1/datalab/search) — 상대수요 + 모멘텀
+//   [market]  블로그·카페·뉴스 검색 API — 공급 규모·경쟁 신선도·최근 보도량 → 수요/공급 갭
 //   [demo]    같은 API의 연령 필터(ages) — 연령대 쏠림 → 페르소나 힌트
 //
 // 산출: src/data/keyword-radar.json (30일 롤링, 스냅샷당 top 30)
 //   signals.datalab   최근 7일 상대수요 0~5
 //   signals.momentum  최근 7일 ÷ 직전 23일 (1.5↑ = 급상승, 점수 가산)
 //   demo              { young, middle, senior } % + peak + personaHint
+//   signals.gap       수요(질문·보도) ÷ 공급(블로그 문서량·최근글비율) — 3↑면 네이버 진입 우위
+//   market            { blogTotal, blogFresh, cafeTotal, newsRecent }
 // 소비: keyword-scout 에이전트 / /today / /traffic / 0400 루틴
 //
 // 사용:
 //   node scripts/keyword-radar.mjs                  # 수집 + 적재
 //   node scripts/keyword-radar.mjs --dry-run        # 적재 없이 stdout 표만
-//   node scripts/keyword-radar.mjs --sources=kin    # 소스 한정 (kin,news,datalab,demo)
+//   node scripts/keyword-radar.mjs --sources=kin    # 소스 한정 (kin,news,datalab,demo,market)
 // ─────────────────────────────────────────────────────────────
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
@@ -31,6 +34,9 @@ const GOV24_DIR = join(ROOT, 'src', 'data', 'subsidies', '_gov24');
 
 const KIN_API = 'https://openapi.naver.com/v1/search/kin.json';
 const DATALAB_API = 'https://openapi.naver.com/v1/datalab/search';
+const BLOG_API = 'https://openapi.naver.com/v1/search/blog.json';
+const CAFE_API = 'https://openapi.naver.com/v1/search/cafearticle.json';
+const NEWS_API = 'https://openapi.naver.com/v1/search/news.json';
 
 const ROLLING_DAYS = 30;
 const SNAPSHOT_TERM_CAP = 30;
@@ -42,6 +48,9 @@ const DATALAB_TOP = 20; // 상대수요·모멘텀 대상 (5개씩 4요청)
 const DEMO_TOP = 10; // 연령 프로파일 대상 (5개씩 2요청 × 3버킷 = 6요청)
 const MOMENTUM_SURGE = 1.5; // 최근 7일이 직전 23일의 1.5배 이상이면 급상승
 const MOMENTUM_BONUS = 2;
+// 네이버 공급·보도량 (검색 API 일 25,000회 — 키워드당 3콜)
+const MARKET_TOP = 15;
+const GAP_STRONG = 3; // 이 이상이면 "수요 대비 공급이 빈 자리"
 
 // 지식iN 질문 수집 시드 (광역 도메인 질의)
 const SEED_QUERIES = [
@@ -155,6 +164,72 @@ async function collectNewsBaseline() {
     }
   } catch {}
   return signal;
+}
+
+// ── 소스 5: 네이버 공급·보도량 (블로그·카페·뉴스 검색 API) ──────
+// 네이버 상위노출은 "수요 대비 공급이 빈 자리"에서 가장 쉽게 난다.
+// 지식iN 질문(수요)만 보던 것에 실제 문서 수(공급)를 붙여 갭을 계산한다.
+//   blogTotal   블로그 총 문서 수 (공급 규모)
+//   blogFresh   최신 30건 중 30일 이내 비율 0~1 (경쟁 활발도 — 높으면 레드오션)
+//   newsRecent  최근 7일 뉴스 건수 (시기성 실측 — 기존 news는 자체 파일 baseline이었다)
+async function searchCount(env, api, query, { sort = 'sim', display = 1 } = {}) {
+  const headers = {
+    'X-Naver-Client-Id': env.NAVER_CLIENT_ID,
+    'X-Naver-Client-Secret': env.NAVER_CLIENT_SECRET,
+  };
+  const url = `${api}?query=${encodeURIComponent(query)}&display=${display}&sort=${sort}`;
+  const res = await fetch(url, { headers });
+  if (!res.ok) throw new Error(`${api.split('/').pop()} ${res.status}`);
+  return res.json();
+}
+
+const DAY = 86400_000;
+
+async function collectNaverMarket(env, terms) {
+  const market = new Map(); // term → { blogTotal, blogFresh, cafeTotal, newsRecent }
+  for (const term of terms) {
+    const rec = {};
+    try {
+      const blog = await searchCount(env, BLOG_API, term, { sort: 'date', display: 30 });
+      rec.blogTotal = blog.total ?? 0;
+      const items = blog.items ?? [];
+      const cutoff = Date.now() - 30 * DAY;
+      // postdate = YYYYMMDD
+      const fresh = items.filter((it) => {
+        const d = String(it.postdate ?? '');
+        if (d.length !== 8) return false;
+        return Date.parse(`${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`) >= cutoff;
+      }).length;
+      rec.blogFresh = items.length ? Math.round((fresh / items.length) * 100) / 100 : null;
+      await sleep(FETCH_DELAY_MS);
+    } catch {}
+    try {
+      const cafe = await searchCount(env, CAFE_API, term);
+      rec.cafeTotal = cafe.total ?? 0;
+      await sleep(FETCH_DELAY_MS);
+    } catch {}
+    try {
+      const news = await searchCount(env, NEWS_API, term, { sort: 'date', display: 30 });
+      const cutoff = Date.now() - 7 * DAY;
+      rec.newsRecent = (news.items ?? []).filter(
+        (it) => Date.parse(it.pubDate ?? 0) >= cutoff,
+      ).length;
+      await sleep(FETCH_DELAY_MS);
+    } catch {}
+    if (Object.keys(rec).length) market.set(term, rec);
+  }
+  return market;
+}
+
+// 수요/공급 갭 — 네이버 상위노출 진입 난이도의 대리 지표.
+// 질문은 쏟아지는데 블로그 공급이 얇고 최근 글도 적으면 갭이 크다(=기회).
+function gapScore({ kinQuestions = 0, newsRecent = 0, blogTotal = 0, blogFresh = null }) {
+  const demand = kinQuestions * 1.5 + newsRecent;
+  if (demand <= 0) return 0;
+  // 공급은 자릿수로 압축 (1만건과 10만건의 차이는 선형이 아니다)
+  const supply = Math.max(Math.log10(Math.max(blogTotal, 10)), 1);
+  const freshPenalty = blogFresh == null ? 1 : 1 + blogFresh; // 최근 글 많으면 최대 2배 불리
+  return Math.round((demand / (supply * freshPenalty)) * 10) / 10;
 }
 
 // ── 데이터랩 공통 호출 (5키워드 1묶음, filter = {ages/gender/device}) ──
@@ -362,7 +437,9 @@ async function main() {
   const args = process.argv.slice(2);
   const dryRun = args.includes('--dry-run');
   const srcArg = args.find((a) => a.startsWith('--sources='));
-  const sources = srcArg ? srcArg.split('=')[1].split(',') : ['kin', 'news', 'datalab', 'demo'];
+  const sources = srcArg
+    ? srcArg.split('=')[1].split(',')
+    : ['kin', 'news', 'datalab', 'demo', 'market'];
 
   const env = await loadEnv();
   if (!env.NAVER_CLIENT_ID || !env.NAVER_CLIENT_SECRET) {
@@ -456,6 +533,24 @@ async function main() {
     }
   }
 
+  // 네이버 공급·보도량 + 수요/공급 갭 (상위노출 진입 난이도)
+  if (sources.includes('market') && rows.length > 0) {
+    try {
+      const top = rows.slice(0, MARKET_TOP).map((r) => r.term);
+      const market = await collectNaverMarket(env, top);
+      for (const r of rows) {
+        const m = market.get(r.term);
+        if (!m) continue;
+        r.market = m;
+        r.signals.gap = gapScore({ kinQuestions: r.signals.kinQuestions, ...m });
+      }
+      rows.sort((a, b) => b.score - a.score);
+      sourceStatus.market = `ok (${market.size} terms)`;
+    } catch (e) {
+      sourceStatus.market = `fail: ${e.message}`;
+    }
+  }
+
   rows = rows.slice(0, SNAPSHOT_TERM_CAP);
   const ts = new Date().toISOString();
 
@@ -469,9 +564,20 @@ async function main() {
       ? ` mo:${r.signals.momentum}${r.signals.momentum >= MOMENTUM_SURGE ? '🔥' : ''}`
       : '';
     const demo = r.demo ? ` ${r.demo.peak}(${r.demo[r.demo.peak]}%)` : '';
+    const gap =
+      r.signals.gap != null ? ` gap:${r.signals.gap}${r.signals.gap >= GAP_STRONG ? '★' : ''}` : '';
     console.log(
-      `  ${String(r.score).padStart(6)}  ${r.term}  (kin:${r.signals.kinQuestions} news:${r.signals.news} dl:${r.signals.datalab ?? '-'}${mo}${demo} 매칭:${r.matchedSubsidies.length})`,
+      `  ${String(r.score).padStart(6)}  ${r.term}  (kin:${r.signals.kinQuestions} news:${r.signals.news} dl:${r.signals.datalab ?? '-'}${mo}${gap}${demo} 매칭:${r.matchedSubsidies.length})`,
     );
+  }
+  const gaps = rows.filter((r) => (r.signals.gap ?? 0) >= GAP_STRONG);
+  if (gaps.length) {
+    console.log('[radar] ★ 수요/공급 갭 (네이버 진입 우위):');
+    for (const r of gaps.slice(0, 8)) {
+      console.log(
+        `  gap ${r.signals.gap}  ${r.term}  (질문 ${r.signals.kinQuestions} / 블로그 ${r.market?.blogTotal?.toLocaleString() ?? '-'}건, 최근글비율 ${r.market?.blogFresh ?? '-'})`,
+      );
+    }
   }
   const surging = rows.filter((r) => (r.signals.momentum ?? 0) >= MOMENTUM_SURGE);
   if (surging.length) {
