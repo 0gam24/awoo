@@ -18,3 +18,15 @@
 # 마감된 지원금 — 외부 인바운드 링크는 archived 가이드 페이지로
 # (활성 지원금 라우트 /subsidies/<slug>/ 가 우선 매칭, 없을 때만 fallback)
 # Cloudflare Pages는 가장 구체적인 매치 우선 → 활성 정적 페이지가 우선됨
+# sweep-stale로 _archived 이동된 7건 — 구 URL 404 → archived 상세로 301 (GSC 404 회수)
+/subsidies/disability-voucher-education-special-400007/ /subsidies/archived/disability-voucher-education-special-400007/ 301
+/subsidies/energy-voucher-000001/ /subsidies/archived/energy-voucher-000001/ 301
+/subsidies/farmer-allowance-special-support-000326/ /subsidies/archived/farmer-allowance-special-support-000326/ 301
+/subsidies/incentive-youth-leap-005016/ /subsidies/archived/incentive-youth-leap-005016/ 301
+/subsidies/subsidy-000062/ /subsidies/archived/subsidy-000062/ 301
+/subsidies/subsidy-000106/ /subsidies/archived/subsidy-000106/ 301
+/subsidies/youth-rent-support-000127/ /subsidies/archived/youth-rent-support-000127/ 301
+
+# 삭제된 콘텐츠 2건 — 동일 주제 생존 페이지로 301
+/issues/2026-05-01/oil-damage-relief-fund-application/ /issues/2026-05-20/oil-damage-relief-2nd-application/ 301
+/subsidies/work-training-national-000026/ /subsidies/job-card/ 301

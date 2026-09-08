@@ -8,6 +8,7 @@ import { buildImageObject } from '@/lib/schema';
 import { paragraphsAndLists } from '@/lib/inline-markdown';
 import { issuePathParam, issueUrlPath } from '@/lib/issue-url.mjs';
 import { issueGateReason } from '@/lib/issue-gate.mjs';
+import regionsData from '@/data/regions.json';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -42,6 +43,18 @@ interface UpdateEntry {
   date: string;
   note: string;
 }
+/** 작성 시점의 맥락형 관련 지원금 — DB 제목 대신 이 글 기준으로 쓴 제목·요약.
+ *  2가지 shape 공존(초기 글은 summary 없이 amount/icon) — 접근 시 전부 optional 처리. */
+interface MatchedSubsidy {
+  id: string;
+  title?: string;
+  agency?: string;
+  summary?: string;
+  category?: string;
+  amount?: number;
+  amountLabel?: string;
+  icon?: string;
+}
 interface PostData {
   title: string;
   slug: string;
@@ -60,12 +73,13 @@ interface PostData {
   updates?: UpdateEntry[];
   relatedSubsidies: string[];
   relatedPersonas: string[];
+  matchedSubsidies?: MatchedSubsidy[];
   sources: Source[];
   publishedAt: string;
   date: string;
 }
 
-export const getStaticPaths = (() => {
+export const getStaticPaths = (async () => {
   // 빌드타임 — Vite glob (getStaticPaths 호이스팅 호환 위해 함수 내부 정의)
   const issueModules = import.meta.glob<{ default: PostData }>(
     '/src/data/issues/*/*.json',
@@ -94,9 +108,139 @@ export const getStaticPaths = (() => {
     a.date < b.date ? 1 : a.date > b.date ? -1 : a.slug.localeCompare(b.slug),
   );
 
+  // ── 관련 이슈글 엔진 — 태그 IDF 매칭 기본 + 같은 지역/시도 가중 ──
+  // (검증 결과: 지역 단독 매칭은 3개 확보율 8.2%, 태그 토큰 매칭은 96%+ — 태그를 기본으로)
+  // Cloudflare prerender 호이스팅 이슈로 상수·헬퍼 전부 함수 내부 선언 (regions/[id].astro:31 선례)
+  type RegionDef = { id: string; name: string; full: string; aliases: string[] };
+  const SIDO_NORMALIZE: Record<string, string> = {
+    경상남도: '경남',
+    경기도: '경기',
+    세종특별자치시: '세종',
+    인천광역시: '인천',
+    서울특별시: '서울',
+  };
+  const regionDefs = (regionsData as RegionDef[]).map((r) => {
+    const first = r.full.split(' ')[0] ?? '';
+    return {
+      ...r,
+      sido: SIDO_NORMALIZE[first] ?? (r.full.includes(' ') ? first : null),
+      isSido: !r.full.includes(' '), // 시도 단독 엔트리(경남·경기·세종·인천·서울)
+    };
+  });
+  const muniDefs = regionDefs.filter((r) => !r.isSido);
+
+  // 한글 경계 검사 매칭 — "정부안" 속 '부안' 같은 부분 문자열 오탐 차단
+  // (직전 글자가 한글·영숫자면 지역명으로 인정하지 않음)
+  const containsRegion = (text: string, needle: string): boolean => {
+    let idx = text.indexOf(needle);
+    while (idx !== -1) {
+      const before = idx === 0 ? ' ' : (text[idx - 1] ?? ' ');
+      if (!/[가-힣A-Za-z0-9]/.test(before)) return true;
+      idx = text.indexOf(needle, idx + 1);
+    }
+    return false;
+  };
+
+  // 포스트별 지역 귀속 — 제목 히트 우선, 없으면 태그 히트(시도가 유일할 때만)
+  const entryKey = (e: Entry) => `${e.date}/${e.slug}`;
+  const attrByKey = new Map<string, { muniId: string | null; muniName: string | null; muniFull: string | null; sido: string | null }>();
+  for (const e of all) {
+    const hitsIn = (text: string, r: (typeof regionDefs)[number]) =>
+      [r.name, ...r.aliases].some((n) => containsRegion(text, n));
+    const titleHit = muniDefs.find((r) => hitsIn(e.data.title, r));
+    const tagHits = titleHit
+      ? []
+      : muniDefs.filter((r) => (e.data.tags ?? []).some((t) => hitsIn(t, r)));
+    const muni =
+      titleHit ??
+      (tagHits.length > 0 && new Set(tagHits.map((r) => r.sido)).size === 1 ? tagHits[0]! : null);
+    const sidoOnly = muni
+      ? null
+      : regionDefs.find(
+          (r) => r.isSido && (hitsIn(e.data.title, r) || (e.data.tags ?? []).some((t) => hitsIn(t, r))),
+        );
+    attrByKey.set(entryKey(e), {
+      muniId: muni?.id ?? null,
+      muniName: muni?.name ?? null,
+      muniFull: muni?.full ?? null,
+      sido: muni?.sido ?? sidoOnly?.sido ?? null,
+    });
+  }
+
+  // 태그 토큰 인덱스 + 문서 빈도(IDF용)
+  const tokensByKey = new Map<string, Set<string>>();
+  const df = new Map<string, number>();
+  for (const e of all) {
+    const tk = new Set<string>();
+    for (const tag of e.data.tags ?? []) {
+      for (const w of tag.split(/\s+/)) {
+        const t = w.trim();
+        if (t.length >= 2 && !/^\d+$/.test(t)) tk.add(t);
+      }
+    }
+    tokensByKey.set(entryKey(e), tk);
+    for (const w of tk) df.set(w, (df.get(w) ?? 0) + 1);
+  }
+
+  // 관련글 3개 선정 — 같은 지역 심화 > 같은 시도 옆 지역 > 태그 IDF > 카테고리
+  const relatedFor = (self: Entry): Entry[] => {
+    const sk = entryKey(self);
+    const sTk = tokensByKey.get(sk)!;
+    const sAttr = attrByKey.get(sk)!;
+    const scored: { e: Entry; score: number }[] = [];
+    for (const o of all) {
+      if (o === self) continue;
+      const ok = entryKey(o);
+      const oAttr = attrByKey.get(ok)!;
+      let score = 0;
+      if (sAttr.muniId && oAttr.muniId === sAttr.muniId) score += 60;
+      else if (sAttr.sido && oAttr.sido === sAttr.sido && oAttr.muniId && sAttr.muniId) score += 40;
+      const oTk = tokensByKey.get(ok)!;
+      for (const w of sTk) if (oTk.has(w)) score += Math.log2(all.length / (df.get(w) ?? 1));
+      if (o.data.category === self.data.category) score += 1;
+      if (score >= 3) scored.push({ e: o, score });
+    }
+    scored.sort((a, b) => b.score - a.score || (a.e.date < b.e.date ? 1 : -1));
+    return scored.slice(0, 3).map((s) => s.e);
+  };
+
+  // 지역 허브 생존 판정 — regions/index·[id].astro와 동일 로직(MIN_ITEMS=2, 단순 includes)으로
+  // 실제 빌드되는 허브만 링크 (다르게 계산하면 404 링크가 생긴다)
+  const subsidiesAll = await getCollection('subsidies');
+  const hubLive = new Set<string>();
+  for (const r of regionsData as RegionDef[]) {
+    const needles = [r.name, ...r.aliases];
+    const mt = (text: string) => needles.some((n) => text.includes(n));
+    const pc = all.filter((p) => mt(p.data.title) || (p.data.tags ?? []).some(mt)).length;
+    const sc = subsidiesAll.filter(
+      (s) => mt(s.data.title) || mt(s.data.agency ?? '') || (s.data.tags ?? []).some((t: string) => mt(t)),
+    ).length;
+    if (pc + sc >= 2) hubLive.add(r.id);
+  }
+
+  // 고CPC 계산기 연결 — 유입검색어에 수요가 실측된 계산기만 (근로장려금 53 · 중위소득 51)
+  const calcFor = (data: PostData): { href: string; label: string } | null => {
+    const txt = `${data.title} ${(data.tags ?? []).join(' ')}`;
+    if (/근로장려금|자녀장려금/.test(txt))
+      return { href: '/calculators/eitc/', label: '근로장려금 계산기 — 내 예상 수급액 확인' };
+    if (/중위소득|기초생활|생계급여/.test(txt))
+      return { href: '/calculators/median-income/', label: '중위소득 계산기 — 내 소득 기준 확인' };
+    return null;
+  };
+
   return all.map((entry, i) => {
     const prev = all[i + 1]; // desc 정렬: 다음 인덱스는 더 옛날 (prev = older)
     const next = all[i - 1]; // 이전 인덱스는 더 최근 (next = newer)
+    const attr = attrByKey.get(entryKey(entry))!;
+    const related = relatedFor(entry).map((e) => ({
+      href: issueUrlPath(e.date, e.slug),
+      title: e.data.title,
+      sub: `${e.data.category} · ${Number(e.date.slice(5, 7))}월 ${Number(e.date.slice(8, 10))}일`,
+    }));
+    const regionHub =
+      attr.muniId && hubLive.has(attr.muniId)
+        ? { id: attr.muniId, name: attr.muniName ?? '', full: attr.muniFull ?? '' }
+        : null;
     return {
       // catch-all [...path]: 구 URL은 'YYYY-MM-DD/slug', 신 URL(2026-07-10+)은 'slug'(날짜 제거)
       params: { path: issuePathParam(entry.date, entry.slug) },
@@ -110,17 +254,23 @@ export const getStaticPaths = (() => {
         nextPost: next
           ? { date: next.date, slug: next.slug, title: next.data.title }
           : null,
+        relatedPosts: related,
+        regionHub,
+        calcLink: calcFor(entry.data),
       },
     };
   });
 }) satisfies GetStaticPaths;
 
-const { post, date, slug, prevPost, nextPost } = Astro.props as {
+const { post, date, slug, prevPost, nextPost, relatedPosts, regionHub, calcLink } = Astro.props as {
   post: PostData;
   date: string;
   slug: string;
   prevPost: { date: string; slug: string; title: string } | null;
   nextPost: { date: string; slug: string; title: string } | null;
+  relatedPosts: { href: string; title: string; sub: string }[];
+  regionHub: { id: string; name: string; full: string } | null;
+  calcLink: { href: string; label: string } | null;
 };
 
 const subsidies = await getCollection('subsidies');
@@ -128,6 +278,29 @@ const subsidyById = new Map(subsidies.map((s) => [s.data.id, s.data]));
 const relatedSubsidies = post.relatedSubsidies
   .map((id) => subsidyById.get(id))
   .filter((x): x is NonNullable<ReturnType<typeof subsidyById.get>> => x !== undefined);
+
+// 화면용 관련 지원금 — 작성 시점 맥락 데이터(matchedSubsidies: 이 글 기준 제목·요약) 우선,
+// DB(subsidyById)로 아이콘·금액 보강. (버그 수정: DB 제목만 쓰면 하동 글에 "인천사랑상품권"이 떴다)
+// DB에 없는 id는 상세 페이지가 없으므로 카드 제외 (dangling 링크 방지).
+const displaySubsidies = ((post.matchedSubsidies ?? []).length > 0
+  ? (post.matchedSubsidies ?? [])
+  : post.relatedSubsidies.map((id) => ({ id }) as MatchedSubsidy)
+)
+  .map((m) => {
+    const db = subsidyById.get(m.id);
+    if (!db) return null;
+    return {
+      id: m.id,
+      title: m.title ?? db.title,
+      agency: m.agency ?? db.agency,
+      category: m.category ?? db.category,
+      icon: db.icon,
+      amount: db.amount,
+      amountLabel: db.amountLabel,
+      summary: m.summary ?? null,
+    };
+  })
+  .filter((x): x is NonNullable<typeof x> => x !== null);
 
 const personas = await getCollection('personas');
 const personaById = new Map(personas.map((p) => [p.data.id, p.data]));
@@ -692,6 +865,48 @@ const reportTypeBadge = rt && rt in RT_LABELS
           </div>
         )}
 
+        {/* 두 번째 페이지 동선 — 정답을 얻은 독자를 다음 글로. (관측: 방문당 PV 1.05,
+            트래픽 96%가 문서 상단 30%에서 종료 → 내비게이션을 핵심 요약 직후에 배치) */}
+        {(relatedPosts.length > 0 || regionHub || calcLink) && (
+          <nav class="top-related" aria-label="함께 볼 소식">
+            <div class="tr-label">📍 함께 볼 소식</div>
+            <ul class="tr-list">
+              {regionHub && (
+                <li>
+                  <a class="tr-card tr-hub" href={`/regions/${regionHub.id}/`}>
+                    <span class="tr-body">
+                      <span class="tr-title">{regionHub.name} 지원금·이슈 전체 보기</span>
+                      <span class="tr-sub">{regionHub.full} 모아보기</span>
+                    </span>
+                    <span class="tr-arrow" aria-hidden="true">→</span>
+                  </a>
+                </li>
+              )}
+              {relatedPosts.map((p) => (
+                <li>
+                  <a class="tr-card" href={p.href}>
+                    <span class="tr-body">
+                      <span class="tr-title">{p.title}</span>
+                      <span class="tr-sub">{p.sub}</span>
+                    </span>
+                    <span class="tr-arrow" aria-hidden="true">→</span>
+                  </a>
+                </li>
+              ))}
+              {calcLink && (
+                <li>
+                  <a class="tr-card tr-calc" href={calcLink.href}>
+                    <span class="tr-body">
+                      <span class="tr-title">🧮 {calcLink.label}</span>
+                    </span>
+                    <span class="tr-arrow" aria-hidden="true">→</span>
+                  </a>
+                </li>
+              )}
+            </ul>
+          </nav>
+        )}
+
         {/* 편집·검수 신뢰 단서 — 사람 검수 + 정부 공식 출처를 전면화.
             AI 보조 활용은 편집정책 페이지에 투명 공개(여기선 숫자 점수·AI 라벨 미노출 → YMYL 첫인상 신뢰). */}
         <aside class="ai-disclosure" aria-label="편집·검수 정보">
@@ -834,11 +1049,11 @@ const reportTypeBadge = rt && rt in RT_LABELS
             </section>
           )}
 
-          {relatedSubsidies.length > 0 && (
+          {displaySubsidies.length > 0 && (
             <section class="post-section">
               <h2>이 이슈와 함께 보면 좋은 지원금</h2>
               <ul class="related-grid">
-                {relatedSubsidies.map((s) => (
+                {displaySubsidies.map((s) => (
                   <li>
                     <a class="related-card" href={`/subsidies/${s.id}/`}>
                       <div class={`media tint-${s.category}`}>
@@ -847,10 +1062,14 @@ const reportTypeBadge = rt && rt in RT_LABELS
                       <div class="rc-body">
                         <div class="rc-cat">{s.category} · {s.agency}</div>
                         <div class="rc-title">{s.title}</div>
-                        <div class="rc-amt">
-                          {s.amount > 0 ? formatWon(s.amount) : '내용 확인'}
-                          {s.amount > 0 && <span class="rc-unit">{s.amountLabel}</span>}
-                        </div>
+                        {s.summary ? (
+                          <div class="rc-sum">{s.summary}</div>
+                        ) : (
+                          <div class="rc-amt">
+                            {s.amount > 0 ? formatWon(s.amount) : '내용 확인'}
+                            {s.amount > 0 && <span class="rc-unit">{s.amountLabel}</span>}
+                          </div>
+                        )}
                       </div>
                       <span class="rc-arrow" aria-hidden="true">→</span>
                     </a>
@@ -934,13 +1153,13 @@ const reportTypeBadge = rt && rt in RT_LABELS
                   <span class="na-arrow" aria-hidden="true">→</span>
                 </a>
               </li>
-              {relatedSubsidies[0] && (
+              {displaySubsidies[0] && (
                 <li>
-                  <a class="na-card" href={`/subsidies/${relatedSubsidies[0].id}/`}>
+                  <a class="na-card" href={`/subsidies/${displaySubsidies[0].id}/`}>
                     <div class="na-step">2</div>
                     <div class="na-body">
                       <div class="na-title">관련 지원금 바로 보기</div>
-                      <div class="na-desc">{relatedSubsidies[0].title} · {relatedSubsidies[0].agency}</div>
+                      <div class="na-desc">{displaySubsidies[0].title} · {displaySubsidies[0].agency}</div>
                     </div>
                     <span class="na-arrow" aria-hidden="true">→</span>
                   </a>
@@ -984,7 +1203,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
             {officialSource && (
               <a class="rail-cta" href={officialSource.url} target="_blank" rel="noopener noreferrer">🔗 공식 안내·신청 바로가기</a>
             )}
-            {relatedSubsidies.slice(0, 2).map((s) => (
+            {displaySubsidies.slice(0, 2).map((s) => (
               <a class="rail-cta" href={`/subsidies/${s.id}/`}>💸 {s.title}</a>
             ))}
             {nextPost && (
@@ -1034,8 +1253,8 @@ const reportTypeBadge = rt && rt in RT_LABELS
       <span class="msc-icon" aria-hidden="true">⚡</span>
       <span class="msc-text">5분 진단으로 내 자격 확인</span>
     </a>
-    {relatedSubsidies[0] && (
-      <a class="msc-secondary" href={`/subsidies/${relatedSubsidies[0].id}/`} aria-label="관련 지원금">
+    {displaySubsidies[0] && (
+      <a class="msc-secondary" href={`/subsidies/${displaySubsidies[0].id}/`} aria-label="관련 지원금">
         →
       </a>
     )}
@@ -1593,6 +1812,60 @@ const reportTypeBadge = rt && rt in RT_LABELS
   .tldr ul { margin: 0; padding-left: 18px; }
   .tldr li { font-size: 15px; line-height: 1.6; color: var(--text); margin: 4px 0; }
 
+  /* 두 번째 페이지 동선 — 상단 관련 소식 내비 (모바일 우선: 세로 스택 카드) */
+  .top-related {
+    background: var(--bg-alt);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    margin: 0 0 24px;
+  }
+  .tr-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .tr-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .tr-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s;
+    min-height: 44px;
+  }
+  .tr-card:hover { border-color: var(--border-2); text-decoration: none; }
+  .tr-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+  .tr-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .tr-sub { font-size: 12px; color: var(--text-2); }
+  .tr-hub .tr-title { color: var(--accent); }
+  .tr-arrow { color: var(--text-3); font-size: 15px; flex-shrink: 0; }
+  .tr-card:hover .tr-arrow { color: var(--accent); }
+
   .core-facts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -1745,6 +2018,16 @@ const reportTypeBadge = rt && rt in RT_LABELS
   .rc-cat { font-size: 12px; color: var(--accent-link); }
   .rc-title { font-size: 14px; font-weight: 600; line-height: 1.3; margin: 2px 0; }
   .rc-amt { font-size: 16px; font-weight: 700; color: var(--accent); margin-top: 4px; }
+  .rc-sum {
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.5;
+    margin-top: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   .rc-unit { font-size: 12px; color: var(--text-2); font-weight: 500; margin-left: 4px; }
   .rc-arrow {
     color: var(--text-3);

@@ -14,15 +14,17 @@ import { issueUrlPath } from './src/lib/issue-url.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// 빌드타임에 _gov24/_manifest.json 읽어 slug → regDate(ISO) 맵 구축
+// 빌드타임에 _gov24/_manifest.json 읽어 slug → modDate(ISO) 맵 구축
 // sitemap의 lastmod에 활용 (SEO/GEO 신선도 신호)
+// modDate(정부 수정일) 우선, 없으면 regDate(등록일) fallback — regDate만 쓰면
+// 2026년에 갱신된 문서가 2020-12 등록일로 표기돼 "6년 미변경" 신호가 나간다.
 const slugToLastmod = new Map();
 try {
   const manifest = JSON.parse(
     readFileSync(join(__dirname, 'src/data/subsidies/_gov24/_manifest.json'), 'utf8'),
   );
   for (const entry of Object.values(manifest.items ?? {})) {
-    const r = entry.regDate;
+    const r = entry.modDate ?? entry.regDate;
     if (typeof r === 'string' && r.length >= 8) {
       const iso = `${r.slice(0, 4)}-${r.slice(4, 6)}-${r.slice(6, 8)}T00:00:00.000Z`;
       slugToLastmod.set(entry.slug, iso);
@@ -36,6 +38,9 @@ try {
 // 트렌딩 토픽 hub의 lastSeen → lastmod 보강 (auto-curation 신호)
 const issuePostLastmod = new Map(); // /issues/{date}/{slug}/ → ISO
 const topicHubLastmod = new Map(); // {term} → ISO (lastSeen)
+// SEO 감사: 토픽 hub 84개 중 75개가 "언급 1회" 보일러플레이트 → 사이트 품질 평가 리스크.
+// 언급 3회 미만 토픽은 noindex(topics/[term].astro isThin와 동일 기준) + sitemap 제외.
+const thinTopicTerms = new Set(); // 언급 3회 미만 term
 try {
   const issuesDir = join(__dirname, 'src/data/issues');
   const dateDirs = readdirSync(issuesDir, { withFileTypes: true });
@@ -66,6 +71,7 @@ try {
     if (entry?.lastSeen && /^\d{4}-\d{2}-\d{2}$/.test(entry.lastSeen)) {
       topicHubLastmod.set(term, `${entry.lastSeen}T00:00:00.000Z`);
     }
+    if ((entry?.totalCount ?? 0) < 3) thinTopicTerms.add(term);
   }
 } catch {
   // graceful fallback
@@ -98,6 +104,13 @@ try {
 } catch {
   // graceful fallback — 세트가 비면 제외 없이 기존 동작
 }
+
+// 언급 3회 미만 토픽 hub 판정 — sitemap filter용 (noindex와 동기)
+/** @param {string} page */
+const isThinTopicPage = (page) => {
+  const m = new URL(page).pathname.match(/^\/issues\/topics\/([^/]+)\/$/);
+  return m?.[1] ? thinTopicTerms.has(decodeURIComponent(m[1])) : false;
+};
 
 // https://astro.build/config
 // 출력: 순수 정적 (PSI 100 우선). API 추가 시 @astrojs/cloudflare 어댑터 + 페이지별 prerender 사용.
@@ -132,7 +145,9 @@ export default defineConfig({
         !page.includes('/subsidies/archived/') &&
         // noindex 페이지는 sitemap에서도 제외 (GSC "noindex URL in sitemap" 충돌 차단)
         !/\/issues\/all\/\d+\/$/.test(new URL(page).pathname) &&
-        !thinCrossRefPaths.has(new URL(page).pathname),
+        !thinCrossRefPaths.has(new URL(page).pathname) &&
+        // 언급 3회 미만 토픽 hub(noindex) — sitemap 제외 (GSC noindex-in-sitemap 충돌 차단)
+        !isThinTopicPage(page),
       i18n: {
         defaultLocale: 'ko',
         locales: { ko: 'ko-KR' },

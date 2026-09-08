@@ -79,6 +79,7 @@ const siteName = '지원금가이드';
 // (ads-policy "광고 미게재 영역" 약속을 코드로 강제 + AdSense 정책페이지 광고 금지 준수)
 const POLICY_PATHS = new Set([
   '/privacy/', '/cookies/', '/terms/', '/about/', '/contact/', '/ads-policy/', '/editorial-policy/',
+  '/editor/jjh/', // ads-policy가 "편집책임자 프로필 미게재"를 약속 — 코드로 강제
 ]);
 const normalizedPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
 const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);

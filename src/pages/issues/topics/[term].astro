@@ -172,8 +172,10 @@ type TrendingArticlesByTerm = Record<string, SourceArticle[]>;
 const articlesByTerm = ((todayIssue as { trendingArticlesByTerm?: TrendingArticlesByTerm }).trendingArticlesByTerm) ?? {};
 const sourceArticles: SourceArticle[] = articlesByTerm[term] ?? [];
 
-// thin content 보호 — 매칭 지원금이 0개이고 매칭 포스트도 없으면 noindex
-const isThin = matchedSubsidies.length === 0 && !post;
+// thin content 보호 — 언급 3회 미만은 보일러플레이트 허브(SEO 감사: 84개 중 75개가 언급 1회)
+// → noindex. astro.config.mjs thinTopicTerms(totalCount < 3)와 반드시 동일 기준 유지 (sitemap 동기).
+// 기존 안전 조건(지원금 0 + 포스트 무)도 병행.
+const isThin = entry.totalCount < 3 || (matchedSubsidies.length === 0 && !post);
 
 // dailyCounts → 정렬된 일별 트렌드
 const dailyEntries = Object.entries(entry.dailyCounts ?? {})
