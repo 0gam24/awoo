@@ -87,9 +87,17 @@ export const getStaticPaths = (() => {
       const dayPosts = postsByDate[entry.postDate ?? entry.firstSeen] ?? [];
       post = dayPosts.find((p) => p.slug === entry.postSlug);
     }
-    // 1:N — freshness.trendingTerm 으로 같은 term 전체 포스트(날짜 desc). pill 기대-실현 정합.
+    // 1:N — 이 term의 보유 글 전부(날짜 desc). trendingTerm 정확일치만 보면 허브가 비어
+    // 있게 된다(근로장려금 허브가 14건 중 1건만 링크하던 원인) — 제목·태그 매칭까지 포함해
+    // "진짜 허브"로 만든다. 클러스터 내부 링크가 살아야 개별 글의 순위도 같이 오른다.
+    const core = term.replace(/\s+/g, '');
     const relatedPosts = allPostsFlat
-      .filter((p) => p.freshness?.trendingTerm === term && p.slug && p.date)
+      .filter((p) => {
+        if (!p.slug || !p.date) return false;
+        if (p.freshness?.trendingTerm === term) return true;
+        const hay = `${p.title ?? ''} ${(p.tags ?? []).join(' ')}`.replace(/\s+/g, '');
+        return hay.includes(core);
+      })
       .sort((a, b) => ((a.date ?? '') < (b.date ?? '') ? 1 : -1));
     // 현재 term을 제외한 다른 토픽 8개
     const otherTopics = activeTopics.filter((t) => t.term !== term).slice(0, 8);
@@ -172,8 +180,12 @@ type TrendingArticlesByTerm = Record<string, SourceArticle[]>;
 const articlesByTerm = ((todayIssue as { trendingArticlesByTerm?: TrendingArticlesByTerm }).trendingArticlesByTerm) ?? {};
 const sourceArticles: SourceArticle[] = articlesByTerm[term] ?? [];
 
-// thin content 보호 — 매칭 지원금이 0개이고 매칭 포스트도 없으면 noindex
-const isThin = matchedSubsidies.length === 0 && !post;
+// thin content 보호 — 네이버·구글 모두 "저품질 페이지 대량 색인"을 사이트 전체 감점 요인으로
+// 본다(네이버 웹 콘텐츠 스팸: 저품질 콘텐츠 대량 생성 / 구글 스팸정책: 가치 기준 판정).
+// 자동생성 허브는 보유 글 3건 미만이면 색인 제외하고 follow만 남긴다 — 내부 링크 흐름은 유지.
+// 임계값을 넘긴 허브는 실제로 클러스터를 묶어 주므로 색인 유지.
+const HUB_INDEX_MIN_POSTS = 3;
+const isThin = relatedPosts.length < HUB_INDEX_MIN_POSTS && matchedSubsidies.length < 5;
 
 // dailyCounts → 정렬된 일별 트렌드
 const dailyEntries = Object.entries(entry.dailyCounts ?? {})

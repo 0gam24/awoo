@@ -8,7 +8,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "prebuild": "npm run generate:mirror && npm run generate:og",
-    "build": "node scripts/build-entity-graph.mjs && astro build && node scripts/check-bundle-size.mjs",
+    "build": "node scripts/build-entity-graph.mjs && astro build && node scripts/prune-sitemap-noindex.mjs && node scripts/check-bundle-size.mjs",
     "build:graph": "node scripts/build-entity-graph.mjs",
     "generate:mirror": "node scripts/generate-network-mirror.mjs",
     "generate:og": "node scripts/generate-og-images.mjs",
