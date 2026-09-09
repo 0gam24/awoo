@@ -51,6 +51,8 @@ interface PostData {
   tldr: string[];
   category: string;
   tags: string[];
+  /** 독자 가독성 렌더 세대. 2 이상이면 .post--v2 스타일. 없으면 1 — 기존 글은 출력 불변. */
+  contentVersion?: number;
   coreFacts: { who: string; amount: string; deadline: string; where: string };
   freshness?: { trendingTerm: string; daysActive: number; totalCount: number; rankToday: number };
   sections: Section[];
@@ -601,7 +603,8 @@ const reportTypeBadge = rt && rt in RT_LABELS
     })();
   </script>
 
-  <article class="band">
+  {/* contentVersion ≥ 2 인 새 글에만 .post--v2 — 기존 글은 클래스가 안 붙어 렌더가 그대로다 */}
+  <article class:list={['band', (post.contentVersion ?? 1) >= 2 && 'post--v2']}>
     <Container size="wide">
       <a class="back-link" href="/">← 홈으로</a>
 
@@ -2025,4 +2028,128 @@ const reportTypeBadge = rt && rt in RT_LABELS
   /* 본문 전화번호 tel: 링크 (모바일 원탭) */
   .tel-link { color: var(--accent); font-weight: 600; white-space: nowrap; }
   @media (max-width: 600px) { .meta { gap: 10px; } }
+
+  /* ═══ contentVersion ≥ 2 전용 렌더 ═══════════════════════════════
+     새 글에만 <article class="band post--v2">가 붙는다. 기존 글은 이 블록을 타지 않는다.
+     모든 선택자가 .post--v2 접두라 위 .prose/.tldr/.core-facts 선언을 특이도로 이긴다.
+     설계 근거: docs/ops/READER-UX-V2.md
+     ═══════════════════════════════════════════════════════════════ */
+  /* ── 본문: 40자/줄(640px) · 행간 28px 모듈 · 문단 간격 = 1행 · 자간 0 ── */
+  .post--v2 .prose {
+    font-size: 16px;
+    line-height: 1.75;            /* 27.2px → 28px */
+    letter-spacing: 0;            /* body -0.01em 상속 차단 */
+    max-width: 40em;              /* 672px → 640px ≈ 40.4자/줄 */
+  }
+  .post--v2 .prose p { margin: 0 0 1.75em; }           /* 12px → 28px (=1행) */
+  .post--v2 .prose p:last-child { margin-bottom: 0; }
+  .post--v2 .prose ul { margin: 0 0 1.75em; padding-left: 20px; }
+  .post--v2 .prose ul:last-child { margin-bottom: 0; }
+  .post--v2 .prose li { margin: 0 0 0.5em; line-height: 1.7; }
+  .post--v2 .prose li:last-child { margin-bottom: 0; }
+  .post--v2 .prose li::marker { color: var(--accent); }
+  .post--v2 .prose p.step { margin: 0 0 0.75em; }
+  .post--v2 .prose :global(strong) { font-weight: 700; color: var(--text); }
+
+  /* ── 출처 링크(외부 원문): 본문색 + 얇은 밑줄 — 괄호 인용을 대체하므로 조용하게 ── */
+  .post--v2 .prose :global(a) {
+    word-break: keep-all;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .post--v2 .prose :global(a[target="_blank"]) {
+    color: var(--text);
+    text-decoration-color: color-mix(in oklch, var(--accent-link), transparent 45%);
+  }
+  .post--v2 .prose :global(a[target="_blank"]:hover),
+  .post--v2 .prose :global(a[target="_blank"]:focus-visible) {
+    color: var(--accent-link);
+    text-decoration-color: var(--accent-link);
+  }
+  /* 내부 링크(/issues/…)는 기존 .prose :global(a) 파란색 유지 — 별도 선언 없음 */
+
+  /* ── 섹션 제목·리드: 본문과 우측선 통일(640px), 섹션 간격 확대 ── */
+  .post--v2 .post-section { margin: 40px 0; }
+  .post--v2 .post-section h2 { max-width: 640px; margin: 0 0 14px; }
+  .post--v2 .post-section .lead {
+    max-width: 640px;
+    line-height: 1.6;
+    letter-spacing: 0;
+    margin: 0 0 16px;
+  }
+
+  /* ── 핵심 요약: 항목 간 10px+10px + 1px 구분선 + 액센트 원 ── */
+  .post--v2 .tldr { padding: 18px 20px; }
+  .post--v2 .tldr ul { list-style: none; margin: 0; padding: 0; }
+  .post--v2 .tldr li {
+    position: relative;
+    margin: 0;
+    padding-left: 18px;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: 0;
+    color: var(--text);
+  }
+  .post--v2 .tldr li + li {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid color-mix(in oklch, var(--border), transparent 50%);
+  }
+  .post--v2 .tldr li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.6em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .post--v2 .tldr li + li::before { top: calc(10px + 0.6em); }
+
+  /* ── 핵심 카드: 데스크톱 2×2 (값 폭 149px → ~330px, 10자 → 22자/줄) ── */
+  .post--v2 .core-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .post--v2 .core-facts .fact { padding: 12px 16px; gap: 3px; }
+  .post--v2 .core-facts .lbl { font-size: 12px; margin: 0; color: var(--text-2); }
+  .post--v2 .core-facts .val {
+    font-size: 15px;
+    line-height: 1.5;
+    letter-spacing: 0;
+    color: var(--text);
+  }
+  .post--v2 .core-facts .cf-num { font-size: 19px; }
+
+  /* ── 모바일: 카드 1열 '라벨 | 값' 행형 — 라벨 줄 제거, 블록 654px → ≈256px ── */
+  @media (max-width: 600px) {
+    .post--v2 .core-facts {
+      grid-template-columns: 1fr;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .post--v2 .core-facts .fact {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      column-gap: 12px;
+      align-items: start;
+      padding: 11px 14px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+    .post--v2 .core-facts .fact + .fact { border-top: 1px solid var(--border); }
+    .post--v2 .core-facts .lbl { padding-top: 2px; }
+    .post--v2 .core-facts .val { font-size: 14.5px; }
+    .post--v2 .core-facts .cf-num { font-size: 17px; }
+    .post--v2 .prose p { margin-bottom: 1.5em; }   /* 모바일은 줄이 짧아 1행(28px)이 과해 보임 → 24px */
+  }
+
+  /* ── FAQ 답변: 본문과 줄간 통일 ── */
+  .post--v2 .faq-item p { line-height: 1.7; margin: 8px 0 0; }
 </style>

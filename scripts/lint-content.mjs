@@ -218,6 +218,155 @@ const CLICKBAIT_PATTERNS = [
 ];
 
 // 본문보다 헤드라인이 과장된지 — 의문형·숫자·연도는 허용
+// ── 독자 가독성 v2 검사 ───────────────────────────────────────────
+// 게이트: contentVersion ≥ 2. 2026-09-10 이후 글인데 필드가 없으면 경고만(누락 방지).
+const CONTENT_V2_CUTOFF = '2026-09-10';
+const V2_FORBID = /[()（）]|제\d+조|시행령|시행규칙|별지|별표|부칙|https?:|\.go\.kr/;
+const V2_PAREN_CITE =
+  /\(\s*(출처|같은 조|시행령|시행규칙|고용보험법|근로기준법|소득세법|민법|별표|별지)[^)]*\)/;
+const MD_LINK = /\[([^\]]*)\]\((https?:\/\/[^)\s]+)\)/g;
+
+function stripMd(text) {
+  return String(text ?? '')
+    .replace(MD_LINK, '$1')
+    .replace(/\*\*/g, '');
+}
+function sentences(text) {
+  return stripMd(text)
+    .split(/(?<=[.!?。])\s+|\n/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
+function lintReaderV2(post, date, slug) {
+  const id = `${date}/${slug}`;
+  const v = Number(post.contentVersion ?? 1);
+  if (v < 2) {
+    if (date >= CONTENT_V2_CUTOFF) {
+      warn(
+        `v2: ${CONTENT_V2_CUTOFF} 이후 신규 글인데 contentVersion 없음 — 새 글은 2를 넣는다: ${id}`,
+      );
+    }
+    return;
+  }
+
+  const sourceUrls = new Set((post.sources ?? []).map((s) => s.url));
+  const bodies = (post.sections ?? []).map((s) => String(s.body ?? ''));
+
+  // 괄호 출처·조문 괄호 — 본문/FAQ/요약/카드/정의 어디에도 금지
+  const scan = [
+    ...bodies.map((b, i) => [`sections[${i}].body`, b]),
+    ...(post.faq ?? []).map((f, i) => [`faq[${i}].a`, f.a]),
+    ...(post.tldr ?? []).map((t, i) => [`tldr[${i}]`, t]),
+    ...Object.entries(post.coreFacts ?? {}).map(([k, val]) => [`coreFacts.${k}`, val]),
+    ...(post.definitions ?? []).map((d, i) => [`definitions[${i}]`, d.definition]),
+  ];
+  for (const [where, text] of scan) {
+    if (/\(출처:/.test(String(text ?? '')))
+      err(`v2: "(출처:" 괄호 인용 금지 — 문장 속 명사 링크로: ${where} in ${id}`);
+  }
+  bodies.forEach((b, i) => {
+    if (V2_PAREN_CITE.test(b))
+      err(`v2: 본문 조문 괄호 금지 — 문장 성분으로 풀거나 링크로: sections[${i}] in ${id}`);
+    // 본문 링크 ↔ sources 정합
+    const seen = new Set();
+    for (const m of b.matchAll(MD_LINK)) {
+      const url = m[2];
+      if (!sourceUrls.has(url))
+        err(`v2: 본문 링크가 sources[]에 없음 (${url.slice(0, 60)}): sections[${i}] in ${id}`);
+      if (seen.has(url)) warn(`v2: 같은 URL을 한 섹션에서 2회 링크: sections[${i}] in ${id}`);
+      seen.add(url);
+    }
+    if (/\(\[[^\]]+\]\(https?:/.test(b))
+      warn(`v2: 링크를 괄호로 감싸지 말 것 "([…](URL))": sections[${i}] in ${id}`);
+  });
+
+  // 외부 링크 수 (네이버 "원문 링크 출처 표기"는 <a>로 충족한다)
+  const allBody = bodies.join('\n\n');
+  const links = [...allBody.matchAll(MD_LINK)].map((m) => m[2]);
+  const ext = links.filter((u) => !u.includes('awoo.or.kr'));
+  const gov = ext.filter((u) => /\.go\.kr|korea\.kr/.test(u));
+  if (ext.length < 3) warn(`v2: 본문 외부 원문 링크 ${ext.length}건 (<3): ${id}`);
+  if (gov.length === 0 && [...sourceUrls].some((u) => /\.go\.kr|korea\.kr/.test(u))) {
+    warn(`v2: sources에 go.kr이 있는데 본문 링크에는 없음: ${id}`);
+  }
+
+  // 문단·문장 길이
+  let over80 = 0;
+  let total = 0;
+  bodies.forEach((b, i) => {
+    for (const para of b.split(/\n\n+/)) {
+      const plain = stripMd(para).trim();
+      if (!plain || /^- /.test(plain)) continue;
+      const n = plain.length;
+      const sc = sentences(para).length;
+      if (n > 300 || sc > 5)
+        err(`v2: 문단 ${n}자·${sc}문장 (상한 300자·5문장): sections[${i}] in ${id}`);
+      else if (n > 220 || sc > 3)
+        warn(`v2: 문단 ${n}자·${sc}문장 (권장 ≤200자·≤3문장): sections[${i}] in ${id}`);
+    }
+    for (const sen of sentences(b)) {
+      total += 1;
+      if (sen.length > 80) over80 += 1;
+      if (sen.length > 130)
+        err(`v2: 문장 ${sen.length}자 (상한 130): "${sen.slice(0, 40)}…" sections[${i}] in ${id}`);
+      else if (sen.length > 90)
+        warn(`v2: 문장 ${sen.length}자 (권장 ≤80): "${sen.slice(0, 40)}…" sections[${i}] in ${id}`);
+    }
+  });
+  if (total > 0 && over80 / total > 0.25)
+    warn(`v2: 80자 초과 문장 ${Math.round((over80 / total) * 100)}% (>25%): ${id}`);
+
+  // '-니다' 연속
+  let run = 0;
+  let maxRun = 0;
+  for (const sen of sentences(allBody)) {
+    run = /니다[.!?]?$/.test(sen) ? run + 1 : 0;
+    if (run > maxRun) maxRun = run;
+  }
+  if (maxRun >= 7) warn(`v2: '-니다' 종결 ${maxRun}문장 연속 — 명령형·질문으로 변주: ${id}`);
+  if (!/\*\*/.test(allBody)) warn(`v2: 본문에 **강조** 0개 — 핵심 수치·결론 1~3곳: ${id}`);
+
+  // 요약 블록
+  const forbid = (where, text) => {
+    if (V2_FORBID.test(String(text ?? '')))
+      err(`v2: ${where}에 괄호·조문·서식·URL 금지 — 본문으로: ${id}`);
+  };
+  if (post.answer) {
+    if (post.answer.length > 120) warn(`v2: answer ${post.answer.length}자 (>120): ${id}`);
+    forbid('answer', post.answer);
+  }
+  (post.tldr ?? []).forEach((t, i) => {
+    if (t.length > 90) err(`v2: tldr[${i}] ${t.length}자 (상한 90): ${id}`);
+    else if (t.length > 60) warn(`v2: tldr[${i}] ${t.length}자 (권장 ≤60): ${id}`);
+    forbid(`tldr[${i}]`, t);
+  });
+  if ((post.tldr ?? []).length > 4) warn(`v2: tldr ${post.tldr.length}개 (권장 3~4): ${id}`);
+  for (const [k, val] of Object.entries(post.coreFacts ?? {})) {
+    const n = String(val ?? '').length;
+    if (n > 60) err(`v2: coreFacts.${k} ${n}자 (상한 60): ${id}`);
+    else if (n > 40) warn(`v2: coreFacts.${k} ${n}자 (권장 ≤40): ${id}`);
+    forbid(`coreFacts.${k}`, val);
+  }
+  (post.faq ?? []).forEach((f, i) => {
+    const a = String(f.a ?? '');
+    if (a.length > 240) err(`v2: faq[${i}] 답변 ${a.length}자 (상한 240): ${id}`);
+    else if (a.length > 160) warn(`v2: faq[${i}] 답변 ${a.length}자 (권장 ≤160): ${id}`);
+    if (/\]\(https?:|[()（）]/.test(a))
+      err(`v2: faq[${i}] 답변에 괄호·링크 금지 (JSON-LD에 원문 복사됨): ${id}`);
+  });
+  (post.definitions ?? []).forEach((d, i) => {
+    const t = String(d.definition ?? '');
+    if (t.length > 160) err(`v2: definitions[${i}] ${t.length}자 (상한 160): ${id}`);
+    else if (t.length > 100) warn(`v2: definitions[${i}] ${t.length}자 (권장 ≤100): ${id}`);
+    if (/[()（）]/.test(t)) err(`v2: definitions[${i}]에 괄호 금지: ${id}`);
+  });
+  (post.sections ?? []).forEach((s, i) => {
+    if (String(s.lead ?? '').length > 45)
+      warn(`v2: sections[${i}].lead ${s.lead.length}자 (>45): ${id}`);
+  });
+}
+
 function checkClickbait(title) {
   for (const pattern of CLICKBAIT_PATTERNS) {
     if (pattern.test(title)) {
@@ -515,6 +664,11 @@ for (const { date, slug, file } of issueFiles) {
       );
     }
   }
+  // ── 독자 가독성 v2 (contentVersion ≥ 2 글만) ─────────────────────
+  // 2026-09-09 실측: 괄호 출처 10건·226자 문장·560자 문단·127자 카드가 독자 화면을 망가뜨렸다.
+  // 규칙은 docs/ops/READER-UX-V2.md. 기존 글(contentVersion 없음)은 한 건도 검사하지 않는다.
+  lintReaderV2(post, date, slug);
+
   // metaDescription 길이 + 전역 중복
   if (typeof post.metaDescription === 'string') {
     const len = post.metaDescription.length;
