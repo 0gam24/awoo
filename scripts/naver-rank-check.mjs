@@ -28,7 +28,7 @@ const OUT_FILE = join(ROOT, 'src', 'data', 'naver-ranks.json');
 
 const SITE_HOST = 'awoo.or.kr';
 const DELAY_MS = 3000;
-const MAX_PER_RUN = 25;
+const MAX_PER_RUN = 40; // 3초 간격 × 40 = 2분. 25일 때 당일 발행분이 잘리는 사고가 있었다(2026-09-09)
 const KEEP_DAYS = 90;
 
 const UA =
@@ -160,19 +160,12 @@ async function measure(query) {
 async function loadTargets() {
   const out = new Map(); // query → { query, url, source }
 
-  try {
-    const f = JSON.parse(await readFile(TARGETS_FILE, 'utf8'));
-    for (const t of f.targets ?? []) {
-      if (t.query) out.set(t.query, { query: t.query, url: t.url ?? null, source: 'targets' });
-    }
-  } catch {
-    /* 파일이 없으면 포스트에서만 모은다 */
-  }
-
-  // 포스트가 targetQuery를 선언하면 자동 편입 — 신규 글은 별도 등록이 필요 없다
+  // 포스트가 선언한 targetQuery를 먼저 — 가장 최근 글이 가장 먼저 측정돼야 한다.
+  // 상한에 걸려 잘리면 파일 등록분이 잘리게 하고, 당일 발행분은 절대 잘리지 않게 한다.
   try {
     for (const d of await readdir(ISSUES_DIR, { withFileTypes: true })) {
-      if (!d.isDirectory()) continue;
+      // _drafts·_scheduled 같은 비발행 디렉토리는 제외 — 폐기된 초안이 측정 대상에 섞였다(2026-09-09)
+      if (!d.isDirectory() || d.name.startsWith('_')) continue;
       for (const f of await readdir(join(ISSUES_DIR, d.name))) {
         if (!f.endsWith('.json') || f.startsWith('_')) continue;
         const p = JSON.parse(await readFile(join(ISSUES_DIR, d.name, f), 'utf8'));
@@ -183,6 +176,15 @@ async function loadTargets() {
     }
   } catch {
     /* 이슈 디렉토리 문제는 targets만으로 진행 */
+  }
+
+  try {
+    const f = JSON.parse(await readFile(TARGETS_FILE, 'utf8'));
+    for (const t of f.targets ?? []) {
+      if (t.query) out.set(t.query, { query: t.query, url: t.url ?? null, source: 'targets' });
+    }
+  } catch {
+    /* 파일이 없으면 포스트에서만 모은다 */
   }
 
   return [...out.values()];
