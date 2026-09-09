@@ -34,7 +34,7 @@ description: 네이버 상위노출 일일 루프 — 어제 성적 측정 → �
 
 ### 2. 후보 발굴 (emerging-keyword-hunter + cluster-auditor 병렬 spawn)
 
-- **emerging-keyword-hunter** — `keyword-radar.json`의 `niche[]`에서 신생·성장 키워드. **blogTotal이 작을수록 좋다.** 왜 지금 생겼는지(정부 발표·시즌·보도) 확인 못 하면 후보에서 뺀다.
+- **emerging-keyword-hunter** — `keyword-radar.json`의 `niche[]`에서 신생·성장 키워드. 판정값은 **기회도(`opportunity`, 수요상위×공급희소, 0~100)** 다. `gap`은 포화 키워드를 상위로 올리는 결함이 실측돼 판정에서 뺐다. 왜 지금 생겼는지(정부 발표·시즌·보도) 확인 못 하면 후보에서 뺀다.
 - **cluster-auditor** — 과포화 클러스터에는 신규를 넣지 않는다. 보유 글 3건 이상 허브를 채우는 후보에 가점.
 
 인자로 키워드가 지정됐으면 이 단계는 건너뛴다.

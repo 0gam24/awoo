@@ -75,48 +75,89 @@ export const getStaticPaths = (() => {
   // 1:N — 같은 트렌딩 term의 모든 포스트 집계용 평탄 리스트
   const allPostsFlat = Object.values(postsByDate).flat();
 
+  // 운영자 관리 허브 — byTerm이 2026-08-19에 멈춰 그 뒤 발행분이 허브 없이 떠 있었다.
+  // 태그로 자동 생성하면 "2026 정부 지원금"(29건) 같은 범용어 허브가 쏟아져
+  // 네이버가 스팸으로 규정한 "저품질 대량 생성"이 되므로, 제도명만 손으로 관리한다.
+  const hubCfgModules = import.meta.glob<{ default: { hubs?: { term: string }[] } }>(
+    '/docs/ops/topic-hubs.json',
+    { eager: true },
+  );
+  const curatedHubs = (Object.values(hubCfgModules)[0]?.default?.hubs ?? [])
+    .map((h) => h.term)
+    .filter((t) => t && /[가-힣]/.test(t) && !byTerm[t]);
+
+  /** 보유 글에서 허브 통계를 합성한다 (뉴스 언급 통계가 없는 클러스터 허브용) */
+  const synthEntry = (posts: PostData[]): HistoryEntry => {
+    const dates = [...new Set(posts.map((p) => p.date).filter(Boolean))].sort();
+    return {
+      firstSeen: dates[0] ?? '',
+      lastSeen: dates[dates.length - 1] ?? '',
+      totalCount: posts.length,
+      daysActive: dates.length,
+      dailyCounts: {},
+    };
+  };
+
+  const entries: [string, HistoryEntry, 'trend' | 'cluster'][] = [
+    ...Object.entries(byTerm).map(
+      ([t, e]) => [t, e, 'trend'] as [string, HistoryEntry, 'trend' | 'cluster'],
+    ),
+    ...curatedHubs.map(
+      (t) => [t, null as unknown as HistoryEntry, 'cluster'] as [string, HistoryEntry, 'cluster'],
+    ),
+  ];
+
   // term 별 페이지 생성 — Cycle #9: 모든 트렌딩 키워드 hub 보장 (thin은 noindex)
   const paths = [];
-  for (const [term, entry] of Object.entries(byTerm)) {
-    if (entry.totalCount < 1) continue;
+  for (const [term, rawEntry, hubKind] of entries) {
+    if (hubKind === 'trend' && rawEntry.totalCount < 1) continue;
     // 머신슬러그(옛 자동발행: new-subsidies-…, deadline-imminent-…)는 hub 생성 제외.
     // 한국어 키워드만 색인 — soft-404/scaled-content 인상 차단 (activeTopics 69행과 동일 기준).
     if (!/[가-힣]/.test(term)) continue;
     // 매칭 포스트 찾기 (postSlug 우선)
     let post: PostData | undefined;
-    if (entry.postSlug) {
-      const dayPosts = postsByDate[entry.postDate ?? entry.firstSeen] ?? [];
-      post = dayPosts.find((p) => p.slug === entry.postSlug);
+    if (rawEntry?.postSlug) {
+      const dayPosts = postsByDate[rawEntry.postDate ?? rawEntry.firstSeen] ?? [];
+      post = dayPosts.find((p) => p.slug === rawEntry.postSlug);
     }
     // 1:N — 이 term의 보유 글 전부(날짜 desc). trendingTerm 정확일치만 보면 허브가 비어
     // 있게 된다(근로장려금 허브가 14건 중 1건만 링크하던 원인) — 제목·태그 매칭까지 포함해
     // "진짜 허브"로 만든다. 클러스터 내부 링크가 살아야 개별 글의 순위도 같이 오른다.
-    const core = term.replace(/\s+/g, '');
+    // 다어절 term은 공백만 지우면 "기초연금2027하후차등지급" 같은 문자열이 되어
+    // 어떤 제목·태그와도 일치하지 않는다 — 등록돼 있어도 허브가 빈 채로 색인된다.
+    // 토큰별로 나눠 전부 포함되는지 본다.
+    const tokens = term.split(/\s+/).filter((t) => t.length >= 2);
     const relatedPosts = allPostsFlat
       .filter((p) => {
         if (!p.slug || !p.date) return false;
         if (p.freshness?.trendingTerm === term) return true;
         const hay = `${p.title ?? ''} ${(p.tags ?? []).join(' ')}`.replace(/\s+/g, '');
-        return hay.includes(core);
+        if (tokens.length === 0) return false;
+        return tokens.every((t) => hay.includes(t));
       })
       .sort((a, b) => ((a.date ?? '') < (b.date ?? '') ? 1 : -1));
+    // 클러스터 허브는 뉴스 언급 통계가 없다 — 보유 글에서 합성한다
+    const entry = hubKind === 'cluster' ? synthEntry(relatedPosts) : rawEntry;
     // 현재 term을 제외한 다른 토픽 8개
     const otherTopics = activeTopics.filter((t) => t.term !== term).slice(0, 8);
     paths.push({
       params: { term },
-      props: { term, entry, post: post ?? null, relatedPosts, otherTopics },
+      props: { term, entry, hubKind, post: post ?? null, relatedPosts, otherTopics },
     });
   }
   return paths;
 }) satisfies GetStaticPaths;
 
-const { term, entry, post, relatedPosts, otherTopics } = Astro.props as {
+const { term, entry, hubKind, post, relatedPosts, otherTopics } = Astro.props as {
   term: string;
   entry: HistoryEntry;
+  // trend: 뉴스 언급에서 만들어진 허브 / cluster: 보유 글을 묶는 운영자 관리 허브
+  hubKind: 'trend' | 'cluster';
   post: PostData | null;
   relatedPosts: PostData[];
   otherTopics: Array<{ term: string; totalCount: number; daysActive: number }>;
 };
+const isCluster = hubKind === 'cluster';
 
 // term이 포함된 지원금 매칭 — Cycle #11 P1-6: 매칭 점수 산정 (배지용)
 // Cycle #58: 매칭 reason (제목/태그/요약) 명시 → 사용자가 "왜 매칭됐는지" 한눈에 인지
@@ -205,13 +246,22 @@ const mediaCount = uniquePublishers.size;
 const firstSeenLabel = entry.firstSeen ?? '최근';
 const lastSeenLabel = entry.lastSeen ?? '오늘';
 const mediaPart = mediaCount > 0 ? `매체 ${mediaCount}곳에서 ` : '';
-const blufSummaryTopic = `"${term}"는 ${firstSeenLabel}부터 ${lastSeenLabel}까지 ${entry.daysActive}일 동안 ${mediaPart}${entry.totalCount}회 언급된 정부 지원금 키워드입니다. 관련 지원금 ${matchedSubsidies.length}건을 한 페이지에 정리했습니다.`;
-const blufStatsTopic = [
-  ...(mediaCount > 0 ? [{ value: `${mediaCount}곳`, label: '보도 매체' }] : []),
-  { value: `${entry.totalCount}회`, label: '누적 언급' },
-  { value: `${entry.daysActive}일`, label: '화제 일수' },
-  { value: `${matchedSubsidies.length}건`, label: '관련 지원금' },
-];
+// 클러스터 허브는 "언급 N회"가 아니라 "보유 글 N건"이다 — 수치의 의미가 다르므로 문구를 바꾼다
+const blufSummaryTopic = isCluster
+  ? `"${term}" 관련 글 ${relatedPosts.length}건을 ${firstSeenLabel}부터 ${lastSeenLabel}까지 정리했습니다. 관련 지원금 ${matchedSubsidies.length}건도 한 페이지에서 확인할 수 있습니다.`
+  : `"${term}"는 ${firstSeenLabel}부터 ${lastSeenLabel}까지 ${entry.daysActive}일 동안 ${mediaPart}${entry.totalCount}회 언급된 정부 지원금 키워드입니다. 관련 지원금 ${matchedSubsidies.length}건을 한 페이지에 정리했습니다.`;
+const blufStatsTopic = isCluster
+  ? [
+      { value: `${relatedPosts.length}건`, label: '관련 글' },
+      { value: `${entry.daysActive}일`, label: '발행일 수' },
+      { value: `${matchedSubsidies.length}건`, label: '관련 지원금' },
+    ]
+  : [
+      ...(mediaCount > 0 ? [{ value: `${mediaCount}곳`, label: '보도 매체' }] : []),
+      { value: `${entry.totalCount}회`, label: '누적 언급' },
+      { value: `${entry.daysActive}일`, label: '화제 일수' },
+      { value: `${matchedSubsidies.length}건`, label: '관련 지원금' },
+    ];
 
 // Cycle #22: 토픽 hub CollectionPage + ItemList — entity 누락 회복
 // thin은 noindex이므로 schema도 미주입 (낭비 방지)
@@ -236,8 +286,10 @@ const collectionSchema = !isThin
 ---
 
 <BaseLayout
-  title={`${term} — 트렌딩 토픽 | 지원금가이드`}
-  description={`"${term}" 정부 지원금 한 페이지 정리. ${entry.daysActive}일 화제 · ${entry.totalCount}건 보도 · 관련 지원금 ${matchedSubsidies.length}건 안내.`}
+  title={isCluster ? `${term} 정리 ${relatedPosts.length}건 | 지원금가이드` : `${term} — 트렌딩 토픽 | 지원금가이드`}
+  description={isCluster
+    ? `"${term}" 관련 글 ${relatedPosts.length}건과 지원금 ${matchedSubsidies.length}건을 한 페이지에 모았습니다. 자격·금액·신청 방법 정리.`
+    : `"${term}" 정부 지원금 한 페이지 정리. ${entry.daysActive}일 화제 · ${entry.totalCount}건 보도 · 관련 지원금 ${matchedSubsidies.length}건 안내.`}
   activeNav="/issues/"
   noindex={isThin}
   breadcrumbs={[
@@ -253,12 +305,20 @@ const collectionSchema = !isThin
       <div class="head">
         <div class="eyebrow">
           <span class="dot" aria-hidden="true" />
-          트렌딩 토픽
+          {isCluster ? '주제 모아보기' : '트렌딩 토픽'}
         </div>
         <h1 class="title">{term}</h1>
         <p class="lead">
-          최근 <strong>{entry.totalCount}건</strong>의 보도가 있던 정부 지원금 키워드입니다.
-          {entry.daysActive >= 3 && <> {entry.daysActive}일 연속 화제.</>}
+          {isCluster ? (
+            <>
+              <strong>{term}</strong> 관련 글 <strong>{relatedPosts.length}건</strong>을 모았습니다.
+            </>
+          ) : (
+            <>
+              최근 <strong>{entry.totalCount}건</strong>의 보도가 있던 정부 지원금 키워드입니다.
+              {entry.daysActive >= 3 && <> {entry.daysActive}일 연속 화제.</>}
+            </>
+          )}
           관련 지원금 <strong>{matchedSubsidies.length}건</strong>을 한 페이지에 모았습니다.
         </p>
       </div>

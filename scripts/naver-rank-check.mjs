@@ -41,6 +41,48 @@ const kstDate = () => new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice
 // 웹문서 블록은 결과 1건마다 `fds-web-doc-root` 클래스를 단 컨테이너가 하나씩 붙는다.
 // 이 구조는 네이버가 언제든 바꾼다 — 0건이면 조용히 "순위 없음"으로 넘기지 말고
 // parseOk:false로 남겨 "미노출"과 "못 읽음"을 구분한다.
+/**
+ * 기관 도메인 판정.
+ * `go.kr`만 보면 과소 판정된다. 2026-09-09 실측에서 korea.kr(정부 대표 포털),
+ * mil.kr(국방), nhis.or.kr(건보공단), energyv.or.kr(에너지바우처 공식),
+ * 8899.or.kr(노란우산 공식), eiec.kdi.re.kr(KDI)이 전부 "외부 상업 사이트"로
+ * 잡혔다. 그 결과 externalCount가 "우리가 들어갈 자리"를 과대평가한다 —
+ * 본인부담상한액은 external 4로 보였지만 4건 전부 공공·공식기관이라 실제 빈자리는 0이었다.
+ */
+const isInstitutional = (h) =>
+  /(^|\.)(go\.kr|or\.kr|re\.kr|mil\.kr|ac\.kr)$/.test(h) || h === 'korea.kr';
+
+/** 자사(us) / 네이버 UGC(naver) / 기관(institutional) / 상업(commercial) */
+function hostKind(host) {
+  if (host === SITE_HOST) return 'us';
+  if (host.includes('naver.com')) return 'naver';
+  return isInstitutional(host) ? 'institutional' : 'commercial';
+}
+
+/**
+ * 결과 제목. headline1 요소 안에 검색어 강조 태그가 섞여 있어
+ * 첫 `<`에서 끊으면 "2026 "처럼 잘린다 — 태그만 걷어내고 링크 라벨 앞까지 취한다.
+ * 상대 제목을 남겨야 "이긴 문서의 제목이 쿼리와 얼마나 겹치는가"를 자기 데이터로 검증할 수 있다.
+ */
+function docTitle(block) {
+  const i = block.search(/sds-comps-text-type-headline1/);
+  if (i === -1) return null;
+  const j = block.indexOf('>', i);
+  if (j === -1) return null;
+  let w = block.slice(j + 1, j + 1200);
+  const cut = w.indexOf('새 창 열림');
+  if (cut !== -1) w = w.slice(0, cut);
+  const t = w
+    .replace(/<[^>]*>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&gt;/g, '>')
+    .replace(/&lt;/g, '<')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 80);
+  return t || null;
+}
+
 function parseSerp(html) {
   const blocks = html.split('fds-web-doc-root').slice(1);
   const webDocs = [];
@@ -48,7 +90,8 @@ function parseSerp(html) {
     const m = b.match(/<a[^>]+href="(https?:\/\/[^"]+)"/);
     if (!m) continue;
     try {
-      webDocs.push({ url: m[1], host: new URL(m[1]).hostname.replace(/^www\./, '') });
+      const host = new URL(m[1]).hostname.replace(/^www\./, '');
+      webDocs.push({ url: m[1], host, kind: hostKind(host), title: docTitle(b) });
     } catch {
       /* URL 파싱 불가 항목은 건너뛴다 */
     }
@@ -61,15 +104,15 @@ function parseSerp(html) {
     kin: uniq(/kin\.naver\.com\/qna\/[A-Za-z0-9.?=&_-]{6,}/g),
   };
 
-  const isGov = (h) => h.endsWith('go.kr');
-  const external = webDocs.filter((d) => !isGov(d.host) && !d.host.includes('naver'));
+  const count = (k) => webDocs.filter((d) => d.kind === k).length;
 
   return {
     parseOk: blocks.length > 0,
     webDocs,
     webDocCount: webDocs.length,
-    govCount: webDocs.filter((d) => isGov(d.host)).length,
-    externalCount: external.length,
+    institutionalCount: count('institutional'),
+    // 우리가 실제로 뺏을 수 있는 자리. 기관 도메인은 사실상 못 이긴다.
+    commercialCount: count('commercial'),
     ugc,
   };
 }
@@ -88,14 +131,24 @@ async function measure(query) {
   const html = await fetchSerp(query);
   const s = parseSerp(html);
   const idx = s.webDocs.findIndex((d) => d.host === SITE_HOST);
+
+  // 미노출일 때 above를 비워두면, 원인 규명이 가장 필요한 케이스에서 근거가 없어진다.
+  // 순위가 없으면 "우리 위"가 곧 블록 전체다.
+  const above = (idx === -1 ? s.webDocs : s.webDocs.slice(0, idx)).map((d) => ({
+    host: d.host,
+    kind: d.kind,
+    title: d.title,
+  }));
+
   return {
     query,
     rank: idx === -1 ? null : idx + 1,
     url: idx === -1 ? null : s.webDocs[idx].url,
     webDocCount: s.webDocCount,
-    above: idx === -1 ? [] : s.webDocs.slice(0, idx).map((d) => d.host),
-    externalCount: s.externalCount,
-    govCount: s.govCount,
+    above,
+    aboveIsWholeBlock: idx === -1, // 미노출이라 블록 전체를 담았다는 표시
+    commercialCount: s.commercialCount,
+    institutionalCount: s.institutionalCount,
     ugc: s.ugc,
     // 웹문서 블록 밖(스마트블록 등)에 잡힌 경우도 놓치지 않는다
     onPage: html.includes(SITE_HOST),
@@ -146,18 +199,21 @@ async function loadStore() {
 
 function record(store, date, m) {
   const rec = store.byQuery[m.query] ?? { first: date, history: [] };
-  rec.history = rec.history.filter((h) => h.date !== date);
+  // 날짜를 키로 덮어쓰면 같은 날 두 번 재면 앞의 관측이 사라진다. 실제로 2026-09-09에
+  // 72분 간격 두 회차 중 1차가 소멸해, 변화 추적이 한 번도 작동하지 못했다.
+  // 타임스탬프로 쌓고 집계는 읽는 쪽에서 한다.
   rec.history.push({
+    ts: new Date().toISOString(),
     date,
     rank: m.rank,
     webDocCount: m.webDocCount,
-    externalCount: m.externalCount,
+    commercialCount: m.commercialCount,
     onPage: m.onPage,
   });
   const cutoff = new Date(Date.now() - KEEP_DAYS * 86400_000).toISOString().slice(0, 10);
   rec.history = rec.history
-    .filter((h) => h.date >= cutoff)
-    .sort((a, b) => (a.date < b.date ? -1 : 1));
+    .filter((h) => (h.date ?? '') >= cutoff)
+    .sort((a, b) => ((a.ts ?? a.date) < (b.ts ?? b.date) ? -1 : 1));
   rec.latest = { ...m, date };
   store.byQuery[m.query] = rec;
 }
@@ -226,10 +282,11 @@ async function main() {
 
   const ranked = results.filter((r) => r.rank != null);
   const top3 = ranked.filter((r) => r.rank <= 3).length;
-  const noRoom = results.filter((r) => r.externalCount === 0).length;
+  // 상업 사이트가 0건인 쿼리 = 기관 도메인이 블록을 채운 자리. 글을 고칠 게 아니라 버릴 자리다.
+  const noRoom = results.filter((r) => r.commercialCount === 0).length;
   console.log(
     `\n[rank] 노출 ${ranked.length}/${results.length} · 3위 이내 ${top3} · ` +
-      `외부 진입 불가 쿼리 ${noRoom}건${failed ? ` · 실패 ${failed}` : ''}`,
+      `진입 불가(상업 0건) ${noRoom}건${failed ? ` · 실패 ${failed}` : ''}`,
   );
   if (ranked.length) {
     const avg = Math.round((ranked.reduce((s, r) => s + r.rank, 0) / ranked.length) * 10) / 10;

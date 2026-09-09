@@ -85,6 +85,19 @@ const MOMENTUM_BONUS = 2;
 const MARKET_TOP = 60; // 블로그·카페·뉴스 공급량 조사 (× 3 = 180요청)
 const GAP_STRONG = 3; // 이 이상이면 "수요 대비 공급이 빈 자리"
 
+// ── 기회도(opportunity) ────────────────────────────────────
+// gap은 수요가 지배한다. 공급을 log10으로 눌러버려서 블로그 106건과 161,699건의
+// 차이가 2.6배밖에 안 되는데 질문 수 차이는 20배라, 결국 질문 많은 순으로 다시
+// 줄 세우는 지표가 된다. 실측(2026-09-09): gap 상위 10개 중 6개가 블로그
+// 3만건 이상인 포화 키워드였다. 게다가 gap은 수집량에 비례해 부풀어서
+// 회차 간 비교도 안 된다(같은 실업급여가 수집 확대 후 5.9 → 18.3).
+//
+// 기회도는 그 회차 안에서의 백분위 곱이라 수집량과 무관하다.
+//   수요 백분위 × 공급 희소 백분위 × 100
+// 둘 다 높아야 점수가 나온다 — 질문만 많거나 공급만 얇으면 안 된다.
+const OPPORTUNITY_STRONG = 30; // 이 이상이면 "들어갈 만한 빈 자리"
+const NICHE_MIN_QUESTIONS = 3; // 질문이 이보다 적으면 표본 부족 (뉴스 신호가 있으면 면제)
+
 // ── 신생·성장 키워드 판정 ──────────────────────────────────
 // 이미 큰 키워드는 이미 남들이 다 썼다. 트래픽이 "앞으로" 커질 자리를 잡으려면
 // 방금 생겼고(신생) 우상향 중인(성장) 키워드를 봐야 한다.
@@ -271,7 +284,11 @@ async function collectNaverMarket(env, terms) {
       await sleep(FETCH_DELAY_MS);
     } catch {}
     try {
-      const news = await searchCount(env, apiUrl(env, 'news'), term, { sort: 'date', display: 30 });
+      // display 30이면 화제 키워드가 전부 30으로 포화돼 변별력이 사라진다. 호출 수는 같다.
+      const news = await searchCount(env, apiUrl(env, 'news'), term, {
+        sort: 'date',
+        display: 100,
+      });
       const cutoff = Date.now() - 7 * DAY;
       rec.newsRecent = (news.items ?? []).filter(
         (it) => Date.parse(it.pubDate ?? 0) >= cutoff,
@@ -303,30 +320,58 @@ async function datalabQuery(env, terms, { days = 29, timeUnit = 'date', filter =
   const fmt = (d) => d.toISOString().slice(0, 10);
   const end = new Date();
   const start = new Date(end.getTime() - days * 86400_000);
-  const out = new Map(); // term → { points: [ratio...] }
+  const out = new Map(); // term → [ratio...]
+  let failedGroups = 0;
+
   for (let i = 0; i < terms.length; i += 5) {
     const groups = terms.slice(i, i + 5).map((t) => ({ groupName: t, keywords: [t] }));
-    countCall('datalab', 'trend');
-    const res = await fetch(apiUrl(env, 'trend'), {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        startDate: fmt(start),
-        endDate: fmt(end),
-        timeUnit,
-        keywordGroups: groups,
-        ...filter,
-      }),
+    const body = JSON.stringify({
+      startDate: fmt(start),
+      endDate: fmt(end),
+      timeUnit,
+      keywordGroups: groups,
+      ...filter,
     });
-    if (!res.ok) throw new Error(`datalab ${res.status}`);
-    const data = await res.json();
-    for (const r of data.results ?? []) {
-      out.set(
-        r.title,
-        (r.data ?? []).map((p) => p.ratio),
-      );
+
+    // 데이터랩은 간헐적으로 400(내부 500을 감싼 것)을 뱉는다. 2026-09-09 실측:
+    // 실패한 묶음을 낱개로 다시 부르면 전부 성공했다 — 특정 키워드 문제가 아니라 일시적이다.
+    // 한 묶음 실패로 예외를 던지면 그 회차의 수요·모멘텀·연령 신호가 통째로 날아간다.
+    let data = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      countCall('datalab', 'trend');
+      try {
+        const res = await fetch(apiUrl(env, 'trend'), { method: 'POST', headers, body });
+        if (res.ok) {
+          data = await res.json();
+          break;
+        }
+        if (attempt === 2) console.warn(`[radar] datalab ${res.status} — 묶음 건너뜀`);
+      } catch (e) {
+        if (attempt === 2) console.warn(`[radar] datalab ${e.message} — 묶음 건너뜀`);
+      }
+      await sleep(FETCH_DELAY_MS * 4 * (attempt + 1)); // 0.6s → 1.2s → 포기
+    }
+
+    if (data) {
+      for (const r of data.results ?? []) {
+        out.set(
+          r.title,
+          (r.data ?? []).map((p) => p.ratio),
+        );
+      }
+    } else {
+      failedGroups += 1;
     }
     await sleep(FETCH_DELAY_MS);
+  }
+
+  // 전부 실패했을 때만 던진다 — 부분 성공은 살려서 쓴다
+  const groupCount = Math.ceil(terms.length / 5);
+  if (groupCount > 0 && failedGroups >= groupCount) {
+    throw new Error(`전체 실패 (${failedGroups}/${groupCount} 묶음)`);
+  }
+  if (failedGroups > 0) {
+    console.warn(`[radar] datalab 부분 실패 — ${failedGroups}/${groupCount} 묶음 누락`);
   }
   return out;
 }
@@ -491,6 +536,35 @@ function pruneStore(store) {
   }
 }
 
+// ── 기회도 산출 ──────────────────────────────────────────────
+/** 값이 배열 안에서 차지하는 백분위(0~1). higherBetter=false면 작을수록 1에 가깝다. */
+function percentile(sorted, v, higherBetter) {
+  const below = higherBetter
+    ? sorted.filter((x) => x < v).length
+    : sorted.filter((x) => x > v).length;
+  return sorted.length ? below / sorted.length : 0;
+}
+
+/**
+ * 시장 데이터가 있는 행에 기회도를 매긴다.
+ * 백분위는 "그 회차 안에서"만 의미가 있다 — 회차 간 절대 비교는 하지 마라.
+ */
+function scoreOpportunity(rows) {
+  const withMarket = rows.filter((r) => r.market?.blogTotal != null);
+  if (withMarket.length < 5) return; // 표본이 너무 적으면 백분위가 무의미하다
+
+  const demands = withMarket.map((r) => r.signals.kinQuestions).sort((a, b) => a - b);
+  const supplies = withMarket.map((r) => r.market.blogTotal).sort((a, b) => a - b);
+
+  for (const r of withMarket) {
+    const dP = percentile(demands, r.signals.kinQuestions, true);
+    const sP = percentile(supplies, r.market.blogTotal, false);
+    r.signals.demandPct = Math.round(dP * 100);
+    r.signals.supplyScarcity = Math.round(sP * 100);
+    r.signals.opportunity = Math.round(dP * sP * 100);
+  }
+}
+
 // ── 신생·성장 판정 ───────────────────────────────────────────
 // 이미 큰 키워드는 이미 남들이 다 썼다. "앞으로" 커질 자리를 잡으려면
 // 방금 생겼거나(new) 우상향 중인(rising) 키워드를 봐야 한다.
@@ -521,8 +595,8 @@ function classifyLifecycle(rows, store, ts) {
 }
 
 /**
- * 틈새 후보 — "공급이 얇은 자리" × "지금 막 커지는 중".
- * gap만 높고 오래된 키워드는 이미 경쟁이 끝난 자리일 확률이 높다.
+ * 틈새 후보 — "들어갈 자리가 있다" × "지금 막 커지는 중".
+ * 판정은 gap이 아니라 기회도로 한다(위 주석 참조 — gap은 포화 키워드를 상위로 올린다).
  * 급상승(momentum)은 나이와 무관하게 편입한다 — 정책 발표로 갑자기 열린 자리가 있다.
  */
 function nicheCandidates(rows) {
@@ -530,11 +604,13 @@ function nicheCandidates(rows) {
     .filter((r) => {
       const stage = r.lifecycle?.stage;
       const fresh = stage === 'new' || stage === 'rising';
-      const room = (r.signals.gap ?? 0) >= GAP_STRONG;
       const surging = (r.signals.momentum ?? 0) >= MOMENTUM_SURGE;
-      return room && (fresh || surging);
+      const room = (r.signals.opportunity ?? 0) >= OPPORTUNITY_STRONG;
+      // 질문 2건짜리는 공급이 아무리 얇아도 수요를 확인할 표본이 못 된다
+      const enough = r.signals.kinQuestions >= NICHE_MIN_QUESTIONS || (r.signals.news ?? 0) > 0;
+      return room && enough && (fresh || surging);
     })
-    .sort((a, b) => (b.signals.gap ?? 0) - (a.signals.gap ?? 0));
+    .sort((a, b) => (b.signals.opportunity ?? 0) - (a.signals.opportunity ?? 0));
 }
 
 // ── main ─────────────────────────────────────────────────────
@@ -653,6 +729,7 @@ async function main() {
         r.market = m;
         r.signals.gap = gapScore({ kinQuestions: r.signals.kinQuestions, ...m });
       }
+      scoreOpportunity(rows);
       rows.sort((a, b) => b.score - a.score);
       sourceStatus.market = `ok (${market.size} terms)`;
     } catch (e) {
@@ -708,7 +785,7 @@ async function main() {
   }
 
   if (niche.length) {
-    console.log('[radar] 🌱 틈새 후보 (공급 얇음 × 신생/성장/급상승):');
+    console.log('[radar] 🌱 틈새 후보 (기회도 = 수요상위 × 공급희소, 30↑ × 신생/성장/급상승):');
     for (const r of niche.slice(0, 12)) {
       const lc = r.lifecycle;
       const tag =
@@ -718,12 +795,13 @@ async function main() {
             ? `성장 ×${lc.growth}`
             : `급상승 ×${r.signals.momentum}`;
       console.log(
-        `  gap ${String(r.signals.gap).padStart(4)}  ${r.term.padEnd(14)} ${tag}` +
-          `${r.market ? ` (블로그 ${r.market.blogTotal.toLocaleString()})` : ''}`,
+        `  기회 ${String(r.signals.opportunity).padStart(3)}  ${r.term.padEnd(14)} ${tag}` +
+          `  수요상위 ${r.signals.demandPct}% · 공급희소 ${r.signals.supplyScarcity}%` +
+          `${r.market ? ` (질문 ${r.signals.kinQuestions} / 블로그 ${r.market.blogTotal.toLocaleString()})` : ''}`,
       );
     }
   } else {
-    console.log('[radar] 🌱 틈새 후보 없음 — gap 기준 미달이거나 전부 성숙 키워드');
+    console.log('[radar] 🌱 틈새 후보 없음 — 기회도 미달이거나 전부 성숙 키워드');
   }
 
   const usage = usageReport(RUNS_PER_DAY);
@@ -740,6 +818,10 @@ async function main() {
   store.snapshots.push({ ts, sourceStatus, keywords: rows });
   store.niche = niche.slice(0, 20).map((r) => ({
     term: r.term,
+    opportunity: r.signals.opportunity,
+    demandPct: r.signals.demandPct,
+    supplyScarcity: r.signals.supplyScarcity,
+    kinQuestions: r.signals.kinQuestions,
     gap: r.signals.gap,
     momentum: r.signals.momentum ?? null,
     stage: r.lifecycle.stage,
