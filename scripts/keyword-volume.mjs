@@ -212,7 +212,8 @@ async function main() {
         relative: Math.round((avg(vals) / base) * 10000) / 100, // 기준 대비 %
       };
       if (season) {
-        const nowMonth = Number(pts[pts.length - 1].period.slice(5, 7));
+        // 데이터 마지막 점이 아니라 오늘(KST) 달 기준 — 월 초에 지난달 점만 오면 D-개월이 하나 어긋난다
+        const nowMonth = new Date(Date.now() + 9 * 3600 * 1000).getUTCMonth() + 1;
         Object.assign(row, analyseSeason(pts, base, nowMonth));
       } else {
         const recent7 = avg(vals.slice(-7));

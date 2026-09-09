@@ -50,7 +50,8 @@ const kstDate = () => new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice
  * 본인부담상한액은 external 4로 보였지만 4건 전부 공공·공식기관이라 실제 빈자리는 0이었다.
  */
 const isInstitutional = (h) =>
-  /(^|\.)(go\.kr|or\.kr|re\.kr|mil\.kr|ac\.kr)$/.test(h) || h === 'korea.kr';
+  // gov.kr(정부24)이 상업으로 새던 것을 2026-09-09 SERP 정찰에서 발견 — 기관으로 편입
+  /(^|\.)(go\.kr|or\.kr|re\.kr|mil\.kr|ac\.kr|gov\.kr)$/.test(h) || h === 'korea.kr';
 
 /** 자사(us) / 네이버 UGC(naver) / 기관(institutional) / 상업(commercial) */
 function hostKind(host) {
