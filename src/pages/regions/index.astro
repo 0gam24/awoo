@@ -1,5 +1,7 @@
 ---
 // 지역별 허브 인덱스 — 콘텐츠가 있는 지역만 나열 ([id].astro와 동일 매칭·임계 공유)
+// 규칙(2026-09-10): 글 1건 이상이면 허브. 글 0건이면 지원금 포함 2건 이상. 매칭은 지역명 토큰 선두.
+// [id].astro의 makeMatcher·생성 조건과 반드시 같이 바꿀 것 — 어긋나면 목록에는 있는데 404, 또는 그 반대.
 import Container from '@/components/Container.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import regions from '@/data/regions.json';
@@ -12,7 +14,13 @@ interface PostData {
   tags?: string[];
 }
 
-const MIN_ITEMS = 2;
+const MIN_ITEMS_WITHOUT_POST = 2;
+const tokenize = (text: string) => text.split(/[^가-힣0-9A-Za-z]+/).filter(Boolean);
+const makeMatcher = (needles: string[]) => (text: string) =>
+  needles.some(
+    (n) =>
+      text.includes(n) && (n.includes(' ') || tokenize(text).some((tok) => tok.startsWith(n))),
+  );
 
 const postModules = import.meta.glob<{ default: PostData }>('/src/data/issues/*/*.json', {
   eager: true,
@@ -30,7 +38,7 @@ const subsidies = await getCollection('subsidies');
 const rows = [];
 for (const region of regions) {
   const needles = [region.name, ...region.aliases];
-  const matchText = (text: string) => needles.some((n) => text.includes(n));
+  const matchText = makeMatcher(needles);
   const postCount = posts.filter(
     (p) => matchText(p.data.title) || (p.data.tags ?? []).some((t) => matchText(t)),
   ).length;
@@ -40,7 +48,7 @@ for (const region of regions) {
       matchText(s.data.agency ?? '') ||
       (s.data.tags ?? []).some((t: string) => matchText(t)),
   ).length;
-  if (postCount + subsidyCount < MIN_ITEMS) continue;
+  if (postCount < 1 && postCount + subsidyCount < MIN_ITEMS_WITHOUT_POST) continue;
   rows.push({ region, postCount, subsidyCount, total: postCount + subsidyCount });
 }
 rows.sort((a, b) => b.total - a.total);
