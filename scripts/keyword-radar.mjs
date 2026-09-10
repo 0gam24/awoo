@@ -9,17 +9,30 @@
 //   [market]  블로그·카페·뉴스 검색 API — 공급 규모·경쟁 신선도·최근 보도량 → 수요/공급 갭
 //   [demo]    같은 API의 연령 필터(ages) — 연령대 쏠림 → 페르소나 힌트
 //
+//   [analytics] src/data/analytics/naver-analytics-search-*.json — 실유입 검색어(주 1회 적재본)
+//
 // 산출: src/data/keyword-radar.json (30일 롤링, 스냅샷당 top 30)
 //   signals.datalab   최근 7일 상대수요 0~5
 //   signals.momentum  최근 7일 ÷ 직전 23일 (1.5↑ = 급상승, 점수 가산)
+//   signals.volume    기준 키워드(실업급여) 대비 검색량 — keyword-volume.mjs와 같은 자
+//                     { relative, recent7, window, zeroDays, firstNonZero, days, trend, born, measured }
 //   demo              { young, middle, senior } % + peak + personaHint
 //   signals.gap       수요(질문·보도) ÷ 공급(블로그 문서량·최근글비율) — 3↑면 네이버 진입 우위
 //   market            { blogTotal, blogFresh, cafeTotal, newsRecent }
-// 소비: keyword-scout 에이전트 / /today / /traffic / 0400 루틴
+//   candidates        후보 목록(신생 born · 실유입 fromAnalytics · 틈새 niche) — 파이프라인 입력
+//   niche             (구) 틈새 후보 — 기존 소비자 호환용으로 유지
+// 소비: keyword-scout 에이전트 / /today / /traffic / 0400 루틴 / keyword-pipeline.mjs
+//
+// 물결 감지(docs/ops/KEYWORD-PLAN-2026-09-10.md §3 신호 (2)·(4)):
+//   born          데이터랩 일별 시계열에서 "창 안에서 방금 생긴" 키워드. 판정식은 keyword-volume.mjs와
+//                 동일 — (zeroDays ≥8 OR firstNonZero ≥7 OR days ≤21) AND recent7 ≥ 기준의 3%.
+//                 born이면 모멘텀·기회도·대형 포함 여부와 무관하게 candidates에 직행한다.
+//   fromAnalytics 실유입 검색어 중 자사 순위가 null·4위 이하·미측정인 것(상위 40). 검색량 문턱 없음 —
+//                 지역 클러스터는 데이터랩이 게이트가 아니라 정렬 지표다(§1 표 3·11).
 //
 // 사용:
 //   node scripts/keyword-radar.mjs                  # 수집 + 적재
-//   node scripts/keyword-radar.mjs --dry-run        # 적재 없이 stdout 표만
+//   node scripts/keyword-radar.mjs --dry-run        # API는 호출하되 적재 없이 후보 요약만 stdout
 //   node scripts/keyword-radar.mjs --sources=kin    # 소스 한정 (kin,news,datalab,demo,market)
 // ─────────────────────────────────────────────────────────────
 import { readdir, readFile, writeFile } from 'node:fs/promises';
@@ -33,6 +46,8 @@ const HISTORY_FILE = join(ROOT, 'src', 'data', 'issues', '_history.json');
 const TODAY_ISSUE_FILE = join(ROOT, 'src', 'data', 'today-issue.json');
 const CURATED_DIR = join(ROOT, 'src', 'data', 'subsidies', '_curated');
 const GOV24_DIR = join(ROOT, 'src', 'data', 'subsidies', '_gov24');
+const ANALYTICS_DIR = join(ROOT, 'src', 'data', 'analytics');
+const RANKS_FILE = join(ROOT, 'src', 'data', 'naver-ranks.json');
 
 // ── API 경로·인증: 레거시 오픈API ↔ NAVER API HUB(Ncloud) 이중 지원 ──
 // 네이버가 오픈API를 Ncloud의 NAVER API HUB로 옮기는 중이다. 응답 스키마는 동일하고
@@ -77,10 +92,44 @@ const FETCH_DELAY_MS = 150;
 // 조사 폭. 한도의 1%도 안 쓰던 것을 2026-09-09에 넓혔다 —
 // 좁게 보면 상위권 밖의 "아직 아무도 안 쓴 자리"를 통째로 놓친다.
 // 확대 후에도 검색 일 3%, 데이터랩 월 6%대다(docs/ops/NAVER-API-QUOTA.md).
-const DATALAB_TOP = 40; // 상대수요·모멘텀 대상 (5개씩 8요청)
+const DATALAB_TOP = 40; // 상대수요·모멘텀·검색량 대상 (기준 1 + 후보 4 = 10요청)
 const DEMO_TOP = 30; // 연령 프로파일 대상 (5개씩 6요청 × 3버킷 = 18요청)
 const MOMENTUM_SURGE = 1.5; // 최근 7일이 직전 23일의 1.5배 이상이면 급상승
 const MOMENTUM_BONUS = 2;
+
+// ── 검색량 자(keyword-volume.mjs와 동일) + 신생(born) 판정 ──────
+// 데이터랩 ratio는 요청 안에서의 상대지수라, 매 요청에 기준 키워드를 같이 넣고 그 대비 %로 환산한다.
+// 기준은 '실업급여' — 코퍼스에서 가장 크고 안정적인 축. 바꾸면 과거 측정치와 비교가 안 된다.
+const VOLUME_BENCHMARK = '실업급여';
+const VOLUME_GROUP = 4; // 요청당 후보 수 (기준 1 + 후보 4 = 데이터랩 상한 5)
+// born = (zeroDays ≥8 OR firstNonZero ≥7 OR days ≤21) AND recent7 ≥ 기준의 3%.
+// '추석지원금 지역별 지급 대상'(5일)·'김해 지원금 10만원 신청'(19일)이 잡히고
+// '4차 민생지원금'·'김해 민생지원금' 같은 상시 헤드는 탈락하는 정의(2026-09-10 실측 15건).
+const BORN_ZERO_DAYS = 8;
+const BORN_FIRST_NONZERO = 7;
+const BORN_MAX_DAYS = 21;
+const BORN_RECENT_FLOOR = 3; // 기준(실업급여) 대비 %
+
+// ── 측정 진입 조건(완화, 2026-09-10) ────────────────────────────
+// 종전엔 점수 상위 40만 데이터랩에 넣었다. 점수는 지식iN 질문 수가 지배하므로 방금 생긴 지역
+// 키워드는 시야에 안 들어왔다. 이제 (처음 본 지 ≤7일 OR 질문 ≥3 OR 지역 패턴)이면 점수와 무관하게
+// 측정 풀에 먼저 넣고, 남는 자리를 점수순으로 채운다.
+const MEASURE_NEW_DAYS = 7;
+const MEASURE_KIN_MIN = 3;
+const REGION_PATTERN_RE = /([가-힣]{1,4}(?:시|군|구|도))\s*(민생|지원금|쿠폰|상품권)/;
+// "효도지원금"의 '도'처럼 지역이 아닌 글자를 걸러낸다(isRegionName은 아래 term 추출부에서 정의)
+const hasRegionPattern = (term) => {
+  const m = term.match(REGION_PATTERN_RE);
+  return Boolean(m) && isRegionName(m[1]);
+};
+
+// ── 실유입 검색어(애널리틱스) 입력 ──────────────────────────────
+// 자사 순위가 null·4위 이하·미측정인 유입 쿼리는 "이미 트래픽이 오는데 자리가 비어 있는" 곳이다.
+// 검색량 문턱 없이 상위 40을 후보에 넣는다. 4위 이하 = 패밀리B 트리거(계획 §2).
+const ANALYTICS_TOP = 40;
+const ANALYTICS_RANK_FLOOR = 4; // 이 순위 이상(숫자가 크면)이면 후보
+const ANALYTICS_FILE_RE = /^naver-analytics-search-.*\.json$/;
+const ANALYTICS_SKIP = new Set(['(검색어 없음)']);
 // 네이버 공급·보도량 (검색 API 일 25,000회 — 키워드당 3콜)
 const MARKET_TOP = 60; // 블로그·카페·뉴스 공급량 조사 (× 3 = 180요청)
 const GAP_STRONG = 3; // 이 이상이면 "수요 대비 공급이 빈 자리"
@@ -109,6 +158,7 @@ const GROWTH_STRONG = 1.4; // 후반 평균 ÷ 전반 평균이 이 이상이면
 // 지식iN 질문 수집 시드 (광역 도메인 질의)
 // 시드가 곧 탐색 범위다. 좁으면 신생 키워드가 아예 시야에 안 들어온다.
 // 2026-09-09 확대: 10 → 28. 호출은 시드당 1회라 28회, 검색 한도의 0.1%다.
+// 2026-09-10 확대: 28 → 35. 민생 물결 어휘 3축(차수·명절·지역명, 계획 §3)과 가결·조례 트리거를 시드에 넣는다.
 const SEED_QUERIES = [
   // 총칭
   '지원금 신청',
@@ -141,11 +191,61 @@ const SEED_QUERIES = [
   '난방비 지원',
   '소상공인 지원',
   '농업 지원',
+  // 민생 물결 (차수·명절·가결 트리거) — 실유입 81%가 민생×지역 클러스터다
+  '4차 민생지원금',
+  '추석 민생지원금',
+  '설 민생지원금',
+  '민생지원금 조례',
+  '1인당 지원금 가결',
+  '민생안정지원금 신청',
+  '민생회복지원금 지급일',
 ];
 
 // 키워드(term) 추출 — 이 접미사로 끝나는 n-gram만 도메인 후보로 인정
 const TERM_SUFFIX_RE =
   /([가-힣A-Za-z0-9·]{1,14}(?:지원금|보조금|수당|바우처|장려금|급여|연금|적금|환급금|장학금|대출금리는?|계좌|공제|감면|지원사업|융자|보험료|등록금|보육료|급식비|난방비|위로금|격려금|생활비|상품권|통장))/g;
+
+// 지역 접미형 term 추출 — "완주군 민생안정지원금"처럼 띄어쓴 지자체×지원금은 위 정규식이 잘라먹는다.
+// 군 단위 유입의 85~100%가 이 접미형(계획 §0)이라 별도로 잡아 한 칸 띄운 형태로 정규화한다.
+const REGION_TERM_RE =
+  /([가-힣]{2,4}(?:특별시|광역시|시|군|구|도))\s*((?:민생회복|민생안정|민생|추석|설|명절|군민|시민|활력)?\s*(?:지원금|쿠폰|상품권))/g;
+// 붙여 쓴 "완주군민생지원금"도 같은 term으로 접는다 — 실유입 쿼리·순위 측정은 띄운 형태다
+const REGION_FULL_RE =
+  /^([가-힣]{2,4}(?:특별시|광역시|시|군|구|도))((?:민생회복|민생안정|민생|추석|설|명절|군민|시민|활력)?(?:지원금|쿠폰|상품권))$/;
+// "동시 지원금"·"제도 지원금"·"지역도 추석지원금" 같은 일반어 오탐 차단.
+// '도'로 끝나는 지역명은 광역 9곳뿐이라 그 목록만 통과시킨다.
+const REGION_STOP = new Set([
+  '동시',
+  '당시',
+  '임시',
+  '역시',
+  '혹시',
+  '잠시',
+  '다시',
+  '친구',
+  '입구',
+  '지구',
+  '가구',
+  '도구',
+  '요구',
+  '연구',
+]);
+const DO_NAMES = new Set([
+  '경기도',
+  '강원도',
+  '충청도',
+  '충북도',
+  '충남도',
+  '전라도',
+  '전북도',
+  '전남도',
+  '경상도',
+  '경북도',
+  '경남도',
+  '제주도',
+]);
+const isRegionName = (name) =>
+  !REGION_STOP.has(name) && (!name.endsWith('도') || DO_NAMES.has(name));
 
 // 스팸/저품질 필터 — 제목에 포함 시 해당 질문 폐기
 const SPAM_RE =
@@ -315,16 +415,27 @@ function gapScore({ kinQuestions = 0, newsRecent = 0, blogTotal = 0, blogFresh =
 // 주의: ratio는 "그 요청 안에서의" 최대값 100 기준 상대지수다. 서로 다른 요청
 // (연령 버킷이 다른 호출 등)의 ratio를 절대 비교하면 안 된다. 대신 같은 요청 안에서
 // 각 키워드가 차지하는 몫(share)을 구해 요청 간에 비교한다.
-async function datalabQuery(env, terms, { days = 29, timeUnit = 'date', filter = {} } = {}) {
+// benchmark를 주면 매 요청에 기준 키워드를 함께 넣고(후보 4 + 기준 1), 반환값 base에
+// "그 요청의 기준 시계열"을 term별로 매핑한다 — keyword-volume.mjs와 같은 자로 잰 %를 낼 수 있다.
+async function datalabQuery(
+  env,
+  terms,
+  { days = 29, timeUnit = 'date', filter = {}, benchmark = null } = {},
+) {
   const headers = { ...authHeaders(env), 'Content-Type': 'application/json' };
   const fmt = (d) => d.toISOString().slice(0, 10);
   const end = new Date();
   const start = new Date(end.getTime() - days * 86400_000);
   const out = new Map(); // term → [ratio...]
+  const base = new Map(); // term → 같은 요청의 기준 키워드 [ratio...] (benchmark 모드만)
+  const answered = new Set(); // 요청이 성공한 묶음의 term — 응답에 없으면 "노출 하한 미만"
   let failedGroups = 0;
+  const step = benchmark ? VOLUME_GROUP : 5;
 
-  for (let i = 0; i < terms.length; i += 5) {
-    const groups = terms.slice(i, i + 5).map((t) => ({ groupName: t, keywords: [t] }));
+  for (let i = 0; i < terms.length; i += step) {
+    const chunk = terms.slice(i, i + step);
+    const names = benchmark ? [benchmark, ...chunk] : chunk;
+    const groups = names.map((t) => ({ groupName: t, keywords: [t] }));
     const body = JSON.stringify({
       startDate: fmt(start),
       endDate: fmt(end),
@@ -353,11 +464,25 @@ async function datalabQuery(env, terms, { days = 29, timeUnit = 'date', filter =
     }
 
     if (data) {
-      for (const r of data.results ?? []) {
-        out.set(
-          r.title,
-          (r.data ?? []).map((p) => p.ratio),
-        );
+      const raw = new Map(); // title → [{period, ratio}]
+      for (const r of data.results ?? []) raw.set(r.title, r.data ?? []);
+      // 측정 편향 렌즈: 데이터랩은 검색이 없던 날을 점으로 안 준다(실측 2026-09-10 — 어떤 키워드는 30일 창에
+      // 2점만 옴). 그대로 평균 내면 "이틀 검색된 키워드"가 상시 키워드보다 커 보인다. 날짜 축을 묶음 안에서
+      // 통일하고 빠진 날은 0으로 채워야 zeroDays·firstNonZero·recent7이 같은 자가 된다.
+      const axis = [
+        ...new Set([...raw.values()].flatMap((pts) => pts.map((p) => p.period))),
+      ].sort();
+      const aligned = (pts) => {
+        const byDate = new Map(pts.map((p) => [p.period, p.ratio]));
+        return axis.map((d) => byDate.get(d) ?? 0);
+      };
+      const got = new Map();
+      for (const [title, pts] of raw) got.set(title, aligned(pts));
+      const basePts = benchmark ? (got.get(benchmark) ?? []) : null;
+      for (const t of chunk) {
+        answered.add(t);
+        if (got.has(t)) out.set(t, got.get(t));
+        if (basePts) base.set(t, basePts);
       }
     } else {
       failedGroups += 1;
@@ -366,26 +491,80 @@ async function datalabQuery(env, terms, { days = 29, timeUnit = 'date', filter =
   }
 
   // 전부 실패했을 때만 던진다 — 부분 성공은 살려서 쓴다
-  const groupCount = Math.ceil(terms.length / 5);
+  const groupCount = Math.ceil(terms.length / step);
   if (groupCount > 0 && failedGroups >= groupCount) {
     throw new Error(`전체 실패 (${failedGroups}/${groupCount} 묶음)`);
   }
   if (failedGroups > 0) {
     console.warn(`[radar] datalab 부분 실패 — ${failedGroups}/${groupCount} 묶음 누락`);
   }
-  return out;
+  return { series: out, base, answered };
 }
 
 const avg = (arr) => (arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : 0);
+const round2 = (v) => Math.round(v * 100) / 100;
 
-// ── 소스 3: 데이터랩 상대수요 + 모멘텀(급상승) ────────────────
-// 30일 일별 시계열을 한 번만 받아 두 신호를 뽑는다 (추가 호출 없음).
+/**
+ * 일별 시계열 → 검색량·신생 판정. keyword-volume.mjs의 정의를 그대로 옮겼다(두 스크립트가 같은 자).
+ *   relative      30일 평균 ÷ 기준 평균 × 100
+ *   recent7       최근 7일 평균 ÷ 기준 평균 × 100
+ *   zeroDays      창 안에서 0인 날 수
+ *   firstNonZero  첫 0 초과 점의 인덱스 (-1 = 전부 0)
+ *   days          최초 관측 이후 지난 일수 (창 길이가 아니다 — 2026-09-10 정정)
+ *   born          위 셋 중 하나라도 "방금 생김"이고 recent7 ≥ 기준 3%
+ */
+function volumeFromSeries(vals, basePts) {
+  const baseAvg = avg(basePts ?? []);
+  if (!(baseAvg > 0)) {
+    return { measured: false, note: '기준 키워드 응답 없음 — 환산 불가' };
+  }
+  const recent = avg(vals.slice(-7));
+  const prior = avg(vals.slice(0, -7));
+  const firstNonZero = vals.findIndex((v) => v > 0);
+  const zeroDays = vals.filter((v) => v === 0).length;
+  const days = firstNonZero < 0 ? 0 : vals.length - firstNonZero;
+  const recent7 = round2((recent / baseAvg) * 100);
+  return {
+    measured: true,
+    relative: round2((avg(vals) / baseAvg) * 100),
+    recent7,
+    window: vals.length,
+    zeroDays,
+    firstNonZero,
+    days,
+    trend: prior > 0 ? round2(recent / prior) : null,
+    born:
+      (zeroDays >= BORN_ZERO_DAYS || firstNonZero >= BORN_FIRST_NONZERO || days <= BORN_MAX_DAYS) &&
+      recent7 >= BORN_RECENT_FLOOR,
+  };
+}
+
+/** 데이터랩이 시계열을 아예 안 준 키워드 — 검색량이 노출 하한 미만. 이것도 정보다. */
+const UNMEASURED_VOLUME = Object.freeze({
+  measured: false,
+  relative: 0,
+  recent7: 0,
+  window: 0,
+  zeroDays: null,
+  firstNonZero: -1,
+  days: 0,
+  trend: null,
+  born: false,
+  note: '데이터랩 무응답 — 검색량이 노출 하한 미만',
+});
+
+// ── 소스 3: 데이터랩 상대수요 + 모멘텀(급상승) + 검색량·신생(born) ──
+// 30일 일별 시계열을 한 번만 받아 세 신호를 뽑는다 (추가 호출 없음).
 //   demand   최근 7일 평균을 0~5로 압축 (기존 점수 체계 유지)
 //   momentum 최근 7일 평균 ÷ 직전 23일 평균 → 1.0이면 보합, 1.5↑면 급상승
+//   volume   기준 키워드(실업급여) 대비 % + born — 요청마다 기준을 같이 넣어 자를 통일
 async function collectDatalab(env, terms) {
-  const series = await datalabQuery(env, terms);
+  const { series, base, answered } = await datalabQuery(env, terms, {
+    benchmark: VOLUME_BENCHMARK,
+  });
   const demand = new Map();
   const momentum = new Map();
+  const volume = new Map();
   for (const [term, points] of series) {
     const last7 = points.slice(-7);
     const prev = points.slice(0, -7);
@@ -395,8 +574,13 @@ async function collectDatalab(env, terms) {
     if (aPrev > 0 && prev.length >= 7) {
       momentum.set(term, Math.round((a7 / aPrev) * 100) / 100);
     }
+    volume.set(term, volumeFromSeries(points, base.get(term)));
   }
-  return { demand, momentum };
+  // 요청은 성공했는데 시계열이 안 온 키워드 = 노출 하한 미만. 실패한 묶음은 아예 안 넣는다(재측정 대상).
+  for (const term of answered) {
+    if (!series.has(term)) volume.set(term, { ...UNMEASURED_VOLUME });
+  }
+  return { demand, momentum, volume };
 }
 
 // ── 소스 4: 연령대 쏠림 → 페르소나 힌트 ──────────────────────
@@ -412,7 +596,7 @@ const AGE_PERSONA = { young: 'office-rookie', middle: 'newlywed-family', senior:
 async function collectAgeProfile(env, terms) {
   const shareByBucket = new Map(); // bucketKey → Map(term → share)
   for (const b of AGE_BUCKETS) {
-    const series = await datalabQuery(env, terms, { filter: { ages: b.ages } });
+    const { series } = await datalabQuery(env, terms, { filter: { ages: b.ages } });
     const means = new Map();
     for (const [term, points] of series) means.set(term, avg(points.slice(-14)));
     const total = [...means.values()].reduce((s, v) => s + v, 0);
@@ -463,20 +647,87 @@ function matchSubsidies(term, idx) {
 // ── term 추출·집계 ───────────────────────────────────────────
 function extractTerms(questions) {
   const byTerm = new Map(); // term → {count, questions:[]}
+  const add = (term, q, seen) => {
+    if (term.length < 3 || term.length > 18) return;
+    if (TERM_BLACKLIST.has(term) || seen.has(term)) return;
+    seen.add(term);
+    const rec = byTerm.get(term) ?? { count: 0, questions: [] };
+    rec.count += 1;
+    if (rec.questions.length < 3) rec.questions.push(q.title);
+    byTerm.set(term, rec);
+  };
   for (const q of questions) {
     const seen = new Set();
     for (const m of q.title.matchAll(TERM_SUFFIX_RE)) {
-      const term = m[1].replace(/^[0-9·]+/, '').trim();
-      if (term.length < 3 || term.length > 18) continue;
-      if (TERM_BLACKLIST.has(term) || seen.has(term)) continue;
-      seen.add(term);
-      const rec = byTerm.get(term) ?? { count: 0, questions: [] };
-      rec.count += 1;
-      if (rec.questions.length < 3) rec.questions.push(q.title);
-      byTerm.set(term, rec);
+      // 앞머리 숫자는 떼되 차수("4차민생지원금")는 물결 어휘라 남긴다
+      let term = m[1].replace(/^[0-9·]+(?!차)/, '').trim();
+      const rm = term.match(REGION_FULL_RE);
+      if (rm) {
+        if (!isRegionName(rm[1])) continue;
+        term = `${rm[1]} ${rm[2]}`;
+      }
+      add(term, q, seen);
+    }
+    // 지역 접미형 — "완주군 민생안정지원금" 한 칸 띄운 형태로 정규화
+    for (const m of q.title.matchAll(REGION_TERM_RE)) {
+      if (!isRegionName(m[1])) continue;
+      add(`${m[1]} ${m[2].replace(/\s+/g, '')}`, q, seen);
     }
   }
   return byTerm;
+}
+
+/** 측정 진입 조건(완화): 처음 본 지 ≤7일 OR 질문 ≥3 OR 지역 패턴 */
+function measureEligible(row, store, now) {
+  const firstSeen = store.byTerm?.[row.term]?.firstSeen;
+  const age = firstSeen ? (now - Date.parse(firstSeen)) / 86400_000 : 0;
+  return (
+    age <= MEASURE_NEW_DAYS ||
+    row.signals.kinQuestions >= MEASURE_KIN_MIN ||
+    hasRegionPattern(row.term)
+  );
+}
+
+// ── 소스 6: 실유입 검색어(애널리틱스) × 자사 순위 ─────────────────
+// 최신 naver-analytics-search-*.json 하나만 읽는다. 순위는 naver-ranks.json의 latest.rank.
+//   ourRank: null = 측정했으나 미노출, undefined = 측정 없음
+async function loadAnalyticsGaps() {
+  let files = [];
+  try {
+    files = (await readdir(ANALYTICS_DIR)).filter((f) => ANALYTICS_FILE_RE.test(f)).sort();
+  } catch {
+    return { file: null, gaps: [] };
+  }
+  const file = files.at(-1);
+  if (!file) return { file: null, gaps: [] };
+  const data = JSON.parse(await readFile(join(ANALYTICS_DIR, file), 'utf8'));
+  let ranks = {};
+  try {
+    ranks = JSON.parse(await readFile(RANKS_FILE, 'utf8')).byQuery ?? {};
+  } catch {}
+
+  const gaps = [];
+  for (const k of data.keywords ?? []) {
+    const query = clean(k.query, 80);
+    if (!query || ANALYTICS_SKIP.has(query)) continue;
+    const rec = ranks[query];
+    const ourRank = rec ? (rec.latest?.rank ?? null) : undefined;
+    const open = ourRank === undefined || ourRank === null || ourRank >= ANALYTICS_RANK_FLOOR;
+    if (!open) continue;
+    gaps.push({
+      term: query,
+      inbound7d: Number(k.visits) || 0,
+      ourRank: ourRank === undefined ? null : ourRank,
+      rankMeasured: rec != null,
+      regionPattern: hasRegionPattern(query),
+    });
+  }
+  gaps.sort((a, b) => b.inbound7d - a.inbound7d);
+  return {
+    file,
+    period: data.period ?? null,
+    gaps: gaps.slice(0, ANALYTICS_TOP),
+  };
 }
 
 // ── 갱신 후보 감지: 미확정 마커 보유 글 × 오늘 수요 신호 교차 ──
@@ -613,6 +864,80 @@ function nicheCandidates(rows) {
     .sort((a, b) => (b.signals.opportunity ?? 0) - (a.signals.opportunity ?? 0));
 }
 
+/**
+ * 파이프라인용 후보(candidates) — 세 갈래를 한 목록으로 합친다.
+ *   born          데이터랩 신생. 기회도·모멘텀·표본 수와 무관하게 직행(계획 §3 신호 (2)).
+ *   fromAnalytics 실유입 쿼리 중 자사 미노출·4위 이하·미측정(계획 §3 신호 (4)).
+ *   niche         (구) 틈새 — 기회도 30↑ × 신생/성장/급상승.
+ * 한 term이 여러 갈래에 걸리면 reasons에 전부 남긴다. 정렬: born → 실유입 많은 순 → 기회도.
+ */
+function buildCandidates(rows, niche, analyticsGaps, volumeByTerm) {
+  const byTerm = new Map();
+  const upsert = (term, reason, patch) => {
+    const c = byTerm.get(term) ?? {
+      term,
+      reasons: [],
+      born: false,
+      fromAnalytics: false,
+      inbound7d: null,
+      ourRank: null,
+      rankMeasured: false,
+      regionPattern: hasRegionPattern(term),
+      signals: {},
+    };
+    if (!c.reasons.includes(reason)) c.reasons.push(reason);
+    Object.assign(c, patch);
+    byTerm.set(term, c);
+  };
+  const rowSignals = (r) => ({
+    kinQuestions: r.signals.kinQuestions,
+    news: r.signals.news,
+    datalab: r.signals.datalab ?? null,
+    momentum: r.signals.momentum ?? null,
+    opportunity: r.signals.opportunity ?? null,
+    gap: r.signals.gap ?? null,
+    volume: r.signals.volume ?? null,
+    stage: r.lifecycle?.stage ?? null,
+    age: r.lifecycle?.age ?? null,
+  });
+
+  for (const r of rows) {
+    if (r.signals.volume?.born) {
+      upsert(r.term, 'born', { born: true, signals: rowSignals(r) });
+    }
+  }
+  for (const g of analyticsGaps) {
+    const vol = volumeByTerm.get(g.term) ?? null;
+    const prev = byTerm.get(g.term);
+    upsert(g.term, 'analytics', {
+      fromAnalytics: true,
+      inbound7d: g.inbound7d,
+      ourRank: g.ourRank,
+      rankMeasured: g.rankMeasured,
+      born: Boolean(prev?.born || vol?.born),
+      signals: { ...(prev?.signals ?? {}), volume: prev?.signals?.volume ?? vol },
+    });
+  }
+  for (const r of niche) {
+    const prev = byTerm.get(r.term);
+    upsert(r.term, 'niche', { signals: { ...rowSignals(r), ...(prev?.signals ?? {}) } });
+  }
+
+  const key = (c) => [
+    c.born ? 0 : 1,
+    c.fromAnalytics ? 0 : 1,
+    -(c.inbound7d ?? 0),
+    -(c.signals.volume?.recent7 ?? 0),
+    -(c.signals.opportunity ?? 0),
+  ];
+  return [...byTerm.values()].sort((a, b) => {
+    const ka = key(a);
+    const kb = key(b);
+    for (let i = 0; i < ka.length; i++) if (ka[i] !== kb[i]) return ka[i] - kb[i];
+    return a.term.localeCompare(b.term, 'ko');
+  });
+}
+
 // ── main ─────────────────────────────────────────────────────
 async function main() {
   const args = process.argv.slice(2);
@@ -679,11 +1004,35 @@ async function main() {
   );
   rows.sort((a, b) => b.score - a.score);
 
-  // 데이터랩: 상위 후보 상대수요 + 모멘텀 검증
+  // 판정(신생·측정 진입)은 "이전 관측"을 봐야 하므로 적재 전에 store를 먼저 읽는다
+  const store = await loadStore();
+  const nowMs = Date.now();
+
+  // 실유입 검색어 — API 호출 없음. 자사 미노출·4위 이하·미측정 쿼리를 후보에 넣고 검색량만 같이 잰다.
+  let analytics = { file: null, gaps: [] };
+  try {
+    analytics = await loadAnalyticsGaps();
+    sourceStatus.analytics = analytics.file
+      ? `ok (${analytics.gaps.length} gaps, ${analytics.file})`
+      : 'skip (파일 없음)';
+  } catch (e) {
+    sourceStatus.analytics = `fail: ${e.message}`;
+  }
+
+  // 데이터랩: 상대수요 + 모멘텀 + 검색량·신생(born)
+  // 측정 풀 = (처음 본 지 ≤7일 OR 질문 ≥3 OR 지역 패턴) 점수순 → 남는 자리 점수순.
+  // 실유입 쿼리는 풀 상한과 별도로 붙인다(검색량 문턱이 아니라 정렬용 — 계획 §1 표 3).
+  const volumeByTerm = new Map();
   if (sources.includes('datalab') && rows.length > 0) {
     try {
-      const top = rows.slice(0, DATALAB_TOP).map((r) => r.term);
-      const { demand, momentum } = await collectDatalab(env, top);
+      const eligible = rows.filter((r) => measureEligible(r, store, nowMs));
+      const eligibleSet = new Set(eligible);
+      const rest = rows.filter((r) => !eligibleSet.has(r));
+      const pool = [...eligible, ...rest].slice(0, DATALAB_TOP).map((r) => r.term);
+      const poolSet = new Set(pool);
+      const extra = analytics.gaps.map((g) => g.term).filter((t) => !poolSet.has(t));
+      const { demand, momentum, volume } = await collectDatalab(env, [...pool, ...extra]);
+      for (const [term, v] of volume) volumeByTerm.set(term, v);
       for (const r of rows) {
         if (demand.has(r.term)) {
           r.signals.datalab = demand.get(r.term);
@@ -696,9 +1045,11 @@ async function main() {
             r.score = Math.round((r.score + MOMENTUM_BONUS) * 10) / 10;
           }
         }
+        if (volume.has(r.term)) r.signals.volume = volume.get(r.term);
       }
       rows.sort((a, b) => b.score - a.score);
-      sourceStatus.datalab = `ok (${demand.size} terms, 모멘텀 ${momentum.size})`;
+      const bornN = [...volume.values()].filter((v) => v.born).length;
+      sourceStatus.datalab = `ok (${demand.size} terms, 모멘텀 ${momentum.size}, 측정 ${volume.size}, born ${bornN}, 진입조건 ${eligible.length})`;
     } catch (e) {
       sourceStatus.datalab = `fail: ${e.message}`;
     }
@@ -737,13 +1088,17 @@ async function main() {
     }
   }
 
-  rows = rows.slice(0, SNAPSHOT_TERM_CAP);
+  // born은 점수와 무관하게 살아남아야 한다 — 상한(SNAPSHOT_TERM_CAP)은 지키되 born 자리를 먼저 확보한다
+  const bornRows = rows.filter((r) => r.signals.volume?.born);
+  const others = rows.filter((r) => !r.signals.volume?.born);
+  rows = [...bornRows, ...others.slice(0, Math.max(0, SNAPSHOT_TERM_CAP - bornRows.length))].sort(
+    (a, b) => b.score - a.score,
+  );
   const ts = new Date().toISOString();
 
-  // 판정은 "이전 관측"을 봐야 하므로 적재 전에 store를 먼저 읽는다
-  const store = await loadStore();
   classifyLifecycle(rows, store, ts);
   const niche = nicheCandidates(rows);
+  const candidates = buildCandidates(rows, niche, analytics.gaps, volumeByTerm);
 
   // 갱신 후보 감지 (미확정 글 × 수요 신호)
   const updateCandidates = await scanUpdateCandidates(questions, newsSignal, rows);
@@ -804,10 +1159,48 @@ async function main() {
     console.log('[radar] 🌱 틈새 후보 없음 — 기회도 미달이거나 전부 성숙 키워드');
   }
 
+  // 파이프라인 후보 요약 — born / 실유입 / 틈새
+  const bornC = candidates.filter((c) => c.born);
+  const fromA = candidates.filter((c) => c.fromAnalytics);
+  console.log(
+    `[radar] 🎯 후보 ${candidates.length}건 — born ${bornC.length} · 실유입 ${fromA.length}${
+      analytics.file ? ` (${analytics.file})` : ''
+    } · 틈새 ${niche.length}`,
+  );
+  if (bornC.length) {
+    console.log('[radar]   ★ born (창 안에서 방금 생긴 검색량 — 기회도·모멘텀 무관 직행):');
+    for (const c of bornC.slice(0, 12)) {
+      const v = c.signals.volume;
+      console.log(
+        `    ${c.term.padEnd(18)} 최근7 ${String(v.recent7).padStart(6)}  0인날 ${String(v.zeroDays).padStart(2)}  첫관측 +${v.firstNonZero}  경과 ${v.days}일  추세 ${v.trend ?? '-'}` +
+          `${c.fromAnalytics ? `  실유입 ${c.inbound7d}` : ''}`,
+      );
+    }
+  }
+  if (fromA.length) {
+    console.log('[radar]   ⚑ 실유입 쿼리 중 자사 미노출·4위 이하·미측정 (상위 40):');
+    for (const c of fromA.slice(0, 12)) {
+      const v = c.signals.volume;
+      const vol = v ? (v.measured ? `최근7 ${v.recent7}` : '데이터랩 무응답') : '미측정';
+      const rank = c.rankMeasured
+        ? c.ourRank == null
+          ? '미노출'
+          : `${c.ourRank}위`
+        : '순위 측정 없음';
+      console.log(
+        `    ${c.term.padEnd(18)} 유입 ${String(c.inbound7d).padStart(5)}  ${rank.padEnd(9)} ${vol}${c.born ? '  ★born' : ''}`,
+      );
+    }
+  }
+
   const usage = usageReport(RUNS_PER_DAY);
   console.log(formatUsage(usage));
 
   if (dryRun) {
+    // 기계가 읽을 한 줄 — 파이프라인이 stdout에서 그대로 파싱한다
+    console.log(
+      `[radar] candidates-json ${JSON.stringify({ ts, analyticsFile: analytics.file, candidates })}`,
+    );
     console.log('[radar] --dry-run — 적재 생략');
     return;
   }
@@ -815,6 +1208,10 @@ async function main() {
   store.updatedAt = ts;
   store.apiUsage = { ts, mode: isHubMode(env) ? 'hub' : 'legacy', ...usage };
   store.updateCandidates = updateCandidates.map((c) => ({ ...c, flaggedAt: ts }));
+  store.candidates = candidates.map((c) => ({ ...c, flaggedAt: ts }));
+  store.analytics = analytics.file
+    ? { file: analytics.file, period: analytics.period ?? null, gaps: analytics.gaps.length }
+    : null;
   store.snapshots.push({ ts, sourceStatus, keywords: rows });
   store.niche = niche.slice(0, 20).map((r) => ({
     term: r.term,
@@ -829,6 +1226,8 @@ async function main() {
     growth: r.lifecycle.growth,
     blogTotal: r.market?.blogTotal ?? null,
     demo: r.demo?.peak ?? null,
+    born: r.signals.volume?.born ?? false,
+    recent7: r.signals.volume?.recent7 ?? null,
     flaggedAt: ts,
   }));
   for (const r of rows) {

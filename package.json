@@ -55,7 +55,15 @@
     "audit:specificity": "node scripts/audit-specificity.mjs",
     "audit:content-depth": "node scripts/audit-content-depth.mjs",
     "rank:check": "node scripts/naver-rank-check.mjs",
-    "rank:one": "node scripts/naver-rank-check.mjs --query="
+    "rank:one": "node scripts/naver-rank-check.mjs --query=",
+    "typecheck": "npm run check",
+    "rank:scout": "node scripts/naver-rank-check.mjs --mode=scout --query=",
+    "volume:region": "node scripts/keyword-volume.mjs --region",
+    "intents:build": "node scripts/build-cluster-intents.mjs",
+    "intents:check": "node scripts/build-cluster-intents.mjs --check",
+    "analytics:ingest": "node scripts/ingest-analytics.mjs",
+    "pipeline": "node scripts/keyword-pipeline.mjs",
+    "pipeline:serp": "node scripts/keyword-pipeline.mjs --serp"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",

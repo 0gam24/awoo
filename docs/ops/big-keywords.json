@@ -1,0 +1,374 @@
+{
+  "_readme": [
+    "T2 '대형 세부 롱테일' 트랙의 입력. scripts/keyword-pipeline.mjs가 keywords[].aliases × 축 템플릿으로 후보를 만든다(계획 docs/ops/KEYWORD-PLAN-2026-09-10.md §3 T2·§4-2).",
+    "목록 기준: 2026-09-09 워크플로의 40개 대형 목록이 아니라 (가) 네이버 애널리틱스 7일 실유입(src/data/analytics/naver-analytics-search-2026-09-02_08.json, 9/2~9/8 상위 160)에 잡혔거나 (나) 데이터랩 30일 상대값(실업급여=100, scripts/keyword-volume.mjs 2026-09-10 실측)이 있는 것만 넣었다.",
+    "evidence.inbound7 = 상위 160 안에서 그 클러스터로 귀속되는 유입 합(방문). 상위 160은 검색유입 전체의 34%라 0은 '없음'이 아니라 '상위 160 밖'이다. evidence.datalab = {rel30, recent7, trend} 실업급여=100 눈금.",
+    "T2 게이트는 recent7 ≥1.5 하나만(정렬 지표) → cluster-intents 패밀리 잠금 → openSlots ≥2 + 자매 0. 데이터랩 값은 게이트가 아니라 정렬용이다(§0·§2).",
+    "sisterCaution: docs/references/07-네이버-SEO-종합.md 역할표 기준으로 각도가 겹칠 수 있는 자매 사이트. 대출·청약·연말정산 절세 각도는 자매 몫이고 awoo는 지원금·환급·수급자격 각도만 쓴다. 실제 자매 미러 존재 여부는 여기서 확인하지 않았다(확인 불가) — naver-rank-check --mode=scout의 kind:sister(docs/ops/sister-sites.json)로 발행 전 실측한다.",
+    "existingSlugs = 날짜 접미를 뗀 URL slug(src/data/issues/<날짜>/<slug>-YYYY-MM-DD.json에서 `-YYYY-MM-DD`를 벗긴 것, docs/ops/rank-targets.json url과 같은 형태). docs/ops/cluster-intents.json의 slug는 글 JSON의 slug 필드 그대로(날짜 접미 포함)라, 두 레지스트리를 비교할 때는 cluster-intents 쪽에서 `-YYYY-MM-DD` 접미를 벗겨라. existingDrafts = src/data/issues/_drafts/ 아래 미발행 초안(같은 규칙으로 접미 제거). 같은 축 두 번째 글은 cluster-intents가 VETO/FIX로 막는다. 이 파일은 글 목록이 아니라 후보 생성 입력이다(2026-09-10 기준).",
+    "mode(선택 필드): 없으면 기본 T2 후보 생성 대상. \"update-only\" = 이 항목의 aliases로 신규 후보를 만들지 말고 갱신 트랙(기존 글 사실 정정·날짜 갱신)에만 쓴다. 파이프라인이 이 필드를 모르면 무시해도 깨지지 않는다(계약 외 추가 필드).",
+    "evidence.datalab.aliases 값은 number 또는 null. null = 데이터랩 무응답(노출 하한 미만, 측정 불가이지 수요 0이 아님) — 사유는 note에 적는다. 정렬 지표로 쓸 때 null은 0이 아니라 '미측정'으로 다뤄라.",
+    "창 안(민생 물결 D-7~D+8) T2 배분은 주 1~2건, 창 밖 주 2~3건(운영자 결정 2026-09-10 #10). 발행은 파이프라인이 하지 않는다 — 매일 보고하고 운영자가 수동 지시한다(#12)."
+  ],
+  "updated": "2026-09-10",
+  "benchmark": "실업급여",
+  "keywords": [
+    {
+      "term": "실업급여",
+      "aliases": [
+        "이직확인서",
+        "조기재취업수당",
+        "상실신고",
+        "구직급여",
+        "자발적 퇴사",
+        "하한액",
+        "면접 불참"
+      ],
+      "cluster": "실업급여",
+      "sisterCaution": "지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asiatop.co.kr과 겹칠 수 있다. 대출 연계 각도 금지.",
+      "evidence": {
+        "inbound7": 340,
+        "inboundQueries": [
+          "조기재취업수당 조건 79",
+          "2026년 실업급여 금액 45",
+          "자발적 실업급여 41",
+          "청년 실업급여 자발적퇴사 37",
+          "2026년 실업급여 하한액 19",
+          "실업급여 면접 불참 16",
+          "실업급여 최대금액 15"
+        ],
+        "datalab": {
+          "rel30": 100,
+          "recent7": 100,
+          "trend": 1,
+          "aliases": {
+            "실업급여 이직확인서": 6.21,
+            "조기재취업수당": 7.44,
+            "고용보험 상실신고": 2.66,
+            "구직급여": 6.9
+          }
+        }
+      },
+      "existingSlugs": [
+        "unemployment-benefit-guide",
+        "unemployment-benefit-amount-calc",
+        "unemployment-benefit-resignation-eligibility",
+        "early-reemployment-allowance",
+        "early-reemployment-allowance-conditions",
+        "unemployment-benefit-payment-reform",
+        "unemployment-job-mileage",
+        "unemployment-benefit-job-refusal-disqualification",
+        "unemployment-training-allowance-timing",
+        "unemployment-repeat-claim-cut",
+        "unemployment-childcare-reduction-quit",
+        "unemployment-startup-freelance",
+        "unemployment-fraud-penalty",
+        "unemployment-benefit-side-job",
+        "self-employed-unemployment-benefit",
+        "delivery-rider-unemployment-benefit",
+        "artist-unemployment-benefit",
+        "unemployment-credit-pension"
+      ],
+      "note": "코퍼스 눈금(실업급여=100). 실유입 340은 전부 세부형(조기재취업수당 조건 r5가 유일한 상위 확보 쿼리, rank-targets 기준점). 이직확인서·상실신고는 데이터랩 6.2·2.7인데 대응 글 0 — 빈 축. 자발적 퇴사 축은 07-26 글 1건으로 잠금."
+    },
+    {
+      "term": "주휴수당",
+      "aliases": ["계산법", "포함 시급", "쿠팡", "알바 계산기", "알바 조건", "주 15시간"],
+      "cluster": "주휴수당",
+      "sisterCaution": "'주휴수당 계산기' 각도는 calculatorhost.com 몫, 알바·사회초년생 노무 각도는 asiatop.co.kr과 겹칠 수 있다. awoo는 '못 받았을 때 신고·지원' 각도 우선.",
+      "evidence": {
+        "inbound7": 402,
+        "inboundQueries": [
+          "주휴수당 계산법 170",
+          "2026 주휴수당 포함 시급 94",
+          "알바 주휴수당 계산기 81",
+          "알바 주휴수당 조건 57"
+        ],
+        "datalab": {
+          "rel30": 48.03,
+          "recent7": 48.51,
+          "trend": 1.01,
+          "aliases": {
+            "주휴수당 계산법": 7.88,
+            "주휴수당 포함 시급": 1.6,
+            "쿠팡 주휴수당": 2.19
+          }
+        }
+      },
+      "existingSlugs": [
+        "weekly-holiday-pay-calculation",
+        "coupang-weekly-holiday-pay-5day-condition"
+      ],
+      "note": "실유입 402로 대형 중 2위인데 글은 2건뿐(08-10 계산·09-09 쿠팡). 계산법 축은 08-10 글이 잠금, '포함 시급'·'알바 조건' 축이 비어 있다. 데이터랩 헤드 48은 안정(trend 1.01)."
+    },
+    {
+      "term": "근로장려금",
+      "aliases": ["반기", "지급일", "자녀장려금", "대상 기준", "계산기", "현금수령", "상반기"],
+      "cluster": "근로장려금",
+      "sisterCaution": "세금·환급 각도는 smartdatashop.kr(세금·금융) 몫, 가족 인적공제 각도는 familydata.kr. awoo는 신청·지급일·수급 판정 각도만.",
+      "evidence": {
+        "inbound7": 456,
+        "inboundQueries": [
+          "근로·자녀장려금 9월 신청 전 구분 3가지 170",
+          "2026 근로장려금 대상 기준 147",
+          "근로장려금 계산기 58",
+          "근로장려금 현금수령 방법 40",
+          "2026 근로장려금 기준 23",
+          "근로장려금 상반기 기준 18"
+        ],
+        "datalab": {
+          "rel30": 617.45,
+          "recent7": 390.76,
+          "trend": 0.57,
+          "aliases": {
+            "근로장려금 지급일": 151.98,
+            "자녀장려금": 46.14,
+            "근로장려금 반기": 2.9
+          }
+        }
+      },
+      "existingSlugs": [
+        "eitc-late-application-guide",
+        "eitc-semiannual-vs-regular-payment-date",
+        "eitc-property-requirement-jeonse",
+        "eitc-review-status-early-payment",
+        "eitc-payment-amount-reduction",
+        "eitc-payment-date-august-27",
+        "eitc-refund-notice-cash-receipt",
+        "eitc-payment-missing-august-27",
+        "eitc-semiannual-application",
+        "eitc-semiannual-dual-income",
+        "ctc-missing-eitc-paid"
+      ],
+      "note": "실유입 456으로 대형 1위. 데이터랩 rel30 617은 9/1~15 반기신청 시즌 효과(trend 0.57로 꺾이는 중). 지급일 축은 rank-targets 대조군(외부 웹 0 — 진입 불가 자리). 글 11건이라 반기·지급일·감액·이중소득 축은 대부분 잠금 — 신규는 '계산기·대상 기준' 축만 남았고 계산기는 자매 각도라 주의. 반기신청 귀속연도 함정(반기=당해연도 선지급) 유지."
+    },
+    {
+      "term": "중위소득",
+      "aliases": ["계산", "2027", "계산기", "기준 중위소득 표", "가구원수"],
+      "cluster": "중위소득",
+      "sisterCaution": "'중위소득 계산기' 각도는 calculatorhost.com과 겹칠 수 있다. awoo는 급여별(생계·주거·의료) 문턱 표 각도.",
+      "evidence": {
+        "inbound7": 146,
+        "inboundQueries": ["중위소득 계산 121", "중위소득 계산기 25"],
+        "datalab": {
+          "rel30": 7.56,
+          "recent7": 6.35,
+          "trend": 0.8,
+          "aliases": {
+            "중위소득 계산": 1.82,
+            "2027 중위소득": 0.26
+          }
+        }
+      },
+      "existingSlugs": ["median-income-2027-livelihood-benefit-threshold"],
+      "note": "데이터랩 7.56인데 실유입 146 — 헤드값 대비 유입이 큰 클래스(계수 재보정 대상). 08-01 글 1건이 2027 문턱 축 잠금. '계산' 축(121)이 어느 글로 랜딩하는지 미확인 — 랜딩 URL 보고서 전까지 확인 불가."
+    },
+    {
+      "term": "기초연금",
+      "aliases": ["소득인정액", "2027 개편", "자동차 기준", "차량가액", "부부 감액", "인상액"],
+      "cluster": "기초연금",
+      "sisterCaution": "연금·은퇴 설계 각도는 retiredata.kr 몫. awoo는 수급자격·소득인정액·개편 영향 각도만. 국민연금 연계 감액은 07-22 글로 잠금.",
+      "evidence": {
+        "inbound7": 138,
+        "inboundQueries": [
+          "기초연금개편안 54",
+          "기초연금 자동차 기준 21",
+          "기초연금 차량가액 20",
+          "2027 기초연금 인상액 15",
+          "27년 기초연금 14",
+          "기초연금 개편안 14"
+        ],
+        "datalab": {
+          "rel30": 63.77,
+          "recent7": 50.43,
+          "trend": 0.74,
+          "aliases": {
+            "기초연금 소득인정액": 3.74,
+            "2027 기초연금": 0.61
+          }
+        }
+      },
+      "existingSlugs": [
+        "basic-pension-eligibility",
+        "basic-pension-car-asset",
+        "national-pension-early-basic-pension-reduction",
+        "basic-pension-2027-tiered-payment"
+      ],
+      "note": "개편안 축(54+14)은 09-05 글이 rank-targets 등록. 자동차·차량가액(41)은 07-14 글 잠금. 소득인정액 계산 축은 rank-targets에 외부 웹 1건으로 등록돼 있으나 전용 글 없음 — 09-05 글이 대신 받는 중."
+    },
+    {
+      "term": "에너지바우처",
+      "aliases": ["잔액조회", "난방비", "사용기간", "동절기", "신청 대상", "가구원수 금액"],
+      "cluster": "에너지바우처",
+      "sisterCaution": "역할표에 직접 겹치는 자매 없음. 부동산·주거비 각도(homedata.kr)와만 거리 유지.",
+      "evidence": {
+        "inbound7": 0,
+        "inboundQueries": [],
+        "datalab": {
+          "rel30": 52.55,
+          "recent7": 40.02,
+          "trend": 0.71,
+          "aliases": {
+            "에너지바우처 잔액조회": 10.09,
+            "난방비 지원": 0.23
+          }
+        },
+        "season": {
+          "peakMonth": 7,
+          "peakRelative": 119.68,
+          "잔액조회": {
+            "peakMonth": 1,
+            "peakRelative": 10,
+            "flat": true
+          }
+        }
+      },
+      "existingSlugs": [
+        "energy-voucher-summer",
+        "energy-voucher-usage-period-carryover",
+        "summer-energy-voucher-cooling",
+        "energy-voucher-household-size-amount",
+        "energy-voucher-pregnant-eligibility",
+        "energy-voucher-2026-multichild-expansion"
+      ],
+      "note": "실유입 상위 160 밖(0 = 미측정). 데이터랩 헤드 52.5, 잔액조회 10.1은 13개월 내내 평평(flat) — 상시 수요. rank-targets '에너지바우처 잔액 조회' 외부 웹 4건으로 가장 열린 자리, 전용 글 없음 → 첫 주 후보 #7. 여름(7월 피크 120)은 지났고 난방비는 landgrab-calendar T3."
+    },
+    {
+      "term": "월세 세액공제",
+      "aliases": ["월세환급금", "경정청구", "신청 대상", "기한", "국세환급금 통지서"],
+      "cluster": "월세환급",
+      "sisterCaution": "연말정산 절세 각도는 smartdatashop.kr·asiatop.co.kr, 임대·부동산 각도는 homedata.kr 몫. awoo는 '환급금 신청 대상·경정청구 기한' 지원금 각도만(첫 주 후보 #8 조건).",
+      "evidence": {
+        "inbound7": 51,
+        "inboundQueries": ["국세환급금 통지서 51 (월세 전용 아님, 환급 축 인접)"],
+        "datalab": {
+          "rel30": 9.56,
+          "recent7": 8.2,
+          "trend": 0.82,
+          "aliases": {
+            "월세환급금": 23.15,
+            "경정청구": 9.32
+          }
+        },
+        "season": {
+          "연말정산 월세 세액공제": {
+            "peakMonth": 1,
+            "peakRelative": 76.21
+          }
+        }
+      },
+      "existingSlugs": ["youth-monthly-rent-tax-credit-expansion"],
+      "note": "월세환급금 23.2가 헤드보다 크다 — 사용자 언어 선두. rank-targets 미등록, SERP openSlots 3(약한 문서 3, 계획 §6 #8). 09-09 초안(_drafts)이 있으니 신규 대신 초안 완성 여부를 먼저 판단. 1월 피크(76)는 landgrab-calendar 연말정산 6건 중 하나로 별도.",
+      "existingDrafts": ["monthly-rent-refund-lookup"]
+    },
+    {
+      "term": "국가장학금",
+      "aliases": ["서류", "2차", "서류제출 안 하면", "소득구간", "지급일"],
+      "cluster": "국가장학금",
+      "sisterCaution": "대학생·사회초년생 각도는 asiatop.co.kr과 겹칠 수 있고, 학자금 대출 각도는 자매 몫(대출 금지). awoo는 지급·서류·구간 각도만.",
+      "evidence": {
+        "inbound7": 0,
+        "inboundQueries": [],
+        "datalab": {
+          "rel30": 112.48,
+          "recent7": 71.34,
+          "trend": 0.57,
+          "aliases": {
+            "국가장학금 2차": 26.18
+          }
+        }
+      },
+      "existingSlugs": ["national-scholarship-2nd-semester", "national-scholarship-2nd-round"],
+      "note": "데이터랩 112로 실업급여보다 큰데 실유입 상위 160에 0 — 헤드값과 유입이 어긋나는 대표 사례(레이더 score 66). 2차 신청 창(8~9월) 지나며 trend 0.57 하락. '서류제출 안 하면' 축이 rank-targets에 외부 웹 1건·url null로 등록돼 있어 다음 창(11월 1차 신청) 전 후보."
+    },
+    {
+      "term": "청년월세",
+      "aliases": ["주거급여 중복", "선정자", "선정 발표", "2027 주거급여", "월세지원 사업"],
+      "cluster": "청년월세",
+      "sisterCaution": "청약·전세대출 각도는 homedata.kr·asiatop.co.kr 몫(청약·대출 금지). awoo는 선정·중복 수급·주거급여 연계 각도만.",
+      "evidence": {
+        "inbound7": 27,
+        "inboundQueries": ["2027 주거급여 14", "2027년 주거급여 금액 13"],
+        "datalab": {
+          "rel30": 2.08,
+          "recent7": 2.33,
+          "trend": 1.17,
+          "aliases": {
+            "청년월세 주거급여 중복": null
+          }
+        }
+      },
+      "existingSlugs": [
+        "youth-monthly-rent-support",
+        "housing-benefit-rent-eligibility",
+        "youth-rent-support-selection-announcement"
+      ],
+      "note": "헤드 2.08로 작지만 레이더 '청년월세지원사업' born 신호(09-08 신생, score 30→6). 09-10 선정자 발표 글이 선정 축 잠금. '주거급여 중복'은 rank-targets 외부 웹 3건·url null인데 데이터랩 무응답 — 측정 불가이지 수요 0이 아니다(완주 사례). 2027 주거급여 금액 축(27)은 대응 글 미확인."
+    },
+    {
+      "term": "노란우산공제",
+      "aliases": ["중도해지", "소득공제 한도", "해지 세금", "가입 조건", "폐업 공제금"],
+      "cluster": "노란우산공제",
+      "sisterCaution": "사업자 절세·비즈니스 각도는 bizdata.kr 몫. awoo는 중도해지 불이익·공제금 수령 조건 각도만.",
+      "evidence": {
+        "inbound7": 0,
+        "inboundQueries": [],
+        "datalab": {
+          "rel30": 53.6,
+          "recent7": 47.14,
+          "trend": 0.85,
+          "aliases": {
+            "노란우산 중도해지": 0.12
+          }
+        }
+      },
+      "existingSlugs": [
+        "yellow-umbrella-deduction-limit",
+        "yellow-umbrella-termination-other-income-tax"
+      ],
+      "note": "헤드 53.6이지만 실유입 상위 160에 0. 소득공제 한도(08-29)·중도해지 세금(09-09) 두 축 잠금. rank-targets '노란우산공제 소득공제 한도' 등록(externalSeen 미측정). 남은 축은 폐업 공제금 수령뿐 — 자매(bizdata) 각도와 가장 가까우니 발행 전 자매 실측 필수."
+    },
+    {
+      "term": "본인부담상한액",
+      "aliases": ["초과금 환급", "환급 신청", "2026 상한액 표", "사후환급"],
+      "cluster": "본인부담상한액",
+      "sisterCaution": "역할표에 직접 겹치는 자매 없음(의료비 가족 각도 familydata.kr만 거리 유지).",
+      "evidence": {
+        "inbound7": 0,
+        "inboundQueries": [],
+        "datalab": {
+          "rel30": 2.43,
+          "recent7": 5.44,
+          "trend": 3.71
+        }
+      },
+      "existingSlugs": ["medical-copay-cap-refund", "near-poor-medical-copay-reduction"],
+      "note": "recent7 5.44·trend 3.71 — 30일 중 최근 7일이 3.7배(8월 말 사후환급 통지 시즌). 08-31 글이 환급 축 잠금, rank-targets 등록. 레이더 '상한제환급금' 09-09 신생. 신규보다 08-31 글 갱신(통지 일정·신청 창구)이 먼저."
+    },
+    {
+      "term": "2027 예산안",
+      "aliases": [
+        "복지 예산",
+        "지원금 신설",
+        "육아휴직 급여 인상",
+        "기초연금 예산",
+        "예산안 국회 통과"
+      ],
+      "cluster": "예산안2027",
+      "mode": "update-only",
+      "sisterCaution": "정책·통계 요약 각도는 smartdatashop.kr(메인) 몫. awoo는 '내가 받는 지원금이 얼마 바뀌나' 항목별 각도만.",
+      "evidence": {
+        "inbound7": 0,
+        "inboundQueries": [],
+        "datalab": {
+          "rel30": 1.77,
+          "recent7": 1.11,
+          "trend": 0.56,
+          "window": 28
+        }
+      },
+      "existingSlugs": [],
+      "note": "지금은 1.77로 작고 하락 중(trend 0.56). 대응 글 0. 국회 심사(11월)·통과(12/2 법정 기한) 때 다시 뜨는 축이라 T2보다 landgrab 성격 — 단독 롤업은 하지 말고 각 제도 글(기초연금·중위소득·육아휴직)의 갱신 트랙으로 흡수. 실유입 근거 없음(확인 불가)."
+    }
+  ]
+}

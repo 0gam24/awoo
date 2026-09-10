@@ -74,6 +74,9 @@ function mergeRadar(base, ours) {
   if (latest.niche) out.niche = latest.niche;
   if (latest.apiUsage) out.apiUsage = latest.apiUsage;
   if (latest.updateCandidates) out.updateCandidates = latest.updateCandidates;
+  // 2026-09-10 파이프라인 입력 — 최신 회차 것이 아니면 후보가 옛 것으로 되돌아간다
+  if (latest.candidates) out.candidates = latest.candidates;
+  if (latest.analytics) out.analytics = latest.analytics;
 
   // 용량 가드 — 오래된 스냅샷부터 버린다 (keyword-radar.mjs와 같은 규칙)
   while (JSON.stringify(out).length > SNAPSHOT_SIZE_GUARD && out.snapshots.length > 4) {

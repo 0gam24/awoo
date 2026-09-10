@@ -1,0 +1,108 @@
+{
+  "_readme": [
+    "T3 '선점 캘린더' 트랙의 입력. scripts/keyword-pipeline.mjs가 writeBy가 날짜(YYYY-MM-DD)이고 오늘 날짜 ≥ writeBy인 항목만 후보로 올린다(계획 docs/ops/KEYWORD-PLAN-2026-09-10.md §3 T3·§8-12). 9월은 0건, 10~12월 주 0~1건이 배분이다.",
+    "peakMonth·peakRelative는 scripts/keyword-volume.mjs --season 2026-09-10 실측(13개월 월별, 실업급여 30일 평균=100 눈금). peakRelative는 '연중 최고 달의 값'이라 지금 값(relative)과 다르다.",
+    "주의: --season의 monthsToPeak는 진행 중 물결(inProgressWave=true, 최근 7일 일별값이 30일 평균의 1.5배 이상)에는 쓰지 마라. 민생·명절 지원금 물결은 가결→개시 1~5주짜리 트리거라 '피크 N개월 뒤'로 읽으면 진행 중 물결을 놓친다(계획 §1 표 6). 그래서 설 2027 항목은 writeBy가 null이고 발동 조건을 trigger 필드에 문장으로 둔다 — 가결·공고가 확인되면 T1(검색량 문턱 면제)으로 이관한다.",
+    "writeBy = YYYY-MM-DD 문자열 또는 null. null인 항목은 날짜로 후보를 만들지 않는다(status·trigger·watchFrom으로 분기). trigger(선택) = 날짜 대신 발동 조건 문장. watchFrom(선택) = 감시 시작일. 파이프라인은 `new Date(writeBy)`를 null에 적용하지 말 것.",
+    "gate = peak ≥3 + openSlots ≥2(naver-rank-check --mode=scout) + 자매 0(docs/ops/sister-sites.json). 연말정산 6건은 여기에 운영자 승인 + 자매 미러 확인이 추가된다 — 연말정산 절세 각도는 자매(smartdatashop.kr·asiatop.co.kr·homedata.kr) 몫이고 awoo는 환급·지원금·수급 각도만 쓴다.",
+    "status 값: watch(감시 중, 아직 안 씀) · scheduled(writeBy에 후보 보고) · hold(게이트 미달 — 조건 충족 시만) · migrated(다른 트랙으로 이관 완료). 발행은 파이프라인이 하지 않는다 — 보고만 하고 운영자가 수동 지시한다(운영자 결정 2026-09-10 #12).",
+    "T3는 민생 물결 창(T1)의 여력을 빼지 않는다. 창 안 주간에는 T3 후보를 보고서 하단에만 싣고 점수 경쟁에 넣지 않는다."
+  ],
+  "updated": "2026-09-10",
+  "benchmark": "실업급여",
+  "items": [
+    {
+      "topic": "설 2027 지자체 지원금",
+      "track": "T3",
+      "peakMonth": 2,
+      "peakRelative": 33.3,
+      "peakDate": "2027-02-07",
+      "watchFrom": "2026-11-01",
+      "writeBy": null,
+      "trigger": "가결 트리거 — 지자체별 조례·추경 가결 또는 공고 확인 시 즉시(개시 D-7 안). 날짜 캘린더 아님",
+      "gate": "가결·공고 확인(WebSearch 일 1회 + 언론 롤업 표 diff 주 2회 + 강릉 bill.do curl) → T1 이관. 검색량 문턱 면제, SERP 접미형 1 + 변형 1(본청 ≤1·언론 ≤3·자사 미노출), cluster-intents 지자체×패밀리 잠금(추석 A글이 있는 지자체는 설 A가 별도 패밀리인지 coreFacts 3필드로 판정)",
+      "status": "watch",
+      "note": "'설 민생지원금' 2026년 2월 피크 33.3(데이터 6개월뿐 — 2026 설 한 번 관측), '명절 지원금' 2월 25.9(12개월), '설 명절 지원금' 2월 15.0, '설 지원금' 1월 3.3. 추석 물결이 7/30 롤업 1건 1,746·지역 접미형 61%였으니 설도 같은 구조(롤업 1건 + 지자체×패밀리)로 간다. 롤업은 '설' 어휘 축 × 패밀리당 1건, 피크 3주 전(2027-01-17 전후) — 두 번째 롤업 금지(추석 08-07·08-21·08-27 귀속 0 사례). 설 날짜 2027-02-07은 운영자 지정값."
+    },
+    {
+      "topic": "연말정산 월세 세액공제",
+      "track": "T3",
+      "peakMonth": 1,
+      "peakRelative": 76.21,
+      "writeBy": "2026-11-05",
+      "gate": "peak ≥3 ✓(76.2) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인(smartdatashop·asiatop·homedata 절세 각도) — awoo 각도는 '환급금 받는 대상·경정청구 5년 기한'",
+      "status": "scheduled",
+      "note": "연말정산 6건 중 최대(1월 76.2, 지금 8.0, 작년 동월 대비 0.01 = 완전 비수기). 08-04 청년 월세 세액공제 확대 글이 있으니 신규 전 cluster-intents로 패밀리 잠금 확인. big-keywords '월세 세액공제'의 9/9 초안(_drafts/monthly-rent-refund-lookup)과 축이 겹치면 초안 쪽을 먼저 완성."
+    },
+    {
+      "topic": "연말정산 부양가족",
+      "track": "T3",
+      "peakMonth": 1,
+      "peakRelative": 16.51,
+      "writeBy": "2026-11-15",
+      "gate": "peak ≥3 ✓(16.5) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인(familydata.kr 인적공제 각도) — awoo 각도는 '기초연금·장애인·수급자 부양가족 등록 가능 여부'",
+      "status": "scheduled",
+      "note": "1월 16.5, 지금 1.8. 인적공제 절세 각도는 familydata 몫이라 자매 미러가 있으면 보류."
+    },
+    {
+      "topic": "연말정산 의료비",
+      "track": "T3",
+      "peakMonth": 1,
+      "peakRelative": 14.08,
+      "writeBy": "2026-11-25",
+      "gate": "peak ≥3 ✓(14.1) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인 — awoo 각도는 '본인부담상한액 환급받은 의료비는 공제 제외' 같은 지원금 교차 항목",
+      "status": "scheduled",
+      "note": "1월 14.1, 지금 1.5. 08-31 본인부담상한액 환급 글과 교차 링크 가능(내부링크 효과는 1.05 PV/visit라 발행 순서 근거로는 안 씀)."
+    },
+    {
+      "topic": "연말정산 연금저축",
+      "track": "T3",
+      "peakMonth": 1,
+      "peakRelative": 7.49,
+      "writeBy": "2026-12-05",
+      "gate": "peak ≥3 ✓(7.5) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인(retiredata.kr·iknowhowinfo.com 연금·투자 각도) — 자매와 가장 가까운 축이라 미러 있으면 보류",
+      "status": "scheduled",
+      "note": "1월 7.5, 지금 1.9. 절세 각도가 본질이라 awoo 각도(수급자·저소득 세액공제율 우대)가 얇으면 발행 안 함."
+    },
+    {
+      "topic": "중도퇴사 연말정산",
+      "track": "T3",
+      "peakMonth": 1,
+      "peakRelative": 2.86,
+      "writeBy": "2026-12-12",
+      "gate": "peak ≥3 ✗(2.86 — 미달) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인(asiatop 사회초년생 퇴사 각도). 재측정에서 ≥3 나올 때만",
+      "status": "hold",
+      "note": "1월 2.86으로 T3 문턱(3) 미달. 실업급여 글 18건과 인접(퇴사 후 실업급여 수급자의 연말정산)해서 각도는 awoo 고유이나 검색량이 안 나온다. 12월 초 --season 재측정 후 판단."
+    },
+    {
+      "topic": "연말정산 경정청구",
+      "track": "T3",
+      "peakMonth": 5,
+      "peakRelative": 12.9,
+      "writeBy": "2026-12-20",
+      "gate": "peak ≥3 ✓(12.9) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인 — awoo 각도는 '놓친 월세·의료비 환급을 5년 안에 돌려받는 절차'",
+      "status": "scheduled",
+      "note": "피크가 1월이 아니라 5월(12.9, 종소세 기간)이고 지금 2.8. 12/20 작성은 1월 연말정산 트래픽의 '이미 제출했는데 빠뜨렸다' 수요를 받기 위한 것이며 5월에 갱신 트랙으로 한 번 더 손본다. big-keywords '월세 세액공제' aliases의 경정청구(9.32)와 축이 겹치므로 둘 중 하나만."
+    },
+    {
+      "topic": "에너지바우처 잔액조회",
+      "track": "T3",
+      "peakMonth": 1,
+      "peakRelative": 10,
+      "writeBy": null,
+      "gate": "T2 게이트(recent7 ≥1.5 ✓ 10.66 → 패밀리 잠금 → openSlots ≥2 ✓ 외부 웹 4 + 자매 0)",
+      "status": "migrated",
+      "note": "상시 — T2로 이관 완료(첫 주 후보 #7). 13개월 flat=true(1월 10.0 / 저점 3.0) — 계절 선점 대상이 아니라 상시 수요라 캘린더가 아니라 T2에서 다룬다. rank-targets '에너지바우처 잔액 조회' 외부 웹 4건·전용 글 없음. 9/30 이후 동절기 이월 각도(계획 §6 #7). 여기 남긴 이유는 T3 후보 생성기가 같은 주제를 다시 만들지 않게 하려는 것."
+    },
+    {
+      "topic": "난방비 지원",
+      "track": "T3",
+      "peakMonth": 11,
+      "peakRelative": 14.83,
+      "writeBy": "2026-10-15",
+      "gate": "peak ≥3 ✓(14.8) + openSlots ≥2 + 자매 0. 민생 물결 창 안 주간이면 T1 여력을 빼지 않고 창 밖 주간(또는 창 안 T2 주 1~2건 한도 안)에서만 1건",
+      "status": "scheduled",
+      "note": "11월 피크 14.83 실측(계획 §8-12 사양의 12.5와 다름 — 계획 값의 측정 시점·눈금 확인 불가, 여기는 2026-09-10 실측을 적는다). 지금 2.4, 작년 동월 대비 0.11, monthsToPeak 2 = 선점 적기. 06-26 저소득 에너지효율·난방 글이 있으니 패밀리 잠금 확인. 에너지바우처 동절기 사용기간(07-01 글)과 겹치지 않게 '지자체·한전·가스 난방비 지원 대상' 각도로."
+    }
+  ]
+}
