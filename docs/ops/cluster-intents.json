@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 253,
-    "entryCount": 53,
-    "regionCount": 40,
+    "scannedPosts": 256,
+    "entryCount": 56,
+    "regionCount": 42,
     "regions": [
       "강릉",
       "강북구",
@@ -18,6 +18,7 @@
       "고성",
       "고창",
       "고흥",
+      "광양",
       "김해",
       "나주",
       "당진",
@@ -34,6 +35,7 @@
       "영동",
       "영천",
       "완주",
+      "울진",
       "의령",
       "의성",
       "장성",
@@ -50,11 +52,11 @@
     ],
     "families": {
       "A": 47,
-      "B": 0,
-      "V": 6
+      "B": 1,
+      "V": 8
     },
     "clusters": {
-      "minsaeng": 33,
+      "minsaeng": 36,
       "other": 20
     },
     "rollups": 8,
@@ -966,6 +968,55 @@
       "pairWith": "naju-livelihood-recovery-grant-2026-08-07",
       "pairNote": "A/spoke(5부제 요일표). D-1·D+1 재측정",
       "spoke": true
+    },
+    {
+      "region": ["광양"],
+      "family": "V",
+      "slug": "gwangyang-grant-300k-chuseok-postponed-2026-09-10",
+      "path": "src/data/issues/2026-09-10/gwangyang-grant-300k-chuseok-postponed-2026-09-10.json",
+      "date": "2026-09-10",
+      "targetQuery": "광양 민생지원금 30만원 지급하나요",
+      "coreFacts": {
+        "who": "광양시민 전원 지급안, 기준일 미정",
+        "amount": "지급 무산·미확정, 1인 30만원 안",
+        "deadline": "미정, 12월 시민보고회에서 재공개"
+      },
+      "coreFactsKeys": ["amount=30만원"],
+      "cluster": "minsaeng",
+      "rollup": false
+    },
+    {
+      "region": ["울진"],
+      "family": "V",
+      "slug": "uljin-grant-300k-rejected-resubmission-2026-09-10",
+      "path": "src/data/issues/2026-09-10/uljin-grant-300k-rejected-resubmission-2026-09-10.json",
+      "date": "2026-09-10",
+      "targetQuery": "울진군 민생안정지원금 30만원 부결",
+      "coreFacts": {
+        "who": "울진군민 전원과 결혼이민자·영주권자, 안 기준",
+        "amount": "부결·미확정, 1인 30만원 울진사랑카드 안",
+        "deadline": "지급일 없음, 재상정 일정 미정 9월 10일 기준"
+      },
+      "coreFactsKeys": ["amount=30만원", "deadline=2026-09-10"],
+      "cluster": "minsaeng",
+      "rollup": false,
+      "regionContext": ["경북"]
+    },
+    {
+      "region": ["완주"],
+      "family": "B",
+      "slug": "wanju-grant-proxy-application-after-sep14",
+      "path": "src/data/issues/2026-09-10/wanju-grant-proxy-application-after-sep14-2026-09-10.json",
+      "date": "2026-09-10",
+      "targetQuery": "완주군 민생안정지원금 위임장 대리신청",
+      "coreFacts": {
+        "who": "세대주·세대원·직계존비속, 위임장 지참 대리인",
+        "amount": "1인 30만원 무기명 선불카드",
+        "deadline": "신청 2026-10-30, 사용 2026-12-31"
+      },
+      "coreFactsKeys": ["amount=30만원", "deadline=2026-10-30"],
+      "cluster": "minsaeng",
+      "rollup": false
     }
   ]
 }
