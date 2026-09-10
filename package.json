@@ -63,7 +63,8 @@
     "intents:check": "node scripts/build-cluster-intents.mjs --check",
     "analytics:ingest": "node scripts/ingest-analytics.mjs",
     "pipeline": "node scripts/keyword-pipeline.mjs",
-    "pipeline:serp": "node scripts/keyword-pipeline.mjs --serp"
+    "pipeline:serp": "node scripts/keyword-pipeline.mjs --serp",
+    "ops:dashboard": "node scripts/ops-dashboard.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "13.2.2",
