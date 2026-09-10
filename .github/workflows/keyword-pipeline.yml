@@ -1,0 +1,99 @@
+name: Keyword pipeline (daily candidates)
+
+# 매일 후보(신규·갱신)를 점수·근거와 함께 큐에 적재하고 운영자 보고문을 만든다.
+# 발행·PR 생성은 하지 않는다 — 운영자가 DAILY-KEYWORDS.md를 읽고 그날그날 수동 지시한다(결정 2026-09-10 #12).
+# 0400 자동 발행(auto-publish-0400.yml)은 그대로 매일 1건 나간다(결정 #11) — 이 워크플로는 그것을 대체하지 않는다.
+# KST 09:55 — 순위 측정(naver-rank.yml 09:40)이 naver-ranks.json을 갱신한 뒤. 레이더 06:17 회차도 반영된다.
+# 산출 docs/ops/pipeline-queue.json·DAILY-KEYWORDS.md는 사이트 미사용 운영 데이터 → build/deploy 없음.
+on:
+  schedule:
+    - cron: '55 0 * * *'
+  workflow_dispatch:
+    inputs:
+      serp:
+        description: 'SERP 실측(naver-rank-check --mode=scout, 일 25건) 사용 여부'
+        required: false
+        default: 'true'
+
+concurrency:
+  group: keyword-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  pipeline:
+    name: Build daily keyword candidates
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      # ref 없이 두면 실행이 "예약된 시점"의 커밋이 고정된다. 앞선 회차(순위 측정)가 끝나기를
+      # 기다렸다가 시작한 실행은 그 회차의 push를 못 보고 옛 naver-ranks 위에 작업하게 된다.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Run pipeline
+        env:
+          # 지금은 파이프라인이 네이버 API를 직접 부르지 않는다(SERP 정찰은 HTML 실측). 레이더·볼륨 호출을
+          # 나중에 붙일 때를 위해 naver-rank.yml·keyword-radar.yml과 같은 이름으로 넘긴다.
+          NCP_API_KEY_ID: ${{ secrets.NCP_API_KEY_ID }}
+          NCP_API_KEY: ${{ secrets.NCP_API_KEY }}
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          SERP_FLAG: ${{ github.event.inputs.serp || 'true' }}
+        run: |
+          if [ "$SERP_FLAG" = "false" ]; then
+            node scripts/keyword-pipeline.mjs
+          else
+            node scripts/keyword-pipeline.mjs --serp
+          fi
+
+      - name: Check for changes
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No queue change — skipping commit"
+          fi
+
+      - name: Commit changes
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "awoo-bot"
+          git config user.email "noreply@awoo.or.kr"
+          MSG="chore(pipeline): $(TZ=Asia/Seoul date +'%m/%d') 키워드 후보 보고
+
+          [skip ci]"
+          git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md
+          git commit -m "$MSG"
+
+          # 큐·보고문은 "오늘 상태"라 매번 통째로 다시 만든다 — 시계열 병합(merge-data-store)이 필요 없다.
+          # 원격이 앞서 있으면 rebase로 우리 커밋을 얹고, 이 두 파일이 충돌하면 우리 것을 택한다.
+          for i in 1 2 3; do
+            git fetch origin main
+            if git merge-base --is-ancestor origin/main HEAD; then
+              if git push origin main; then exit 0; fi
+            fi
+            echo "원격이 앞서 있다 — rebase 후 재시도 ($i/3)"
+            # rebase에서 -X theirs = 재생(replay)되는 우리 커밋 쪽
+            if ! git rebase -X theirs origin/main; then
+              git checkout --theirs docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md || true
+              git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md
+              GIT_EDITOR=true git rebase --continue || { git rebase --abort; exit 1; }
+            fi
+          done
+          echo "::error::3회 시도 후에도 push 실패"
+          exit 1
