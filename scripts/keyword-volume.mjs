@@ -221,7 +221,16 @@ async function main() {
         row.recentRelative = Math.round((recent7 / base) * 10000) / 100;
         row.trend = prior > 0 ? Math.round((recent7 / prior) * 100) / 100 : null;
         row.zeroDays = vals.filter((v) => v === 0).length;
-        row.days = vals.length;
+        // 2026-09-10 정정: 예전 `days = vals.length`는 30일 창 길이(항상 29)라 "days<30 = 신생"
+        // 판정이 전부 참이 됐다. days는 최초 관측(첫 0 초과 점) 이후 지난 일수로 바꾼다.
+        const firstNonZero = vals.findIndex((v) => v > 0);
+        row.window = vals.length;
+        row.firstNonZeroIndex = firstNonZero;
+        row.days = firstNonZero < 0 ? 0 : vals.length - firstNonZero;
+        // 신생(born): 창 안에서 방금 생긴 키워드. '추석지원금 지역별 지급 대상'(5일)·'김해 지원금 10만원 신청'(19일)이
+        // 잡히고 '4차 민생지원금'·'김해 민생지원금' 같은 상시 헤드는 탈락하는 정의(2026-09-10 실측 15건).
+        row.born =
+          (row.zeroDays >= 8 || firstNonZero >= 7 || row.days <= 21) && row.recentRelative >= 3;
       }
       rows.push(row);
     }
@@ -291,13 +300,21 @@ async function main() {
     }
     const trend = r.trend == null ? '  -  ' : `×${String(r.trend).padEnd(4)}`;
     console.log(
-      `  ${String(r.relative).padStart(6)}  ${String(r.recentRelative).padStart(6)}  ${trend}  ${String(r.zeroDays).padStart(3)}/${r.days}  ${r.term}`,
+      `  ${String(r.relative).padStart(6)}  ${String(r.recentRelative).padStart(6)}  ${trend}  ${String(r.zeroDays).padStart(3)}/${String(r.days).padStart(2)}${r.born ? ' ★신생' : '      '}  ${r.term}`,
     );
   }
   if (failed) console.log(`\n[volume] ${failed}건 측정 실패`);
   console.log('');
   console.log('  해석: 0인 날이 많으면 검색이 산발적이라 트래픽이 안 쌓인다.');
-  console.log('        상대량이 1 미만이면 기준 키워드의 1% 미만 — 1위를 해도 방문자가 거의 없다.');
+  console.log(
+    '        상대량이 1 미만이면 기준 키워드의 1% 미만 — 전국 키워드는 1위를 해도 방문자가 거의 없다.',
+  );
+  console.log(
+    '        단, 지역×지원금 쿼리는 예외다: 완주군 민생안정지원금 0.51이 주 512 유입(2026-09-10 실측).',
+  );
+  console.log(
+    '        지역 클러스터에서 이 값은 게이트가 아니라 정렬용이다(docs/ops/KEYWORD-PLAN-2026-09-10.md §2).',
+  );
 }
 
 main().catch((e) => {
