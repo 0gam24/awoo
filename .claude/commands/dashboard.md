@@ -17,7 +17,7 @@ description: 운영 대시보드 — 최신 데이터를 받아 다시 뽑고 �
    npm run ops:dashboard
    ```
    출력 마지막 줄(크기·섹션 수·기준일·생성 시각)을 확인한다. 기준일이 오늘(KST)이 아니면 실패로 본다.
-3. **오른쪽 창에 띄우기.** `mcp__Claude_Browser__preview_start`를 `name: "ops-dashboard"`로 호출한다(이미 켜져 있으면 재사용된다). 그 다음 `navigate`로 `http://localhost:4322/dashboard.html`을 연다. 이미 그 주소가 열려 있으면 같은 주소로 다시 navigate해 새로고침한다.
+3. **오른쪽 창에 띄우기.** `mcp__Claude_Browser__preview_start`를 `name: "ops-dashboard"`로 호출한다(이미 켜져 있으면 재사용된다). 그 다음 `tabs_context`로 탭 id를 확인하고 `navigate`로 `http://localhost:4322/dashboard.html?v=<생성시각>`을 연다. **쿼리 문자열을 매번 바꿔라** — python http.server는 캐시 헤더가 없어 같은 주소로 다시 열면 어제 파일이 그대로 보인다(실측: 제목이 전날 날짜로 남음).
 4. **확인.** `read_page`나 `find`로 "오늘의 결론" 제목이 있는지 확인한다. 스크린샷은 필요할 때만.
 5. **보고.** 채팅에는 대시보드의 "오늘의 결론" 줄들만 그대로 옮기고, 순위판·후보는 "오른쪽 창 참고"로 끝낸다. 숫자를 다시 나열하지 않는다.
 

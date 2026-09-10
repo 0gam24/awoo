@@ -458,12 +458,18 @@ const conclusions = [];
     .sort((a, b) => b.inbound7d - a.inbound7d);
   for (const r of nullWithInbound.slice(0, 1)) {
     const region = r.query.split(/\s+/)[0].replace(/(군|시|구|도)$/, '');
-    const hit = ciToday.find((e) =>
-      ciRegionOf(e).some((g) => region.startsWith(g) || g.startsWith(region)),
-    );
+    // 오늘 편입만 보면 어제 낸 대응 글을 놓친다 — 최근 14일 안의 B(지급 후)·V 글까지 본다
+    const sameRegion = (e) =>
+      ciRegionOf(e).some((g) => region.startsWith(g) || g.startsWith(region));
+    const recentCut = addDays(TODAY, -14);
+    const hit =
+      ciToday.find(sameRegion) ??
+      ciEntries
+        .filter((e) => sameRegion(e) && e.family !== 'A' && (e.date ?? '') >= recentCut)
+        .sort((a, b) => (b.date ?? '').localeCompare(a.date ?? ''))[0];
     const tail = hit
-      ? `→ 오늘 ${esc(hit.family)}글 발행됨(${esc(hit.slug)})`
-      : '→ 오늘 대응 글 없음(cluster-intents 오늘 편입에 해당 지역 없음)';
+      ? `→ ${hit.date === TODAY ? '오늘' : esc(hit.date ?? '')} ${esc(hit.family)}글 발행됨(${esc(hit.slug)}) — 순위 재측정 대기`
+      : '→ 대응 글 없음(최근 14일 잠금 장부에 이 지역 B·V 글 없음) — 패밀리B 후보 검토';
     conclusions.push(
       `'${esc(r.query)}' 자사 미노출${r.wholeBlock ? '(블록 만석)' : ''}·주 ${num(r.inbound7d)} 유입 ${tail}`,
     );
