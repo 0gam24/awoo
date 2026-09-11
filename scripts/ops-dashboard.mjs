@@ -6,9 +6,11 @@
  * 이 스크립트는 리포 안의 운영 데이터를 읽어 `docs/ops/dashboard.html` 한 파일로 요약한다.
  * 공개 사이트와 무관하며(생성물은 .gitignore), 외부 리소스 0 · 인라인 CSS/JS만 · file:// 로 열린다.
  *
- * 화면 원칙(2026-09-11 개편): 한 열 · 필요한 것만 · 사람 말로. 원시 필드명은 화면에 쓰지 않는다.
- *   ① 오늘 할 일 → ② 새 키워드(신생·틈새) → ③ 오늘 쓸 글감 → ④ 순위 → ⑤ 트래픽
+ * 화면 원칙(2026-09-11 개편): 한 열 · 필요한 것만 · 사람 말로. 원시 필드명·slug는 화면에 쓰지 않는다.
+ *   ① 오늘 할 일(명령형 5줄) → ② 어떤 키워드·어떻게(A 새 글 / B 기존 글 손보기, 한 줄 4칸)
+ *   → ③ 오늘 쓸 글감(같은 한 줄 4칸, 근거는 접힘) → ④ 순위 → ⑤ 트래픽
  *   → ⑥ 갱신 필요 글 → ⑦ 다가오는 일정 → (접힘) 자동화·API·잠금 장부·읽는 법
+ *   색은 상태 배지에만 쓴다. 킥포인트: 할 일 · 어떤 키워드 · 어떻게 쓸지.
  *
  * 사용:
  *   node scripts/ops-dashboard.mjs                # docs/ops/dashboard.html 생성
@@ -159,8 +161,9 @@ function extLink(href, label) {
 function localLink(relPath, label) {
   return `<a href="${esc(fileHref(relPath))}" class="local">${esc(label ?? relPath)}</a>`;
 }
-function naverLink(query) {
-  return `<a class="nv" href="https://search.naver.com/search.naver?query=${encodeURIComponent(query)}" target="_blank" rel="noopener" title="네이버에서 열기">검색</a>`;
+/** 키워드 자체가 네이버 검색 링크다. 별도 '검색' 칩은 두지 않는다. */
+function qLink(query) {
+  return `<a class="q" href="https://search.naver.com/search.naver?query=${encodeURIComponent(query)}" target="_blank" rel="noopener" title="네이버에서 검색">${esc(query)}</a>`;
 }
 function badge(kind, text, title) {
   return `<span class="b b-${kind}"${title ? ` title="${esc(title)}"` : ''}>${esc(text)}</span>`;
@@ -208,6 +211,9 @@ const HUMAN = [
   [/coreFacts/g, '핵심 사실'],
   [/cluster-intents VETO/g, '잠금 장부 거부'],
   [/\bVETO\b/g, '거부'],
+  [/--check (\S+) PASS/g, '잠금 장부 $1 통과'],
+  [/--serp로/g, '실측으로'],
+  [/fact-checker/g, '사실 확인'],
   [/recent7/g, '최근 7일 검색지수'],
   [/rel30/g, '30일 상대검색량'],
   [/datalab/g, '데이터랩'],
@@ -231,6 +237,21 @@ function humanize(text) {
   for (const [re, rep] of HUMAN) t = t.replace(re, rep);
   return t;
 }
+/** 계획서·결정 번호 같은 내부 참조를 지운다. 뜻은 바꾸지 않는다. */
+function scrubRefs(text) {
+  return String(text ?? '')
+    .replace(/\s*\((?:계획|결정)[^)]*\)/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+/** 글 slug를 화면에 내지 않는다. 아는 글이면 제목 앞 20자, 모르면 '기존 글(월/일)'. */
+const SLUG_RE = /\b([a-z][a-z0-9]*(?:-[a-z0-9]+)+?)-(\d{4}-\d{2}-\d{2})\b/g;
+function deslug(text) {
+  return String(text ?? '').replace(SLUG_RE, (_m, short, date) => {
+    const p = postBySlug.get(short);
+    return p?.title ? `'${cut(p.title, 20)}'` : `기존 글(${date.slice(5, 7)}/${date.slice(8)})`;
+  });
+}
 function srcItem(relPath, when) {
   return `<li>${localLink(relPath)} <span>${esc(when ?? '없음')}</span></li>`;
 }
@@ -243,9 +264,6 @@ function card(id, title, sources, body, opts = {}) {
 }
 function empty(text = '데이터 없음') {
   return `<p class="empty">${esc(text)}</p>`;
-}
-function kv(label, valueHtml) {
-  return `<span class="kv"><i>${esc(label)}</i>${valueHtml}</span>`;
 }
 
 // ───────────────────────── 데이터 적재 ─────────────────────────
@@ -465,25 +483,23 @@ function famsOf(entries) {
 const norm = (s) => String(s ?? '').replace(/\s+/g, '');
 
 const todayPosts = posts.filter((p) => p.date === TODAY);
-const publishedTodayQueries = new Set(
-  [...todayPosts.map((p) => p.targetQuery), ...ciToday.map((e) => e.targetQuery)].filter(Boolean),
-);
-const isPublishedToday = (i) =>
-  publishedTodayQueries.has(i.query) || publishedTodayQueries.has(i.serp?.query);
-const ranksUpdatedMs = ranks.ok && ranks.data?.updatedAt ? Date.parse(ranks.data.updatedAt) : 0;
-function measuredState(p) {
-  if (!p?.targetQuery) return { measured: false, why: '타깃 쿼리 없음' };
-  const e = byQuery[p.targetQuery];
-  if (!e) return { measured: false, why: '순위 추적 미등록' };
-  const pubMs = p.publishedAt ? Date.parse(p.publishedAt) : 0;
-  if (pubMs && ranksUpdatedMs && pubMs > ranksUpdatedMs)
-    return { measured: false, why: '발행 후 아직 측정 전', rank: e.latest?.rank ?? null };
-  return {
-    measured: true,
-    rank: e.latest?.rank ?? null,
-    wholeBlock: e.latest?.aboveIsWholeBlock === true,
-  };
-}
+// 발행된 글의 타깃 쿼리(날짜 무관). 어제 낸 글이 오늘도 "지시 대기"로 보이면 안 된다(2026-09-11 운영자 혼동).
+const normQ = (v) => String(v ?? '').replace(/s+/g, '');
+const publishedByQuery = new Map();
+for (const p of posts) if (p.targetQuery) publishedByQuery.set(normQ(p.targetQuery), p);
+for (const e of ciEntries)
+  if (e.targetQuery && !publishedByQuery.has(normQ(e.targetQuery)))
+    publishedByQuery.set(normQ(e.targetQuery), { slug: e.slug, date: e.date, title: e.slug });
+const publishedPostFor = (i) => {
+  // serp.query는 근사 측정에서 빌려온 쿼리일 수 있어(다른 글의 타깃) 매칭에 쓰지 않는다
+  const keys = [i.query, ...String(i.variant ?? '').split(' / ')].filter(Boolean);
+  for (const k of keys) {
+    const hit = publishedByQuery.get(normQ(k));
+    if (hit) return hit;
+  }
+  return null;
+};
+const isPublishedToday = (i) => Boolean(publishedPostFor(i));
 const STATUS_KO = {
   proposed: '지시 대기',
   approved: '승인됨',
@@ -626,15 +642,13 @@ function slotHtml(s) {
 }
 function verdictOf(term) {
   const it = pqItems.find((i) => itemMatches(i, term));
-  if (it) {
-    const st = isPublishedToday(it) ? '오늘 발행됨' : statusKo(it.status);
-    return { kind: '후보', order: 0, text: `후보(${it.track}) · ${st}`, item: it };
-  }
+  if (it)
+    return { kind: '후보', order: 0, published: isPublishedToday(it), item: it, reason: null };
   const ex =
     pqExcluded.find((x) => x.query === term) ??
     pqExcluded.find((x) => String(x.reason ?? '').includes(`"${term}"`));
-  if (ex) return { kind: '제외', order: 2, text: `제외: ${cut(humanize(ex.reason), 60)}` };
-  return { kind: '미판정', order: 1, text: '미판정 — /naver로 실측 가능' };
+  if (ex) return { kind: '제외', order: 2, published: false, item: null, reason: ex.reason ?? '' };
+  return { kind: '미판정', order: 1, published: false, item: null, reason: null };
 }
 const kwMap = new Map();
 for (const n of nicheList) {
@@ -696,167 +710,131 @@ kwList.sort((a, b) => {
   if (ia !== ib) return ib - ia;
   return (b.opportunity ?? -1) - (a.opportunity ?? -1);
 });
+// A = 우리 글이 없는 새 자리(새 주제). B = 글은 있는데 이 검색 표현에서 4위 아래·미노출(새 표현).
+// 이미 1~3위인 표현은 손볼 게 없으니 B에서도 뺀다.
+const kwA = kwList.filter((k) => !k.ours.has);
+const kwB = kwList.filter(
+  (k) => k.ours.has && !(k.slot.measured && typeof k.slot.rank === 'number' && k.slot.rank <= 3),
+);
+const countKind = (list, kind) => list.filter((k) => k.verdict.kind === kind).length;
 const kwStats = {
-  total: kwList.length,
-  today: kwList.filter((k) => kstDate(k.flaggedAt) === TODAY).length,
-  born: kwList.filter((k) => k.born).length,
-  fromAnalytics: kwList.filter((k) => k.fromAnalytics).length,
-  usable: kwList.filter(
-    (k) =>
-      k.verdict.kind !== '제외' && k.slot.measured && k.slot.verdict && k.slot.open && !k.ours.has,
-  ),
-  unjudged: kwList.filter((k) => k.verdict.kind === '미판정').length,
-  byVerdict: kwList.reduce((m, k) => {
-    m[k.verdict.kind] = (m[k.verdict.kind] ?? 0) + 1;
-    return m;
-  }, {}),
+  aToday: kwA.filter((k) => kstDate(k.flaggedAt) === TODAY).length,
+  aReady: countKind(kwA, '후보'),
+  aWait: countKind(kwA, '미판정'),
+  bReady: countKind(kwB, '후보'),
 };
-function whyText(k) {
-  const parts = [];
-  if (k.born) parts.push(`신생 ${k.days !== null ? `${num(k.days)}일` : ''}`.trim());
-  else if (k.stage === 'new') parts.push(`새로 뜸${k.age !== null ? `(${num(k.age)}일차)` : ''}`);
-  else if (k.stage === 'rising')
-    parts.push(`상승 중${k.age !== null ? `(${num(k.age)}일차)` : ''}`);
-  if (k.kin !== null) parts.push(`질문 ${num(k.kin)}`);
-  if (k.blogTotal !== null) parts.push(`블로그 ${num(k.blogTotal)}건`);
-  if (k.inbound7d !== null) parts.push(`실유입 ${num(k.inbound7d)}/주`);
-  if (k.opportunity !== null) parts.push(`기회도 ${num(k.opportunity)}`);
-  return parts.join(' · ') || '신호 없음';
+const pipelineCron = crons.find((c) => c.file === 'keyword-pipeline.yml')?.crons[0];
+const pipelineNextKst = pipelineCron ? nextRunKst(pipelineCron) : null;
+/** 신호는 있는 것만 최대 2개. B는 이 표현에서의 우리 순위가 첫 신호. */
+function signalsOf(k, box) {
+  const s = [];
+  if (box === 'B') {
+    if (!k.slot.measured) s.push('순위 미측정');
+    else if (k.slot.rank === null) s.push('미노출');
+    else s.push(`우리 ${k.slot.rank}위`);
+  }
+  if (k.inbound7d !== null) s.push(`유입 ${num(k.inbound7d)}/주`);
+  if (k.born) s.push(k.days !== null ? `신생 ${num(k.days)}일` : '신생');
+  else if (k.stage === 'new') s.push('새로 뜸');
+  else if (k.stage === 'rising') s.push('상승 중');
+  if (k.kin !== null) s.push(`질문 ${num(k.kin)}`);
+  return s.slice(0, 2);
 }
-function oursHtml(o) {
-  if (!o.has) return '<span class="none">없음</span>';
-  const label = `${shortSlug(o.slug)}${o.fams ? ` (${o.fams})` : ''}`;
-  return `있음: ${extLink(postUrl(o.slug), label)}${o.count > 1 ? ` <span class="muted">외 ${o.count - 1}</span>` : ''}`;
+/** '어떻게'는 규칙 문장 하나(≤28자). 판정·상자 조합으로만 정한다. */
+function howOf(k, box) {
+  const v = k.verdict;
+  if (v.published) return '발행됨 · 순위 확인';
+  if (v.kind === '후보' && v.item?.track === '갱신') return '갱신 큐에 있음 · 사실만 정정';
+  if (box === 'A') {
+    if (v.kind === '후보') return '새 글. 제목 맨 앞에 이 표현';
+    if (v.kind === '미판정')
+      return pipelineNextKst ? `실측 후 결정(${pipelineNextKst} 자동)` : '실측 후 결정';
+    return `보류: ${cut(deslug(humanize(scrubRefs(v.reason))), 18)}`;
+  }
+  if (v.kind === '후보') return `다른 의도 새 글(패밀리 ${v.item?.family ?? 'B'})`;
+  if (v.kind === '미판정') return '실측 후: 같은 의도면 갱신, 다르면 새 글';
+  return '잠김: 갱신만';
 }
-function kwRow(k) {
-  const vk = k.verdict.kind === '후보' ? 'good' : k.verdict.kind === '제외' ? 'none' : 'warn';
-  return `<div class="row"><div class="row-top"><b class="term">${esc(k.term)}</b> ${naverLink(k.term)}${k.regionPattern ? ' <span class="muted">지역형</span>' : ''}<span class="grow"></span>${badge(vk, k.verdict.kind)}</div><div class="row-why">${esc(whyText(k))}</div><div class="row-kv">${kv('우리 글', oursHtml(k.ours))}${kv('빈자리', slotHtml(k.slot))}${kv('판정', esc(k.verdict.text))}</div></div>`;
+function kwBadge(k) {
+  const v = k.verdict;
+  if (v.published) return badge('good', '오늘 발행됨');
+  if (v.kind === '후보') return badge('good', '지시 대기');
+  if (v.kind === '미판정') return badge('warn', '실측 필요');
+  return badge('none', '보류/잠김', v.reason ? deslug(humanize(v.reason)) : undefined);
+}
+function oursLink(o) {
+  const p = postBySlug.get(shortSlug(o.slug));
+  const label = p?.title ? cut(p.title, 20) : '우리 글';
+  return `<div class="ours">글: ${extLink(postUrl(o.slug), label)}${o.count > 1 ? ` <span class="muted">외 ${o.count - 1}</span>` : ''}</div>`;
+}
+function kwLine(k, box) {
+  return `<div class="ln"><div class="c1">${qLink(k.term)}${box === 'B' ? oursLink(k.ours) : ''}</div><div class="c2">${esc(signalsOf(k, box).join(' · ') || '신호 없음')}</div><div class="c3">${esc(howOf(k, box))}</div><div class="c4">${kwBadge(k)}</div></div>`;
 }
 
 // ───────────────────────── ① 오늘 할 일 ─────────────────────────
+// 순서 고정, 최대 5줄, 한 줄은 명령형 40자 이내. 해당 없으면 그 줄은 없다.
+// ① 발행 지시 → ② 새 글 키워드 → ③ 기존 글 손보기 → ④ 갱신 → ⑤ 결과 확인
 const todos = [];
 {
   const proposed = pqNew.filter((i) => i.status === 'proposed' && !isPublishedToday(i));
-  if (proposed.length) {
-    const t1 = proposed.filter((i) => i.track === 'T1').length;
-    const t2 = proposed.length - t1;
+  if (proposed.length)
     todos.push({
-      tone: 'warn',
-      html: `발행 후보 ${proposed.length}건(지역 ${t1}·롱테일 ${t2})을 검토해 발행을 지시하세요 — 지시 대기 중`,
+      text: `글감 ${proposed.length}건 중 골라 발행 지시`,
       href: '#ideas',
-      label: '오늘 쓸 글감',
+      label: '글감',
     });
-  }
-  if (kwList.length) {
-    const u = kwStats.usable.length;
+  if (kwStats.aReady)
     todos.push({
-      tone: u ? 'good' : 'none',
-      html: u
-        ? `새 키워드 중 쓸 수 있는 자리 ${u}건(${kwStats.usable
-            .slice(0, 3)
-            .map((k) => `'${esc(k.term)}'`)
-            .join(', ')}${u > 3 ? ' 외' : ''}) — ③에 없으면 /naver 실측을 지시하세요`
-        : `새 키워드 ${kwStats.total}건 관측, 쓸 수 있음 판정 0건 — 미판정 ${kwStats.unjudged}건은 /naver로 실측 가능`,
-      href: '#keywords',
-      label: '새 키워드',
+      text: `바로 쓸 수 있는 키워드 ${kwStats.aReady}건`,
+      href: '#kw-a',
+      label: '키워드',
     });
-  }
+  else if (kwStats.aWait)
+    todos.push({
+      text: `새 글 키워드 ${kwStats.aWait}건 실측 대기`,
+      href: '#kw-a',
+      label: '키워드',
+    });
+  if (kwB.length)
+    todos.push({ text: `표현이 약한 글 ${kwB.length}건 손보기`, href: '#kw-b', label: '기존 글' });
   const due = pqUpd
     .map((i) => ({ i, d: i.dueDate ? dayDiff(TODAY, i.dueDate) : (i.daysLeft ?? null) }))
     .filter((x) => x.d !== null && x.d <= 0);
-  if (due.length) {
-    const names = due
-      .slice(0, 4)
-      .map((x) => x.i.region ?? cut(x.i.query ?? shortSlug(x.i.slug), 14))
-      .join('·');
+  if (due.length)
     todos.push({
-      tone: 'warn',
-      html: `갱신 기한 도래 ${due.length}건(${esc(names)}${due.length > 4 ? ' 외' : ''}) — 사실·날짜만 정정하세요`,
+      text: `마감 지난 글 ${due.length}건 사실·날짜 정정`,
       href: '#updates',
-      label: '갱신 필요 글',
+      label: '갱신',
     });
-  }
-  const nullWithInbound = rankRows
-    .filter((r) => r.rank === null && r.inbound7d)
-    .sort((a, b) => b.inbound7d - a.inbound7d);
-  for (const r of nullWithInbound.slice(0, 1)) {
-    const region = regionOf(r.query);
-    const recentCut = addDays(TODAY, -14);
-    const list = region ? (ciByRegion.get(region) ?? []) : [];
-    const hit =
-      list.find((e) => e.date === TODAY) ??
-      list.find((e) => e.family !== 'A' && (e.date ?? '') >= recentCut);
-    const tail = hit
-      ? `대응 글 ${hit.date === TODAY ? '오늘' : esc(hit.date ?? '')} 발행됨(${esc(shortSlug(hit.slug))}, ${esc(hit.family)}) — 순위 재측정 결과 확인`
-      : '대응 글 없음(최근 14일 이 지역 B·V 글 없음) — 지급 후 각도 후보를 검토하세요';
-    todos.push({
-      tone: hit ? 'none' : 'warn',
-      html: `'${esc(r.query)}' 미노출(${r.wholeBlock ? '블록 만석' : '블록 밖'})인데 주 ${num(r.inbound7d)} 유입 → ${tail}`,
-      href: '#ranks',
-      label: '순위',
-    });
-  }
   if (ciRecent.length) {
-    const label = ciRecent.map((e) => `${ciRegionOf(e).join('/')} ${e.family}`).join('·');
-    const unmeasured = ciRecent.filter(
-      (e) =>
-        !measuredState(postBySlug.get(shortSlug(e.slug)) ?? { targetQuery: e.targetQuery })
-          .measured,
-    ).length;
+    const when = ciRecent.some((e) => e.date === TODAY) ? '어제·오늘' : '어제';
+    const next = rankNextKst ? rankNextKst.replace(/^오늘 /, '') : '없음';
     todos.push({
-      tone: 'none',
-      html: `어제·오늘 낸 글 ${ciRecent.length}건(${esc(label)}) 결과 확인 — ${unmeasured ? `${unmeasured}건 아직 측정 전, ` : ''}다음 순위 측정 ${esc(rankNextKst ?? '없음')}`,
-      href: '#ranks',
-      label: '순위',
-    });
-  }
-  const q0 = q0400.ok ? q0400.data?.[TODAY] : null;
-  if (q0 && typeof q0 === 'object') {
-    todos.push({
-      tone: 'none',
-      html: `오늘 04시 자동 발행 지정 있음: ${esc(
-        q0.mode === 'update'
-          ? `갱신 ${shortSlug(basename(String(q0.target ?? ''), '.json'))}`
-          : `신규 '${q0.keyword ?? '없음'}'`,
-      )} — 결과 확인`,
-      href: '#schedule',
-      label: '일정',
-    });
-  }
-  if (delayed.length) {
-    todos.push({
-      tone: 'crit',
-      html: `자동화 지연 ${delayed.length}건(${delayed.map((a) => esc(a.file.replace(/\.ya?ml$/, ''))).join('·')}) — git pull 후 다시 뽑거나 Actions를 확인하세요`,
-      href: '#more-auto',
-      label: '자동화',
-    });
-  }
-  if (parseFails.length) {
-    todos.push({
-      tone: 'crit',
-      html: `순위 파싱 실패 ${parseFails.length}건(${parseFails
-        .slice(0, 3)
-        .map((r) => `'${esc(r.query)}'`)
-        .join(', ')}) — 측정 스크립트를 확인하세요`,
+      text: `${when} 낸 글 ${ciRecent.length}건 순위 확인, 다음 측정 ${next}`,
       href: '#ranks',
       label: '순위',
     });
   }
 }
-const todoOrder = { crit: 0, warn: 1, good: 2, none: 3 };
-todos.sort((a, b) => todoOrder[a.tone] - todoOrder[b.tone]);
+// 할 일은 아니지만 화면의 숫자를 못 믿게 만드는 것 — 한 줄 주석으로만.
+const todoNotes = [];
+if (delayed.length) todoNotes.push(`자동화 지연 ${delayed.length}건`);
+if (parseFails.length) todoNotes.push(`순위 파싱 실패 ${parseFails.length}건`);
 
 // ───────────────────────── 섹션 렌더 ─────────────────────────
 function todoSection() {
   const body = todos.length
     ? `<ol class="todo">${todos
-        .slice(0, 6)
+        .slice(0, 5)
         .map(
           (t) =>
-            `<li class="t-${t.tone}"><span>${t.html}</span> <a class="jump" href="${t.href}">${esc(t.label)} →</a></li>`,
+            `<li><span class="t">${esc(t.text)}</span><a class="jump" href="${t.href}">${esc(t.label)} →</a></li>`,
         )
         .join('')}</ol>`
-    : empty('오늘 할 일 없음 — 파이프라인·순위·잠금 장부에 신호가 없다');
+    : empty('오늘 할 일 없음 — 글감·키워드·갱신·최근 발행에 신호가 없다');
+  const note = todoNotes.length
+    ? `<p class="foot">주의: ${esc(todoNotes.join(' · '))} → <a href="#more-auto">자세히</a></p>`
+    : '';
   return card(
     'todo',
     '오늘 할 일',
@@ -864,56 +842,48 @@ function todoSection() {
       srcItem('docs/ops/pipeline-queue.json', pq.ok ? kst(pqMeta.generatedAt) : pq.error),
       srcItem('src/data/naver-ranks.json', ranks.ok ? kst(ranks.data?.updatedAt) : ranks.error),
       srcItem('docs/ops/cluster-intents.json', ci.ok ? `수정 ${kst(ci.mtime)}` : ci.error),
-      `<li>규칙으로만 파생(구 '오늘의 결론'): 후보 → 새 키워드 → 갱신 기한 → 미노출·유입 → 결과 확인 → 0400 → 자동화</li>`,
+      '<li>규칙으로만 파생, 순서 고정: 발행 지시 → 새 글 키워드 → 기존 글 손보기 → 갱신 → 결과 확인</li>',
     ],
-    body,
+    body + note,
   );
 }
 
 function keywordSection() {
+  const TITLE = '어떤 키워드 · 어떻게';
   if (!radar.ok)
-    return card(
-      'keywords',
-      '새 키워드 — 신생·틈새',
-      [srcItem('src/data/keyword-radar.json', radar.error)],
-      empty(),
-    );
-  // 성격이 다른 둘을 나눠 보여준다(2026-09-11 운영자: "창원·문경은 글이 있는데 왜 새 키워드냐").
-  // A = 우리 글이 없는 새 자리(신생·틈새). B = 글은 있는데 이 검색 표현으로는 약함(4위 아래·미노출) — 새 주제가 아니라 새 표현.
-  const hasOurs = (k) => Boolean(k.ours?.has);
-  const groupA = kwList.filter((k) => !hasOurs(k));
-  const groupB = kwList.filter(hasOurs);
-  const renderGroup = (title, note, items, limit) => {
-    const shown = items.slice(0, limit);
-    const rest = items.slice(limit);
-    const list = shown.length
-      ? `<div class="rows">${shown.map(kwRow).join('')}</div>`
+    return card('keywords', TITLE, [srcItem('src/data/keyword-radar.json', radar.error)], empty());
+  // 두 상자로 완전히 분리(2026-09-11 운영자: "창원·문경은 글이 있는데 왜 새 키워드냐").
+  const box = (id, title, desc, sum, items, kind) => {
+    const shown = items.slice(0, 6);
+    const rest = items.slice(6);
+    const lines = shown.length
+      ? `<div class="lns">${shown.map((k) => kwLine(k, kind)).join('')}</div>`
       : empty('없음');
     const more = rest.length
-      ? `<details class="more"><summary>나머지 ${rest.length}건 보기</summary><div class="rows">${rest.map(kwRow).join('')}</div></details>`
+      ? `<details class="more"><summary>나머지 ${rest.length}건</summary><div class="lns">${rest.map((k) => kwLine(k, kind)).join('')}</div></details>`
       : '';
-    return `<h3 class="sub">${esc(title)} <span class="muted">(${items.length})</span></h3><p class="foot">${esc(note)}</p>${list}${more}`;
+    return `<div class="box" id="${id}"><h3>${esc(title)}</h3><p class="desc">${esc(desc)}</p><p class="sum">${sum}</p>${lines}${more}</div>`;
   };
-  const summary = `<p class="lead">오늘 새로 관측 <b>${num(kwStats.today)}</b> · 신생 <b>${num(kwStats.born)}</b> · 실유입에서 발견 <b>${num(kwStats.fromAnalytics)}</b> <span class="muted">(전체 ${num(kwStats.total)} · 후보 ${num(kwStats.byVerdict.후보 ?? 0)} · 미판정 ${num(kwStats.byVerdict.미판정 ?? 0)} · 제외 ${num(kwStats.byVerdict.제외 ?? 0)})</span></p>`;
-  const list =
-    renderGroup(
-      '① 우리 글이 없는 새 자리',
-      '새로 생겼거나(신생) 질문·유입은 있는데 우리 글이 없는 검색어. 새 글감 후보.',
-      groupA,
-      6,
-    ) +
-    renderGroup(
-      '② 글은 있는데 이 검색 표현으로는 약함',
-      '새 주제가 아니라 새 표현이다. 예: "창원 민생지원금" 글은 있는데 사람들은 "창원 지원금"으로 검색하고 그 표현에서 우리는 4위 아래. 기존 글 제목은 못 바꾸니 다른 의도(패밀리)의 새 글이나 갱신으로 대응한다.',
-      groupB,
-      6,
-    );
-  const more = '';
-  const foot =
-    '<p class="foot">최종 발행 판정은 잠금 장부·검색 결과 실측을 거친 ③ "오늘 쓸 글감"에서.</p>';
+  const a = box(
+    'kw-a',
+    '새 글을 쓸 키워드',
+    '우리 글이 없는 검색어. 새 주제.',
+    `새로 관측 <b>${num(kwStats.aToday)}</b> · 바로 쓸 수 있음 <b>${num(kwStats.aReady)}</b> · 실측 대기 <b>${num(kwStats.aWait)}</b>`,
+    kwA,
+    'A',
+  );
+  const b = box(
+    'kw-b',
+    '기존 글을 손볼 키워드',
+    '글은 있는데 이 표현에서는 4위 아래·미노출. 새 표현.',
+    `표현 약한 글 <b>${num(kwB.length)}</b> · 지시 대기 <b>${num(kwStats.bReady)}</b>`,
+    kwB,
+    'B',
+  );
+  const foot = `<p class="foot">A는 새 주제, B는 새 표현이다. 예: '창원 민생지원금' 글은 있는데 사람들은 '창원 지원금'으로 검색한다.</p>`;
   return card(
     'keywords',
-    '새 키워드 — 신생·틈새',
+    TITLE,
     [
       srcItem(
         'src/data/keyword-radar.json',
@@ -921,15 +891,16 @@ function keywordSection() {
       ),
       srcItem(
         'docs/ops/pipeline-queue.json',
-        pq.ok ? `판정·빈자리 ${kst(pqMeta.generatedAt)}` : pq.error,
+        pq.ok ? `판정·실측 ${kst(pqMeta.generatedAt)}` : pq.error,
       ),
       srcItem(
         'src/data/naver-ranks.json',
         ranks.ok ? `자사 순위 ${kst(ranks.data?.updatedAt)}` : ranks.error,
       ),
-      '<li>후보 조건: 신생이거나 실유입에서 발견됐고 우리 순위가 없거나 4위 아래. 이미 1~3위인 틈새는 뺐다.</li>',
+      '<li>조건: 신생이거나 실유입에서 발견됐고 우리 순위가 없거나 4위 아래. 1~3위는 뺐다.</li>',
+      '<li>배지: 지시 대기 = 글감 큐에 있음 · 실측 필요 = 아직 검색 결과를 안 봄 · 보류/잠김 = 큐에서 제외됨</li>',
     ],
-    summary + list + more + foot,
+    `<div class="two">${a}${b}</div>${foot}`,
   );
 }
 
@@ -941,7 +912,8 @@ function ideasSection() {
       [srcItem('docs/ops/pipeline-queue.json', pq.error)],
       empty(),
     );
-  const proposed = pqNew.filter((i) => i.status === 'proposed');
+  const published = pqNew.filter((i) => i.status === 'proposed' && publishedPostFor(i));
+  const proposed = pqNew.filter((i) => i.status === 'proposed' && !publishedPostFor(i));
   const t1 = proposed
     .filter((i) => i.track === 'T1')
     .sort((a, b) => {
@@ -956,24 +928,28 @@ function ideasSection() {
   const shown = [...t1, ...rest].slice(0, 8);
   const rows = shown.map((i) => {
     const s = i.serp ? slotOf(i.serp.query ?? i.query) : { measured: false };
-    const pubToday = isPublishedToday(i);
-    const trackKo = i.track === 'T1' ? '지역' : i.track === 'T2' ? '롱테일' : '선점';
-    const variantNote =
-      i.serp?.query && i.serp.query !== i.query
-        ? `<div class="row-why muted">실측 쿼리: ${esc(i.serp.query)}</div>`
-        : '';
-    const ev = Array.isArray(i.evidence) && i.evidence[0] ? cut(humanize(i.evidence[0]), 90) : '';
-    const when = i.start ? `${esc(i.start.slice(5))} ${esc(dday(TODAY, i.start))}` : '';
-    const cond = i.condition
-      ? `<div class="row-cond" title="${esc(humanize(i.condition))}"><i>조건</i> ${esc(cut(humanize(i.condition), 140))}</div>`
-      : '';
-    return `<div class="row"><div class="row-top"><span class="tag">${esc(trackKo)}${i.family ? ` ${esc(i.family)}` : ''}</span> <b class="term">${esc(i.query)}</b> ${naverLink(i.serp?.query ?? i.query)}${when ? ` <span class="muted">개시 ${when}</span>` : ''}<span class="grow"></span>${pubToday ? badge('good', '오늘 발행됨') : badge('warn', statusKo(i.status))}</div>${variantNote}${ev ? `<div class="row-why">${esc(ev)}</div>` : ''}<div class="row-kv">${kv('예상 유입', esc(i.expectedInbound ?? '없음'))}${kv('빈자리', slotHtml(s))}${(i.region ?? i.cluster) ? kv('묶음', esc(i.region ?? i.cluster)) : ''}</div>${cond}</div>`;
+    const cond = condOf(i);
+    const evLines = (Array.isArray(i.evidence) ? i.evidence : []).map(
+      (e) => `<li>${esc(deslug(humanize(e)))}</li>`,
+    );
+    const facts = [
+      i.serp?.query && i.serp.query !== i.query ? `<li>실측 쿼리: ${esc(i.serp.query)}</li>` : '',
+      `<li>빈자리: ${slotHtml(s)}</li>`,
+      i.score !== undefined
+        ? `<li>점수: ${num(i.score, 1)}${i.scoreNote ? ` <span class="muted">(${esc(humanize(i.scoreNote))})</span>` : ''}</li>`
+        : '',
+      (i.region ?? i.cluster) ? `<li>묶음: ${esc(i.region ?? i.cluster)}</li>` : '',
+      i.start ? `<li>개시: ${esc(i.start)} ${esc(dday(TODAY, i.start))}</li>` : '',
+      i.condition ? `<li>조건 전체: ${esc(deslug(humanize(i.condition)))}</li>` : '',
+    ].join('');
+    const ev = `<details class="ev"><summary>근거 보기</summary><ul class="plain small">${facts}${evLines.join('')}</ul></details>`;
+    return `<div class="ln"><div class="c1">${qLink(i.query)}</div><div class="c2">${esc(whyOf(i))}</div><div class="c3">${esc(howOfIdea(i))}</div><div class="c4">${ideaBadge(i)}</div>${cond ? `<div class="cond">조건: ${esc(cond)}</div>` : ''}${ev}</div>`;
   });
   const exBody = pqExcluded.length
     ? `<ul class="plain">${pqExcluded
         .map(
           (x) =>
-            `<li><b>${esc(x.query)}</b>${x.track ? ` <span class="muted">${esc(x.track)}</span>` : ''} · ${esc(cut(humanize(x.reason), 80))}</li>`,
+            `<li><b>${esc(x.query)}</b>${x.track ? ` <span class="muted">${esc(x.track)}</span>` : ''} · ${esc(cut(deslug(humanize(x.reason)), 80))}</li>`,
         )
         .join('')}</ul>`
     : empty('제외 항목 없음');
@@ -988,9 +964,103 @@ function ideasSection() {
       ),
       `<li>실측 예산 ${num(serp.used)}/${num(serp.budget?.total)}${serp.error ? ` · 오류 ${esc(serp.error)}` : ''}${pqMeta.dryRun ? ' · 시험 실행' : ''}</li>`,
       '<li>지역 글은 개시일 임박순, 롱테일은 점수순. 발행은 운영자 지시 후 수동.</li>',
+      '<li>"왜"는 근거 줄에서 규칙으로 뽑은 한 문장. 수치·실측값은 "근거 보기" 안에.</li>',
     ],
-    `${rows.length ? `<div class="rows">${rows.join('')}</div>` : empty('지시 대기 후보 없음')}${proposed.length > shown.length ? `<p class="muted">후보 ${proposed.length}건 중 ${shown.length}건 표시</p>` : ''}<details class="more"><summary>제외·보류 ${pqExcluded.length}건</summary>${exBody}</details>`,
+    `${rows.length ? `<div class="rows3"><div class="lns">${rows.join('')}</div></div>` : empty('지시 대기 후보 없음')}${proposed.length > shown.length ? `<p class="muted">후보 ${proposed.length}건 중 ${shown.length}건 표시</p>` : ''}${
+      published.length
+        ? `<p class="muted">이미 발행됨 ${published.length}건: ${published
+            .map((i) => {
+              const h = publishedPostFor(i);
+              return `${esc(i.query)} → ${extLink(postUrl(h.slug), esc(h.date ?? ''))}`;
+            })
+            .join(' · ')}</p>`
+        : ''
+    }<details class="more"><summary>제외·보류 ${pqExcluded.length}건</summary>${exBody}</details>`,
   );
+}
+/** '왜' — 근거 줄에서 규칙으로 뽑은 사람 말 한 문장(≤40자). 없는 근거는 만들지 않는다. */
+function whyOf(i) {
+  const ev = Array.isArray(i.evidence) ? i.evidence.map((e) => String(e ?? '')) : [];
+  const find = (re) => {
+    for (const e of ev) {
+      const m = e.match(re);
+      if (m) return m;
+    }
+    return null;
+  };
+  // 규칙표: 먼저 맞는 것 하나만. 순서가 우선순위다(직접 유입 > 새 키 > 언론 > 다른 표현 > 묶음 유입 > 롤업).
+  const cluster = find(/^클러스터 실유입 (\d+)\/주/);
+  const RULES = [
+    [
+      /^실유입 "([^"]+)" (\d+)\/주(?: (순위 미측정))?/,
+      (m) => `'${m[1]}' 주 ${m[2]}명 유입${m[3] ? ', 순위 미측정' : ''}`,
+    ],
+    [/([^.·]*새 키)/, (m) => scrubRefs(m[1]).replace(/A글/g, '기본 글')],
+    [/언론 (\d+)곳 ([\d/~]+)/, (m) => `언론 ${m[1]}곳 보도(${m[2]})`],
+    [/^([^,]*보도)/, (m) => m[1]],
+    [
+      /^big-keywords "([^"]+)" alias "[^"]+"/,
+      (m) => `'${m[1]}'의 다른 표현${cluster ? ` · 묶음 유입 주 ${cluster[1]}명` : ''}`,
+    ],
+    [/^클러스터 실유입 (\d+)\/주/, (m) => `같은 묶음 글에 주 ${m[1]}명 유입`],
+    [
+      /^롤업 축 "([^"]+)" × \w(?: — 기존 롤업 [^(]*\(([^)]+)\))?/,
+      (m) => `'${m[1]}' 축 지역별 묶음 글 없음${m[2] ? `(기존은 ${m[2]})` : ''}`,
+    ],
+  ];
+  let why = '';
+  for (const [re, build] of RULES) {
+    const m = find(re);
+    if (m) {
+      why = build(m);
+      break;
+    }
+  }
+  if (i.start) {
+    const tail = `개시 ${dday(TODAY, i.start)}`;
+    if (!why) why = `지급 ${tail}(${i.start.slice(5).replace('-', '/')})`;
+    else if (`${why} · ${tail}`.length <= 40) why = `${why} · ${tail}`;
+  }
+  if (!why && ev[0]) why = deslug(humanize(scrubRefs(ev[0])));
+  return cut(why, 40) || '근거 없음';
+}
+/** '어떻게' — 트랙·패밀리·예상 유입만. */
+function howOfIdea(i) {
+  const fam = i.family ?? (i.track === 'T2' ? '롱테일' : i.track === 'T3' ? '선점' : '');
+  let inb = String(i.expectedInbound ?? '')
+    .replace(/\(.*$/, '')
+    .trim();
+  if (inb && !inb.includes('/주')) inb = `${inb}/주`;
+  return `새 글${fam ? ` ${fam}` : ''}${inb ? ` · ${inb}` : ''}`;
+}
+const STATUS_TONE = {
+  proposed: 'good',
+  approved: 'good',
+  published: 'good',
+  scheduled: 'warn',
+  watch: 'warn',
+};
+function ideaBadge(i) {
+  if (isPublishedToday(i)) return badge('good', '오늘 발행됨');
+  return badge(STATUS_TONE[i.status] ?? 'none', statusKo(i.status));
+}
+/** 조건 — 있을 때만 한 줄(≤50자). 제목 선두를 변형으로 바꾸라는 조건은 앞으로 뺀다. */
+function condOf(i) {
+  if (!i.condition) return '';
+  const raw = String(i.condition);
+  const lead = raw.match(/타깃\(제목 선두\)을 변형으로: "([^"]+)"/);
+  const parts = raw
+    .split(' · ')
+    .map((s) => s.trim())
+    .filter((s) => s && !/타깃\(제목 선두\)/.test(s))
+    .map((s) => deslug(humanize(scrubRefs(s))));
+  const out = lead ? [`제목 앞에 '${lead[1]}'`] : [];
+  for (const p of parts) {
+    if ([...out, p].join(' · ').length > 50) break;
+    out.push(p);
+  }
+  if (!out.length && parts[0]) out.push(parts[0]);
+  return cut(out.join(' · '), 50);
 }
 
 function ranksSection() {
@@ -1316,15 +1386,16 @@ const CSS = `
 --good:#6fcf8a;--good-bg:#173a22;--warn:#e6b85e;--warn-bg:#3b2f13;--none:#a6a59e;--none-bg:#2a2a28;--crit:#f08f84;--crit-bg:#41211d;--s4:#6d6c67}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;word-break:keep-all;overflow-wrap:anywhere}
-a{color:var(--link)}a.local{color:var(--text2);text-decoration-style:dotted}a.nv{font-size:12px;color:var(--muted);text-decoration:none;border:1px solid var(--line);border-radius:4px;padding:0 5px;vertical-align:middle}a.nv:hover{color:var(--link);border-color:var(--link)}
+a{color:var(--link)}a.local{color:var(--text2);text-decoration-style:dotted}
+a.q{color:inherit;text-decoration:none;border-bottom:1px dotted var(--muted)}a.q:hover{color:var(--link);border-bottom-color:var(--link)}
 header{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--line)}
-.bar{max-width:860px;margin:0 auto;padding:10px 20px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:12.5px;color:var(--text2)}
+.bar{max-width:1080px;margin:0 auto;padding:10px 20px;display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:12.5px;color:var(--text2)}
 .bar b{font-size:15px;color:var(--text)}
-main{max-width:860px;margin:0 auto;padding:12px 20px 40px}
+main{max-width:1080px;margin:0 auto;padding:12px 20px 40px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0}
 .card.thin{padding:14px 22px}
 .card-h{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
-h2{font-size:18px;margin:0;font-weight:700}h3{font-size:14px;margin:18px 0 8px;color:var(--text2);font-weight:600}h3.sub{font-size:14px;margin:14px 0 4px;color:var(--text)}h3.sub+.foot{margin:0 0 8px}h3 .muted{font-weight:400}
+h2{font-size:18px;margin:0;font-weight:700}h3{font-size:14px;margin:18px 0 8px;color:var(--text2);font-weight:600}h3 .muted{font-weight:400}
 .src{font-size:12px;color:var(--muted);margin-left:auto}.src summary{cursor:pointer;list-style:none;padding:0 6px;border:1px solid var(--line);border-radius:4px}.src summary::-webkit-details-marker{display:none}
 .src ul{margin:6px 0 0;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.12);list-style:none;font-size:12px;position:absolute;right:0;width:max-content;min-width:240px;max-width:min(440px,80vw);z-index:3;overflow-wrap:normal;word-break:keep-all;text-align:left}.src{position:relative}.src li{margin:2px 0}.src li span{color:var(--muted);margin-left:6px}
 .sub,.lead{margin:0 0 10px;color:var(--text2);font-size:13.5px}.lead b{color:var(--text)}
@@ -1332,16 +1403,26 @@ h2{font-size:18px;margin:0;font-weight:700}h3{font-size:14px;margin:18px 0 8px;c
 .foot{font-size:12.5px;color:var(--muted);margin:12px 0 0}
 .b{display:inline-block;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;line-height:1.7;white-space:nowrap;vertical-align:middle}
 .b-good{color:var(--good);background:var(--good-bg)}.b-warn{color:var(--warn);background:var(--warn-bg)}.b-none{color:var(--none);background:var(--none-bg)}.b-crit{color:var(--crit);background:var(--crit-bg)}
-.todo{margin:0;padding-left:22px}.todo li{margin:8px 0;padding-left:4px}.todo li::marker{color:var(--muted)}
-.todo .jump{font-size:12.5px;white-space:nowrap;margin-left:6px;text-decoration:none}.todo .jump:hover{text-decoration:underline}
-.todo li.t-crit>span{color:var(--crit)}.todo li.t-warn>span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:8px;vertical-align:1px}.todo li.t-good>span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--good);margin-right:8px;vertical-align:1px}.todo li.t-none>span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--none);margin-right:8px;vertical-align:1px}.todo li.t-crit>span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--crit);margin-right:8px;vertical-align:1px}
-.rows{display:flex;flex-direction:column;gap:10px}
-.row{border:1px solid var(--line);border-radius:10px;padding:10px 14px}
-.row-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.row-top .term{font-size:15px}.grow{flex:1}
+.todo{margin:0;padding:0;list-style:none;counter-reset:n}
+.todo li{display:flex;align-items:baseline;gap:12px;padding:8px 0;border-top:1px solid var(--line)}.todo li:first-child{border-top:none;padding-top:2px}
+.todo .t{flex:1;font-size:15.5px;font-weight:600}.todo .t::before{counter-increment:n;content:counter(n) ".";color:var(--muted);font-weight:400;margin-right:8px}
+.todo .jump{font-size:12.5px;white-space:nowrap;text-decoration:none}.todo .jump:hover{text-decoration:underline}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:700px){.two{grid-template-columns:1fr}}
+.box{border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0;container-type:inline-size}
+.box h3{font-size:16px;margin:0;color:var(--text);font-weight:700}.box .desc{font-size:12.5px;color:var(--muted);margin:2px 0 6px}
+.box .sum{font-size:12.5px;color:var(--text2);margin:0;padding-bottom:6px;border-bottom:1px solid var(--line)}.box .sum b{color:var(--text)}
+.rows3{container-type:inline-size}
+.lns{display:flex;flex-direction:column}
+.ln{display:grid;grid-template-columns:minmax(0,1fr) max-content;gap:2px 10px;align-items:start;padding:9px 0;border-top:1px solid var(--line)}.lns .ln:first-child{border-top:none}
+.ln .c1{grid-area:1/1;font-weight:700;font-size:14.5px;line-height:1.4}.ln .c4{grid-area:1/2;justify-self:end}
+.ln .c2,.ln .c3,.ln .cond,.ln .ev{grid-column:1/-1}
+.ln .c2{font-size:12.5px;color:var(--text2)}.ln .c3{font-size:13px}.ln .c3::before{content:"→ ";color:var(--muted)}
+.ln .ours{font-weight:400;font-size:12px;color:var(--muted);line-height:1.5}
+.ln .cond{font-size:12.5px;color:var(--text2);margin-top:2px}
+.ln .ev{margin-top:2px}.ln .ev>summary{cursor:pointer;font-size:12px;color:var(--muted);padding:2px 0}.ln .ev .small{font-size:12.5px;color:var(--text2)}.ln .ev .small li{margin:3px 0}
+@container (min-width:560px){.ln{grid-template-columns:minmax(0,1.25fr) minmax(0,1.1fr) minmax(0,1.25fr) max-content;gap:2px 14px;align-items:center}.ln .c1,.ln .c4{grid-area:auto}.ln .c2,.ln .c3{grid-column:auto}.ln .c3::before{content:none}}
 .row-why{font-size:13px;color:var(--text2);margin-top:3px}
-.row-kv{display:flex;flex-wrap:wrap;gap:4px 18px;font-size:13px;margin-top:6px}.kv i{font-style:normal;color:var(--muted);margin-right:6px;font-size:12px}
-.row-cond{font-size:12.5px;color:var(--text2);margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}.row-cond i{font-style:normal;color:var(--muted);margin-right:6px;font-size:12px}
-.tag{font-size:11.5px;padding:0 6px;border:1px solid var(--line);border-radius:4px;color:var(--text2);white-space:nowrap}
 .tiles{display:flex;gap:12px;flex-wrap:wrap}.tile{flex:1;min-width:120px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column}.tile-v{font-size:26px;font-weight:700;line-height:1.2}.tile-l{font-size:12.5px;color:var(--text2)}
 .tile-v.good{color:var(--good)}.tile-v.warn{color:var(--warn)}.tile-v.none{color:var(--none)}
 .up{color:var(--good);font-weight:700}.down{color:var(--crit);font-weight:700}
@@ -1357,7 +1438,7 @@ details.more{margin-top:12px}details.more>summary{cursor:pointer;font-size:13px;
 .filter{width:100%;max-width:320px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:13px}
 footer{font-size:12px;color:var(--muted);margin:16px 0;text-align:center}
 @media (max-width:600px){main{padding:8px 12px 30px}.card{padding:14px 14px}.bar{padding:8px 12px}.tile-v{font-size:22px}.bn{font-size:28px}.src ul{max-width:80vw}}
-@media print{header{position:static}.card{break-inside:avoid;border:none;padding:0 0 12px}.tw{overflow:visible}a{color:inherit;text-decoration:none}a.nv{display:none}.src{display:none}}
+@media print{header{position:static}.card{break-inside:avoid;border:none;padding:0 0 12px}.tw{overflow:visible}a{color:inherit;text-decoration:none}.src{display:none}}
 `;
 
 const JS = `

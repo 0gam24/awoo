@@ -1042,6 +1042,18 @@ async function main() {
       );
       continue;
     }
+    // 지급 후 글(B)은 지급이 확정된 지역(정규본 A 보유)에서만 성립한다. V(부결·무산·미확정)만 있는
+    // 지역에 "사용처·잔액·사용기한"을 제안하면 존재하지 않는 지급을 안내하는 글이 된다(2026-09-11 울진·광양 오탐).
+    const hasA = (chk.existing ?? []).some((e) => e.family === 'A');
+    if (!hasA) {
+      addExcluded(
+        'T1',
+        `${reg.name} B`,
+        `${trigText} → 지급 확정 글(A) 없음 — 부결·미확정 지역엔 지급 후 글이 성립하지 않음(기존: ${(chk.existing ?? []).map((e) => e.family).join('·') || '없음'})`,
+        { region: reg.name, family: 'B' },
+      );
+      continue;
+    }
     const serp = approxSerp(latest, sisterHosts);
     const vol = lookupRecent7(q);
     const cls = classOfKind(reg.kind);
@@ -1685,6 +1697,21 @@ async function main() {
   const statusOf = new Map(merged.map((m) => [m.id, m]));
   const todayItems = items.map((it) => statusOf.get(it.id) ?? it);
   const todayUpdates = updateItems.map((it) => statusOf.get(it.id) ?? it);
+  // 발행된 글은 자동으로 published — 후보 쿼리(또는 변형)와 글의 targetQuery가 같으면.
+  // 어제 낸 글이 오늘 보고에 "지시 대기"로 남는 혼동을 막는다(2026-09-11).
+  const postByQ = new Map();
+  for (const p of posts) if (p.targetQuery) postByQ.set(norm(p.targetQuery), p);
+  for (const it of todayItems) {
+    if (it.status === 'published') continue;
+    const keys = [it.query, ...String(it.variant ?? '').split(' / ')].map(norm).filter(Boolean);
+    const hit = keys.map((k) => postByQ.get(k)).find(Boolean);
+    if (hit) {
+      it.status = 'published';
+      it.statusAt = hit.date;
+      it.publishedSlug = hit.slug;
+      addExcluded(it.track, it.query, `발행됨 ${hit.date} — ${hit.slug}`);
+    }
+  }
   const activeNew = todayItems.filter((it) => !['rejected', 'published'].includes(it.status));
   const activeUpd = todayUpdates.filter((it) => !['rejected', 'published'].includes(it.status));
   for (const it of [...todayItems, ...todayUpdates]) {
