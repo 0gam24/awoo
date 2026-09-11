@@ -482,9 +482,8 @@ function famsOf(entries) {
 }
 const norm = (s) => String(s ?? '').replace(/\s+/g, '');
 
-const todayPosts = posts.filter((p) => p.date === TODAY);
 // 발행된 글의 타깃 쿼리(날짜 무관). 어제 낸 글이 오늘도 "지시 대기"로 보이면 안 된다(2026-09-11 운영자 혼동).
-const normQ = (v) => String(v ?? '').replace(/s+/g, '');
+const normQ = norm; // 공백 제거 정규화(위 norm과 동일)
 const publishedByQuery = new Map();
 for (const p of posts) if (p.targetQuery) publishedByQuery.set(normQ(p.targetQuery), p);
 for (const e of ciEntries)
