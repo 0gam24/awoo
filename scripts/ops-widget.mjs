@@ -9,6 +9,7 @@
  * 사용:
  *   node scripts/ops-widget.mjs            # stdout에 HTML 조각
  *   node scripts/ops-widget.mjs --limit=6
+ *   node scripts/ops-widget.mjs --count     # "오늘 발행 N건(자동 1 · 수동 N) · 어제 N건" 한 줄
  *
  * 입력: docs/ops/pipeline-queue.json (status proposed, 발행된 targetQuery와 겹치지 않는 것)
  *       src/data/issues/** (targetQuery만 — 발행 여부 판정)
@@ -20,6 +21,9 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
 const LIMIT = Number(argv.find((a) => a.startsWith('--limit='))?.slice(8) ?? 8);
+const COUNT_ONLY = argv.includes('--count');
+const KST_TODAY = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+const KST_YDAY = new Date(Date.now() + 9 * 3600 * 1000 - 86400000).toISOString().slice(0, 10);
 
 const norm = (s) => String(s ?? '').replace(/\s+/g, '');
 const esc = (v) =>
@@ -36,6 +40,52 @@ function readJson(rel) {
   } catch {
     return null;
   }
+}
+
+/** 하루치 발행 글 목록 — 0400 자동 1건 + 수동 분리(운영자가 매일 묻는 수량) */
+function publishedOn(day) {
+  const dir = join(ROOT, 'src/data/issues', day);
+  let files = [];
+  try {
+    files = readdirSync(dir).filter((f) => f.endsWith('.json') && !f.startsWith('_'));
+  } catch {
+    return [];
+  }
+  return files
+    .map((f) => {
+      try {
+        const j = JSON.parse(readFileSync(join(dir, f), 'utf8'));
+        return { title: j.title ?? f, slug: j.slug ?? f, targetQuery: j.targetQuery ?? null };
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+}
+
+/** "오늘 발행 N건(자동 1 · 수동 N) · 어제 N건" — 자동/수동은 큐 status로 가른다 */
+function countLine() {
+  const today = publishedOn(KST_TODAY);
+  const yday = publishedOn(KST_YDAY);
+  const q = readJson('docs/ops/pipeline-queue.json');
+  const fromQueue = new Set(
+    (q?.items ?? [])
+      .filter((i) => i.status === 'published' || i.publishedSlug)
+      .flatMap((i) => [i.query, i.publishedSlug].filter(Boolean))
+      .map(norm),
+  );
+  // 큐(운영자 지시)에서 나온 것 = 수동. 나머지는 0400 자동으로 본다.
+  const manual = today.filter(
+    (p) => fromQueue.has(norm(p.targetQuery)) || fromQueue.has(norm(p.slug)),
+  ).length;
+  const auto = today.length - manual;
+  const detail = today.length ? ` — ${today.map((p) => p.title).join(' · ')}` : '';
+  return `오늘 발행 ${today.length}건(자동 ${auto} · 수동 ${manual}) · 어제 ${yday.length}건${detail}`;
+}
+
+if (COUNT_ONLY) {
+  console.log(countLine());
+  process.exit(0);
 }
 
 /** 발행 글의 targetQuery(공백 제거) 집합 */
@@ -187,7 +237,7 @@ console.log(`<h2 class="sr-only" style="position:absolute;left:-9999px">오늘 �
 <div style="padding:0.5rem 0 0">
   <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
     <span style="font-size:13px;color:var(--text-secondary)">오늘 쓸 글감 ${shown.length}건 · 노출 가능성 높은 순 · 큐 ${esc(generated)} KST</span>
-    <span style="font-size:12px;color:var(--text-muted)">발행 지시 = 작성·검증 후 바로 발행</span>
+    <span style="font-size:12px;color:var(--text-muted)">${esc(countLine())}</span>
   </div>
 ${rows || '<p style="color:var(--text-secondary)">지시 대기 글감이 없습니다.</p>'}
 ${pendingRows}
