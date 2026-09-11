@@ -750,9 +750,9 @@ function howOf(k, box) {
       return pipelineNextKst ? `실측 후 결정(${pipelineNextKst} 자동)` : '실측 후 결정';
     return `보류: ${cut(deslug(humanize(scrubRefs(v.reason))), 18)}`;
   }
-  if (v.kind === '후보') return `다른 의도 새 글(패밀리 ${v.item?.family ?? 'B'})`;
-  if (v.kind === '미판정') return '실측 후: 같은 의도면 갱신, 다르면 새 글';
-  return '잠김: 갱신만';
+  if (v.kind === '후보') return `새 글(패밀리 ${v.item?.family ?? 'B'}) 제목 맨 앞에 이 표현`;
+  if (v.kind === '미판정') return '새 글 쓸 때 제목 표현으로 참고';
+  return '참고만(같은 의도 글 있음)';
 }
 function kwBadge(k) {
   const v = k.verdict;
@@ -794,8 +794,7 @@ const todos = [];
       href: '#kw-a',
       label: '키워드',
     });
-  if (kwB.length)
-    todos.push({ text: `표현이 약한 글 ${kwB.length}건 손보기`, href: '#kw-b', label: '기존 글' });
+  // 운영자(2026-09-11): 기존 글 손보기는 할 일에서 뺀다 — 만들 때 잘 만든다. 표현은 새 글 제목 참고로만 쓴다.
   const due = pqUpd
     .map((i) => ({ i, d: i.dueDate ? dayDiff(TODAY, i.dueDate) : (i.daysLeft ?? null) }))
     .filter((x) => x.d !== null && x.d <= 0);
@@ -873,13 +872,13 @@ function keywordSection() {
   );
   const b = box(
     'kw-b',
-    '기존 글을 손볼 키워드',
-    '글은 있는데 이 표현에서는 4위 아래·미노출. 새 표현.',
-    `표현 약한 글 <b>${num(kwB.length)}</b> · 지시 대기 <b>${num(kwStats.bReady)}</b>`,
+    '사람들이 쓰는 표현 (새 글 제목 참고)',
+    '글은 있는데 사람들은 이 표현으로 검색한다. 기존 글은 손대지 않고, 새 글을 만들 때 제목에 이 표현을 쓴다.',
+    `참고 표현 <b>${num(kwB.length)}</b> · 새 글 후보 <b>${num(kwStats.bReady)}</b>`,
     kwB,
     'B',
   );
-  const foot = `<p class="foot">A는 새 주제, B는 새 표현이다. 예: '창원 민생지원금' 글은 있는데 사람들은 '창원 지원금'으로 검색한다.</p>`;
+  const foot = `<p class="foot">왼쪽은 새 주제, 오른쪽은 새 표현이다. 예: '창원 민생지원금' 글은 있는데 사람들은 '창원 지원금'으로 검색한다. 기존 글을 손보지 않고 만들 때 잘 만든다(운영자 2026-09-11).</p>`;
   return card(
     'keywords',
     TITLE,
