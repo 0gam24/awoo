@@ -33,3 +33,11 @@ description: 운영 대시보드 — 최신 데이터를 받아 다시 뽑고 �
 - 생성기 `scripts/ops-dashboard.mjs`, 서버 프리셋 `.claude/launch.json`의 `ops-dashboard`(python http.server 4322, docs/ops, 127.0.0.1).
 - D-day·"오늘"은 생성 시각에 고정된다. 하루 지난 파일은 헤더가 경고한다 — 그러면 2번부터 다시.
 - 섹션 설명과 함정 주석은 화면 안에 있다. 자세한 설계는 `docs/ops/KEYWORD-PLAN-2026-09-10.md`와 메모리 `ops-dashboard-local`.
+
+## "실측:" 메시지 처리 (2026-09-11)
+위젯의 "실측 ↗" 버튼은 `실측: "<쿼리>" — 검색 결과를 재고 큐를 갱신해 목록을 다시 보여줘` 를 보낸다. 그러면:
+```bash
+node scripts/keyword-pipeline.mjs --scout="<쿼리>"
+```
+(옵션이 아직 없으면 `node scripts/naver-rank-check.mjs --mode=scout --query="<쿼리>"`로 재고, 그 결과를 근거로 큐를 다시 만든다: `node scripts/keyword-pipeline.mjs --serp`.)
+그다음 3~6단계를 다시 해서 대시보드·위젯을 갱신해 보여준다. 위젯 정렬은 **노출 가능성(exposure) 내림차순**이고, 점수가 없는 항목은 아래 "실측 대기"로 모인다.

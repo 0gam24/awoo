@@ -45,7 +45,8 @@
  *                    결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변.
  *
  * 점수 = recent7(없으면 proxy) × min(openSlots, 4) × volume-scale 계수(없으면 1). T1은 개시일 임박순이 점수보다 우선.
- * SERP 예산(--serp): 일 25 = T1 15 / T2 5 / 재측정 5(결정 #7). 기본은 naver-ranks 최근 측정 재사용.
+ * SERP 예산(--serp): 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5. 기본은 naver-ranks 최근 측정 재사용.
+ * 후보 정렬은 노출 가능성(exposureOf) 내림차순 — "빈틈이 큰 순"(운영자 2026-09-11).
  *
  * 데이터랩 주의: 검색 0인 날은 응답에서 빠진다(keyword-volume 묶음 실측). recent7는 '마지막 7개 응답점' 평균일 수
  * 있어 희소 시계열(window<29)은 과대일 수 있다 — 정렬 지표로만 쓴다(계획 §0 "데이터랩은 게이트가 아니라 정렬 지표").
@@ -97,13 +98,18 @@ if (args.includes('--help')) {
 const DRY_RUN = args.includes('--dry-run');
 const SERP = args.includes('--serp') || args.includes('--serp-replay');
 const SERP_REPLAY = args.includes('--serp-replay');
-const SERP_TOTAL = Math.max(1, Math.min(25, Number(argValue('--serp-budget')) || 25));
+const SERP_TOTAL = Math.max(1, Math.min(40, Number(argValue('--serp-budget')) || 35));
 const SERP_BUDGET = {
   total: SERP_TOTAL,
-  T1: Math.min(15, Math.ceil(SERP_TOTAL * 0.6)),
-  T2: Math.min(5, Math.ceil(SERP_TOTAL * 0.2)),
+  T1: Math.min(15, Math.ceil(SERP_TOTAL * 0.43)),
+  T2: Math.min(5, Math.ceil(SERP_TOTAL * 0.15)),
+  // 새 키워드를 먼저 재야 '미판정'이 줄어든다(운영자 2026-09-11)
+  newKw: Math.min(10, Math.ceil(SERP_TOTAL * 0.29)),
 };
-SERP_BUDGET.remeasure = Math.max(0, SERP_TOTAL - SERP_BUDGET.T1 - SERP_BUDGET.T2);
+SERP_BUDGET.remeasure = Math.max(
+  0,
+  SERP_TOTAL - SERP_BUDGET.T1 - SERP_BUDGET.T2 - SERP_BUDGET.newKw,
+);
 
 const kstNow = () => new Date(Date.now() + 9 * 3600 * 1000);
 const TODAY = argValue('--today') ?? kstNow().toISOString().slice(0, 10);
@@ -650,6 +656,79 @@ function score(recent7, openSlots, perPoint) {
   return Math.round(v * 10) / 10;
 }
 
+/**
+ * 노출 가능성(0~100) — "이 키워드로 새 글을 내면 네이버 웹문서 상단에 들어갈 수 있나".
+ * 운영자 지시(2026-09-11): "빈틈 네이버 상위노출 가능성 높은 순서대로 정리해서 보여줘".
+ *
+ * 자리(최대 70) + 수요(최대 25) + 시기(5) − 조건 미충족(10).
+ * 실측(serp)이 없으면 null — 점수를 지어내지 않고 '실측 대기'로 따로 모은다.
+ */
+function exposureOf(item) {
+  const s = item.serp;
+  if (!s) return { score: null, label: '미측정', reasons: ['검색 결과 실측 전'] };
+  const reasons = [];
+  // 이미 1~3위면 그 자리는 우리 것이다 — 새 글의 값이 0
+  if (s.rank != null && s.rank <= 3) {
+    return { score: 0, label: '이미 노출', reasons: [`자사 ${s.rank}위`] };
+  }
+  let v = 0;
+  const open = item.track === 'T1' ? s.verdictT1 === 'open' : s.verdictT2 === 'open';
+  if (open) {
+    v += 40;
+    reasons.push('자리 열림');
+  }
+  const slots = s.openSlots ?? 0;
+  if (slots >= 4) {
+    v += 15;
+    reasons.push(`빈자리 ${slots}`);
+  } else if (slots >= 2) v += 10;
+  else if (slots >= 1) v += 5;
+  if (s.mainGovAbove === 0) {
+    v += 10;
+    reasons.push('위에 관공서 없음');
+  } else if (s.mainGovAbove === 1) v += 5;
+  if (s.pressAbove === 0) {
+    v += 10;
+    reasons.push('위에 언론 없음');
+  } else if (s.pressAbove <= 3) v += 5;
+  if (s.webDocOffset != null) {
+    if (s.webDocOffset < 15) {
+      v += 10;
+      reasons.push('웹문서 블록 상단');
+    } else if (s.webDocOffset < 30) v += 5;
+  }
+  if (s.rank != null && s.rank >= 4 && s.rank <= 10) {
+    v += 5;
+    reasons.push(`자사 ${s.rank}위 — 다른 의도로 재진입`);
+  }
+  const inb = Number(
+    String(item.expectedInbound ?? '')
+      .match(/(\d[\d,]*)/)?.[1]
+      ?.replace(/,/g, ''),
+  );
+  const inbound = item.inbound7d ?? (Number.isFinite(inb) ? inb : null);
+  if (inbound != null && inbound >= 100) {
+    v += 10;
+    reasons.push(`주 ${inbound}명 유입`);
+  } else if (inbound != null && inbound >= 30) v += 5;
+  if ((item.recent7 ?? 0) >= 3) v += 5;
+  if (item.born) {
+    v += 5;
+    reasons.push('신생');
+  }
+  if (item.dStart != null && item.dStart >= -8 && item.dStart <= 7) {
+    v += 5;
+    reasons.push('개시 창 안');
+  }
+  if (/확보/.test(String(item.condition ?? ''))) {
+    v -= 10;
+    reasons.push('공고 URL 필요');
+  }
+  const scoreV = Math.max(0, Math.min(100, v));
+  const label = scoreV >= 70 ? '높음' : scoreV >= 45 ? '중간' : '낮음';
+  return { score: scoreV, label, reasons: reasons.slice(0, 3) };
+}
+
 function expectedRange(recent7, perPoint) {
   if (recent7 == null || perPoint == null || perPoint === 1) return null;
   const x = recent7 * perPoint;
@@ -877,7 +956,7 @@ async function main() {
   const items = [];
   const excluded = [];
   const watch = [];
-  const scoutPlan = { T1: [], T2: [], remeasure: [] };
+  const scoutPlan = { T1: [], T2: [], newKw: [], remeasure: [] };
   const seenT1 = new Map(); // region|family → item
 
   const addExcluded = (track, query, reason, extra = {}) =>
@@ -1367,6 +1446,77 @@ async function main() {
     }
   }
 
+  // ── 새 키워드(비지역): 레이더 niche·candidates 중 우리 글이 없는 것 ──
+  // 운영자 지시(2026-09-11): 새로 찾은 키워드도 매일 발행 지시 대상이 되게. 전에는 items에도
+  // excluded에도 없어 대시보드에서 영영 '미판정'으로 남았다.
+  {
+    const nicheList = Array.isArray(radar.niche) ? radar.niche : [];
+    const pool = new Map();
+    for (const n of nicheList)
+      if (n.term) pool.set(norm(n.term), { term: n.term, born: !!n.born, ...n });
+    for (const c of radarCandidates) {
+      if (!c.term) continue;
+      const k = norm(c.term);
+      if (!pool.has(k)) pool.set(k, { term: c.term, born: !!c.born, ...c });
+    }
+    const seenQ = new Set(items.map((i) => norm(i.query)));
+    for (const c of pool.values()) {
+      const q = c.term;
+      const nq = norm(q);
+      if (seenQ.has(nq)) continue;
+      if (regionOf(q, dict)) continue; // 지역은 위 T1 경로가 이미 처리
+      if (excluded.some((e) => norm(e.query) === nq)) continue;
+      // 우리 글이 있으면 새 주제가 아니다 — 제목·타깃 쿼리에 그 표현이 들어간 글을 찾는다
+      const mine = posts.find((p) => normTitle(p).includes(nq));
+      if (mine) {
+        addExcluded('T2', q, `기존 글 있음 — ${mine.slug}(제목에 이 표현 포함). 새 글 아님`, {});
+        continue;
+      }
+      const f = findRank(byQuery, q);
+      const serp = f ? approxSerp(f.rec.latest, sisterHosts) : null;
+      if (serp && serp.rank != null && serp.rank <= 3) {
+        addExcluded('T2', q, `자사 이미 ${serp.rank}위("${f.key}", ${serp.source})`);
+        continue;
+      }
+      const vol = lookupRecent7(q);
+      const recent7 = vol ? vol.v : (c.recent7 ?? c.signals?.volume?.recent7 ?? null);
+      const coef = coefficientFor(coefficients, 'national', bucketOfRank(serp?.rank ?? null));
+      const inbound = c.inbound7d ?? null;
+      items.push({
+        id: idOf('새키워드', q),
+        track: 'T2',
+        query: q,
+        family: null,
+        region: null,
+        source: '레이더',
+        born: !!c.born,
+        inbound7d: inbound,
+        evidence: [
+          c.born ? `신생 — 관측 ${c.signals?.volume?.days ?? c.age ?? '?'}일` : null,
+          inbound ? `실유입 ${inbound}/주` : null,
+          c.opportunity != null
+            ? `기회도 ${c.opportunity}(수요 ${c.demandPct ?? '?'}% · 공급희소 ${c.supplyScarcity ?? '?'}%)`
+            : null,
+          c.blogTotal != null ? `블로그 문서 ${c.blogTotal}건` : null,
+          serp
+            ? `${serp.source}: ${serp.rank == null ? '자사 미노출' : `r${serp.rank}`} · openSlots ${serp.openSlots} · T2 ${serp.verdictT2}`
+            : 'SERP 이력 없음(--serp로 실측 필요)',
+        ].filter(Boolean),
+        expectedInbound: inbound
+          ? `현재 ${inbound}/주`
+          : (expectedRange(recent7, coef.perPoint) ?? '확인 불가'),
+        condition: serp ? null : '검색 결과 실측 필요',
+        recent7,
+        recent7Source: vol ? vol.src : '레이더',
+        serp,
+        score: score(recent7, serp?.openSlots ?? 2, coef.perPoint),
+        scoreNote: `${recent7 ?? 0} × min(${serp?.openSlots ?? '미측정→2'},4) × ${coef.perPoint}`,
+      });
+      seenQ.add(nq);
+      if (!serp) scoutPlan.newKw.push(q);
+    }
+  }
+
   // ── T3: 선점 캘린더 ──
   for (const it of landgrab.items ?? []) {
     if (it.status === 'migrated') continue;
@@ -1524,14 +1674,24 @@ async function main() {
       .map((it) => it.query);
     scoutPlan.T2 = uniq([...t2Order, ...scoutPlan.T2]);
     const t2 = pick(scoutPlan.T2, SERP_BUDGET.T2);
+    // 새 키워드는 실유입·기회도 높은 순으로 먼저 잰다
+    const newOrder = items
+      .filter((it) => it.source === '레이더' && scoutPlan.newKw.includes(it.query))
+      .sort((a, b) => (b.inbound7d ?? 0) - (a.inbound7d ?? 0) || b.score - a.score)
+      .map((it) => it.query);
+    scoutPlan.newKw = uniq([...newOrder, ...scoutPlan.newKw]);
+    const nk = pick(
+      scoutPlan.newKw.filter((q) => !t1.includes(q) && !t2.includes(q)),
+      SERP_BUDGET.newKw,
+    );
     const rm = pick(
-      scoutPlan.remeasure.filter((q) => !t1.includes(q)),
+      scoutPlan.remeasure.filter((q) => !t1.includes(q) && !nk.includes(q)),
       SERP_BUDGET.remeasure,
     );
-    const queries = uniq([...t1, ...t2, ...rm]).slice(0, SERP_BUDGET.total);
+    const queries = uniq([...t1, ...t2, ...nk, ...rm]).slice(0, SERP_BUDGET.total);
     serpMeta.queries = queries;
     console.error(
-      `[pipeline] SERP 정찰 ${queries.length}건(T1 ${t1.length} / T2 ${t2.length} / 재측정 ${rm.length})`,
+      `[pipeline] SERP 정찰 ${queries.length}건(T1 ${t1.length} / T2 ${t2.length} / 새 키워드 ${nk.length} / 재측정 ${rm.length})`,
     );
     // --serp-replay: 같은 날 큐에 저장된 scout 결과를 다시 쓴다(재실행·검증 시 정찰 예산을 태우지 않는다)
     const replay = SERP_REPLAY ? (prevQueue.meta?.serp?.results ?? []) : [];
@@ -1693,6 +1853,33 @@ async function main() {
   });
 
   // ── 큐 병합(이전 status 유지) ──
+  // 노출 가능성 점수 — 실측이 반영된 뒤에 매긴다. 이미 1~3위인 자리는 후보에서 뺀다.
+  for (let i = items.length - 1; i >= 0; i--) {
+    const it = items[i];
+    it.exposure = exposureOf(it);
+    if (it.exposure.label === '이미 노출') {
+      addExcluded(it.track, it.query, `이미 노출 — ${it.exposure.reasons.join(', ')}`, {
+        region: it.region ?? undefined,
+      });
+      items.splice(i, 1);
+    }
+  }
+  // 정렬: 노출 가능성 높은 순 → 실유입 → 개시일 임박순. 미측정은 맨 뒤(실측 대기).
+  items.sort((a, b) => {
+    const sa = a.exposure?.score;
+    const sb = b.exposure?.score;
+    if (sa == null && sb != null) return 1;
+    if (sb == null && sa != null) return -1;
+    if (sa != null && sb != null && sa !== sb) return sb - sa;
+    const ia = a.inbound7d ?? 0;
+    const ib = b.inbound7d ?? 0;
+    if (ia !== ib) return ib - ia;
+    const da = a.dStart == null ? 9999 : Math.abs(a.dStart);
+    const db = b.dStart == null ? 9999 : Math.abs(b.dStart);
+    if (da !== db) return da - db;
+    return (b.score ?? 0) - (a.score ?? 0);
+  });
+
   const merged = mergeQueue(prevQueue.items, [...items, ...updateItems]);
   const statusOf = new Map(merged.map((m) => [m.id, m]));
   const todayItems = items.map((it) => statusOf.get(it.id) ?? it);
@@ -1739,6 +1926,7 @@ async function main() {
       '키워드 파이프라인 큐. scripts/keyword-pipeline.mjs가 매일 다시 만든다(오늘 후보는 재생성, 운영자 status는 id 기준 유지).',
       'status: proposed(기본) · approved(운영자 승인 — 발행 대기) · rejected(반려) · published(발행됨) · hold(보류). 운영자가 이 파일에서 status·statusAt·operatorNote를 직접 바꾼다.',
       '발행은 이 스크립트가 하지 않는다. 0400 자동 발행은 별도로 매일 1건(결정 #11). 후보는 DAILY-KEYWORDS.md로 보고하고 운영자가 /post·/naver로 수동 지시한다(결정 #12).',
+      '노출 가능성 = 자리(최대 70: 열림 40 · 빈자리 ≤15 · 위에 관공서 없음 ≤10 · 위에 언론 없음 ≤10 · 웹문서 블록 상단 ≤10 · 자사 4~10위 5) + 수요(최대 25: 실유입 ≤10 · 검색량 5 · 신생 5) + 개시 창 5 − 공고 URL 필요 10. 실측이 없으면 미측정으로 두고 점수를 매기지 않는다. 자사 1~3위는 이미 노출로 제외.',
       'score = recent7(없으면 proxy) × min(openSlots,4) × volume-scale 계수. T1은 개시일 임박순이 점수보다 우선. serp.approx=true는 naver-ranks 옛 항목에서 근사한 verdict — --serp 실측이 아니다.',
     ],
     meta: {
@@ -1771,6 +1959,7 @@ async function main() {
       scoutPlan: {
         T1: uniq(scoutPlan.T1),
         T2: uniq(scoutPlan.T2),
+        newKw: uniq(scoutPlan.newKw),
         remeasure: uniq(scoutPlan.remeasure),
       },
     },
@@ -1847,21 +2036,25 @@ function renderReport({
   L.push('## 오늘 후보');
   L.push('');
   L.push(
-    'T1은 개시일 임박순(점수보다 우선), T2·T3는 점수순. 창 안 발행 상한 없음, 1지자체 1패밀리 1건(결정 #1). T2는 창 안 주 1~2건(결정 #10).',
+    '노출 가능성 높은 순(자리 열림·빈자리·위에 관공서/언론 없음·웹문서 블록 상단 + 실유입·신생·개시 임박). 미측정은 아래 실측 대기. 창 안 발행 상한 없음, 1지자체 1패밀리 1건.',
   );
   L.push('');
-  L.push('| # | 트랙 | 쿼리 | 근거 | 예상 유입/주 | 조건 |');
-  L.push('|---|---|---|---|---|---|');
-  if (!todayItems.length) L.push('| — | — | 오늘 신규 후보 없음 | — | — | — |');
-  const t2All = todayItems.filter((it) => it.track === 'T2');
-  const shown = todayItems.filter((it) => it.track !== 'T2' || t2All.indexOf(it) < REPORT_MAX_T2);
+  L.push('| # | 노출 가능성 | 트랙 | 쿼리 | 왜 | 예상 유입/주 | 조건 |');
+  L.push('|---|---|---|---|---|---|---|');
+  const measured = todayItems.filter((it) => it.exposure?.score != null);
+  const pending = todayItems.filter((it) => it.exposure?.score == null);
+  if (!measured.length) L.push('| — | — | — | 실측된 후보 없음 | — | — | — |');
+  const t2All = measured.filter((it) => it.track === 'T2');
+  const shown = measured.filter((it) => it.track !== 'T2' || t2All.indexOf(it) < REPORT_MAX_T2);
   shown.forEach((it, i) => {
     const track = `${it.track}${it.family ? ` ${it.family}` : ''}${it.rollup ? ' 롤업' : ''}`;
     const q = `${it.query}${it.variant ? ` · 변형: ${it.variant}` : ''}${it.region ? ` (${it.region})` : ''}`;
-    const ev = `${it.evidence.join(' · ')} · 점수 ${it.score}`;
     const cond = `${it.status === 'approved' ? '[승인됨] ' : it.status === 'hold' ? '[보류] ' : ''}${it.condition ?? '—'}`;
+    const ex = it.exposure ?? {};
+    const exCell = ex.score == null ? '미측정' : `${ex.label} ${ex.score}`;
+    const why = `${(ex.reasons ?? []).join(' · ') || it.evidence[0] || ''}`;
     L.push(
-      `| ${i + 1} | ${cell(track)} | ${cell(q)} | ${cell(ev)} | ${cell(it.expectedInbound)} | ${cell(cond)} |`,
+      `| ${i + 1} | ${cell(exCell)} | ${cell(track)} | ${cell(q)} | ${cell(why)} | ${cell(it.expectedInbound)} | ${cell(cond)} |`,
     );
   });
   if (t2All.length > REPORT_MAX_T2) {
@@ -1872,6 +2065,23 @@ function renderReport({
         .map((it) => `${it.query}(${it.score})`)
         .join(', ')}`,
     );
+  }
+  if (pending.length) {
+    L.push('');
+    L.push(`### 실측 대기 ${pending.length}건`);
+    L.push(
+      '검색 결과를 아직 안 봤다. 수요(실유입·검색량) 큰 순. `--serp` 회차나 `--scout="쿼리"`로 잰다.',
+    );
+    L.push('');
+    L.push('| # | 쿼리 | 수요 | 트랙 |');
+    L.push('|---|---|---|---|');
+    pending.slice(0, 12).forEach((it, i) => {
+      L.push(
+        `| ${i + 1} | ${cell(it.query)} | ${cell(it.inbound7d ? `유입 ${it.inbound7d}/주` : `검색량 ${it.recent7 ?? '미측정'}`)} | ${cell(it.track)} |`,
+      );
+    });
+    if (pending.length > 12) L.push('');
+    if (pending.length > 12) L.push(`나머지 ${pending.length - 12}건은 큐 JSON에 있다.`);
   }
   L.push('');
   L.push('## 갱신 후보');
@@ -1930,7 +2140,7 @@ function renderReport({
   const sp = m.scoutPlan;
   L.push('');
   L.push(
-    `SERP 정찰 계획(--serp 시 일 25 = T1 15 / T2 5 / 재측정 5): T1 ${sp.T1.length}건 · T2 ${sp.T2.length}건 · 재측정 ${sp.remeasure.length}건${sp.remeasure.length ? ` — 재측정: ${sp.remeasure.slice(0, 8).join(', ')}${sp.remeasure.length > 8 ? ' …' : ''}` : ''}`,
+    `SERP 정찰 계획(--serp 시 일 ${SERP_BUDGET.total} = T1 ${SERP_BUDGET.T1} / T2 ${SERP_BUDGET.T2} / 새 키워드 ${SERP_BUDGET.newKw} / 재측정 ${SERP_BUDGET.remeasure}): T1 ${sp.T1.length}건 · T2 ${sp.T2.length}건 · 새 키워드 ${sp.newKw.length}건 · 재측정 ${sp.remeasure.length}건${sp.remeasure.length ? ` — 재측정: ${sp.remeasure.slice(0, 8).join(', ')}${sp.remeasure.length > 8 ? ' …' : ''}` : ''}`,
   );
   L.push('');
   L.push('0400 자동 발행은 그대로 1건 나갑니다. 위 후보 중 쓸 것을 지시해 주세요.');

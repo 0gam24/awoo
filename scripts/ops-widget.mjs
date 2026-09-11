@@ -117,15 +117,12 @@ const items = q.items
     const keys = [i.query, ...String(i.variant ?? '').split(' / ')].map(norm).filter(Boolean);
     return !keys.some((k) => published.has(k));
   });
-const t1 = items
-  .filter((i) => i.track === 'T1')
-  .sort((a, b) => {
-    const da = a.dStart ?? 9999;
-    const db = b.dStart ?? 9999;
-    return Math.abs(da) - Math.abs(db) || (b.score ?? 0) - (a.score ?? 0);
-  });
-const rest = items.filter((i) => i.track !== 'T1').sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-const shown = [...t1, ...rest].slice(0, LIMIT);
+// 큐가 이미 노출 가능성 순으로 정렬돼 있다(keyword-pipeline). 그 순서를 그대로 쓴다.
+const ready = items.filter((i) => i.exposure?.score != null);
+const pending = items
+  .filter((i) => i.exposure?.score == null)
+  .sort((a, b) => (b.inbound7d ?? 0) - (a.inbound7d ?? 0) || (b.recent7 ?? 0) - (a.recent7 ?? 0));
+const shown = ready.slice(0, LIMIT);
 const genIso = q.meta?.generatedAt ?? q.generatedAt ?? null;
 // 큐의 시각은 UTC ISO — 화면은 KST
 const generated = genIso
@@ -143,10 +140,22 @@ const rows = shown
     const condHtml = c
       ? `<div style="font-size:12px;color:var(--text-muted);margin-top:2px">조건: ${esc(c)}</div>`
       : '';
+    const ex = i.exposure ?? {};
+    const tone =
+      ex.label === '높음'
+        ? 'var(--text-success)'
+        : ex.label === '중간'
+          ? 'var(--text-warning)'
+          : 'var(--text-secondary)';
+    const badge =
+      ex.score == null
+        ? ''
+        : `<span style="font-size:12px;color:${tone};flex-shrink:0">${esc(ex.label)} ${ex.score}</span>`;
+    const reason = (ex.reasons ?? []).join(' · ') || why(i);
     return `<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:0.5px solid var(--border)">
   <div style="flex:1;min-width:0">
-    <div style="font-size:15px;font-weight:500">${esc(i.query)}</div>
-    <div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${esc(why(i))} · ${esc(how(i))}</div>${condHtml}
+    <div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:15px;font-weight:500">${esc(i.query)}</span>${badge}</div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${esc(reason)} · ${esc(how(i))}</div>${condHtml}
   </div>
   <div style="display:flex;gap:6px;flex-shrink:0">
     <button onclick="sendPrompt(${esc(jsStr(cmd))})" style="font-size:13px">발행 지시 ↗</button>
@@ -156,11 +165,30 @@ const rows = shown
   })
   .join('\n');
 
+// 실측 대기 — 검색 결과를 아직 안 본 키워드. 버튼을 누르면 그 자리만 재고 목록을 다시 준다.
+const pendingRows = pending.length
+  ? `<div style="margin-top:10px;padding-top:8px;border-top:0.5px solid var(--border)">
+  <div style="font-size:13px;color:var(--text-secondary);margin-bottom:4px">실측 대기 ${pending.length}건 — 검색 결과를 봐야 순위 가능성을 안다</div>
+${pending
+  .slice(0, 5)
+  .map((i) => {
+    const cmd = `실측: "${i.query}" — 검색 결과를 재고 큐를 갱신해 목록을 다시 보여줘`;
+    const demand = i.inbound7d ? `유입 ${i.inbound7d}/주` : `검색량 ${i.recent7 ?? '미측정'}`;
+    return `<div style="display:flex;gap:12px;align-items:center;padding:6px 0">
+  <div style="flex:1;min-width:0"><span style="font-size:14px">${esc(i.query)}</span> <span style="font-size:12px;color:var(--text-muted)">${esc(demand)}</span></div>
+  <button onclick="sendPrompt(${esc(jsStr(cmd))})" style="font-size:12px;flex-shrink:0">실측 ↗</button>
+</div>`;
+  })
+  .join('\n')}
+</div>`
+  : '';
+
 console.log(`<h2 class="sr-only" style="position:absolute;left:-9999px">오늘 쓸 글감 ${shown.length}건 — 버튼을 누르면 발행 지시가 채팅에 입력됩니다</h2>
 <div style="padding:0.5rem 0 0">
   <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-    <span style="font-size:13px;color:var(--text-secondary)">오늘 쓸 글감 ${shown.length}건 · 큐 ${esc(generated)} KST</span>
+    <span style="font-size:13px;color:var(--text-secondary)">오늘 쓸 글감 ${shown.length}건 · 노출 가능성 높은 순 · 큐 ${esc(generated)} KST</span>
     <span style="font-size:12px;color:var(--text-muted)">발행 지시 = 작성·검증 후 바로 발행</span>
   </div>
 ${rows || '<p style="color:var(--text-secondary)">지시 대기 글감이 없습니다.</p>'}
+${pendingRows}
 </div>`);

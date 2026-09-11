@@ -9,7 +9,7 @@ argument-hint: 키워드 [angle=...] [persona=...] [urgency=high|normal]
 
 ## 대시보드 버튼 지시 (2026-09-11)
 인자에 **"대시보드 지시"** 가 들어 있으면 운영자가 채팅 위젯의 "발행 지시" 버튼을 누른 것이다.
-- 키워드로 `docs/ops/pipeline-queue.json` items에서 같은 `query`(공백 무시)를 찾아 그 항목의 `track·family·region·evidence·condition·variant`를 브리프로 쓴다(1~3단계 전략 spawn은 생략, 큐가 이미 판정했다). 조건(공고 URL 확보 등)은 fact-checker 필수 확인 항목으로 넘긴다.
+- 키워드로 `docs/ops/pipeline-queue.json` items에서 같은 `query`(공백 무시)를 찾아 그 항목의 `track·family·region·evidence·condition·variant·exposure`를 브리프로 쓴다. **`exposure.reasons`(어떤 빈틈을 노리는지: 자리 열림·위에 관공서 없음 등)를 post-writer 브리프 맨 앞에 넣어라** — 그 자리를 차지하는 것이 글의 목표다(1~3단계 전략 spawn은 생략, 큐가 이미 판정했다). 조건(공고 URL 확보 등)은 fact-checker 필수 확인 항목으로 넘긴다.
 - 버튼 클릭이 곧 결재다. **6단계 GATE-D 질문을 생략**하고, 검증(팩트체크·shaper·품질·gatekeeper) 통과 시 바로 발행한다. VETO·팩트 실패면 발행하지 않고 사유만 보고한다.
 - 발행 후 큐 항목 `status`를 `published`·`statusAt`(오늘)·`publishedSlug`로 갱신하고 `node scripts/build-cluster-intents.mjs --append <파일>`로 잠금 장부에 편입한다.
 - "보류:" 로 시작하는 메시지는 큐 항목 status를 `hold`로 바꾸고 끝낸다(이유를 묻지 않는다).

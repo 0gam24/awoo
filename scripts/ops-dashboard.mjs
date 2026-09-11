@@ -912,18 +912,12 @@ function ideasSection() {
     );
   const published = pqNew.filter((i) => i.status === 'proposed' && publishedPostFor(i));
   const proposed = pqNew.filter((i) => i.status === 'proposed' && !publishedPostFor(i));
-  const t1 = proposed
-    .filter((i) => i.track === 'T1')
-    .sort((a, b) => {
-      const da = a.start ? Math.abs(dayDiff(TODAY, a.start)) : 9999;
-      const db = b.start ? Math.abs(dayDiff(TODAY, b.start)) : 9999;
-      if (da !== db) return da - db;
-      return (b.score ?? 0) - (a.score ?? 0);
-    });
-  const rest = proposed
-    .filter((i) => i.track !== 'T1')
-    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-  const shown = [...t1, ...rest].slice(0, 8);
+  // 큐가 이미 노출 가능성 순으로 정렬돼 있다(keyword-pipeline exposureOf). 실측 전은 뒤로.
+  const ready = proposed.filter((i) => i.exposure?.score != null);
+  const pendingMeasure = proposed
+    .filter((i) => i.exposure?.score == null)
+    .sort((a, b) => (b.inbound7d ?? 0) - (a.inbound7d ?? 0) || (b.recent7 ?? 0) - (a.recent7 ?? 0));
+  const shown = ready.slice(0, 8);
   const rows = shown.map((i) => {
     const s = i.serp ? slotOf(i.serp.query ?? i.query) : { measured: false };
     const cond = condOf(i);
@@ -941,7 +935,11 @@ function ideasSection() {
       i.condition ? `<li>조건 전체: ${esc(deslug(humanize(i.condition)))}</li>` : '',
     ].join('');
     const ev = `<details class="ev"><summary>근거 보기</summary><ul class="plain small">${facts}${evLines.join('')}</ul></details>`;
-    return `<div class="ln"><div class="c1">${qLink(i.query)}</div><div class="c2">${esc(whyOf(i))}</div><div class="c3">${esc(howOfIdea(i))}</div><div class="c4">${ideaBadge(i)}</div>${cond ? `<div class="cond">조건: ${esc(cond)}</div>` : ''}${ev}</div>`;
+    const ex = i.exposure ?? {};
+    const exTone = ex.label === '높음' ? 'good' : ex.label === '중간' ? 'warn' : 'none';
+    const exHtml = ex.score == null ? '' : `${badge(exTone, `${ex.label} ${ex.score}`)} `;
+    const why = (ex.reasons ?? []).join(' · ') || whyOf(i);
+    return `<div class="ln"><div class="c1">${exHtml}${qLink(i.query)}</div><div class="c2">${esc(why)}</div><div class="c3">${esc(howOfIdea(i))}</div><div class="c4">${ideaBadge(i)}</div>${cond ? `<div class="cond">조건: ${esc(cond)}</div>` : ''}${ev}</div>`;
   });
   const exBody = pqExcluded.length
     ? `<ul class="plain">${pqExcluded
@@ -964,7 +962,14 @@ function ideasSection() {
       '<li>지역 글은 개시일 임박순, 롱테일은 점수순. 발행은 운영자 지시 후 수동.</li>',
       '<li>"왜"는 근거 줄에서 규칙으로 뽑은 한 문장. 수치·실측값은 "근거 보기" 안에.</li>',
     ],
-    `${rows.length ? `<div class="rows3"><div class="lns">${rows.join('')}</div></div>` : empty('지시 대기 후보 없음')}${proposed.length > shown.length ? `<p class="muted">후보 ${proposed.length}건 중 ${shown.length}건 표시</p>` : ''}${
+    `${rows.length ? `<div class="rows3"><div class="lns">${rows.join('')}</div></div>` : empty('지시 대기 후보 없음')}${ready.length > shown.length ? `<p class="muted">실측된 후보 ${ready.length}건 중 ${shown.length}건 표시</p>` : ''}${
+      pendingMeasure.length
+        ? `<p class="muted">실측 대기 ${pendingMeasure.length}건 — ${pendingMeasure
+            .slice(0, 4)
+            .map((i) => esc(i.query))
+            .join(' · ')}${pendingMeasure.length > 4 ? ' …' : ''}</p>`
+        : ''
+    }${
       published.length
         ? `<p class="muted">이미 발행됨 ${published.length}건: ${published
             .map((i) => {
