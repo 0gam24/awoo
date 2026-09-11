@@ -878,17 +878,39 @@ function keywordSection() {
       [srcItem('src/data/keyword-radar.json', radar.error)],
       empty(),
     );
-  const shown = kwList.slice(0, 10);
-  const rest = kwList.slice(10);
+  // 성격이 다른 둘을 나눠 보여준다(2026-09-11 운영자: "창원·문경은 글이 있는데 왜 새 키워드냐").
+  // A = 우리 글이 없는 새 자리(신생·틈새). B = 글은 있는데 이 검색 표현으로는 약함(4위 아래·미노출) — 새 주제가 아니라 새 표현.
+  const hasOurs = (k) => Boolean(k.ours?.has);
+  const groupA = kwList.filter((k) => !hasOurs(k));
+  const groupB = kwList.filter(hasOurs);
+  const renderGroup = (title, note, items, limit) => {
+    const shown = items.slice(0, limit);
+    const rest = items.slice(limit);
+    const list = shown.length
+      ? `<div class="rows">${shown.map(kwRow).join('')}</div>`
+      : empty('없음');
+    const more = rest.length
+      ? `<details class="more"><summary>나머지 ${rest.length}건 보기</summary><div class="rows">${rest.map(kwRow).join('')}</div></details>`
+      : '';
+    return `<h3 class="sub">${esc(title)} <span class="muted">(${items.length})</span></h3><p class="foot">${esc(note)}</p>${list}${more}`;
+  };
   const summary = `<p class="lead">오늘 새로 관측 <b>${num(kwStats.today)}</b> · 신생 <b>${num(kwStats.born)}</b> · 실유입에서 발견 <b>${num(kwStats.fromAnalytics)}</b> <span class="muted">(전체 ${num(kwStats.total)} · 후보 ${num(kwStats.byVerdict.후보 ?? 0)} · 미판정 ${num(kwStats.byVerdict.미판정 ?? 0)} · 제외 ${num(kwStats.byVerdict.제외 ?? 0)})</span></p>`;
-  const list = shown.length
-    ? `<div class="rows">${shown.map(kwRow).join('')}</div>`
-    : empty('새 키워드 없음');
-  const more = rest.length
-    ? `<details class="more"><summary>나머지 ${rest.length}건 보기</summary><div class="rows">${rest.map(kwRow).join('')}</div></details>`
-    : '';
+  const list =
+    renderGroup(
+      '① 우리 글이 없는 새 자리',
+      '새로 생겼거나(신생) 질문·유입은 있는데 우리 글이 없는 검색어. 새 글감 후보.',
+      groupA,
+      6,
+    ) +
+    renderGroup(
+      '② 글은 있는데 이 검색 표현으로는 약함',
+      '새 주제가 아니라 새 표현이다. 예: "창원 민생지원금" 글은 있는데 사람들은 "창원 지원금"으로 검색하고 그 표현에서 우리는 4위 아래. 기존 글 제목은 못 바꾸니 다른 의도(패밀리)의 새 글이나 갱신으로 대응한다.',
+      groupB,
+      6,
+    );
+  const more = '';
   const foot =
-    '<p class="foot">틈새 = 수요(질문·유입)는 있는데 문서가 적고 우리 글이 없는 자리. 최종 발행 판정은 잠금·SERP를 거친 ③.</p>';
+    '<p class="foot">최종 발행 판정은 잠금 장부·검색 결과 실측을 거친 ③ "오늘 쓸 글감"에서.</p>';
   return card(
     'keywords',
     '새 키워드 — 신생·틈새',
@@ -1302,7 +1324,7 @@ main{max-width:860px;margin:0 auto;padding:12px 20px 40px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0}
 .card.thin{padding:14px 22px}
 .card-h{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
-h2{font-size:18px;margin:0;font-weight:700}h3{font-size:14px;margin:18px 0 8px;color:var(--text2);font-weight:600}h3 .muted{font-weight:400}
+h2{font-size:18px;margin:0;font-weight:700}h3{font-size:14px;margin:18px 0 8px;color:var(--text2);font-weight:600}h3.sub{font-size:14px;margin:14px 0 4px;color:var(--text)}h3.sub+.foot{margin:0 0 8px}h3 .muted{font-weight:400}
 .src{font-size:12px;color:var(--muted);margin-left:auto}.src summary{cursor:pointer;list-style:none;padding:0 6px;border:1px solid var(--line);border-radius:4px}.src summary::-webkit-details-marker{display:none}
 .src ul{margin:6px 0 0;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.12);list-style:none;font-size:12px;position:absolute;right:0;width:max-content;min-width:240px;max-width:min(440px,80vw);z-index:3;overflow-wrap:normal;word-break:keep-all;text-align:left}.src{position:relative}.src li{margin:2px 0}.src li span{color:var(--muted);margin-left:6px}
 .sub,.lead{margin:0 0 10px;color:var(--text2);font-size:13.5px}.lead b{color:var(--text)}
