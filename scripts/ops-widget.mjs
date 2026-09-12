@@ -14,6 +14,7 @@
  * 입력: docs/ops/pipeline-queue.json (status proposed, 발행된 targetQuery와 겹치지 않는 것)
  *       src/data/issues/** (targetQuery만 — 발행 여부 판정)
  */
+import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,7 +52,20 @@ function publishedOn(day) {
   } catch {
     return [];
   }
+  // 파일이 있어도 커밋 전이면 사이트에 없다 — 발행 수량은 git 추적 파일만 센다(2026-09-12 실측: 보류된 초안이 발행으로 집계됐다)
+  let tracked = null;
+  try {
+    tracked = new Set(
+      execFileSync('git', ['ls-files', `src/data/issues/${day}`], { cwd: ROOT, encoding: 'utf8' })
+        .split('\n')
+        .map((l) => l.trim().split('/').pop())
+        .filter(Boolean),
+    );
+  } catch {
+    /* git이 없으면 전부 센다 */
+  }
   return files
+    .filter((f) => !tracked || tracked.has(f))
     .map((f) => {
       try {
         const j = JSON.parse(readFileSync(join(dir, f), 'utf8'));
