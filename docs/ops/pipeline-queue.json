@@ -7,8 +7,8 @@
     "score = recent7(없으면 proxy) × min(openSlots,4) × volume-scale 계수. T1은 개시일 임박순이 점수보다 우선. serp.approx=true는 naver-ranks 옛 항목에서 근사한 verdict — --serp 실측이 아니다."
   ],
   "meta": {
-    "generatedAt": "2026-09-12T05:18:40.068Z",
-    "today": "2026-09-12",
+    "generatedAt": "2026-09-13T05:33:24.724Z",
+    "today": "2026-09-13",
     "dryRun": false,
     "serp": {
       "enabled": true,
@@ -32,8 +32,8 @@
         "4차 민생지원금 9월 신청 지역",
         "4차 민생지원금 개시일",
         "월세 세액공제 월세환급금",
-        "근로장려금 대상 기준",
         "월세 세액공제 경정청구",
+        "근로장려금 대상 기준",
         "실업급여 구직급여",
         "실업급여 상실신고",
         "근로·자녀장려금 9월 신청 전 구분 3가지",
@@ -46,11 +46,11 @@
         "기초노령연금",
         "3차민생지원금",
         "시흥민생지원금",
+        "나주 민생회복지원금 5부제",
+        "나주시 민생지원금",
         "2026 김해 민생지원금",
         "김해시 지원금",
-        "통영 지원금 신청",
-        "문경시 지원금",
-        "김해 지원금"
+        "통영 지원금 신청"
       ],
       "replay": false,
       "results": [
@@ -61,13 +61,13 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 15.1,
+          "webDocOffset": 15.3,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
             "already r1",
             "openSlots 0<2",
-            "offset-warn 15.1%"
+            "offset-warn 15.3%"
           ]
         },
         {
@@ -88,23 +88,22 @@
         {
           "query": "영암군 농촌기본수당 10만원 하반기 신청",
           "rank": null,
-          "openSlots": 14,
-          "mainGovAbove": 0,
-          "pressAbove": 9,
+          "openSlots": 13,
+          "mainGovAbove": 1,
+          "pressAbove": 8,
           "sisterAbove": 0,
-          "webDocOffset": 24.8,
+          "webDocOffset": 14,
           "verdictT1": "closed",
           "verdictT2": "open",
           "reason": [
-            "press 9>3",
-            "offset-warn 24.8%"
+            "press 8>3"
           ]
         },
         {
           "query": "영암 농촌기본수당 월출페이 9월 7일",
           "rank": null,
-          "openSlots": 18,
-          "mainGovAbove": 0,
+          "openSlots": 17,
+          "mainGovAbove": 1,
           "pressAbove": 10,
           "sisterAbove": 0,
           "webDocOffset": 18.3,
@@ -122,7 +121,7 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 8.4,
+          "webDocOffset": 8.3,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
@@ -132,17 +131,17 @@
         },
         {
           "query": "창원 지원금",
-          "rank": 5,
+          "rank": 4,
           "openSlots": 1,
           "mainGovAbove": 1,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 44.6,
+          "webDocOffset": 45.3,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
             "openSlots 1<2",
-            "offset 44.6%≥30"
+            "offset 45.3%≥30"
           ]
         },
         {
@@ -152,11 +151,11 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 66.7,
+          "webDocOffset": 70.5,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
-            "offset 66.7%≥30"
+            "offset 70.5%≥30"
           ]
         },
         {
@@ -176,18 +175,15 @@
         },
         {
           "query": "4차 민생지원금 개시일",
-          "rank": 2,
-          "openSlots": 1,
+          "rank": null,
+          "openSlots": 2,
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 11.6,
-          "verdictT1": "closed",
-          "verdictT2": "closed",
-          "reason": [
-            "already r2",
-            "openSlots 1<2"
-          ]
+          "webDocOffset": 11.7,
+          "verdictT1": "open",
+          "verdictT2": "open",
+          "reason": []
         },
         {
           "query": "월세 세액공제 월세환급금",
@@ -196,26 +192,11 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 25.6,
+          "webDocOffset": 25.9,
           "verdictT1": "open",
           "verdictT2": "open",
           "reason": [
-            "offset-warn 25.6%"
-          ]
-        },
-        {
-          "query": "근로장려금 대상 기준",
-          "rank": null,
-          "openSlots": 1,
-          "mainGovAbove": 0,
-          "pressAbove": 0,
-          "sisterAbove": 0,
-          "webDocOffset": 30,
-          "verdictT1": "closed",
-          "verdictT2": "closed",
-          "reason": [
-            "openSlots 1<2",
-            "offset 30%≥30"
+            "offset-warn 25.9%"
           ]
         },
         {
@@ -225,26 +206,41 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 17.4,
+          "webDocOffset": 18,
           "verdictT1": "open",
           "verdictT2": "open",
           "reason": [
-            "offset-warn 17.4%"
+            "offset-warn 18%"
+          ]
+        },
+        {
+          "query": "근로장려금 대상 기준",
+          "rank": null,
+          "openSlots": 0,
+          "mainGovAbove": 0,
+          "pressAbove": 0,
+          "sisterAbove": 0,
+          "webDocOffset": 28.8,
+          "verdictT1": "open",
+          "verdictT2": "closed",
+          "reason": [
+            "openSlots 0<2",
+            "offset-warn 28.8%"
           ]
         },
         {
           "query": "실업급여 구직급여",
           "rank": null,
-          "openSlots": 1,
+          "openSlots": 0,
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 30.6,
+          "webDocOffset": 45.3,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
-            "openSlots 1<2",
-            "offset 30.6%≥30"
+            "openSlots 0<2",
+            "offset 45.3%≥30"
           ]
         },
         {
@@ -254,11 +250,11 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 16.4,
+          "webDocOffset": 16.6,
           "verdictT1": "open",
           "verdictT2": "open",
           "reason": [
-            "offset-warn 16.4%"
+            "offset-warn 16.6%"
           ]
         },
         {
@@ -268,12 +264,12 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 39.3,
+          "webDocOffset": 37.9,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
             "openSlots 0<2",
-            "offset 39.3%≥30"
+            "offset 37.9%≥30"
           ]
         },
         {
@@ -283,7 +279,7 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 11.3,
+          "webDocOffset": 12.1,
           "verdictT1": "open",
           "verdictT2": "open",
           "reason": []
@@ -295,7 +291,7 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 6.2,
+          "webDocOffset": 7.9,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
@@ -305,18 +301,18 @@
         },
         {
           "query": "조기취업수당 조건",
-          "rank": 2,
+          "rank": 3,
           "openSlots": 0,
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 62.5,
+          "webDocOffset": 61.9,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
-            "already r2",
+            "already r3",
             "openSlots 0<2",
-            "offset 62.5%≥30"
+            "offset 61.9%≥30"
           ]
         },
         {
@@ -326,7 +322,7 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 12.5,
+          "webDocOffset": 12.6,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
@@ -341,7 +337,7 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 9.6,
+          "webDocOffset": 7.8,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
@@ -351,16 +347,17 @@
         },
         {
           "query": "2026 재난지원금",
-          "rank": null,
-          "openSlots": 1,
-          "mainGovAbove": 1,
+          "rank": 1,
+          "openSlots": 0,
+          "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 14.9,
-          "verdictT1": "open",
+          "webDocOffset": 14.4,
+          "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
-            "openSlots 1<2"
+            "already r1",
+            "openSlots 0<2"
           ]
         },
         {
@@ -370,11 +367,11 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 57.1,
+          "webDocOffset": 57,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
-            "offset 57.1%≥30"
+            "offset 57%≥30"
           ]
         },
         {
@@ -384,50 +381,51 @@
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 48.5,
+          "webDocOffset": 47.7,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
-            "offset 48.5%≥30"
+            "offset 47.7%≥30"
           ]
         },
         {
           "query": "시흥민생지원금",
           "rank": null,
-          "openSlots": 9,
+          "openSlots": 10,
           "mainGovAbove": 0,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 14.7,
+          "webDocOffset": 15.2,
           "verdictT1": "open",
           "verdictT2": "open",
-          "reason": []
+          "reason": [
+            "offset-warn 15.2%"
+          ]
         },
         {
-          "query": "2026 김해 민생지원금",
+          "query": "나주 민생회복지원금 5부제",
           "rank": 2,
           "openSlots": 0,
           "mainGovAbove": 1,
           "pressAbove": 0,
           "sisterAbove": 0,
-          "webDocOffset": 24.4,
+          "webDocOffset": 12.5,
           "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
             "already r2",
-            "openSlots 0<2",
-            "offset-warn 24.4%"
+            "openSlots 0<2"
           ]
         }
       ]
     },
     "counts": {
-      "T1": 0,
-      "T2": 12,
+      "T1": 1,
+      "T2": 9,
       "T3": 0,
-      "갱신": 25,
-      "제외": 95,
-      "감시": 21
+      "갱신": 27,
+      "제외": 94,
+      "감시": 20
     },
     "sources": {
       "clusterIntents": {
@@ -435,10 +433,10 @@
         "regions": 42
       },
       "naverRanks": {
-        "queries": 41,
-        "updatedAt": "2026-09-12T05:04:33.389Z"
+        "queries": 42,
+        "updatedAt": "2026-09-13T05:23:31.003Z"
       },
-      "radarCandidates": 49,
+      "radarCandidates": 47,
       "regionCandidateSource": "radar.candidates",
       "analyticsFile": "naver-analytics-search-2026-09-02_08.json",
       "volumeScale": {
@@ -448,7 +446,7 @@
       },
       "bigKeywords": 12,
       "landgrab": 9,
-      "posts": 258
+      "posts": 260
     },
     "scoutPlan": {
       "T1": [
@@ -464,8 +462,8 @@
       ],
       "T2": [
         "월세 세액공제 월세환급금",
-        "근로장려금 대상 기준",
         "월세 세액공제 경정청구",
+        "근로장려금 대상 기준",
         "실업급여 구직급여",
         "실업급여 상실신고",
         "중위소득 계산",
@@ -482,10 +480,11 @@
         "기초노령연금",
         "3차민생지원금",
         "시흥민생지원금",
-        "청주시4차민생지원금",
-        "전북청년정착지원금"
+        "청주시4차민생지원금"
       ],
       "remeasure": [
+        "나주 민생회복지원금 5부제",
+        "나주시 민생지원금",
         "2026 김해 민생지원금",
         "김해시 지원금",
         "통영 지원금 신청",
@@ -513,55 +512,6 @@
   },
   "items": [
     {
-      "id": "T2:에너지바우처잔액조회",
-      "track": "T2",
-      "query": "에너지바우처 잔액조회",
-      "family": null,
-      "region": null,
-      "cluster": "에너지바우처",
-      "evidence": [
-        "big-keywords \"에너지바우처\" alias \"잔액조회\"",
-        "recent7 10.09(big-keywords datalab rel30(proxy))",
-        "\"에너지바우처 잔액 조회\" naver-ranks 2026-09-12: 자사 미노출 · openSlots 6 · 자매 0 · T2 open",
-        "계수 national/null 36.8(n=1)"
-      ],
-      "expectedInbound": "223~520",
-      "condition": "자매 주의: 역할표에 직접 겹치는 자매 없음. 부동산·주거비 각도(homedata.kr)와만 거리 유지. · 인접 글 oil-relief-usage-period-merchants-2026-07-08 — 각도 분리",
-      "recent7": 10.09,
-      "recent7Source": "big-keywords datalab rel30(proxy)",
-      "serp": {
-        "query": "에너지바우처 잔액 조회",
-        "rank": null,
-        "webDocCount": 7,
-        "aboveIsWholeBlock": true,
-        "openSlots": 6,
-        "mainGovAbove": 0,
-        "pressAbove": 0,
-        "sisterAbove": 0,
-        "webDocOffset": 10.1,
-        "verdictT1": "open",
-        "verdictT2": "open",
-        "reason": [],
-        "source": "naver-ranks 2026-09-12",
-        "approx": false
-      },
-      "score": 1485.2,
-      "scoreNote": "10.09 × min(6,4) × 36.8",
-      "exposure": {
-        "score": 100,
-        "label": "높음",
-        "reasons": [
-          "자리 열림",
-          "빈자리 6",
-          "위에 관공서 없음"
-        ]
-      },
-      "status": "published",
-      "createdAt": "2026-09-10T01:31:19.609Z",
-      "statusAt": "2026-09-12",
-      "publishedSlug": "energy-voucher-balance-check-carryover-2026-09-12"
-    },
-    {
       "id": "새키워드:2026근로장려금대상기준",
       "track": "T2",
       "query": "2026 근로장려금 대상 기준",
@@ -572,11 +522,11 @@
       "inbound7d": 147,
       "evidence": [
         "실유입 147/주",
-        "scout 2026-09-12: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 3 · offset 11.3% · T1 open · T2 open"
+        "scout 2026-09-13: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 3 · offset 12.1% · T1 open · T2 open"
       ],
       "expectedInbound": "현재 147/주",
       "condition": "검색 결과 실측 필요",
-      "recent7": 9.53,
+      "recent7": 8.26,
       "recent7Source": "radar",
       "serp": {
         "query": "2026 근로장려금 대상 기준",
@@ -588,24 +538,19 @@
         "mainGovAbove": 0,
         "pressAbove": 0,
         "sisterAbove": 0,
-        "webDocOffset": 11.3,
+        "webDocOffset": 12.1,
         "verdictT1": "open",
         "verdictT2": "open",
         "reason": [],
         "region": null,
         "onPage": false,
         "parseOk": true,
-        "measuredAt": "2026-09-12T05:19:41.693Z",
+        "measuredAt": "2026-09-13T05:34:24.589Z",
         "above": [
           {
             "host": "bokjiro.go.kr",
             "kind": "institutional",
             "title": "근로·자녀장려금 - 복지로"
-          },
-          {
-            "host": "nts.go.kr",
-            "kind": "institutional",
-            "title": "2026년 근로장려금 반기 신청·지급제도"
           },
           {
             "host": "hometax.go.kr",
@@ -618,16 +563,13 @@
           },
           {
             "host": "nts.go.kr",
-            "kind": "institutional-open",
-            "title": "근로소득만 있는 가구에 최대 115만 원 지급, ’26년 상반기분 근로장려금, 9월 15일까지 신청하세요....",
-            "openBy": [
-              "board"
-            ]
+            "kind": "institutional",
+            "title": "2026년 근로장려금 반기 신청·지급제도"
           },
           {
-            "host": "ddm.go.kr",
+            "host": "nts.go.kr",
             "kind": "institutional-open",
-            "title": "2026년 상반기분 근로장려금 신청",
+            "title": "근로소득만 있는 가구에 최대 115만 원 지급, ’26년 상반기분 근로장려금, 9월 15일까지 신청하세요....",
             "openBy": [
               "board"
             ]
@@ -636,13 +578,18 @@
             "host": "in.naver.com",
             "kind": "naver",
             "title": "2026 상반기 근로장려금 신청기간·대상·지급일 기준"
+          },
+          {
+            "host": "korcham.net",
+            "kind": "commercial",
+            "title": "[2026세법] 총소득 5천200만원이하 맞벌이도 근로장려금…73만가구 더 혜택"
           }
         ],
-        "source": "scout 2026-09-12",
+        "source": "scout 2026-09-13",
         "approx": false
       },
-      "score": 1052.1,
-      "scoreNote": "9.53 × min(3,4) × 36.8",
+      "score": 911.9,
+      "scoreNote": "8.26 × min(3,4) × 36.8",
       "exposure": {
         "score": 95,
         "label": "높음",
@@ -667,10 +614,10 @@
         "recent7 23.15(big-keywords datalab rel30(proxy))",
         "클러스터 실유입 51/주",
         "계수 national/null 36.8(n=1)",
-        "scout 2026-09-12: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 4 · offset 25.6% · T1 open · T2 open"
+        "scout 2026-09-13: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 4 · offset 25.9% · T1 open · T2 open"
       ],
       "expectedInbound": "511~1193",
-      "condition": "초안 있음(_drafts/monthly-rent-refund-lookup) — 신규 대신 초안 완성 여부 먼저 · 자매 주의: 연말정산 절세 각도는 smartdatashop.kr·asiatop.co.kr, 임대·부동산 각도는 homedata.kr 몫.  · webDocOffset 25.6% 경고(15~30%)",
+      "condition": "초안 있음(_drafts/monthly-rent-refund-lookup) — 신규 대신 초안 완성 여부 먼저 · 자매 주의: 연말정산 절세 각도는 smartdatashop.kr·asiatop.co.kr, 임대·부동산 각도는 homedata.kr 몫.  · webDocOffset 25.9% 경고(15~30%)",
       "recent7": 23.15,
       "recent7Source": "big-keywords datalab rel30(proxy)",
       "serp": {
@@ -683,21 +630,21 @@
         "mainGovAbove": 0,
         "pressAbove": 0,
         "sisterAbove": 0,
-        "webDocOffset": 25.6,
+        "webDocOffset": 25.9,
         "verdictT1": "open",
         "verdictT2": "open",
         "reason": [
-          "offset-warn 25.6%"
+          "offset-warn 25.9%"
         ],
         "region": null,
         "onPage": false,
         "parseOk": true,
-        "measuredAt": "2026-09-12T05:19:18.765Z",
+        "measuredAt": "2026-09-13T05:34:01.908Z",
         "above": [
           {
             "host": "nts.go.kr",
             "kind": "institutional",
-            "title": "국세청>국세신고안내>개인신고안내>연말정산>맞춤형 안내> 월세액 세액공제"
+            "title": "국세청>국세신고안내>법인신고안내>연말정산>맞춤형 안내> 월세액 세액공제"
           },
           {
             "host": "in.naver.com",
@@ -725,7 +672,7 @@
             "title": "월세 환급금 신청 조건 2026 | 최대 17% 세액공제 기준"
           }
         ],
-        "source": "scout 2026-09-12",
+        "source": "scout 2026-09-13",
         "approx": false
       },
       "score": 3407.7,
@@ -755,10 +702,10 @@
         "recent7 9.32(big-keywords datalab rel30(proxy))",
         "클러스터 실유입 51/주",
         "계수 national/null 36.8(n=1)",
-        "scout 2026-09-12: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 4 · offset 17.4% · T1 open · T2 open"
+        "scout 2026-09-13: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 4 · offset 18% · T1 open · T2 open"
       ],
       "expectedInbound": "206~480",
-      "condition": "초안 있음(_drafts/monthly-rent-refund-lookup) — 신규 대신 초안 완성 여부 먼저 · 자매 주의: 연말정산 절세 각도는 smartdatashop.kr·asiatop.co.kr, 임대·부동산 각도는 homedata.kr 몫.  · webDocOffset 17.4% 경고(15~30%)",
+      "condition": "초안 있음(_drafts/monthly-rent-refund-lookup) — 신규 대신 초안 완성 여부 먼저 · 자매 주의: 연말정산 절세 각도는 smartdatashop.kr·asiatop.co.kr, 임대·부동산 각도는 homedata.kr 몫.  · webDocOffset 18% 경고(15~30%)",
       "recent7": 9.32,
       "recent7Source": "big-keywords datalab rel30(proxy)",
       "serp": {
@@ -771,16 +718,16 @@
         "mainGovAbove": 0,
         "pressAbove": 0,
         "sisterAbove": 0,
-        "webDocOffset": 17.4,
+        "webDocOffset": 18,
         "verdictT1": "open",
         "verdictT2": "open",
         "reason": [
-          "offset-warn 17.4%"
+          "offset-warn 18%"
         ],
         "region": null,
         "onPage": false,
         "parseOk": true,
-        "measuredAt": "2026-09-12T05:19:26.331Z",
+        "measuredAt": "2026-09-13T05:34:05.610Z",
         "above": [
           {
             "host": "nts.go.kr",
@@ -798,14 +745,14 @@
             "title": "5년간 월세 세액 공제 경정청구는 어떻게 하나요?"
           },
           {
-            "host": "blog.naver.com",
-            "kind": "naver",
-            "title": "지난 월세 그냥 포기하지 마세요｜놓친 월세 세액공제 경정청구 방법"
-          },
-          {
             "host": "zippoom.com",
             "kind": "commercial",
             "title": "월세 세액공제 경정청구 방법 총정리 | 홈택스 신청·서류·기간·누락 확인 (2026)"
+          },
+          {
+            "host": "blog.naver.com",
+            "kind": "naver",
+            "title": "월세 세액공제 경정청구, 누락한 월세는 ‘지금 연도’가 아니라 귀속연도로 신청합니다."
           },
           {
             "host": "blog.naver.com",
@@ -818,7 +765,7 @@
             "title": "월세 세액공제 놓친 경우 어떻게 받을까? 경정청구·종합소득세 신고 총정리"
           }
         ],
-        "source": "scout 2026-09-12",
+        "source": "scout 2026-09-13",
         "approx": false
       },
       "score": 1371.9,
@@ -836,45 +783,71 @@
       "createdAt": "2026-09-11T04:44:46.351Z"
     },
     {
-      "id": "T2:기초연금소득인정액",
-      "track": "T2",
-      "query": "기초연금 소득인정액",
-      "family": null,
+      "id": "T1:4차민생지원금지역별지급현황",
+      "track": "T1",
+      "query": "4차 민생지원금 지역별 지급 현황",
+      "variant": "4차 민생지원금 9월 신청 지역 / 4차 민생지원금 개시일",
+      "family": "A",
       "region": null,
-      "cluster": "기초연금",
+      "rollup": "4차",
+      "start": null,
+      "dStart": null,
+      "inWindow": false,
       "evidence": [
-        "big-keywords \"기초연금\" alias \"소득인정액\"",
-        "recent7 3.74(big-keywords datalab rel30(proxy))",
-        "\"기초연금 수급자격 소득인정액 계산\" naver-ranks 2026-09-12: 자사 미노출 · openSlots 3 · 자매 0 · T2 open",
-        "클러스터 실유입 138/주",
-        "계수 national/null 36.8(n=1)"
+        "롤업 축 \"4차\" × A — 기존 롤업 chuseok-livelihood-recovery-region-check-2026-07-30(추석 축)",
+        "recent7 455·trend 2.46(volume-scale volumesUsed). rank-targets 2026-09-10: 자사 미노출·web4·본청 0",
+        "rank-targets: 4차축 롤업 후보 자리. 2026-09-10 SERP: 자사 미노출·web4(블로그2·상업1·중원구청1), 본청 0·언론 0",
+        "recent7 455.89(volume-scale)",
+        "계수 rollup/null 50.5(n=1)",
+        "scout 2026-09-13: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 2 · offset 70.5% · T1 closed · T2 closed",
+        "변형 \"4차 민생지원금 9월 신청 지역\": r2 · 본청 0 · 언론 0 · 자매 0 · openSlots 1 · offset 6.8% · T1 closed · T2 closed",
+        "변형 \"4차 민생지원금 개시일\": 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 2 · offset 11.7% · T1 open · T2 open"
       ],
-      "expectedInbound": "83~193",
-      "condition": "자매 주의: 연금·은퇴 설계 각도는 retiredata.kr 몫. awoo는 수급자격·소득인정액·개편 영향 각도만. 국민연금 연계 감액은 ",
-      "recent7": 3.74,
-      "recent7Source": "big-keywords datalab rel30(proxy)",
+      "expectedInbound": "50~500",
+      "condition": "변형 2개 webDocOffset <30%(결정 #4). 07-30 추석 롤업 잠식 시 noindex · 타깃(제목 선두)을 변형으로: \"4차 민생지원금 개시일\" — 본 쿼리 \"4차 민생지원금 지역별 지급 현황\"는 offset 70.5%≥30 · 자사 글이 이미 \"4차 민생지원금 9월 신청 지역\" r2 — 그 글을 잠식하지 않는 각도(A키 선두)로만",
+      "recent7": 455.89,
+      "recent7Source": "volume-scale",
       "serp": {
-        "query": "기초연금 수급자격 소득인정액 계산",
+        "query": "4차 민생지원금 개시일",
         "rank": null,
-        "webDocCount": 8,
+        "url": null,
+        "webDocCount": 2,
         "aboveIsWholeBlock": true,
-        "openSlots": 3,
+        "openSlots": 2,
         "mainGovAbove": 0,
         "pressAbove": 0,
         "sisterAbove": 0,
-        "webDocOffset": 21.3,
+        "webDocOffset": 11.7,
         "verdictT1": "open",
         "verdictT2": "open",
-        "reason": [
-          "offset-warn 21.3%"
+        "reason": [],
+        "region": null,
+        "onPage": false,
+        "parseOk": true,
+        "measuredAt": "2026-09-13T05:33:58.161Z",
+        "above": [
+          {
+            "host": "mois.go.kr",
+            "kind": "institutional-open",
+            "title": "｢민생회복 소비쿠폰 2차 지급｣ 9월 22일 개시",
+            "stale": true,
+            "openBy": [
+              "stale"
+            ]
+          },
+          {
+            "host": "daeheungsa.co.kr",
+            "kind": "commercial",
+            "title": "2026 민생지원금 4차 신청 안 하면 못 받습니다"
+          }
         ],
-        "source": "naver-ranks 2026-09-12",
+        "source": "scout 2026-09-13",
         "approx": false
       },
-      "score": 412.9,
-      "scoreNote": "3.74 × min(3,4) × 36.8",
+      "score": 46044.9,
+      "scoreNote": "455.89 × min(2,4) × 50.5",
       "exposure": {
-        "score": 85,
+        "score": 90,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -882,10 +855,116 @@
           "위에 언론 없음"
         ]
       },
-      "status": "published",
-      "createdAt": "2026-09-11T01:02:58.743Z",
-      "statusAt": "2026-09-12",
-      "publishedSlug": "basic-pension-income-recognition-calc-2026-09-12"
+      "status": "proposed",
+      "createdAt": "2026-09-13T05:33:24.724Z"
+    },
+    {
+      "id": "T2:실업급여상실신고",
+      "track": "T2",
+      "query": "실업급여 상실신고",
+      "family": null,
+      "region": null,
+      "cluster": "실업급여",
+      "evidence": [
+        "big-keywords \"실업급여\" alias \"상실신고\"",
+        "recent7 2.66(big-keywords datalab rel30(proxy))",
+        "클러스터 실유입 340/주",
+        "계수 national/null 36.8(n=1)",
+        "scout 2026-09-13: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 2 · offset 16.6% · T1 open · T2 open"
+      ],
+      "expectedInbound": "59~137",
+      "condition": "자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia · webDocOffset 16.6% 경고(15~30%)",
+      "recent7": 2.66,
+      "recent7Source": "big-keywords datalab rel30(proxy)",
+      "serp": {
+        "query": "실업급여 상실신고",
+        "rank": null,
+        "url": null,
+        "webDocCount": 10,
+        "aboveIsWholeBlock": true,
+        "openSlots": 2,
+        "mainGovAbove": 0,
+        "pressAbove": 0,
+        "sisterAbove": 0,
+        "webDocOffset": 16.6,
+        "verdictT1": "open",
+        "verdictT2": "open",
+        "reason": [
+          "offset-warn 16.6%"
+        ],
+        "region": null,
+        "onPage": false,
+        "parseOk": true,
+        "measuredAt": "2026-09-13T05:34:16.958Z",
+        "above": [
+          {
+            "host": "work24.go.kr",
+            "kind": "institutional",
+            "title": "실업급여 상용직 - 고용24"
+          },
+          {
+            "host": "1350.moel.go.kr",
+            "kind": "institutional",
+            "title": "고용노동부 모바일페이지 고객센터"
+          },
+          {
+            "host": "easylaw.go.kr",
+            "kind": "institutional",
+            "title": "구직급여 수급신청 < 실업급여"
+          },
+          {
+            "host": "health.yangyang.go.kr",
+            "kind": "institutional",
+            "title": "4대보험 상실신고 기한 실업급여 신청 전 언제까지 처리될까"
+          },
+          {
+            "host": "easylaw.go.kr",
+            "kind": "institutional",
+            "title": "실업급여 > 구직급여 > 구직급여 수급신청 > 실업의 신고 (본문)"
+          },
+          {
+            "host": "opengov.seoul.go.kr",
+            "kind": "institutional",
+            "title": "고용보험 자격 상실 신고 및 이직확인서 제출 > 결재문서 > 원문정보 > 정보소통광장"
+          },
+          {
+            "host": "gov.kr",
+            "kind": "institutional",
+            "title": "고용보험 피보험자격확인 청구 | 민원안내 및 신청 | 정부24"
+          },
+          {
+            "host": "blog.naver.com",
+            "kind": "naver",
+            "title": "고용보험 상실신고 조회, 실업급여 전 먼저 확인할 것"
+          },
+          {
+            "host": "lawsee.com",
+            "kind": "commercial",
+            "title": "회사에서 4대보험상실신고와 이직확인서 접수 후 얼마 후에 실업급여 신청이 가능한가요?"
+          },
+          {
+            "host": "ai.bznav.com",
+            "kind": "commercial",
+            "title": "이전 직장에서 4대보험 상실신고가 누락되면 실업급여 신청 시 어떤 불이익이 발생하나요?"
+          }
+        ],
+        "source": "scout 2026-09-13",
+        "approx": false
+      },
+      "score": 195.8,
+      "scoreNote": "2.66 × min(2,4) × 36.8",
+      "exposure": {
+        "score": 80,
+        "label": "높음",
+        "reasons": [
+          "자리 열림",
+          "위에 관공서 없음",
+          "위에 언론 없음"
+        ]
+      },
+      "status": "hold",
+      "createdAt": "2026-09-10T01:31:19.609Z",
+      "statusAt": "2026-09-12"
     },
     {
       "id": "새키워드:시흥민생지원금",
@@ -897,13 +976,13 @@
       "born": false,
       "inbound7d": null,
       "evidence": [
-        "기회도 39(수요 43% · 공급희소 90%)",
+        "기회도 35(수요 40% · 공급희소 88%)",
         "블로그 문서 202건",
-        "scout 2026-09-12: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 9 · offset 14.7% · T1 open · T2 open"
+        "scout 2026-09-13: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 10 · offset 15.2% · T1 open · T2 open"
       ],
-      "expectedInbound": "9~21",
-      "condition": "검색 결과 실측 필요",
-      "recent7": 0.4,
+      "expectedInbound": "8~20",
+      "condition": "검색 결과 실측 필요 · webDocOffset 15.2% 경고(15~30%)",
+      "recent7": 0.38,
       "recent7Source": "radar",
       "serp": {
         "query": "시흥민생지원금",
@@ -911,18 +990,20 @@
         "url": null,
         "webDocCount": 12,
         "aboveIsWholeBlock": true,
-        "openSlots": 9,
+        "openSlots": 10,
         "mainGovAbove": 0,
         "pressAbove": 0,
         "sisterAbove": 0,
-        "webDocOffset": 14.7,
+        "webDocOffset": 15.2,
         "verdictT1": "open",
         "verdictT2": "open",
-        "reason": [],
+        "reason": [
+          "offset-warn 15.2%"
+        ],
         "region": null,
         "onPage": false,
         "parseOk": true,
-        "measuredAt": "2026-09-12T05:20:12.003Z",
+        "measuredAt": "2026-09-13T05:34:54.060Z",
         "above": [
           {
             "host": "siheung.go.kr",
@@ -948,34 +1029,29 @@
             "title": "2026 시흥시 추석 민생지원금 신청방법"
           },
           {
+            "host": "paxnet.co.kr",
+            "kind": "commercial",
+            "title": "2026 시흥시 추석 민생지원금 신청방법 및 대상자 지급 일자 금액 안내 | 자유게시판 | 커뮤니티"
+          },
+          {
             "host": "blog.naver.com",
             "kind": "naver",
             "title": "시흥시민 필수 확인! 고유가 피해지원금 신청 안내"
           },
           {
-            "host": "paxnet.co.kr",
+            "host": "sjeil.kr",
             "kind": "commercial",
-            "title": "시흥 추석 민생지원금 민생회복 지원금 4차 핵심 정리 | 자유게시판 | 커뮤니티"
+            "title": "2026 시흥 추석 민생지원금 4차 신청 방법 지급 금액 조회 안내"
           },
           {
             "host": "blog.naver.com",
             "kind": "naver",
-            "title": "시흥시 추석 4차 민생지원금 지급할까? 명절 혜택과 시루 사용 확인"
-          },
-          {
-            "host": "blog.naver.com",
-            "kind": "naver",
-            "title": "2026 추석 명절 민생지원금 평택·시흥·파주·의정부 신청방법 대상 확인"
+            "title": "2026 시흥 4차 민생지원금 신청 총정리"
           },
           {
             "host": "dealbada.com",
             "kind": "commercial",
-            "title": "시흥시 추석 민생지원금 신청 방법 대상 지급일 조회 > 음악포럼"
-          },
-          {
-            "host": "sjeil.kr",
-            "kind": "commercial",
-            "title": "2026 시흥 추석 민생지원금 4차 신청 방법 지급 금액 조회 안내"
+            "title": "시흥 추석 민생지원금, 시흥 민생회복 지원금 4차(시흥시 민생지원금 신청방법 대상자 금액 지급...."
           },
           {
             "host": "yongmunsa.kr",
@@ -984,130 +1060,35 @@
             "stale": true
           },
           {
+            "host": "grad.joongbu.ac.kr",
+            "kind": "institutional-open",
+            "title": "2026 경기 시흥 추석 민생지원금 대상자 확인 지급 방식 | 자유게시판 | 중부광장 : 중부대학교",
+            "openBy": [
+              "board"
+            ]
+          },
+          {
             "host": "daangn.com",
             "kind": "commercial",
             "title": "시흥시 민생지원금 사용 가능한 큰 마트 어디 있을까요? | 산현동"
           }
         ],
-        "source": "scout 2026-09-12",
+        "source": "scout 2026-09-13",
         "approx": false
       },
-      "score": 58.9,
-      "scoreNote": "0.4 × min(9,4) × 36.8",
-      "exposure": {
-        "score": 85,
-        "label": "높음",
-        "reasons": [
-          "자리 열림",
-          "빈자리 9",
-          "위에 관공서 없음"
-        ]
-      },
-      "status": "proposed",
-      "createdAt": "2026-09-11T04:44:46.351Z"
-    },
-    {
-      "id": "T2:실업급여상실신고",
-      "track": "T2",
-      "query": "실업급여 상실신고",
-      "family": null,
-      "region": null,
-      "cluster": "실업급여",
-      "evidence": [
-        "big-keywords \"실업급여\" alias \"상실신고\"",
-        "recent7 2.66(big-keywords datalab rel30(proxy))",
-        "클러스터 실유입 340/주",
-        "계수 national/null 36.8(n=1)",
-        "scout 2026-09-12: 자사 미노출 · 본청 0 · 언론 0 · 자매 0 · openSlots 2 · offset 16.4% · T1 open · T2 open"
-      ],
-      "expectedInbound": "59~137",
-      "condition": "자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia · webDocOffset 16.4% 경고(15~30%)",
-      "recent7": 2.66,
-      "recent7Source": "big-keywords datalab rel30(proxy)",
-      "serp": {
-        "query": "실업급여 상실신고",
-        "rank": null,
-        "url": null,
-        "webDocCount": 9,
-        "aboveIsWholeBlock": true,
-        "openSlots": 2,
-        "mainGovAbove": 0,
-        "pressAbove": 0,
-        "sisterAbove": 0,
-        "webDocOffset": 16.4,
-        "verdictT1": "open",
-        "verdictT2": "open",
-        "reason": [
-          "offset-warn 16.4%"
-        ],
-        "region": null,
-        "onPage": false,
-        "parseOk": true,
-        "measuredAt": "2026-09-12T05:19:33.897Z",
-        "above": [
-          {
-            "host": "work24.go.kr",
-            "kind": "institutional",
-            "title": "실업급여 상용직 - 고용24"
-          },
-          {
-            "host": "1350.moel.go.kr",
-            "kind": "institutional",
-            "title": "고용노동부 1350"
-          },
-          {
-            "host": "easylaw.go.kr",
-            "kind": "institutional",
-            "title": "구직급여 수급신청 < 실업급여"
-          },
-          {
-            "host": "easylaw.go.kr",
-            "kind": "institutional",
-            "title": "실업급여 > 구직급여 > 구직급여 수급신청 > 실업의 신고 (본문)"
-          },
-          {
-            "host": "health.yangyang.go.kr",
-            "kind": "institutional",
-            "title": "4대보험 상실신고 기한 실업급여 신청 전 언제까지 처리될까"
-          },
-          {
-            "host": "opengov.seoul.go.kr",
-            "kind": "institutional",
-            "title": "고용보험 자격 상실 신고 및 이직확인서 제출 > 결재문서 > 원문정보 > 정보소통광장"
-          },
-          {
-            "host": "blog.naver.com",
-            "kind": "naver",
-            "title": "고용보험 상실신고 조회, 실업급여 전 먼저 확인할 것"
-          },
-          {
-            "host": "lawsee.com",
-            "kind": "commercial",
-            "title": "회사에서 4대보험상실신고와 이직확인서 접수 후 얼마 후에 실업급여 신청이 가능한가요?"
-          },
-          {
-            "host": "ai.bznav.com",
-            "kind": "commercial",
-            "title": "이전 직장에서 4대보험 상실신고가 누락되면 실업급여 신청 시 어떤 불이익이 발생하나요?"
-          }
-        ],
-        "source": "scout 2026-09-12",
-        "approx": false
-      },
-      "score": 195.8,
-      "scoreNote": "2.66 × min(2,4) × 36.8",
+      "score": 55.9,
+      "scoreNote": "0.38 × min(10,4) × 36.8",
       "exposure": {
         "score": 80,
         "label": "높음",
         "reasons": [
           "자리 열림",
-          "위에 관공서 없음",
-          "위에 언론 없음"
+          "빈자리 10",
+          "위에 관공서 없음"
         ]
       },
-      "status": "hold",
-      "createdAt": "2026-09-10T01:31:19.609Z",
-      "statusAt": "2026-09-12"
+      "status": "proposed",
+      "createdAt": "2026-09-11T04:44:46.351Z"
     },
     {
       "id": "새키워드:4차민생쿠폰신청",
@@ -1166,18 +1147,18 @@
       "cluster": "중위소득",
       "evidence": [
         "big-keywords \"중위소득\" alias \"계산\"",
-        "recent7 1.81(radar)",
+        "recent7 1.77(radar)",
         "SERP 이력 없음",
         "클러스터 실유입 146/주",
         "계수 national/null 36.8(n=1)"
       ],
-      "expectedInbound": "40~93",
+      "expectedInbound": "39~91",
       "condition": "SERP 미측정 — --serp로 openSlots ≥2·자매 0 확인 · 자매 주의: '중위소득 계산기' 각도는 calculatorhost.com과 겹칠 수 있다. awoo는 급여별(생계·주거·의료) 문턱 표 각 · 인접 글 youth-future-savings-calculator-2026-06-03, early-reemployment-allowance-2026-06-16 — 각도 분리",
-      "recent7": 1.81,
+      "recent7": 1.77,
       "recent7Source": "radar",
       "serp": null,
-      "score": 133.2,
-      "scoreNote": "1.81 × min(미측정→2,4) × 36.8",
+      "score": 130.3,
+      "scoreNote": "1.77 × min(미측정→2,4) × 36.8",
       "exposure": {
         "score": null,
         "label": "미측정",
@@ -1197,18 +1178,18 @@
       "cluster": "주휴수당",
       "evidence": [
         "big-keywords \"주휴수당\" alias \"포함 시급\"",
-        "recent7 1.67(radar)",
+        "recent7 1.71(radar)",
         "SERP 이력 없음",
         "클러스터 실유입 402/주",
         "계수 national/null 36.8(n=1)"
       ],
-      "expectedInbound": "37~86",
+      "expectedInbound": "38~88",
       "condition": "SERP 미측정 — --serp로 openSlots ≥2·자매 0 확인 · 자매 주의: '주휴수당 계산기' 각도는 calculatorhost.com 몫, 알바·사회초년생 노무 각도는 asiatop.co.kr과 겹칠",
-      "recent7": 1.67,
+      "recent7": 1.71,
       "recent7Source": "radar",
       "serp": null,
-      "score": 122.9,
-      "scoreNote": "1.67 × min(미측정→2,4) × 36.8",
+      "score": 125.9,
+      "scoreNote": "1.71 × min(미측정→2,4) × 36.8",
       "exposure": {
         "score": null,
         "label": "미측정",
@@ -1229,17 +1210,17 @@
       "born": false,
       "inbound7d": null,
       "evidence": [
-        "기회도 36(수요 37% · 공급희소 98%)",
-        "블로그 문서 6건",
+        "기회도 34(수요 35% · 공급희소 97%)",
+        "블로그 문서 7건",
         "SERP 이력 없음(--serp로 실측 필요)"
       ],
-      "expectedInbound": "6~15",
+      "expectedInbound": "5~12",
       "condition": "검색 결과 실측 필요",
-      "recent7": 0.29,
+      "recent7": 0.23,
       "recent7Source": "radar",
       "serp": null,
-      "score": 21.3,
-      "scoreNote": "0.29 × min(미측정→2,4) × 36.8",
+      "score": 16.9,
+      "scoreNote": "0.23 × min(미측정→2,4) × 36.8",
       "exposure": {
         "score": null,
         "label": "미측정",
@@ -1251,53 +1232,22 @@
       "createdAt": "2026-09-11T04:44:46.351Z"
     },
     {
-      "id": "새키워드:전북청년정착지원금",
-      "track": "T2",
-      "query": "전북청년정착지원금",
-      "family": null,
-      "region": null,
-      "source": "레이더",
-      "born": false,
-      "inbound7d": null,
-      "evidence": [
-        "기회도 34(수요 37% · 공급희소 93%)",
-        "블로그 문서 85건",
-        "SERP 이력 없음(--serp로 실측 필요)"
-      ],
-      "expectedInbound": "6~15",
-      "condition": "검색 결과 실측 필요",
-      "recent7": 0.29,
-      "recent7Source": "radar",
-      "serp": null,
-      "score": 21.3,
-      "scoreNote": "0.29 × min(미측정→2,4) × 36.8",
-      "exposure": {
-        "score": null,
-        "label": "미측정",
-        "reasons": [
-          "검색 결과 실측 전"
-        ]
-      },
-      "status": "proposed",
-      "createdAt": "2026-09-12T05:18:40.068Z"
-    },
-    {
-      "id": "갱신:buan-livelihood-stability-grant-2026-08-19:serp-2026-09-12",
+      "id": "갱신:buan-livelihood-stability-grant-2026-08-19:serp-2026-09-13",
       "track": "갱신",
       "query": "부안군 민생안정지원금 30만원, 대상 기준일과 지급 일정",
       "slug": "buan-livelihood-stability-grant-2026-08-19",
       "path": "src/data/issues/2026-08-19/buan-livelihood-stability-grant-2026-08-19.json",
       "region": "부안",
-      "dueDate": "2026-09-12",
+      "dueDate": "2026-09-13",
       "daysLeft": 0,
       "evidence": [
-        "scout 2026-09-12: \"부안군 민생안정지원금 못 받았으면\" r1, \"부안군 민생안정지원금 9월 16일 출장 지급 이후\" r2 — B 쿼리를 기존 A글이 받는다",
+        "scout 2026-09-13: \"부안군 민생안정지원금 못 받았으면\" r1, \"부안군 민생안정지원금 9월 16일 출장 지급 이후\" r2 — B 쿼리를 기존 A글이 받는다",
         "B키 사실(\"부안군 민생안정지원금 못 받았으면\")을 기존 글에 updates[]·표 행으로 추가"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변",
       "score": 10,
       "status": "proposed",
-      "createdAt": "2026-09-12T05:18:40.068Z"
+      "createdAt": "2026-09-13T05:33:24.724Z"
     },
     {
       "id": "갱신:wanju-livelihood-stability-grant-2026-08-12:2026-09-13",
@@ -1307,15 +1257,15 @@
       "path": "src/data/issues/2026-08-12/wanju-livelihood-stability-grant-2026-08-12.json",
       "region": "완주",
       "dueDate": "2026-09-13",
-      "daysLeft": 1,
+      "daysLeft": 0,
       "evidence": [
         "coreFacts.deadline \"신청·지급 2026.09.08~10.30(집중지급 9.08~9.13) / 사용기한 2026.12.31\"",
-        "날짜 2026-09-13 D-1",
+        "날짜 2026-09-13 D-day",
         "갱신 이력 없음",
         "계획 §5 이정표: 위임장 대리신청 9/14 이후(9/2 위임장 공고)(2026-09-14)"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 9,
+      "score": 10,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1327,16 +1277,35 @@
       "path": null,
       "region": "영암",
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
         "계획 §5 이정표: 방문 신청 개시 9/14",
-        "날짜 2026-09-14 D-2",
+        "날짜 2026-09-14 D-1",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
+    },
+    {
+      "id": "갱신:chuseok-livelihood-recovery-region-check-2026-07-30:2026-09-14",
+      "track": "갱신",
+      "query": "추석 민생회복지원금 우리 지역 대상·신청 조회 방법",
+      "slug": "chuseok-livelihood-recovery-region-check-2026-07-30",
+      "path": "src/data/issues/2026-07-30/chuseok-livelihood-recovery-region-check-2026-07-30.json",
+      "region": null,
+      "dueDate": "2026-09-14",
+      "daysLeft": 1,
+      "evidence": [
+        "coreFacts.deadline \"2026 추석(9월 25일) 전 지급 지자체 증가 / 신청·지급·사용기한은 지자체 공고로 확정(속초 신청 7.20~9.11·나주 9.14부터)\"",
+        "날짜 2026-09-14 D-1 (+ 2026-09-11 D+2)",
+        "dateModified 2026-07-30"
+      ],
+      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
+      "score": 9,
+      "status": "proposed",
+      "createdAt": "2026-09-13T05:33:24.724Z"
     },
     {
       "id": "갱신:goheung-livelihood-grant-2026-08-19:2026-09-14",
@@ -1346,15 +1315,15 @@
       "path": "src/data/issues/2026-08-19/goheung-livelihood-grant-2026-08-19.json",
       "region": "고흥",
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
         "coreFacts.deadline \"9월 1일 확정 발표: 2026.9.14~18 마을 방문 지급(1차), 9.21~10.30 읍면사무소 신청, 사용기한 2026.12.31(지류 \"",
-        "날짜 2026-09-14 D-2",
+        "날짜 2026-09-14 D-1",
         "dateModified 2026-09-05T22:58:49.000Z",
         "계획 §5 이정표: 마을 지급 9/14~18 개시(2026-09-14)"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1366,14 +1335,14 @@
       "path": "src/data/issues/2026-08-17/goheung-livelihood-recovery-grant-2026-08-17.json",
       "region": "고흥",
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
         "계획 §5 이정표: 마을 지급 9/14~18 개시",
-        "날짜 2026-09-14 D-2",
+        "날짜 2026-09-14 D-1",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1385,14 +1354,14 @@
       "path": "src/data/issues/2026-08-28/hope-savings-account-type1-round3-2026-08-28.json",
       "region": null,
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
         "coreFacts.deadline \"Ⅰ유형 3차 접수 2026년 9월 1일~14일, 놓치면 4차 11월 2일~16일 예정\"",
-        "날짜 2026-09-14 D-2",
+        "날짜 2026-09-14 D-1",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1404,14 +1373,14 @@
       "path": "src/data/issues/2026-08-16/mungyeong-high-oil-price-relief-2026-08-16.json",
       "region": "문경",
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
         "coreFacts.deadline \"신청 2026년 9월 14일~10월 23일 / 선불카드 사용기한 2026년 12월 31일까지\"",
-        "날짜 2026-09-14 D-2",
+        "날짜 2026-09-14 D-1",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1423,14 +1392,14 @@
       "path": "src/data/issues/2026-08-27/mungyeong-livelihood-grant-chuseok-payment-2026-08-27.json",
       "region": "문경",
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
-        "coreFacts.deadline \"접수 2026년 9월 14일~10월 23일, 추석(9월 25일) 전 지급 목표는 9월 1일 시의회 추경 의결이 전제\"",
-        "날짜 2026-09-14 D-2",
-        "갱신 이력 없음"
+        "coreFacts.deadline \"접수 2026년 9월 14일~10월 23일, 추경 예산은 9월 8일 시의회 의결로 확정(추석 전 지급 목표 유지)\"",
+        "날짜 2026-09-14 D-1",
+        "dateModified 2026-09-13"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1442,14 +1411,14 @@
       "path": "src/data/issues/2026-09-03/naju-livelihood-grant-rotation-days-2026-09-03.json",
       "region": "나주",
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
         "coreFacts.deadline \"온라인·방문 공통 2026.09.14~10.16(시 공식 게시물), 첫 주 9.14~18 출생연도 끝자리 5부제. 온라인 안내의 출생연도 무관 \"",
-        "날짜 2026-09-14 D-2",
+        "날짜 2026-09-14 D-1",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1461,14 +1430,14 @@
       "path": "src/data/issues/2026-08-07/naju-livelihood-recovery-grant-2026-08-07.json",
       "region": "나주",
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
         "coreFacts.deadline \"신청·지급 2026.09.14부터(9월 제2회 추경 의결 전제, 마감일은 공고 예정) / 사용기한 2026.11.30\"",
-        "날짜 2026-09-14 D-2",
+        "날짜 2026-09-14 D-1",
         "dateModified 2026-09-03T07:10:00.000Z"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1480,14 +1449,14 @@
       "path": "src/data/issues/2026-09-10/wanju-grant-proxy-application-after-sep14-2026-09-10.json",
       "region": "완주",
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
         "계획 §5 이정표: 위임장 대리신청 9/14 이후(9/2 위임장 공고)",
-        "날짜 2026-09-14 D-2",
+        "날짜 2026-09-14 D-1",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1499,14 +1468,14 @@
       "path": "src/data/issues/2026-09-10/youth-rent-support-selection-announcement-2026-09-10.json",
       "region": null,
       "dueDate": "2026-09-14",
-      "daysLeft": 2,
+      "daysLeft": 1,
       "evidence": [
         "coreFacts.deadline \"선정자 발표 2026년 9월 14일 예정\"",
-        "날짜 2026-09-14 D-2",
+        "날짜 2026-09-14 D-1",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 8,
+      "score": 9,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1518,15 +1487,15 @@
       "path": "src/data/issues/2026-08-24/eitc-semiannual-application-2026-08-24.json",
       "region": null,
       "dueDate": "2026-09-15",
-      "daysLeft": 3,
+      "daysLeft": 2,
       "evidence": [
         "coreFacts.deadline \"상반기분 반기신청 2026.9.1~9.15(지급 2026.12월 말) / 하반기분 2027.3.1~3.15\"",
-        "날짜 2026-09-15 D-3",
+        "날짜 2026-09-15 D-2",
         "갱신 이력 없음",
         "0400-queue 2026-09-16 update 지정과 겹침"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 7,
+      "score": 8,
       "status": "proposed",
       "createdAt": "2026-09-12T05:18:40.068Z"
     },
@@ -1538,14 +1507,14 @@
       "path": "src/data/issues/2026-08-26/eitc-semiannual-dual-income-2026-08-26.json",
       "region": null,
       "dueDate": "2026-09-15",
-      "daysLeft": 3,
+      "daysLeft": 2,
       "evidence": [
         "coreFacts.deadline \"상반기분 반기신청 2026.9.1~9.15(선지급 2026.12월 말) / 하반기분 2027.3.1~3.15(정산 2027.6월)\"",
-        "날짜 2026-09-15 D-3",
+        "날짜 2026-09-15 D-2",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 7,
+      "score": 8,
       "status": "proposed",
       "createdAt": "2026-09-12T05:18:40.068Z"
     },
@@ -1557,16 +1526,56 @@
       "path": "src/data/issues/2026-07-01/eitc-semiannual-vs-regular-payment-date-2026-07-01.json",
       "region": null,
       "dueDate": "2026-09-15",
-      "daysLeft": 3,
+      "daysLeft": 2,
       "evidence": [
         "coreFacts.deadline \"정기신청 2026.5.1~6.1(지급 8.27) · 반기 상반기 9.1~9.15 / 하반기 2027.3.1~3.15 · 기한후신청 6.2~12.\"",
-        "날짜 2026-09-15 D-3",
+        "날짜 2026-09-15 D-2",
         "갱신 이력 없음"
+      ],
+      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
+      "score": 8,
+      "status": "proposed",
+      "createdAt": "2026-09-12T05:18:40.068Z"
+    },
+    {
+      "id": "갱신:buan-livelihood-stability-grant-2026-08-19:2026-09-16",
+      "track": "갱신",
+      "query": "부안군 민생안정지원금 30만원, 대상 기준일과 지급 일정",
+      "slug": "buan-livelihood-stability-grant-2026-08-19",
+      "path": "src/data/issues/2026-08-19/buan-livelihood-stability-grant-2026-08-19.json",
+      "region": "부안",
+      "dueDate": "2026-09-16",
+      "daysLeft": 3,
+      "evidence": [
+        "coreFacts.deadline \"지급 2026.09.16~09.18(읍·면 현지출장 집중 지급) / 사용기한 2026.11.30까지\"",
+        "날짜 2026-09-16 D-3",
+        "갱신 이력 없음",
+        "계획 §5 이정표: 출장 지급 9/16~18 개시(2026-09-16)"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
       "score": 7,
       "status": "proposed",
-      "createdAt": "2026-09-12T05:18:40.068Z"
+      "createdAt": "2026-09-13T05:33:24.724Z"
+    },
+    {
+      "id": "갱신:national-scholarship-2nd-round-2026-07-28:2026-09-16",
+      "track": "갱신",
+      "query": "2026 2학기 국가장학금 2차 신청 9월 9일 마감, 재학생 구제",
+      "slug": "national-scholarship-2nd-round-2026-07-28",
+      "path": "src/data/issues/2026-07-28/national-scholarship-2nd-round-2026-07-28.json",
+      "region": null,
+      "dueDate": "2026-09-16",
+      "daysLeft": 3,
+      "evidence": [
+        "coreFacts.deadline \"2차 신청 8월 12일(수) 9시~9월 9일(수) 18시 / 서류·가구원 동의 9월 16일(수) 18시까지\"",
+        "날짜 2026-09-16 D-3",
+        "dateModified 2026-09-09",
+        "0400-queue 2026-09-09 update 지정과 겹침"
+      ],
+      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
+      "score": 7,
+      "status": "proposed",
+      "createdAt": "2026-09-13T05:33:24.724Z"
     },
     {
       "id": "갱신:chuseok-grant-50man-uiryeong-hampyeong-2026-08-27:2026-09-11",
@@ -1576,15 +1585,15 @@
       "path": "src/data/issues/2026-08-27/chuseok-grant-50man-uiryeong-hampyeong-2026-08-27.json",
       "region": "의령",
       "dueDate": "2026-09-11",
-      "daysLeft": -1,
+      "daysLeft": -2,
       "evidence": [
         "coreFacts.deadline \"의령 2026.8.10~9.11(마감 임박) / 함평 2026.9.7~10.8(첫 주 9.7~11 출생연도 끝자리 5부제)\"",
-        "날짜 2026-09-11 D+1 (+ 2026-09-07 D+5)",
+        "날짜 2026-09-11 D+2 (+ 2026-09-07 D+6)",
         "갱신 이력 없음",
         "계획 §5 이정표: 신청 마감 9/11(2026-09-11)"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 9,
+      "score": 8,
       "status": "proposed",
       "createdAt": "2026-09-10T01:31:19.609Z"
     },
@@ -1596,33 +1605,14 @@
       "path": "src/data/issues/2026-08-07/chuseok-livelihood-coupon-duplicate-2026-08-07.json",
       "region": null,
       "dueDate": "2026-09-11",
-      "daysLeft": -1,
+      "daysLeft": -2,
       "evidence": [
         "coreFacts.deadline \"추석(9월 25일) 전 지급 목표 / 의령 신청 8.10~9.11, 부안 지급 9.16~18, 통영 이르면 8월 말 신청(지자체 공고로 확정)\"",
-        "날짜 2026-09-11 D+1",
+        "날짜 2026-09-11 D+2 (+ 2026-09-16 D-3)",
         "dateModified 2026-08-07"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 9,
-      "status": "proposed",
-      "createdAt": "2026-09-10T01:31:19.609Z"
-    },
-    {
-      "id": "갱신:chuseok-livelihood-recovery-region-check-2026-07-30:2026-09-11",
-      "track": "갱신",
-      "query": "추석 민생회복지원금 우리 지역 대상·신청 조회 방법",
-      "slug": "chuseok-livelihood-recovery-region-check-2026-07-30",
-      "path": "src/data/issues/2026-07-30/chuseok-livelihood-recovery-region-check-2026-07-30.json",
-      "region": null,
-      "dueDate": "2026-09-11",
-      "daysLeft": -1,
-      "evidence": [
-        "coreFacts.deadline \"2026 추석(9월 25일) 전 지급 지자체 증가 / 신청·지급·사용기한은 지자체 공고로 확정(속초 신청 7.20~9.11·나주 9.14부터)\"",
-        "날짜 2026-09-11 D+1 (+ 2026-09-14 D-2)",
-        "dateModified 2026-07-30"
-      ],
-      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 9,
+      "score": 8,
       "status": "proposed",
       "createdAt": "2026-09-10T01:31:19.609Z"
     },
@@ -1634,14 +1624,14 @@
       "path": "src/data/issues/2026-08-09/minsaeng-4th-round-payment-status-2026-08-09.json",
       "region": null,
       "dueDate": "2026-09-11",
-      "daysLeft": -1,
+      "daysLeft": -2,
       "evidence": [
         "coreFacts.deadline \"고유가 피해지원금 사용기한 2026.08.31 24시(잔액 소멸·환수) / 지자체 추석 지원금은 지역별 공고(의령 8.10~9.11, 고창 9.\"",
-        "날짜 2026-09-11 D+1",
+        "날짜 2026-09-11 D+2",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 9,
+      "score": 8,
       "status": "proposed",
       "createdAt": "2026-09-10T01:31:19.609Z"
     },
@@ -1653,14 +1643,14 @@
       "path": "src/data/issues/2026-07-19/sokcho-livelihood-recovery-grant-2026-07-19.json",
       "region": "속초",
       "dueDate": "2026-09-11",
-      "daysLeft": -1,
+      "daysLeft": -2,
       "evidence": [
         "coreFacts.deadline \"신청 2026.07.20~09.11 / 7.20~7.31 요일제는 방문 접수만 적용(온라인은 요일 무관) / 사용 기한 2026.11.30\"",
-        "날짜 2026-09-11 D+1",
+        "날짜 2026-09-11 D+2",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 9,
+      "score": 8,
       "status": "proposed",
       "createdAt": "2026-09-10T01:31:19.609Z"
     },
@@ -1672,15 +1662,15 @@
       "path": "src/data/issues/2026-08-12/uiryeong-livelihood-stability-grant-2026-08-12.json",
       "region": "의령",
       "dueDate": "2026-09-11",
-      "daysLeft": -1,
+      "daysLeft": -2,
       "evidence": [
         "coreFacts.deadline \"신청·지급 2026.08.10~09.11 / 상품권 사용기한 2026.12.31\"",
-        "날짜 2026-09-11 D+1",
+        "날짜 2026-09-11 D+2",
         "갱신 이력 없음",
         "계획 §5 이정표: 신청 마감 9/11(2026-09-11)"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 9,
+      "score": 8,
       "status": "proposed",
       "createdAt": "2026-09-10T01:31:19.609Z"
     },
@@ -1692,14 +1682,14 @@
       "path": "src/data/issues/2026-09-10/uljin-grant-300k-rejected-resubmission-2026-09-10.json",
       "region": "울진",
       "dueDate": "2026-09-10",
-      "daysLeft": -2,
+      "daysLeft": -3,
       "evidence": [
         "coreFacts.deadline \"지급일 없음, 재상정 일정 미정 9월 10일 기준\"",
-        "날짜 2026-09-10 D+2",
+        "날짜 2026-09-10 D+3",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 8,
+      "score": 7,
       "status": "proposed",
       "createdAt": "2026-09-11T01:02:58.743Z"
     },
@@ -1711,14 +1701,14 @@
       "path": "src/data/issues/2026-09-03/gangneung-livelihood-grant-resubmission-2026-09-03.json",
       "region": "강릉",
       "dueDate": "2026-09-09",
-      "daysLeft": -3,
+      "daysLeft": -4,
       "evidence": [
         "coreFacts.deadline \"지급일 미정. 표결 후보는 제332회 정례회 9월 9일 제2차 본회의 또는 9월 22일 제3차 본회의(폐회일)이며 회기 중 조례안 접수·상임위 \"",
-        "날짜 2026-09-09 D+3",
+        "날짜 2026-09-09 D+4",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 7,
+      "score": 6,
       "status": "proposed",
       "createdAt": "2026-09-10T01:31:19.609Z"
     },
@@ -1730,14 +1720,14 @@
       "path": "src/data/issues/2026-08-09/gochang-resident-vitality-grant-2026-08-09.json",
       "region": "고창",
       "dueDate": "2026-09-07",
-      "daysLeft": -5,
+      "daysLeft": -6,
       "evidence": [
         "coreFacts.deadline \"신청·지급 2026.09.01~10.16(9.1~9.7 출생연도 끝자리 5부제) / 사용기한 2026.12.31\"",
-        "날짜 2026-09-07 D+5",
+        "날짜 2026-09-07 D+6",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 5,
+      "score": 4,
       "status": "proposed",
       "createdAt": "2026-09-10T01:31:19.609Z"
     },
@@ -1749,16 +1739,119 @@
       "path": "src/data/issues/2026-08-16/hampyeong-livelihood-recovery-grant-2026-08-16.json",
       "region": "함평",
       "dueDate": "2026-09-07",
-      "daysLeft": -5,
+      "daysLeft": -6,
       "evidence": [
         "coreFacts.deadline \"신청·지급 2026.09.07부터 읍·면사무소, 추석 전 집중 지급 후 10.08까지 완료 / 사용기한 2026.12.31\"",
-        "날짜 2026-09-07 D+5",
+        "날짜 2026-09-07 D+6",
         "갱신 이력 없음"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 5,
+      "score": 4,
       "status": "proposed",
       "createdAt": "2026-09-10T01:31:19.609Z"
+    },
+    {
+      "id": "T2:에너지바우처잔액조회",
+      "track": "T2",
+      "query": "에너지바우처 잔액조회",
+      "family": null,
+      "region": null,
+      "cluster": "에너지바우처",
+      "evidence": [
+        "big-keywords \"에너지바우처\" alias \"잔액조회\"",
+        "recent7 10.09(big-keywords datalab rel30(proxy))",
+        "\"에너지바우처 잔액 조회\" naver-ranks 2026-09-12: 자사 미노출 · openSlots 6 · 자매 0 · T2 open",
+        "계수 national/null 36.8(n=1)"
+      ],
+      "expectedInbound": "223~520",
+      "condition": "자매 주의: 역할표에 직접 겹치는 자매 없음. 부동산·주거비 각도(homedata.kr)와만 거리 유지. · 인접 글 oil-relief-usage-period-merchants-2026-07-08 — 각도 분리",
+      "recent7": 10.09,
+      "recent7Source": "big-keywords datalab rel30(proxy)",
+      "serp": {
+        "query": "에너지바우처 잔액 조회",
+        "rank": null,
+        "webDocCount": 7,
+        "aboveIsWholeBlock": true,
+        "openSlots": 6,
+        "mainGovAbove": 0,
+        "pressAbove": 0,
+        "sisterAbove": 0,
+        "webDocOffset": 10.1,
+        "verdictT1": "open",
+        "verdictT2": "open",
+        "reason": [],
+        "source": "naver-ranks 2026-09-12",
+        "approx": false
+      },
+      "score": 1485.2,
+      "scoreNote": "10.09 × min(6,4) × 36.8",
+      "exposure": {
+        "score": 100,
+        "label": "높음",
+        "reasons": [
+          "자리 열림",
+          "빈자리 6",
+          "위에 관공서 없음"
+        ]
+      },
+      "status": "published",
+      "createdAt": "2026-09-10T01:31:19.609Z",
+      "statusAt": "2026-09-12",
+      "publishedSlug": "energy-voucher-balance-check-carryover-2026-09-12",
+      "lastSeenAt": "2026-09-10T01:31:19.609Z"
+    },
+    {
+      "id": "T2:기초연금소득인정액",
+      "track": "T2",
+      "query": "기초연금 소득인정액",
+      "family": null,
+      "region": null,
+      "cluster": "기초연금",
+      "evidence": [
+        "big-keywords \"기초연금\" alias \"소득인정액\"",
+        "recent7 3.74(big-keywords datalab rel30(proxy))",
+        "\"기초연금 수급자격 소득인정액 계산\" naver-ranks 2026-09-12: 자사 미노출 · openSlots 3 · 자매 0 · T2 open",
+        "클러스터 실유입 138/주",
+        "계수 national/null 36.8(n=1)"
+      ],
+      "expectedInbound": "83~193",
+      "condition": "자매 주의: 연금·은퇴 설계 각도는 retiredata.kr 몫. awoo는 수급자격·소득인정액·개편 영향 각도만. 국민연금 연계 감액은 ",
+      "recent7": 3.74,
+      "recent7Source": "big-keywords datalab rel30(proxy)",
+      "serp": {
+        "query": "기초연금 수급자격 소득인정액 계산",
+        "rank": null,
+        "webDocCount": 8,
+        "aboveIsWholeBlock": true,
+        "openSlots": 3,
+        "mainGovAbove": 0,
+        "pressAbove": 0,
+        "sisterAbove": 0,
+        "webDocOffset": 21.3,
+        "verdictT1": "open",
+        "verdictT2": "open",
+        "reason": [
+          "offset-warn 21.3%"
+        ],
+        "source": "naver-ranks 2026-09-12",
+        "approx": false
+      },
+      "score": 412.9,
+      "scoreNote": "3.74 × min(3,4) × 36.8",
+      "exposure": {
+        "score": 85,
+        "label": "높음",
+        "reasons": [
+          "자리 열림",
+          "위에 관공서 없음",
+          "위에 언론 없음"
+        ]
+      },
+      "status": "published",
+      "createdAt": "2026-09-11T01:02:58.743Z",
+      "statusAt": "2026-09-12",
+      "publishedSlug": "basic-pension-income-recognition-calc-2026-09-12",
+      "lastSeenAt": "2026-09-11T01:02:58.743Z"
     }
   ],
   "excluded": [
@@ -1854,13 +1947,6 @@
       "query": "완주 B",
       "reason": "B 트리거: \"완주군 민생지원금\" rank null(통블록)(2026-09-09) → cluster-intents VETO: 완주 × B 이미 존재: wanju-grant-proxy-application-after-sep14(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)",
       "region": "완주",
-      "family": "B"
-    },
-    {
-      "track": "T1",
-      "query": "신안 B",
-      "reason": "B 트리거: \"신안군 민생지원금\" rank null(통블록)(2026-09-12) → 지급 확정 글(A) 없음 — 부결·미확정 지역엔 지급 후 글이 성립하지 않음(기존: 없음)",
-      "region": "신안",
       "family": "B"
     },
     {
@@ -1980,7 +2066,7 @@
     {
       "track": "T2",
       "query": "근로장려금 계산기",
-      "reason": "recent7 0.65 < 1.5(radar)"
+      "reason": "recent7 0.54 < 1.5(radar)"
     },
     {
       "track": "T2",
@@ -2014,6 +2100,11 @@
     },
     {
       "track": "T2",
+      "query": "기초연금 소득인정액",
+      "reason": "축 잠금 — basic-pension-income-recognition-calc(2026-09-12) 제목이 \"소득인정액\" 축을 이미 잡고 있다"
+    },
+    {
+      "track": "T2",
       "query": "기초연금 2027 개편",
       "reason": "축 잠금 — basic-pension-2027-tiered-payment-2026-09-05(2026-09-05) 제목이 \"2027 개편\" 축을 이미 잡고 있다"
     },
@@ -2036,6 +2127,11 @@
       "track": "T2",
       "query": "기초연금 인상액",
       "reason": "검색량 미측정 — keyword-volume/레이더 측정 전"
+    },
+    {
+      "track": "T2",
+      "query": "에너지바우처 잔액조회",
+      "reason": "축 잠금 — energy-voucher-balance-check-carryover(2026-09-12) 제목이 \"잔액조회\" 축을 이미 잡고 있다"
     },
     {
       "track": "T2",
@@ -2184,11 +2280,6 @@
     },
     {
       "track": "T2",
-      "query": "추석민생지원금",
-      "reason": "기존 글 있음 — chuseok-livelihood-coupon-duplicate-2026-08-07(제목에 이 표현 포함). 새 글 아님"
-    },
-    {
-      "track": "T2",
       "query": "2027년 아이맞이지원금",
       "reason": "기존 글 있음 — child-benefit-2027-overhaul-2026-09-03(제목에 이 표현 포함). 새 글 아님"
     },
@@ -2205,105 +2296,98 @@
     {
       "track": "T2",
       "query": "2026 재난지원금",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"2026 재난지원금\" openSlots 1<2 — 재측정 후 재판정",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"2026 재난지원금\" already r1, openSlots 0<2 — 자사 이미 r1 — 신규 불필요",
       "region": null,
       "family": null
     },
     {
       "track": "T2",
       "query": "9월14일 민생지원금",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"9월14일 민생지원금\" already r1, openSlots 0<2 — 자사 이미 r1 — 신규 불필요",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"9월14일 민생지원금\" already r1, openSlots 0<2 — 자사 이미 r1 — 신규 불필요",
       "region": null,
       "family": null
     },
     {
       "track": "T2",
       "query": "알바 주휴수당 계산기",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"알바 주휴수당 계산기\" already r2, openSlots 1<2 — 자사 이미 r2 — 신규 불필요",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"알바 주휴수당 계산기\" already r2, openSlots 1<2 — 자사 이미 r2 — 신규 불필요",
       "region": null,
       "family": null
     },
     {
       "track": "T2",
       "query": "조기취업수당 조건",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"조기취업수당 조건\" already r2, openSlots 0<2, offset 62.5%≥30 — 자사 이미 r2 — 신규 불필요",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"조기취업수당 조건\" already r3, openSlots 0<2, offset 61.9%≥30 — 자사 이미 r3 — 신규 불필요",
       "region": null,
       "family": null
     },
     {
       "track": "T2",
       "query": "2026 주휴수당 포함 시급",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"2026 주휴수당 포함 시급\" already r2, openSlots 1<2 — 자사 이미 r2 — 신규 불필요",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"2026 주휴수당 포함 시급\" already r2, openSlots 1<2 — 자사 이미 r2 — 신규 불필요",
       "region": null,
       "family": null
     },
     {
       "track": "T2",
       "query": "근로·자녀장려금 9월 신청 전 구분 3가지",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"근로·자녀장려금 9월 신청 전 구분 3가지\" openSlots 0<2, offset 39.3%≥30 — 재측정 후 재판정",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"근로·자녀장려금 9월 신청 전 구분 3가지\" openSlots 0<2, offset 37.9%≥30 — 재측정 후 재판정",
       "region": null,
       "family": null
     },
     {
       "track": "T2",
       "query": "기초노령연금",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"기초노령연금\" offset 57.1%≥30 — 재측정 후 재판정",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"기초노령연금\" offset 57%≥30 — 재측정 후 재판정",
       "region": null,
       "family": null
     },
     {
       "track": "T2",
       "query": "3차민생지원금",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"3차민생지원금\" offset 48.5%≥30 — 재측정 후 재판정",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"3차민생지원금\" offset 47.7%≥30 — 재측정 후 재판정",
       "region": null,
       "family": null
     },
     {
       "track": "T2",
       "query": "근로장려금 대상 기준",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"근로장려금 대상 기준\" openSlots 1<2, offset 30%≥30 — 재측정 후 재판정",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"근로장려금 대상 기준\" openSlots 0<2, offset-warn 28.8% — 재측정 후 재판정",
       "region": null,
       "family": null
     },
     {
       "track": "T2",
       "query": "실업급여 구직급여",
-      "reason": "scout 2026-09-12 verdictT2 closed: \"실업급여 구직급여\" openSlots 1<2, offset 30.6%≥30 — 재측정 후 재판정",
+      "reason": "scout 2026-09-13 verdictT2 closed: \"실업급여 구직급여\" openSlots 0<2, offset 45.3%≥30 — 재측정 후 재판정",
       "region": null,
       "family": null
     },
     {
       "track": "T1",
-      "query": "4차 민생지원금 지역별 지급 현황",
-      "reason": "scout 2026-09-12 verdictT1 closed: \"4차 민생지원금 지역별 지급 현황\" offset 66.7%≥30 / \"4차 민생지원금 9월 신청 지역\" already r2, openSlots 1<2 / \"4차 민생지원금 개시일\" already r2, openSlots 1<2 — 자사 이미 r2 — 신규 불필요",
-      "region": null,
-      "family": "A"
-    },
-    {
-      "track": "T1",
       "query": "창원 지원금",
-      "reason": "scout 2026-09-12 verdictT1 closed: \"창원 지원금\" openSlots 1<2, offset 44.6%≥30 — 재측정 후 재판정",
+      "reason": "scout 2026-09-13 verdictT1 closed: \"창원 지원금\" openSlots 1<2, offset 45.3%≥30 — 재측정 후 재판정",
       "region": "창원",
       "family": "A"
     },
     {
       "track": "T1",
       "query": "정읍시 민생지원금",
-      "reason": "scout 2026-09-12 verdictT1 closed: \"정읍시 민생지원금\" already r2, openSlots 1<2 — 자사 이미 r2 — 신규 불필요",
+      "reason": "scout 2026-09-13 verdictT1 closed: \"정읍시 민생지원금\" already r2, openSlots 1<2 — 자사 이미 r2 — 신규 불필요",
       "region": "정읍",
       "family": "A"
     },
     {
       "track": "T1",
       "query": "영암군 농촌기본수당 10만원 하반기 신청",
-      "reason": "scout 2026-09-12 verdictT1 closed: \"영암군 농촌기본수당 10만원 하반기 신청\" press 9>3, offset-warn 24.8% / \"영암 농촌기본수당 월출페이 9월 7일\" press 10>3, offset-warn 18.3% — 재측정 후 재판정",
+      "reason": "scout 2026-09-13 verdictT1 closed: \"영암군 농촌기본수당 10만원 하반기 신청\" press 8>3 / \"영암 농촌기본수당 월출페이 9월 7일\" press 10>3, offset-warn 18.3% — 재측정 후 재판정",
       "region": "영암",
       "family": "A"
     },
     {
       "track": "T1",
       "query": "부안군 민생안정지원금 못 받았으면",
-      "reason": "scout 2026-09-12 verdictT1 closed: \"부안군 민생안정지원금 못 받았으면\" already r1, openSlots 0<2, offset-warn 15.1% / \"부안군 민생안정지원금 9월 16일 출장 지급 이후\" already r2, openSlots 1<2 — 자사 A글(buan-livelihood-stability-grant-2026-08-19)이 이미 r1 — 신규 대신 그 글 갱신(결정 #2, 갱신 후보에 올림)",
+      "reason": "scout 2026-09-13 verdictT1 closed: \"부안군 민생안정지원금 못 받았으면\" already r1, openSlots 0<2, offset-warn 15.3% / \"부안군 민생안정지원금 9월 16일 출장 지급 이후\" already r2, openSlots 1<2 — 자사 A글(buan-livelihood-stability-grant-2026-08-19)이 이미 r1 — 신규 대신 그 글 갱신(결정 #2, 갱신 후보에 올림)",
       "region": "부안",
       "family": "B"
     }
@@ -2312,17 +2396,17 @@
     {
       "kind": "wave",
       "region": "나주",
-      "text": "나주 — 개시 09/14 D-2 · 신규 없음. D-1·D+1 재측정, 4위 이하면 B(계획 §5)"
+      "text": "나주 — 개시 09/14 D-1 · 신규 없음. D-1·D+1 재측정, 4위 이하면 B(계획 §5) · 오늘 재측정 대상"
     },
     {
       "kind": "wave",
       "region": "문경",
-      "text": "문경 — 개시 09/14 D-2 · 신규 없음. 9/16 B 필요 여부 판단(계획 §5) (판단일 2026-09-16)"
+      "text": "문경 — 개시 09/14 D-1 · 신규 없음. 9/16 B 필요 여부 판단(계획 §5) (판단일 2026-09-16)"
     },
     {
       "kind": "wave",
       "region": "김해",
-      "text": "김해 — 개시 09/17 D-5 · 김해시 공고 게시 후 B키 2개 확정 시만(결정 #5)"
+      "text": "김해 — 개시 09/17 D-4 · 김해시 공고 게시 후 B키 2개 확정 시만(결정 #5)"
     },
     {
       "kind": "wave",
@@ -2350,61 +2434,56 @@
     },
     {
       "kind": "landgrab",
-      "text": "연말정산 월세 세액공제 — writeBy 2026-11-05(D-54) · 피크 1월 76.21"
+      "text": "연말정산 월세 세액공제 — writeBy 2026-11-05(D-53) · 피크 1월 76.21"
     },
     {
       "kind": "landgrab",
-      "text": "연말정산 부양가족 — writeBy 2026-11-15(D-64) · 피크 1월 16.51"
+      "text": "연말정산 부양가족 — writeBy 2026-11-15(D-63) · 피크 1월 16.51"
     },
     {
       "kind": "landgrab",
-      "text": "연말정산 의료비 — writeBy 2026-11-25(D-74) · 피크 1월 14.08"
+      "text": "연말정산 의료비 — writeBy 2026-11-25(D-73) · 피크 1월 14.08"
     },
     {
       "kind": "landgrab",
-      "text": "연말정산 연금저축 — writeBy 2026-12-05(D-84) · 피크 1월 7.49"
+      "text": "연말정산 연금저축 — writeBy 2026-12-05(D-83) · 피크 1월 7.49"
     },
     {
       "kind": "landgrab",
-      "text": "연말정산 경정청구 — writeBy 2026-12-20(D-99) · 피크 5월 12.9"
+      "text": "연말정산 경정청구 — writeBy 2026-12-20(D-98) · 피크 5월 12.9"
     },
     {
       "kind": "landgrab",
-      "text": "난방비 지원 — writeBy 2026-10-15(D-33) · 피크 11월 14.83"
-    },
-    {
-      "kind": "milestone",
-      "region": "부안",
-      "text": "부안 출장 지급 9/16~18 개시 — 2026-09-16(D-4) 갱신 예정 · buan-livelihood-stability-grant-2026-08-19"
+      "text": "난방비 지원 — writeBy 2026-10-15(D-32) · 피크 11월 14.83"
     },
     {
       "kind": "milestone",
       "region": "나주",
-      "text": "나주 계획 §7-2 기재 카운트다운 날짜(9/30 — 세부 내용 확인 불가) — 2026-09-30(D-18) 갱신 예정 · naju-livelihood-recovery-grant-2026-08-07, naju-livelihood-grant-rotation-days-2026-09-03"
+      "text": "나주 계획 §7-2 기재 카운트다운 날짜(9/30 — 세부 내용 확인 불가) — 2026-09-30(D-17) 갱신 예정 · naju-livelihood-recovery-grant-2026-08-07, naju-livelihood-grant-rotation-days-2026-09-03"
     },
     {
       "kind": "milestone",
       "region": "나주",
-      "text": "나주 신청 마감 10/16 카운트다운 정정(계획 §7-2) — 2026-10-16(D-34) 갱신 예정 · naju-livelihood-recovery-grant-2026-08-07, naju-livelihood-grant-rotation-days-2026-09-03"
+      "text": "나주 신청 마감 10/16 카운트다운 정정(계획 §7-2) — 2026-10-16(D-33) 갱신 예정 · naju-livelihood-recovery-grant-2026-08-07, naju-livelihood-grant-rotation-days-2026-09-03"
     },
     {
       "kind": "milestone",
       "region": "문경",
-      "text": "문경 신청 마감 10/23 — 2026-10-23(D-41) 갱신 예정 · mungyeong-high-oil-price-relief-2026-08-16, mungyeong-livelihood-grant-chuseok-payment-2026-08-27"
+      "text": "문경 신청 마감 10/23 — 2026-10-23(D-40) 갱신 예정 · mungyeong-high-oil-price-relief-2026-08-16, mungyeong-livelihood-grant-chuseok-payment-2026-08-27"
     },
     {
       "kind": "milestone",
       "region": "영동",
-      "text": "영동 영동페이 신청 마감 10/2 — 2026-10-02(D-20) 갱신 예정 · local-livelihood-support-payment-2026-07-15, yeongdong-livelihood-stability-grant-2026-08-18"
+      "text": "영동 영동페이 신청 마감 10/2 — 2026-10-02(D-19) 갱신 예정 · local-livelihood-support-payment-2026-07-15, yeongdong-livelihood-stability-grant-2026-08-18"
     },
     {
       "kind": "milestone",
       "region": "김해",
-      "text": "김해 지급 예정일 9/17 — 2026-09-17(D-5) 갱신 예정 · gimhae-livelihood-grant-2026-08-12"
+      "text": "김해 지급 예정일 9/17 — 2026-09-17(D-4) 갱신 예정 · gimhae-livelihood-grant-2026-08-12"
     },
     {
       "kind": "remeasure",
-      "text": "재측정 \"2026 김해 민생지원금\": r2 · 본청 1 · 언론 0 · openSlots 0 · offset 24.4%"
+      "text": "재측정 \"나주 민생회복지원금 5부제\": r2 · 본청 1 · 언론 0 · openSlots 0 · offset 12.5%"
     }
   ]
 }
