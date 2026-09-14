@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 263,
-    "entryCount": 57,
-    "regionCount": 43,
+    "scannedPosts": 264,
+    "entryCount": 58,
+    "regionCount": 44,
     "regions": [
       "강릉",
       "강북구",
@@ -34,6 +34,7 @@
       "연수구",
       "영덕",
       "영동",
+      "영암",
       "영천",
       "완주",
       "울진",
@@ -52,12 +53,12 @@
       "해남"
     ],
     "families": {
-      "A": 47,
+      "A": 48,
       "B": 2,
       "V": 8
     },
     "clusters": {
-      "minsaeng": 37,
+      "minsaeng": 38,
       "other": 20
     },
     "rollups": 8,
@@ -1380,6 +1381,28 @@
         "who=2026-07-01",
         "amount=10만원",
         "deadline=2026-10-16"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false
+    },
+    {
+      "region": [
+        "영암"
+      ],
+      "family": "A",
+      "slug": "yeongam-rural-basic-allowance-100k",
+      "path": "src/data/issues/2026-09-14/yeongam-rural-basic-allowance-100k-2026-09-14.json",
+      "date": "2026-09-14",
+      "targetQuery": "영암군 민생지원금",
+      "coreFacts": {
+        "who": "2026-08-24 기준 영암군 주민등록 군민",
+        "amount": "1인 10만원 월출페이",
+        "deadline": "신청 2026-10-30 18시, 사용 2027-06-30"
+      },
+      "coreFactsKeys": [
+        "who=2026-08-24",
+        "amount=10만원",
+        "deadline=2026-10-30"
       ],
       "cluster": "minsaeng",
       "rollup": false

@@ -836,7 +836,10 @@ function mergeQueue(prevItems, items) {
   const seen = new Set(merged.map((m) => m.id));
   for (const old of prev.values()) {
     if (seen.has(old.id)) continue;
-    if (KEEP_STATUS.has(old.status))
+    // 손으로 넣은 빈틈 후보는 자동 후보에 안 잡혀도 21일간 남긴다(09-14 자동 실행이 지운 사고)
+    const manualAlive =
+      old.id?.startsWith('빈틈:') && Date.now() - Date.parse(old.createdAt ?? 0) < 21 * 864e5;
+    if (KEEP_STATUS.has(old.status) || manualAlive)
       merged.push({ ...old, lastSeenAt: old.lastSeenAt ?? old.createdAt });
   }
   return merged;
