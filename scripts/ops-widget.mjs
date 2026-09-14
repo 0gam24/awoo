@@ -85,7 +85,14 @@ function countLine() {
   const fromQueue = new Set(
     (q?.items ?? [])
       .filter((i) => i.status === 'published' || i.publishedSlug)
-      .flatMap((i) => [i.query, i.publishedSlug].filter(Boolean))
+      // publishedSlug는 파일명(날짜 접미 포함)으로 적히기도 해서 글의 slug 필드와 맞추려면 접미를 뗀다
+      .flatMap((i) =>
+        [
+          i.query,
+          i.publishedSlug,
+          String(i.publishedSlug ?? '').replace(/-\d{4}-\d{2}-\d{2}$/, ''),
+        ].filter(Boolean),
+      )
       .map(norm),
   );
   // 큐(운영자 지시)에서 나온 것 = 수동. 나머지는 0400 자동으로 본다.
