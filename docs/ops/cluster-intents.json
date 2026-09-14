@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 256,
-    "entryCount": 56,
-    "regionCount": 42,
+    "scannedPosts": 263,
+    "entryCount": 57,
+    "regionCount": 43,
     "regions": [
       "강릉",
       "강북구",
@@ -28,6 +28,7 @@
       "부안",
       "서울",
       "속초",
+      "신안",
       "양산",
       "양양",
       "연수구",
@@ -52,11 +53,11 @@
     ],
     "families": {
       "A": 47,
-      "B": 1,
+      "B": 2,
       "V": 8
     },
     "clusters": {
-      "minsaeng": 36,
+      "minsaeng": 37,
       "other": 20
     },
     "rollups": 8,
@@ -74,7 +75,9 @@
   },
   "entries": [
     {
-      "region": ["강화"],
+      "region": [
+        "강화"
+      ],
       "family": "A",
       "slug": "damage-relief-ganghwa-2026",
       "path": "src/data/issues/2026-04-29/damage-relief-ganghwa-2026.json",
@@ -90,7 +93,9 @@
       "rollup": false
     },
     {
-      "region": ["장성"],
+      "region": [
+        "장성"
+      ],
       "family": "A",
       "slug": "farmer-fisher-public-allowance-jangseong",
       "path": "src/data/issues/2026-04-29/farmer-fisher-public-allowance-jangseong.json",
@@ -104,10 +109,14 @@
       "coreFactsKeys": [],
       "cluster": "minsaeng",
       "rollup": false,
-      "regionContext": ["전남"]
+      "regionContext": [
+        "전남"
+      ]
     },
     {
-      "region": ["강원"],
+      "region": [
+        "강원"
+      ],
       "family": "A",
       "slug": "disability-voucher-education-gangwon-2026-deadline",
       "path": "src/data/issues/2026-05-02/disability-voucher-education-gangwon-2026-deadline.json",
@@ -118,12 +127,19 @@
         "amount": "1인당 35만원 평생교육이용권 (강좌 수강료 및 교재비 사용 가능)",
         "deadline": "2026년 5월 8일까지 (D-5, 재단법인 강원인재원 공고 기준)"
       },
-      "coreFactsKeys": ["amount=35만원", "deadline=2026-05-08"],
+      "coreFactsKeys": [
+        "amount=35만원",
+        "deadline=2026-05-08"
+      ],
       "cluster": "other",
       "rollup": false
     },
     {
-      "region": ["해남", "미추홀구", "연수구"],
+      "region": [
+        "해남",
+        "미추홀구",
+        "연수구"
+      ],
       "family": "A",
       "slug": "new-subsidies-weekly-2026-05-02",
       "path": "src/data/issues/2026-05-02/new-subsidies-weekly-2026-05-02.json",
@@ -134,13 +150,22 @@
         "amount": "월 20만원(해남 아이키움수당) / 연 150만원 이내(한의약 난임치료) / 35만원(강원 장애인 평생교육이용권) / 이용료 감면(옹암체육센터) / 약제비 잔액 내 지급(미추홀구 시술 약제비)",
         "deadline": "강원 장애인 평생교육이용권 2차: 2026년 5월 8일(가장 임박) / 나머지 4건: 상시신청"
       },
-      "coreFactsKeys": ["amount=20만원", "deadline=2026-05-08"],
+      "coreFactsKeys": [
+        "amount=20만원",
+        "deadline=2026-05-08"
+      ],
       "cluster": "other",
       "rollup": true,
-      "regionContext": ["강원"]
+      "regionContext": [
+        "강원"
+      ]
     },
     {
-      "region": ["해남", "미추홀구", "연수구"],
+      "region": [
+        "해남",
+        "미추홀구",
+        "연수구"
+      ],
       "family": "A",
       "slug": "new-subsidies-weekly-2026-05-04",
       "path": "src/data/issues/2026-05-04/new-subsidies-weekly-2026-05-04.json",
@@ -151,13 +176,20 @@
         "amount": "35만원(강원 이용권) / 월 20만원(해남 아이키움) / 연 150만원(미추홀구 한의약)",
         "deadline": "강원 평생교육이용권 2026년 5월 8일 마감, 나머지 4건 상시 신청"
       },
-      "coreFactsKeys": ["amount=35만원", "deadline=2026-05-08"],
+      "coreFactsKeys": [
+        "amount=35만원",
+        "deadline=2026-05-08"
+      ],
       "cluster": "other",
       "rollup": true,
-      "regionContext": ["강원"]
+      "regionContext": [
+        "강원"
+      ]
     },
     {
-      "region": ["의성"],
+      "region": [
+        "의성"
+      ],
       "family": "A",
       "slug": "uiseong-wildfire-forest-management-relief",
       "path": "src/data/issues/2026-05-05/uiseong-wildfire-forest-management-relief.json",
@@ -171,10 +203,14 @@
       "coreFactsKeys": [],
       "cluster": "other",
       "rollup": false,
-      "regionContext": ["경북"]
+      "regionContext": [
+        "경북"
+      ]
     },
     {
-      "region": ["강원"],
+      "region": [
+        "강원"
+      ],
       "family": "A",
       "slug": "disability-voucher-education-special-400007-detail-2026-05-06",
       "path": "src/data/issues/2026-05-06/disability-voucher-education-special-400007-detail-2026-05-06.json",
@@ -185,12 +221,19 @@
         "amount": "1인 35만원 (평생교육 강좌 수강료 및 교재비 사용 가능)",
         "deadline": "2026년 5월 8일 마감 (D-2)"
       },
-      "coreFactsKeys": ["amount=35만원", "deadline=2026-05-08"],
+      "coreFactsKeys": [
+        "amount=35만원",
+        "deadline=2026-05-08"
+      ],
       "cluster": "other",
       "rollup": false
     },
     {
-      "region": ["해남", "미추홀구", "연수구"],
+      "region": [
+        "해남",
+        "미추홀구",
+        "연수구"
+      ],
       "family": "A",
       "slug": "new-subsidies-weekly-2026-05-06",
       "path": "src/data/issues/2026-05-06/new-subsidies-weekly-2026-05-06.json",
@@ -201,13 +244,23 @@
         "amount": "월 20만원(해남 아이키움) ~ 연 150만원(미추홀구 한의약 난임치료)",
         "deadline": "가장 빠른 마감: 강원 평생교육이용권 2026년 5월 8일 / 나머지 4건 상시신청"
       },
-      "coreFactsKeys": ["amount=20만원", "deadline=2026-05-08"],
+      "coreFactsKeys": [
+        "amount=20만원",
+        "deadline=2026-05-08"
+      ],
       "cluster": "other",
       "rollup": true,
-      "regionContext": ["강원"]
+      "regionContext": [
+        "강원"
+      ]
     },
     {
-      "region": ["청양", "경북", "영천", "영덕"],
+      "region": [
+        "청양",
+        "경북",
+        "영천",
+        "영덕"
+      ],
       "family": "A",
       "slug": "farmer-fishery-allowance-2026-regional",
       "path": "src/data/issues/2026-05-07/farmer-fishery-allowance-2026-regional.json",
@@ -218,12 +271,17 @@
         "amount": "1인 가구 연 80만원 / 2인 이상 1인당 45만원(청양군), 농가당 연 60만원(경북도) 등 지역별 상이",
         "deadline": "경북도 추가 신청 5월 15일 마감, 영덕군 지급 6월 26일까지, 청양군 신청 마감 완료"
       },
-      "coreFactsKeys": ["amount=45만원", "deadline=2026-05-15"],
+      "coreFactsKeys": [
+        "amount=45만원",
+        "deadline=2026-05-15"
+      ],
       "cluster": "minsaeng",
       "rollup": true
     },
     {
-      "region": ["미추홀구"],
+      "region": [
+        "미추홀구"
+      ],
       "family": "A",
       "slug": "support-000129-detail-2026-05-09",
       "path": "src/data/issues/2026-05-09/support-000129-detail-2026-05-09.json",
@@ -234,13 +292,19 @@
         "amount": "1인당 연 최대 150만원 (한약재 3개월분)",
         "deadline": "상시 신청 (연 1회, 선정 심사 후 지원)"
       },
-      "coreFactsKeys": ["amount=150만원"],
+      "coreFactsKeys": [
+        "amount=150만원"
+      ],
       "cluster": "other",
       "rollup": false,
-      "regionContext": ["인천"]
+      "regionContext": [
+        "인천"
+      ]
     },
     {
-      "region": ["양산"],
+      "region": [
+        "양산"
+      ],
       "family": "A",
       "slug": "couple-health-support-000659-detail-2026-05-10",
       "path": "src/data/issues/2026-05-10/couple-health-support-000659-detail-2026-05-10.json",
@@ -251,13 +315,19 @@
         "amount": "신선 시술 최대 110만원 / 동결 시술 최대 50만원 / 인공수정 최대 30만원 (정부지원금 잔액 한도 내)",
         "deadline": "시술 종료 후 1개월 이내 신청 (기간 초과 시 접수 불가)"
       },
-      "coreFactsKeys": ["amount=110만원"],
+      "coreFactsKeys": [
+        "amount=110만원"
+      ],
       "cluster": "other",
       "rollup": false,
-      "regionContext": ["경남"]
+      "regionContext": [
+        "경남"
+      ]
     },
     {
-      "region": ["대구"],
+      "region": [
+        "대구"
+      ],
       "family": "A",
       "slug": "disability-voucher-education-800002-detail-2026-05-11",
       "path": "src/data/issues/2026-05-11/disability-voucher-education-800002-detail-2026-05-11.json",
@@ -268,12 +338,17 @@
         "amount": "1인당 연간 35만원 (강좌 수강료·교재비 사용 가능)",
         "deadline": "2026년 4월 14일(화) 10:00 ~ 4월 27일(월) 17:00 (온라인), 방문 마감은 12:00 (현재 마감 완료)"
       },
-      "coreFactsKeys": ["amount=35만원", "deadline=2026-04-14"],
+      "coreFactsKeys": [
+        "amount=35만원",
+        "deadline=2026-04-14"
+      ],
       "cluster": "other",
       "rollup": false
     },
     {
-      "region": ["전남"],
+      "region": [
+        "전남"
+      ],
       "family": "A",
       "slug": "disability-voucher-education-support-700011-detail-2026-05-12",
       "path": "src/data/issues/2026-05-12/disability-voucher-education-support-700011-detail-2026-05-12.json",
@@ -284,12 +359,18 @@
         "amount": "연간 35만원 포인트 (평생교육 강좌 수강료·교재비 사용)",
         "deadline": "2026년 4월 20일(월) 10:00 ~ 5월 7일(목) 24:00"
       },
-      "coreFactsKeys": ["who=2007-12-31", "amount=35만원", "deadline=2026-04-20"],
+      "coreFactsKeys": [
+        "who=2007-12-31",
+        "amount=35만원",
+        "deadline=2026-04-20"
+      ],
       "cluster": "other",
       "rollup": false
     },
     {
-      "region": ["해남"],
+      "region": [
+        "해남"
+      ],
       "family": "A",
       "slug": "allowance-support-000320-detail-2026-05-14",
       "path": "src/data/issues/2026-05-14/allowance-support-000320-detail-2026-05-14.json",
@@ -300,13 +381,20 @@
         "amount": "월 20만원 (모바일 해남사랑상품권, 할인율 반영 제외)",
         "deadline": "상시 신청 (지급일 매월 25일, 토·공휴일은 전날 지급)"
       },
-      "coreFactsKeys": ["who=2025-01-01", "amount=20만원"],
+      "coreFactsKeys": [
+        "who=2025-01-01",
+        "amount=20만원"
+      ],
       "cluster": "other",
       "rollup": false,
-      "regionContext": ["전남"]
+      "regionContext": [
+        "전남"
+      ]
     },
     {
-      "region": ["연수구"],
+      "region": [
+        "연수구"
+      ],
       "family": "A",
       "slug": "sports-reduction-200005-detail-2026-05-15",
       "path": "src/data/issues/2026-05-15/sports-reduction-200005-detail-2026-05-15.json",
@@ -322,7 +410,9 @@
       "rollup": false
     },
     {
-      "region": ["미추홀구"],
+      "region": [
+        "미추홀구"
+      ],
       "family": "A",
       "slug": "couple-support-000130-detail-2026-05-16",
       "path": "src/data/issues/2026-05-16/couple-support-000130-detail-2026-05-16.json",
@@ -336,10 +426,15 @@
       "coreFactsKeys": [],
       "cluster": "other",
       "rollup": false,
-      "regionContext": ["인천"]
+      "regionContext": [
+        "인천"
+      ]
     },
     {
-      "region": ["고성", "의성"],
+      "region": [
+        "고성",
+        "의성"
+      ],
       "family": "A",
       "slug": "minsaeng-support-goseong-uiseong-may",
       "path": "src/data/issues/2026-05-17/minsaeng-support-goseong-uiseong-may.json",
@@ -350,13 +445,21 @@
         "amount": "고성군 1인 30만원(4인 가구 120만원) / 의성군 최대 200만원(농업인 경작 규모 기준, 0.1ha 이상 차등 적용)",
         "deadline": "고성군 2026년 5월 18일 지급 예정 / 의성군 2차 지급일 D-2 기준(2026.05.16 보도)"
       },
-      "coreFactsKeys": ["amount=30만원", "deadline=2026-05-18"],
+      "coreFactsKeys": [
+        "amount=30만원",
+        "deadline=2026-05-18"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
-      "regionContext": ["경남", "경북"]
+      "regionContext": [
+        "경남",
+        "경북"
+      ]
     },
     {
-      "region": ["경기"],
+      "region": [
+        "경기"
+      ],
       "family": "A",
       "slug": "gyeonggi-high-oil-price-relief-2nd",
       "path": "src/data/issues/2026-05-26/gyeonggi-high-oil-price-relief-2nd.json",
@@ -367,12 +470,17 @@
         "amount": "1차 기준 1조185억 원 규모 지급 진행 중, 가구당 지급액은 경기도 공고 기준",
         "deadline": "2026년 7월 3일 (2차 신청 마감, obsnews.co.kr 보도 기준)"
       },
-      "coreFactsKeys": ["who=2026-05-25", "deadline=2026-07-03"],
+      "coreFactsKeys": [
+        "who=2026-05-25",
+        "deadline=2026-07-03"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["거창"],
+      "region": [
+        "거창"
+      ],
       "family": "A",
       "slug": "farmer-allowance-payment-date-2026-06-10",
       "path": "src/data/issues/2026-06-10/farmer-allowance-payment-date-2026-06-10.json",
@@ -383,13 +491,20 @@
         "amount": "경남 거창 경영주 60만원·부부 합산 70만원, 전남 70만원 등 지역별 연 60~80만원",
         "deadline": "2026년분 신청은 대부분 2~3월 마감 — 거창군 포인트 사용 기한은 2026년 말까지"
       },
-      "coreFactsKeys": ["who=2025-01-01", "amount=60만원"],
+      "coreFactsKeys": [
+        "who=2025-01-01",
+        "amount=60만원"
+      ],
       "cluster": "minsaeng",
       "rollup": true,
-      "regionContext": ["전남"]
+      "regionContext": [
+        "전남"
+      ]
     },
     {
-      "region": ["서울"],
+      "region": [
+        "서울"
+      ],
       "family": "A",
       "slug": "seoul-careerup-job-grant-2026-07-07",
       "path": "src/data/issues/2026-07-07/seoul-careerup-job-grant-2026-07-07.json",
@@ -400,12 +515,17 @@
         "amount": "커리업 포인트 월 30만원 × 최대 3개월(최대 90만원). 조기 취·창업으로 포인트를 전액 받지 못한 경우에 한해 성공금 30만원을 더해 총 한도 90만원",
         "deadline": "2026년 모집 종료(3차 7.7~7.27 · 4차 7.28~8.18) / 4차 선정 통보 2026.8.31 / 2027년 일정 미발표"
       },
-      "coreFactsKeys": ["amount=30만원", "deadline=2026-07-07"],
+      "coreFactsKeys": [
+        "amount=30만원",
+        "deadline=2026-07-07"
+      ],
       "cluster": "other",
       "rollup": false
     },
     {
-      "region": ["영동"],
+      "region": [
+        "영동"
+      ],
       "family": "A",
       "slug": "local-livelihood-support-payment-2026-07-15",
       "path": "src/data/issues/2026-07-15/local-livelihood-support-payment-2026-07-15.json",
@@ -416,16 +536,25 @@
         "amount": "영동군 1인당 30만원(레인보우영동페이) · 고성군 1인당 30만원 · 의성군 세대별 30만~200만원 차등",
         "deadline": "영동군 신청 8월 17~28일 온라인·8월 31일~10월 2일 방문, 추석 전 지급 · 지역화폐 사용기한 2026.12.31(영동·의성) / 고성 2026.7.31"
       },
-      "coreFactsKeys": ["who=2026-07-01", "amount=30만원", "deadline=2026-08-31"],
+      "coreFactsKeys": [
+        "who=2026-07-01",
+        "amount=30만원",
+        "deadline=2026-08-31"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
-      "regionContext": ["고성", "의성"],
+      "regionContext": [
+        "고성",
+        "의성"
+      ],
       "knownPair": true,
       "pairWith": "yeongdong-livelihood-stability-grant-2026-08-18",
       "pairNote": "A/A 진짜 중복(who·amount·deadline 동일). 둘 다 유지, 3건째 금지"
     },
     {
-      "region": ["속초"],
+      "region": [
+        "속초"
+      ],
       "family": "A",
       "slug": "sokcho-livelihood-recovery-grant-2026-07-19",
       "path": "src/data/issues/2026-07-19/sokcho-livelihood-recovery-grant-2026-07-19.json",
@@ -436,12 +565,18 @@
         "amount": "1인당 20만원(속초사랑상품권 CHAK 앱 충전 또는 무기명 선불카드 중 선택)",
         "deadline": "신청 2026.07.20~09.11 / 7.20~7.31 요일제는 방문 접수만 적용(온라인은 요일 무관) / 사용 기한 2026.11.30"
       },
-      "coreFactsKeys": ["who=2026-06-30", "amount=20만원", "deadline=2026-07-20"],
+      "coreFactsKeys": [
+        "who=2026-06-30",
+        "amount=20만원",
+        "deadline=2026-07-20"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["서울"],
+      "region": [
+        "서울"
+      ],
       "family": "A",
       "slug": "seoul-electric-motorcycle-subsidy-2026-07-25",
       "path": "src/data/issues/2026-07-25/seoul-electric-motorcycle-subsidy-2026-07-25.json",
@@ -452,13 +587,20 @@
         "amount": "국비+시비 합산 상한 경형 140만·소형 230만·중형/기타 270만·대형 300만원 + 배달·소상공인·취약계층 추가 + 자치구 구비 별도",
         "deadline": "2026년 3월 11일 접수 시작, 예산 소진 시 마감(자치구 공고별 상이) / 3개월 이내 출고 가능 차량만 신청"
       },
-      "coreFactsKeys": ["amount=300만원", "deadline=2026-03-11"],
+      "coreFactsKeys": [
+        "amount=300만원",
+        "deadline=2026-03-11"
+      ],
       "cluster": "other",
       "rollup": false,
-      "regionContext": ["동작구"]
+      "regionContext": [
+        "동작구"
+      ]
     },
     {
-      "region": ["서울"],
+      "region": [
+        "서울"
+      ],
       "family": "A",
       "slug": "climate-card-charge-deadline-2026-07-27",
       "path": "src/data/issues/2026-07-27/climate-card-charge-deadline-2026-07-27.json",
@@ -469,12 +611,19 @@
         "amount": "정액권 자체는 사라지고 기준금액 초과분을 돌려받는 모두의 카드로 일원화. 전환 대상인 모두의 카드는 2026년 9월까지 기준금액이 한시로 절반(수도권 일반형 3만원) 적용",
         "deadline": "선불 충전 마감 2026-07-31(마지막 충전분 8월 29일까지 이용), 후불 할인 2026-08-31 사용분까지, 전면 운영 종료 2026-09-01"
       },
-      "coreFactsKeys": ["amount=3만원", "deadline=2026-07-31"],
+      "coreFactsKeys": [
+        "amount=3만원",
+        "deadline=2026-07-31"
+      ],
       "cluster": "other",
       "rollup": false
     },
     {
-      "region": ["통영", "의령", "부안"],
+      "region": [
+        "통영",
+        "의령",
+        "부안"
+      ],
       "family": "A",
       "slug": "chuseok-livelihood-coupon-duplicate-2026-08-07",
       "path": "src/data/issues/2026-08-07/chuseok-livelihood-coupon-duplicate-2026-08-07.json",
@@ -485,13 +634,18 @@
         "amount": "지자체별 상이: 1인당 통영 35만원·의령 50만원·부안 30만원 등, 정부 민생회복 소비쿠폰과는 별도로 지급",
         "deadline": "추석(9월 25일) 전 지급 목표 / 의령 신청 8.10~9.11, 부안 지급 9.16~18, 통영 이르면 8월 말 신청(지자체 공고로 확정)"
       },
-      "coreFactsKeys": ["amount=35만원", "deadline=2026-09-25"],
+      "coreFactsKeys": [
+        "amount=35만원",
+        "deadline=2026-09-25"
+      ],
       "cluster": "minsaeng",
       "rollup": true,
       "axis": "추석"
     },
     {
-      "region": ["경남"],
+      "region": [
+        "경남"
+      ],
       "family": "A",
       "slug": "gyeongnam-buttim-tenure-retention-grant-2026-08-07",
       "path": "src/data/issues/2026-08-07/gyeongnam-buttim-tenure-retention-grant-2026-08-07.json",
@@ -502,13 +656,22 @@
         "amount": "1인 50만원(제로페이 모바일상품권), 총 3,750명 규모(창원 1,400명·김해·양산 2,350명)",
         "deadline": "추가모집 신청 2026.8.6 오후 2시~8.23, 최종 선정자 9월 중 개별 안내"
       },
-      "coreFactsKeys": ["who=2026-02-28", "amount=50만원", "deadline=2026-08-06"],
+      "coreFactsKeys": [
+        "who=2026-02-28",
+        "amount=50만원",
+        "deadline=2026-08-06"
+      ],
       "cluster": "other",
       "rollup": false,
-      "regionContext": ["창원", "김해"]
+      "regionContext": [
+        "창원",
+        "김해"
+      ]
     },
     {
-      "region": ["나주"],
+      "region": [
+        "나주"
+      ],
       "family": "A",
       "slug": "naju-livelihood-recovery-grant-2026-08-07",
       "path": "src/data/issues/2026-08-07/naju-livelihood-recovery-grant-2026-08-07.json",
@@ -519,7 +682,11 @@
         "amount": "1인당 20만원(나주사랑상품권, 착 CHAK 앱 충전 또는 선불카드 중 선택, 총사업비 약 238억원)",
         "deadline": "신청·지급 2026.09.14부터(9월 제2회 추경 의결 전제, 마감일은 공고 예정) / 사용기한 2026.11.30"
       },
-      "coreFactsKeys": ["who=2026-07-01", "amount=20만원", "deadline=2026-09-14"],
+      "coreFactsKeys": [
+        "who=2026-07-01",
+        "amount=20만원",
+        "deadline=2026-09-14"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
       "knownPair": true,
@@ -527,7 +694,9 @@
       "pairNote": "A/spoke(5부제 요일표). D-1·D+1 재측정"
     },
     {
-      "region": ["고창"],
+      "region": [
+        "고창"
+      ],
       "family": "A",
       "slug": "gochang-resident-vitality-grant-2026-08-09",
       "path": "src/data/issues/2026-08-09/gochang-resident-vitality-grant-2026-08-09.json",
@@ -538,12 +707,18 @@
         "amount": "1인당 30만원(선불카드 지급, 총사업비 약 151억 2000만원)",
         "deadline": "신청·지급 2026.09.01~10.16(9.1~9.7 출생연도 끝자리 5부제) / 사용기한 2026.12.31"
       },
-      "coreFactsKeys": ["who=2026-06-30", "amount=30만원", "deadline=2026-09-01"],
+      "coreFactsKeys": [
+        "who=2026-06-30",
+        "amount=30만원",
+        "deadline=2026-09-01"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["정읍"],
+      "region": [
+        "정읍"
+      ],
       "family": "V",
       "slug": "jeongeup-livelihood-grant-status-2026-08-09",
       "path": "src/data/issues/2026-08-09/jeongeup-livelihood-grant-status-2026-08-09.json",
@@ -554,13 +729,21 @@
         "amount": "정읍 신규 확정 금액 없음. 이력: 정읍 1월 1인당 30만원(종료) / 비교: 고창 30만원(확정)·나주 20만원(추경 의결 전제)",
         "deadline": "정읍 1월 지급분 신청 2026.02.13·사용 2026.05.31 종료 / 고유가 피해지원금 잔액 사용기한 2026.08.31 / 고창 신청 2026.09.01~10.16(정읍시민 해당 없음)"
       },
-      "coreFactsKeys": ["who=2025-12-15", "amount=30만원", "deadline=2026-02-13"],
+      "coreFactsKeys": [
+        "who=2025-12-15",
+        "amount=30만원",
+        "deadline=2026-02-13"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
-      "regionContext": ["전북"]
+      "regionContext": [
+        "전북"
+      ]
     },
     {
-      "region": ["전남"],
+      "region": [
+        "전남"
+      ],
       "family": "A",
       "slug": "jeonnam-student-education-allowance-2026-08-11",
       "path": "src/data/issues/2026-08-11/jeonnam-student-education-allowance-2026-08-11.json",
@@ -571,13 +754,20 @@
         "amount": "초등학생 월 10만원, 중·고등학생 월 5만원(전남 꿈실현 공생카드 포인트 충전)",
         "deadline": "신규 대상자 신청 2026.03.01~10.31 / 공생카드 사용기한은 카드·공고 안내 확인"
       },
-      "coreFactsKeys": ["amount=10만원", "deadline=2026-03-01"],
+      "coreFactsKeys": [
+        "amount=10만원",
+        "deadline=2026-03-01"
+      ],
       "cluster": "other",
       "rollup": false,
-      "regionContext": ["진도"]
+      "regionContext": [
+        "진도"
+      ]
     },
     {
-      "region": ["김해"],
+      "region": [
+        "김해"
+      ],
       "family": "A",
       "slug": "gimhae-livelihood-grant-2026-08-12",
       "path": "src/data/issues/2026-08-12/gimhae-livelihood-grant-2026-08-12.json",
@@ -588,12 +778,17 @@
         "amount": "1인당 10만원(총사업비 545억원 = 지원금 538억원 + 부대비용 7억원)",
         "deadline": "지급 목표 2026.09.17(추석 직전) / 정확한 지급기준일·신청 개시일·사용기한은 조례 시행지침·김해시 공고로 확정 예정"
       },
-      "coreFactsKeys": ["amount=10만원", "deadline=2026-09-17"],
+      "coreFactsKeys": [
+        "amount=10만원",
+        "deadline=2026-09-17"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["의령"],
+      "region": [
+        "의령"
+      ],
       "family": "A",
       "slug": "uiryeong-livelihood-stability-grant-2026-08-12",
       "path": "src/data/issues/2026-08-12/uiryeong-livelihood-stability-grant-2026-08-12.json",
@@ -604,28 +799,40 @@
         "amount": "1인당 50만원(정책상품권 20만원 + 일반 의령사랑상품권 30만원, 총사업비 약 125억원)",
         "deadline": "신청·지급 2026.08.10~09.11 / 상품권 사용기한 2026.12.31"
       },
-      "coreFactsKeys": ["who=2026-06-30", "amount=50만원", "deadline=2026-08-10"],
+      "coreFactsKeys": [
+        "who=2026-06-30",
+        "amount=50만원",
+        "deadline=2026-08-10"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["완주"],
+      "region": [
+        "완주"
+      ],
       "family": "A",
       "slug": "wanju-livelihood-stability-grant-2026-08-12",
       "path": "src/data/issues/2026-08-12/wanju-livelihood-stability-grant-2026-08-12.json",
       "date": "2026-08-12",
       "targetQuery": null,
       "coreFacts": {
-        "who": "2026년 7월 31일 기준 완주군에 주민등록을 둔 군민 전원(소득·재산 무관) + 완주에 등록된 결혼이민자·영주권자, 약 10만5000여 명",
+        "who": "2026년 7월 31일 기준 완주군에 주민등록을 둔 군민 전원(소득·재산 무관) + 완주에 등록된 결혼이민자·영주권자, 10만 877명(2026-09-08 군 발표)",
         "amount": "1인당 30만원(무기명 선불카드 지급)",
         "deadline": "신청·지급 2026.09.08~10.30(집중지급 9.08~9.13) / 사용기한 2026.12.31"
       },
-      "coreFactsKeys": ["who=2026-07-31", "amount=30만원", "deadline=2026-09-08"],
+      "coreFactsKeys": [
+        "who=2026-07-31",
+        "amount=30만원",
+        "deadline=2026-09-08"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["정선"],
+      "region": [
+        "정선"
+      ],
       "family": "A",
       "slug": "jeongseon-farmer-allowance-2nd-application-2026-08-13",
       "path": "src/data/issues/2026-08-13/jeongseon-farmer-allowance-2nd-application-2026-08-13.json",
@@ -636,12 +843,17 @@
         "amount": "가구당 연 70만원(연 1회), 정선아리랑상품권(모바일 와와페이 포함) 지역화폐로 지급 / 사업규모 3,719농가·총 26억원",
         "deadline": "2차 신청 2026.08.28 마감(오늘 2026.08.13 기준 D-15), 3차 추가접수 일정은 미정"
       },
-      "coreFactsKeys": ["amount=70만원", "deadline=2026-08-28"],
+      "coreFactsKeys": [
+        "amount=70만원",
+        "deadline=2026-08-28"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["강북구"],
+      "region": [
+        "강북구"
+      ],
       "family": "A",
       "slug": "gangbuk-veterans-honor-allowance-spouse-2026-08-15",
       "path": "src/data/issues/2026-08-15/gangbuk-veterans-honor-allowance-spouse-2026-08-15.json",
@@ -652,13 +864,20 @@
         "amount": "월 7만원 (매월 25일 지급, 서울시 보훈수당 등 타 수당 동시 수급 시 최종 금액은 동주민센터 확인)",
         "deadline": "상시 신청 (지원 결정 시 신청한 달부터 지급, 지급일 매월 25일)"
       },
-      "coreFactsKeys": ["who=2026-08", "amount=7만원"],
+      "coreFactsKeys": [
+        "who=2026-08",
+        "amount=7만원"
+      ],
       "cluster": "other",
       "rollup": false,
-      "regionContext": ["서울"]
+      "regionContext": [
+        "서울"
+      ]
     },
     {
-      "region": ["통영"],
+      "region": [
+        "통영"
+      ],
       "family": "A",
       "slug": "tongyeong-livelihood-recovery-grant-2026-08-15",
       "path": "src/data/issues/2026-08-15/tongyeong-livelihood-recovery-grant-2026-08-15.json",
@@ -669,12 +888,18 @@
         "amount": "1인당 35만원(통영사랑상품권 모바일 또는 무기명 선불카드 중 선택)",
         "deadline": "신청 2026년 8월 31일(월)~10월 30일, 첫 주 8월 31일~9월 4일 출생연도 끝자리 요일제, 사용기한 2026년 12월 31일"
       },
-      "coreFactsKeys": ["who=2026-04-15", "amount=35만원", "deadline=2026-08-31"],
+      "coreFactsKeys": [
+        "who=2026-04-15",
+        "amount=35만원",
+        "deadline=2026-08-31"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["함평"],
+      "region": [
+        "함평"
+      ],
       "family": "A",
       "slug": "hampyeong-livelihood-recovery-grant-2026-08-16",
       "path": "src/data/issues/2026-08-16/hampyeong-livelihood-recovery-grant-2026-08-16.json",
@@ -685,12 +910,18 @@
         "amount": "1인당 50만원(선불카드, 관내 가맹점 결제 / 재원 언론 보도 기준 약 151억원)",
         "deadline": "신청·지급 2026.09.07부터 읍·면사무소, 추석 전 집중 지급 후 10.08까지 완료 / 사용기한 2026.12.31"
       },
-      "coreFactsKeys": ["who=2026-07-01", "amount=50만원", "deadline=2026-09-07"],
+      "coreFactsKeys": [
+        "who=2026-07-01",
+        "amount=50만원",
+        "deadline=2026-09-07"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["문경"],
+      "region": [
+        "문경"
+      ],
       "family": "A",
       "slug": "mungyeong-high-oil-price-relief-2026-08-16",
       "path": "src/data/issues/2026-08-16/mungyeong-high-oil-price-relief-2026-08-16.json",
@@ -701,7 +932,10 @@
         "amount": "1인당 25만원(무기명 선불카드 지급, 총 예산 약 168억원)",
         "deadline": "신청 2026년 9월 14일~10월 23일 / 선불카드 사용기한 2026년 12월 31일까지"
       },
-      "coreFactsKeys": ["amount=25만원", "deadline=2026-09-14"],
+      "coreFactsKeys": [
+        "amount=25만원",
+        "deadline=2026-09-14"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
       "knownPair": true,
@@ -709,7 +943,9 @@
       "pairNote": "A/V. 9/16 B 필요 여부 별도 판단"
     },
     {
-      "region": ["고흥"],
+      "region": [
+        "고흥"
+      ],
       "family": "A",
       "slug": "goheung-livelihood-recovery-grant-2026-08-17",
       "path": "src/data/issues/2026-08-17/goheung-livelihood-recovery-grant-2026-08-17.json",
@@ -720,7 +956,10 @@
         "amount": "1인당 30만원(지류 고흥사랑상품권 / 총사업비 약 180억원 추산, 예산 군의회 심의 대기)",
         "deadline": "추석 연휴(2026.09.24~09.27) 전 지급 목표 / 신청 개시일·지급일은 추경 확정 후 공고 / 상품권 사용기한 발행일부터 5년"
       },
-      "coreFactsKeys": ["amount=30만원", "deadline=2026-09-24"],
+      "coreFactsKeys": [
+        "amount=30만원",
+        "deadline=2026-09-24"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
       "knownPair": true,
@@ -728,7 +967,9 @@
       "pairNote": "A/V 둘 다 노출(r1·r2). 신규 없음"
     },
     {
-      "region": ["영동"],
+      "region": [
+        "영동"
+      ],
       "family": "A",
       "slug": "yeongdong-livelihood-stability-grant-2026-08-18",
       "path": "src/data/issues/2026-08-18/yeongdong-livelihood-stability-grant-2026-08-18.json",
@@ -739,7 +980,11 @@
         "amount": "1인당 30만원(레인보우 영동페이 지역화폐, 상반기 카드 50만원 별도로 연간 총 80만원, 총사업비 약 130억원)",
         "deadline": "온라인 신청 2026.08.17~08.28 / 방문 신청 2026.08.31~10.02 / 사용기한 2026.12.31"
       },
-      "coreFactsKeys": ["who=2026-07-01", "amount=30만원", "deadline=2026-08-17"],
+      "coreFactsKeys": [
+        "who=2026-07-01",
+        "amount=30만원",
+        "deadline=2026-08-17"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
       "knownPair": true,
@@ -747,7 +992,9 @@
       "pairNote": "A/A 진짜 중복(who·amount·deadline 동일). 둘 다 유지, 3건째 금지"
     },
     {
-      "region": ["부안"],
+      "region": [
+        "부안"
+      ],
       "family": "A",
       "slug": "buan-livelihood-stability-grant-2026-08-19",
       "path": "src/data/issues/2026-08-19/buan-livelihood-stability-grant-2026-08-19.json",
@@ -758,12 +1005,18 @@
         "amount": "1인당 30만원(무기명 선불카드, 총사업비 약 141억 5000만원, 9월 제1회 추경 의결 전)",
         "deadline": "지급 2026.09.16~09.18(읍·면 현지출장 집중 지급) / 사용기한 2026.11.30까지"
       },
-      "coreFactsKeys": ["who=2026-08-03", "amount=30만원", "deadline=2026-09-16"],
+      "coreFactsKeys": [
+        "who=2026-08-03",
+        "amount=30만원",
+        "deadline=2026-09-16"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["당진"],
+      "region": [
+        "당진"
+      ],
       "family": "V",
       "slug": "dangjin-livelihood-grant-2026-08-19",
       "path": "src/data/issues/2026-08-19/dangjin-livelihood-grant-2026-08-19.json",
@@ -774,12 +1027,17 @@
         "amount": "1인당 30만원, 총사업비 530억원(전액 시비), 조례안 부결로 현재 지급 계획 없음",
         "deadline": "당초 추석 전 9월 지급 목표였으나 2026.08.11 본회의 7대 7 부결로 무산, 재추진 일정 미정"
       },
-      "coreFactsKeys": ["amount=30만원", "deadline=2026-08-11"],
+      "coreFactsKeys": [
+        "amount=30만원",
+        "deadline=2026-08-11"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["고흥"],
+      "region": [
+        "고흥"
+      ],
       "family": "V",
       "slug": "goheung-livelihood-grant-2026-08-19",
       "path": "src/data/issues/2026-08-19/goheung-livelihood-grant-2026-08-19.json",
@@ -790,7 +1048,11 @@
         "amount": "고흥 신규 확정 금액 없음(추진 단계 계획: 1인당 30만원 고흥사랑상품권, 총예산 약 180억원) / 비교: 함평 50만원(확정)·나주 20만원(추경 의결 전제)",
         "deadline": "9월 1일 확정 발표: 2026.9.14~18 마을 방문 지급(1차), 9.21~10.30 읍면사무소 신청, 사용기한 2026.12.31(지류 고흥사랑상품권). 대상은 2026.7.31 기준 주민등록 후 신청일까지 계속 거주"
       },
-      "coreFactsKeys": ["who=2026-05", "amount=30만원", "deadline=2026-09-01"],
+      "coreFactsKeys": [
+        "who=2026-05",
+        "amount=30만원",
+        "deadline=2026-09-01"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
       "knownPair": true,
@@ -798,7 +1060,9 @@
       "pairNote": "A/V 둘 다 노출(r1·r2). 신규 없음"
     },
     {
-      "region": ["하동"],
+      "region": [
+        "하동"
+      ],
       "family": "A",
       "slug": "hadong-livelihood-grant-2026-08-19",
       "path": "src/data/issues/2026-08-19/hadong-livelihood-grant-2026-08-19.json",
@@ -809,12 +1073,18 @@
         "amount": "1인당 30만원 종이 하동사랑상품권(정책발행), 총사업비 123억원 전액 군비",
         "deadline": "신청 2026.08.24~10.02(첫 주 8.24~8.28 생년월일 끝자리 요일제) / 이의신청 2026.08.24~10.09"
       },
-      "coreFactsKeys": ["who=2026-08-07", "amount=30만원", "deadline=2026-08-24"],
+      "coreFactsKeys": [
+        "who=2026-08-07",
+        "amount=30만원",
+        "deadline=2026-08-24"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["양양"],
+      "region": [
+        "양양"
+      ],
       "family": "A",
       "slug": "yangyang-farmer-allowance-2nd-round-2026-08-20",
       "path": "src/data/issues/2026-08-20/yangyang-farmer-allowance-2nd-round-2026-08-20.json",
@@ -825,13 +1095,21 @@
         "amount": "농가당 연 1회 70만원, 양양사랑상품권(카드)으로 지급",
         "deadline": "2026년 8월 20일~8월 31일 추가 배부(31일까지 지급 완료 계획)"
       },
-      "coreFactsKeys": ["amount=70만원", "deadline=2026-08-20"],
+      "coreFactsKeys": [
+        "amount=70만원",
+        "deadline=2026-08-20"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
-      "regionContext": ["강원"]
+      "regionContext": [
+        "강원"
+      ]
     },
     {
-      "region": ["통영", "함평"],
+      "region": [
+        "통영",
+        "함평"
+      ],
       "family": "A",
       "slug": "chuseok-local-livelihood-grant-by-region-2026-08-21",
       "path": "src/data/issues/2026-08-21/chuseok-local-livelihood-grant-by-region-2026-08-21.json",
@@ -842,14 +1120,23 @@
         "amount": "지역별 상이: 의령·함평 50만원, 통영 35만원, 완주·고창·부안·영동·하동 30만원, 문경 25만원, 나주·속초 20만원, 김해 10만원(1인당). 창원·당진은 지급 없음",
         "deadline": "지급시기 지역별 상이(속초 7.20부터~완주 10.30까지) / 사용기한은 속초·부안·나주 11.30, 통영·의령·함평·영동·완주·고창 12.31"
       },
-      "coreFactsKeys": ["who=2026-04-15", "amount=50만원", "deadline=2026-07-20"],
+      "coreFactsKeys": [
+        "who=2026-04-15",
+        "amount=50만원",
+        "deadline=2026-07-20"
+      ],
       "cluster": "minsaeng",
       "rollup": true,
       "axis": "추석",
-      "regionContext": ["완주", "고창"]
+      "regionContext": [
+        "완주",
+        "고창"
+      ]
     },
     {
-      "region": ["장흥"],
+      "region": [
+        "장흥"
+      ],
       "family": "A",
       "slug": "jangheung-livelihood-stability-grant-2026-08-23",
       "path": "src/data/issues/2026-08-23/jangheung-livelihood-stability-grant-2026-08-23.json",
@@ -860,12 +1147,19 @@
         "amount": "1인당 30만원(장흥사랑상품권 정책발행 상품권, 현금 아님)",
         "deadline": "지급 개시 2026.08.31 / 첫 주 08.31~09.04 출생연도 끝자리 5부제 / 신청 마감 2026.10.16"
       },
-      "coreFactsKeys": ["who=2026-07-01", "amount=30만원", "deadline=2026-08-31"],
+      "coreFactsKeys": [
+        "who=2026-07-01",
+        "amount=30만원",
+        "deadline=2026-08-31"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["의령", "함평"],
+      "region": [
+        "의령",
+        "함평"
+      ],
       "family": "A",
       "slug": "chuseok-grant-50man-uiryeong-hampyeong-2026-08-27",
       "path": "src/data/issues/2026-08-27/chuseok-grant-50man-uiryeong-hampyeong-2026-08-27.json",
@@ -876,13 +1170,19 @@
         "amount": "1인당 50만원(의령 의령사랑상품권 지류, 함평 선불카드), 두 곳 모두 사용기한 2026.12.31",
         "deadline": "의령 2026.8.10~9.11(마감 임박) / 함평 2026.9.7~10.8(첫 주 9.7~11 출생연도 끝자리 5부제)"
       },
-      "coreFactsKeys": ["who=2026-06-30", "amount=50만원", "deadline=2026-08-10"],
+      "coreFactsKeys": [
+        "who=2026-06-30",
+        "amount=50만원",
+        "deadline=2026-08-10"
+      ],
       "cluster": "minsaeng",
       "rollup": true,
       "axis": "추석"
     },
     {
-      "region": ["문경"],
+      "region": [
+        "문경"
+      ],
       "family": "V",
       "slug": "mungyeong-livelihood-grant-chuseok-payment-2026-08-27",
       "path": "src/data/issues/2026-08-27/mungyeong-livelihood-grant-chuseok-payment-2026-08-27.json",
@@ -891,9 +1191,13 @@
       "coreFacts": {
         "who": "2026년 6월 30일 기준 신청일까지 계속 거주하는 문경시 주민등록 시민과 결혼이민자·영주 자격 외국인 약 6만6,774명(소득·재산 기준 없음)",
         "amount": "1인당 25만원(4인 가구 100만원), 총 168억원 시 자체 추경예산 편성, 공약 50만원 중 1차분",
-        "deadline": "접수 2026년 9월 14일~10월 23일, 추석(9월 25일) 전 지급 목표는 9월 1일 시의회 추경 의결이 전제"
+        "deadline": "접수 2026년 9월 14일~10월 23일, 추경 예산은 9월 8일 시의회 의결로 확정(추석 전 지급 목표 유지)"
       },
-      "coreFactsKeys": ["who=2026-06-30", "amount=25만원", "deadline=2026-09-14"],
+      "coreFactsKeys": [
+        "who=2026-06-30",
+        "amount=25만원",
+        "deadline=2026-09-14"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
       "knownPair": true,
@@ -901,7 +1205,9 @@
       "pairNote": "A/V. 9/16 B 필요 여부 별도 판단"
     },
     {
-      "region": ["창원"],
+      "region": [
+        "창원"
+      ],
       "family": "V",
       "slug": "changwon-livelihood-grant-not-paid-2026-08-28",
       "path": "src/data/issues/2026-08-28/changwon-livelihood-grant-not-paid-2026-08-28.json",
@@ -912,13 +1218,20 @@
         "amount": "창원시 자체 민생지원금 0원, 대안은 누비전 10% 할인으로 지류·모바일 각 월 50만원 한도(월 최대 10만원 절약)",
         "deadline": "미지급 결정 2026년 8월 27일, 지류 누비전 9월 1일 200억원(취약계층 우선구매일), 일반 판매 9월 2일 오전 9시, 지류 2차 9월 21일 300억원"
       },
-      "coreFactsKeys": ["amount=50만원", "deadline=2026-08-27"],
+      "coreFactsKeys": [
+        "amount=50만원",
+        "deadline=2026-08-27"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
-      "regionContext": ["경남"]
+      "regionContext": [
+        "경남"
+      ]
     },
     {
-      "region": ["서울"],
+      "region": [
+        "서울"
+      ],
       "family": "A",
       "slug": "seoul-careerup-internship-4th-2026-08-31",
       "path": "src/data/issues/2026-08-31/seoul-careerup-internship-4th-2026-08-31.json",
@@ -929,12 +1242,17 @@
         "amount": "서울시 생활임금 시급 12,121원 기준 급여로, 주 40시간·월 209시간이면 월 253만 3,289원 수준(근무시간·참여 개월 수에 따라 달라짐). 인턴 1년 이상 채용 시 기업에 최대 300만원 고용장려금 지급",
         "deadline": "인턴십 4차 신청 2026년 9월 4일(금) 18시 마감(공고 등록 8월 19일). 구직지원금 3·4차는 접수 종료, 4차 선정 통보일 2026년 8월 31일"
       },
-      "coreFactsKeys": ["amount=300만원", "deadline=2026-09-04"],
+      "coreFactsKeys": [
+        "amount=300만원",
+        "deadline=2026-09-04"
+      ],
       "cluster": "other",
       "rollup": false
     },
     {
-      "region": ["강릉"],
+      "region": [
+        "강릉"
+      ],
       "family": "V",
       "slug": "gangneung-livelihood-grant-resubmission-2026-09-03",
       "path": "src/data/issues/2026-09-03/gangneung-livelihood-grant-resubmission-2026-09-03.json",
@@ -945,12 +1263,18 @@
         "amount": "1인당 10만원 강릉페이(7월 부결안과 9월 재상정 발표 동일). 전 시민 소요액 약 205억원(2026년 8월말 주민등록 205,440명 기준 자체 계산, 시 공식 추계 아님)",
         "deadline": "지급일 미정. 표결 후보는 제332회 정례회 9월 9일 제2차 본회의 또는 9월 22일 제3차 본회의(폐회일)이며 회기 중 조례안 접수·상임위 회부가 전제"
       },
-      "coreFactsKeys": ["who=2026-09-03", "amount=10만원", "deadline=2026-09-09"],
+      "coreFactsKeys": [
+        "who=2026-09-03",
+        "amount=10만원",
+        "deadline=2026-09-09"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["나주"],
+      "region": [
+        "나주"
+      ],
       "family": "A",
       "slug": "naju-livelihood-grant-rotation-days-2026-09-03",
       "path": "src/data/issues/2026-09-03/naju-livelihood-grant-rotation-days-2026-09-03.json",
@@ -961,7 +1285,11 @@
         "amount": "1인당 20만원. 지급인원 약 11만6천 명(시 공식 게시물)~11만7천 명(9월 3일 보도), 편성액 시 발표 240억원·시의회 발표 238억원, 산술 소요 232억~234억원",
         "deadline": "온라인·방문 공통 2026.09.14~10.16(시 공식 게시물), 첫 주 9.14~18 출생연도 끝자리 5부제. 온라인 안내의 출생연도 무관 줄만 9.21~9.30 표기(10월 온라인 접수 여부는 일자리경제과 문의). 사용기한 2026.11.30 잔액 소멸"
       },
-      "coreFactsKeys": ["who=2026-07-01", "amount=20만원", "deadline=2026-09-14"],
+      "coreFactsKeys": [
+        "who=2026-07-01",
+        "amount=20만원",
+        "deadline=2026-09-14"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
       "knownPair": true,
@@ -970,7 +1298,9 @@
       "spoke": true
     },
     {
-      "region": ["광양"],
+      "region": [
+        "광양"
+      ],
       "family": "V",
       "slug": "gwangyang-grant-300k-chuseok-postponed-2026-09-10",
       "path": "src/data/issues/2026-09-10/gwangyang-grant-300k-chuseok-postponed-2026-09-10.json",
@@ -981,12 +1311,16 @@
         "amount": "지급 무산·미확정, 1인 30만원 안",
         "deadline": "미정, 12월 시민보고회에서 재공개"
       },
-      "coreFactsKeys": ["amount=30만원"],
+      "coreFactsKeys": [
+        "amount=30만원"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     },
     {
-      "region": ["울진"],
+      "region": [
+        "울진"
+      ],
       "family": "V",
       "slug": "uljin-grant-300k-rejected-resubmission-2026-09-10",
       "path": "src/data/issues/2026-09-10/uljin-grant-300k-rejected-resubmission-2026-09-10.json",
@@ -997,13 +1331,20 @@
         "amount": "부결·미확정, 1인 30만원 울진사랑카드 안",
         "deadline": "지급일 없음, 재상정 일정 미정 9월 10일 기준"
       },
-      "coreFactsKeys": ["amount=30만원", "deadline=2026-09-10"],
+      "coreFactsKeys": [
+        "amount=30만원",
+        "deadline=2026-09-10"
+      ],
       "cluster": "minsaeng",
       "rollup": false,
-      "regionContext": ["경북"]
+      "regionContext": [
+        "경북"
+      ]
     },
     {
-      "region": ["완주"],
+      "region": [
+        "완주"
+      ],
       "family": "B",
       "slug": "wanju-grant-proxy-application-after-sep14",
       "path": "src/data/issues/2026-09-10/wanju-grant-proxy-application-after-sep14-2026-09-10.json",
@@ -1014,7 +1355,32 @@
         "amount": "1인 30만원 무기명 선불카드",
         "deadline": "신청 2026-10-30, 사용 2026-12-31"
       },
-      "coreFactsKeys": ["amount=30만원", "deadline=2026-10-30"],
+      "coreFactsKeys": [
+        "amount=30만원",
+        "deadline=2026-10-30"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false
+    },
+    {
+      "region": [
+        "신안"
+      ],
+      "family": "B",
+      "slug": "sinan-grant-100k-application-2026-09-12",
+      "path": "src/data/issues/2026-09-12/sinan-grant-100k-application-2026-09-12.json",
+      "date": "2026-09-12",
+      "targetQuery": "신안군 민생지원금",
+      "coreFacts": {
+        "who": "2026-07-01 기준 신안군 주민등록 전 군민",
+        "amount": "1인 10만원, 신안군 관내 사업장 한정 선불카드",
+        "deadline": "신청 2026-10-16, 사용 2026-11-30"
+      },
+      "coreFactsKeys": [
+        "who=2026-07-01",
+        "amount=10만원",
+        "deadline=2026-10-16"
+      ],
       "cluster": "minsaeng",
       "rollup": false
     }

@@ -43,6 +43,11 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund --ignore-scripts
 
+      # 잠금 장부를 먼저 다시 만든다 — 0400 자동 발행 지역 글은 --append를 안 거쳐 장부에서 빠진다
+      # (2026-09-14 실측: 9/12 신안 글이 장부에 없어 같은 지역 신규가 PASS로 나왔다)
+      - name: Rebuild cluster-intents registry
+        run: node scripts/build-cluster-intents.mjs
+
       - name: Run pipeline
         env:
           # 지금은 파이프라인이 네이버 API를 직접 부르지 않는다(SERP 정찰은 HTML 실측). 레이더·볼륨 호출을
@@ -62,7 +67,7 @@ jobs:
       - name: Check for changes
         id: diff
         run: |
-          if [ -n "$(git status --porcelain docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md)" ]; then
+          if [ -n "$(git status --porcelain docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json)" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -77,7 +82,7 @@ jobs:
           MSG="chore(pipeline): $(TZ=Asia/Seoul date +'%m/%d') 키워드 후보 보고
 
           [skip ci]"
-          git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md
+          git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json
           git commit -m "$MSG"
 
           # 큐·보고문은 "오늘 상태"라 매번 통째로 다시 만든다 — 시계열 병합(merge-data-store)이 필요 없다.
@@ -90,8 +95,8 @@ jobs:
             echo "원격이 앞서 있다 — rebase 후 재시도 ($i/3)"
             # rebase에서 -X theirs = 재생(replay)되는 우리 커밋 쪽
             if ! git rebase -X theirs origin/main; then
-              git checkout --theirs docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md || true
-              git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md
+              git checkout --theirs docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json || true
+              git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json
               GIT_EDITOR=true git rebase --continue || { git rebase --abort; exit 1; }
             fi
           done
