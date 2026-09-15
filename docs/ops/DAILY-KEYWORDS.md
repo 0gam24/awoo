@@ -1,8 +1,8 @@
 # 키워드 후보 보고 — 2026-09-15 (KST)
 
-생성 2026-09-14 23:25Z · scripts/keyword-pipeline.mjs
+생성 2026-09-15 05:40Z · scripts/keyword-pipeline.mjs
 SERP 실측: scout 25/35건(T1 15·T2 5·재측정 5)
-입력: cluster-intents 58건 · naver-ranks 45쿼리 · 레이더 candidates 49건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 9 · 글 265건
+입력: cluster-intents 59건 · naver-ranks 49쿼리 · 레이더 candidates 48건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 9 · 글 267건
 후보: T1 1 · T2 5 · T3 1 · 갱신 28 · 제외 101
 
 ## 오늘 후보
@@ -11,10 +11,10 @@ SERP 실측: scout 25/35건(T1 15·T2 5·재측정 5)
 
 | # | 노출 가능성 | 트랙 | 쿼리 | 왜 | 예상 유입/주 | 조건 |
 |---|---|---|---|---|---|---|
-| 1 | 높음 95 | T2 | 알바 주휴수당 계산기 | 자리 열림 · 빈자리 10 · 위에 관공서 없음 | 현재 81/주 | 검색 결과 실측 필요 |
-| 2 | 높음 90 | T1 A 롤업 | 4차 민생지원금 지역별 지급 현황 · 변형: 4차 민생지원금 9월 신청 지역 / 4차 민생지원금 개시일 | 자리 열림 · 위에 관공서 없음 · 위에 언론 없음 | 50~500 | 변형 2개 webDocOffset <30%(결정 #4). 07-30 추석 롤업 잠식 시 noindex · 타깃(제목 선두)을 변형으로: "4차 민생지원금 개시일" — 본 쿼리 "4차 민생지원금 지역별 지급 현황"는 offset 67.6%≥30 · 자사 글이 이미 "4차 민생지원금 9월 신청 지역" r3 — 그 글을 잠식하지 않는 각도(A키 선두)로만 |
-| 3 | 높음 85 | T2 | 주휴수당 포함 시급 | 자리 열림 · 빈자리 4 · 위에 관공서 없음 | 35~81 | [보류] 자매 주의: '주휴수당 계산기' 각도는 calculatorhost.com 몫, 알바·사회초년생 노무 각도는 asiatop.co.kr과 겹칠 · webDocOffset 21.3% 경고(15~30%) |
-| 4 | 높음 80 | T2 | 실업급여 상실신고 | 자리 열림 · 위에 관공서 없음 · 위에 언론 없음 | 59~137 | [보류] 자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia · webDocOffset 16% 경고(15~30%) |
+| 1 | 높음 95 | T2 | 알바 주휴수당 계산기 | 자리 열림 · 빈자리 10 · 위에 관공서 없음 | 현재 81/주 | [보류] 검색 결과 실측 필요 |
+| 2 | 높음 90 | T1 A 롤업 | 4차 민생지원금 지역별 지급 현황 · 변형: 4차 민생지원금 9월 신청 지역 / 4차 민생지원금 개시일 | 자리 열림 · 위에 관공서 없음 · 위에 언론 없음 | 50~500 | [보류] 변형 2개 webDocOffset <30%(결정 #4). 07-30 추석 롤업 잠식 시 noindex · 타깃(제목 선두)을 변형으로: "4차 민생지원금 개시일" — 본 쿼리 "4차 민생지원금 지역별 지급 현황"는 offset 71.2%≥30 · 자사 글이 이미 "4차 민생지원금 9월 신청 지역" r3 — 그 글을 잠식하지 않는 각도(A키 선두)로만 |
+| 3 | 높음 85 | T2 | 주휴수당 포함 시급 | 자리 열림 · 빈자리 4 · 위에 관공서 없음 | 35~81 | [보류] 자매 주의: '주휴수당 계산기' 각도는 calculatorhost.com 몫, 알바·사회초년생 노무 각도는 asiatop.co.kr과 겹칠 · webDocOffset 20.7% 경고(15~30%) |
+| 4 | 높음 80 | T2 | 실업급여 상실신고 | 자리 열림 · 위에 관공서 없음 · 위에 언론 없음 | 59~137 | [보류] 자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia · webDocOffset 16.8% 경고(15~30%) |
 | 5 | 중간 65 | T2 | 4차 민생쿠폰 신청 | 자리 열림 · 자사 8위 — 다른 의도로 재진입 | 현재 81/주 | [보류] — |
 
 ### 실측 대기 2건
@@ -38,19 +38,19 @@ SERP 실측: scout 25/35건(T1 15·T2 5·재측정 5)
 | 5 | 근로장려금 반기 vs 정기 — 2026 지급일 8월 27일 총정리 (src/data/issues/2026-07-01/eitc-semiannual-vs-regular-payment-date-2026-07-01.json) | 2026-09-15 D-day | 오늘 마감·지급일 — 당일 표기 | coreFacts.deadline "정기신청 2026.5.1~6.1(지급 8.27) · 반기 상반기 9.1~9.15 / 하반기 2027.3.1~3.15 · 기한후신청 6.2~12." · 날짜 2026-09-15 D-day · 갱신 이력 없음 |
 | 6 | 부안군 민생안정지원금 30만원, 대상 기준일과 지급 일정 (src/data/issues/2026-08-19/buan-livelihood-stability-grant-2026-08-19.json) | 2026-09-16 D-1 | 1일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "지급 2026.09.16~09.18(읍·면 현지출장 집중 지급) / 사용기한 2026.11.30까지" · 날짜 2026-09-16 D-1 (+ 2026-09-18 D-3) · 갱신 이력 없음 · 계획 §5 이정표: 출장 지급 9/16~18 개시(2026-09-16) |
 | 7 | 추석 민생지원금 최대 50만원, 소비쿠폰과 중복 수급되나 (src/data/issues/2026-08-07/chuseok-livelihood-coupon-duplicate-2026-08-07.json) | 2026-09-16 D-1 | 1일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "추석(9월 25일) 전 지급 목표 / 의령 신청 8.10~9.11, 부안 지급 9.16~18, 통영 이르면 8월 말 신청(지자체 공고로 확정)" · 날짜 2026-09-16 D-1 (+ 2026-09-18 D-3, 2026-09-11 D+4) · dateModified 2026-08-07 |
-| 8 | 2026 2학기 국가장학금 2차 신청 9월 9일 마감, 재학생 구제 (src/data/issues/2026-07-28/national-scholarship-2nd-round-2026-07-28.json) | 2026-09-16 D-1 | 1일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2차 신청 8월 12일(수) 9시~9월 9일(수) 18시 / 서류·가구원 동의 9월 16일(수) 18시까지" · 날짜 2026-09-16 D-1 · dateModified 2026-09-09 · 0400-queue 2026-09-09 update 지정과 겹침 |
-| 9 | 김해시 민생지원금 10만원 신청 대상, 9월 17일 지급 (src/data/issues/2026-08-12/gimhae-livelihood-grant-2026-08-12.json) | 2026-09-17 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "지급 목표 2026.09.17(추석 직전) / 정확한 지급기준일·신청 개시일·사용기한은 조례 시행지침·김해시 공고로 확정 예정" · 날짜 2026-09-17 D-2 · 갱신 이력 없음 · 계획 §5 이정표: 지급 예정일 9/17(2026-09-17) |
-| 10 | 9월 18일 신설 배우자 유산·사산휴가, 유급은 며칠일까 (src/data/issues/2026-09-01/spouse-miscarriage-stillbirth-leave-2026-09-01.json) | 2026-09-18 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2026년 9월 18일 시행. 신청 방법·서류는 시행 전까지 별도 공지 예정" · 날짜 2026-09-18 D-3 · 갱신 이력 없음 |
-| 11 | 추석 민생회복지원금 우리 지역 대상·신청 조회 방법 (src/data/issues/2026-07-30/chuseok-livelihood-recovery-region-check-2026-07-30.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026 추석(9월 25일) 전 지급 지자체 증가 / 신청·지급·사용기한은 지자체 공고로 확정(속초 신청 7.20~9.11·나주 9.14부터)" · 날짜 2026-09-14 D+1 (+ 2026-09-11 D+4) · dateModified 2026-07-30 |
-| 12 | 고흥 민생지원금 언제 나오나, 30만원 추진 상황 정리 (src/data/issues/2026-08-19/goheung-livelihood-grant-2026-08-19.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "9월 1일 확정 발표: 2026.9.14~18 마을 방문 지급(1차), 9.21~10.30 읍면사무소 신청, 사용기한 2026.12.31(지류 " · 날짜 2026-09-14 D+1 (+ 2026-09-18 D-3) · dateModified 2026-09-05T22:58:49.000Z · 계획 §5 이정표: 마을 지급 9/14~18 개시(2026-09-14) |
-| 13 | 고흥군 민생회복지원금 30만원, 추석 전 고흥사랑상품권 지급 (src/data/issues/2026-08-17/goheung-livelihood-recovery-grant-2026-08-17.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | 계획 §5 이정표: 마을 지급 9/14~18 개시 · 날짜 2026-09-14 D+1 · 갱신 이력 없음 |
-| 14 | 생계·의료급여 수급 근로가구 희망저축계좌 9월 3차 모집 D-4 (src/data/issues/2026-08-28/hope-savings-account-type1-round3-2026-08-28.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "Ⅰ유형 3차 접수 2026년 9월 1일~14일, 놓치면 4차 11월 2일~16일 예정" · 날짜 2026-09-14 D+1 · 갱신 이력 없음 |
-| 15 | 문경 고유가 지원금 25만원, 9월 14일 신청 (src/data/issues/2026-08-16/mungyeong-high-oil-price-relief-2026-08-16.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "신청 2026년 9월 14일~10월 23일 / 선불카드 사용기한 2026년 12월 31일까지" · 날짜 2026-09-14 D+1 · 갱신 이력 없음 |
-| 16 | 문경 민생지원금 추석 전 지급되나, 9월 1일 추경 관건 (src/data/issues/2026-08-27/mungyeong-livelihood-grant-chuseok-payment-2026-08-27.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "접수 2026년 9월 14일~10월 23일, 추경 예산은 9월 8일 시의회 의결로 확정(추석 전 지급 목표 유지)" · 날짜 2026-09-14 D+1 · dateModified 2026-09-13 |
-| 17 | 나주 민생회복지원금 5부제, 내 출생연도 신청일은 9월 며칠인가 (src/data/issues/2026-09-03/naju-livelihood-grant-rotation-days-2026-09-03.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "온라인·방문 공통 2026.09.14~10.16(시 공식 게시물), 첫 주 9.14~18 출생연도 끝자리 5부제. 온라인 안내의 출생연도 무관 " · 날짜 2026-09-14 D+1 (+ 2026-09-18 D-3) · 갱신 이력 없음 |
-| 18 | 나주 민생회복지원금 20만원, 9월 14일 신청 시작 (src/data/issues/2026-08-07/naju-livelihood-recovery-grant-2026-08-07.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "신청·지급 2026.09.14부터(9월 제2회 추경 의결 전제, 마감일은 공고 예정) / 사용기한 2026.11.30" · 날짜 2026-09-14 D+1 · dateModified 2026-09-03T07:10:00.000Z |
-| 19 | 완주군 민생안정지원금 위임장 대리신청 서류와 9월 14일 이후 창구 (src/data/issues/2026-09-10/wanju-grant-proxy-application-after-sep14-2026-09-10.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | 계획 §5 이정표: 위임장 대리신청 9/14 이후(9/2 위임장 공고) · 날짜 2026-09-14 D+1 · 갱신 이력 없음 |
-| 20 | 영암군 민생지원금 10만원, 농촌기본수당 10월 30일까지 신청 (src/data/issues/2026-09-14/yeongam-rural-basic-allowance-100k-2026-09-14.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | 계획 §5 이정표: 방문 신청 개시 9/14 · 날짜 2026-09-14 D+1 · 갱신 이력 없음 |
+| 8 | 대구 추석지원금 전 시민 지급 없음, 군위 54만원은 1월분 (src/data/issues/2026-09-15/daegu-chuseok-grant-check-2026-09-15.json) | 2026-09-16 D-1 | 1일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "9월 16일 본회의 추경 의결 예정, 원안에 전 시민 지원금 없음" · 날짜 2026-09-16 D-1 · 갱신 이력 없음 |
+| 9 | 2026 2학기 국가장학금 2차 신청 9월 9일 마감, 재학생 구제 (src/data/issues/2026-07-28/national-scholarship-2nd-round-2026-07-28.json) | 2026-09-16 D-1 | 1일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2차 신청 8월 12일(수) 9시~9월 9일(수) 18시 / 서류·가구원 동의 9월 16일(수) 18시까지" · 날짜 2026-09-16 D-1 · dateModified 2026-09-09 · 0400-queue 2026-09-09 update 지정과 겹침 |
+| 10 | 김해시 민생지원금 10만원 신청 대상, 9월 17일 지급 (src/data/issues/2026-08-12/gimhae-livelihood-grant-2026-08-12.json) | 2026-09-17 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "지급 목표 2026.09.17(추석 직전) / 정확한 지급기준일·신청 개시일·사용기한은 조례 시행지침·김해시 공고로 확정 예정" · 날짜 2026-09-17 D-2 · 갱신 이력 없음 · 계획 §5 이정표: 지급 예정일 9/17(2026-09-17) |
+| 11 | 9월 18일 신설 배우자 유산·사산휴가, 유급은 며칠일까 (src/data/issues/2026-09-01/spouse-miscarriage-stillbirth-leave-2026-09-01.json) | 2026-09-18 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2026년 9월 18일 시행. 신청 방법·서류는 시행 전까지 별도 공지 예정" · 날짜 2026-09-18 D-3 · 갱신 이력 없음 |
+| 12 | 추석 민생회복지원금 우리 지역 대상·신청 조회 방법 (src/data/issues/2026-07-30/chuseok-livelihood-recovery-region-check-2026-07-30.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026 추석(9월 25일) 전 지급 지자체 증가 / 신청·지급·사용기한은 지자체 공고로 확정(속초 신청 7.20~9.11·나주 9.14부터)" · 날짜 2026-09-14 D+1 (+ 2026-09-11 D+4) · dateModified 2026-07-30 |
+| 13 | 고흥 민생지원금 언제 나오나, 30만원 추진 상황 정리 (src/data/issues/2026-08-19/goheung-livelihood-grant-2026-08-19.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "9월 1일 확정 발표: 2026.9.14~18 마을 방문 지급(1차), 9.21~10.30 읍면사무소 신청, 사용기한 2026.12.31(지류 " · 날짜 2026-09-14 D+1 (+ 2026-09-18 D-3) · dateModified 2026-09-05T22:58:49.000Z · 계획 §5 이정표: 마을 지급 9/14~18 개시(2026-09-14) |
+| 14 | 고흥군 민생회복지원금 30만원, 추석 전 고흥사랑상품권 지급 (src/data/issues/2026-08-17/goheung-livelihood-recovery-grant-2026-08-17.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | 계획 §5 이정표: 마을 지급 9/14~18 개시 · 날짜 2026-09-14 D+1 · 갱신 이력 없음 |
+| 15 | 생계·의료급여 수급 근로가구 희망저축계좌 9월 3차 모집 D-4 (src/data/issues/2026-08-28/hope-savings-account-type1-round3-2026-08-28.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "Ⅰ유형 3차 접수 2026년 9월 1일~14일, 놓치면 4차 11월 2일~16일 예정" · 날짜 2026-09-14 D+1 · 갱신 이력 없음 |
+| 16 | 문경 고유가 지원금 25만원, 9월 14일 신청 (src/data/issues/2026-08-16/mungyeong-high-oil-price-relief-2026-08-16.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "신청 2026년 9월 14일~10월 23일 / 선불카드 사용기한 2026년 12월 31일까지" · 날짜 2026-09-14 D+1 · 갱신 이력 없음 |
+| 17 | 문경 민생지원금 추석 전 지급되나, 9월 1일 추경 관건 (src/data/issues/2026-08-27/mungyeong-livelihood-grant-chuseok-payment-2026-08-27.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "접수 2026년 9월 14일~10월 23일, 추경 예산은 9월 8일 시의회 의결로 확정(추석 전 지급 목표 유지)" · 날짜 2026-09-14 D+1 · dateModified 2026-09-13 |
+| 18 | 나주 민생회복지원금 5부제, 내 출생연도 신청일은 9월 며칠인가 (src/data/issues/2026-09-03/naju-livelihood-grant-rotation-days-2026-09-03.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "온라인·방문 공통 2026.09.14~10.16(시 공식 게시물), 첫 주 9.14~18 출생연도 끝자리 5부제. 온라인 안내의 출생연도 무관 " · 날짜 2026-09-14 D+1 (+ 2026-09-18 D-3) · 갱신 이력 없음 |
+| 19 | 나주 민생회복지원금 20만원, 9월 14일 신청 시작 (src/data/issues/2026-08-07/naju-livelihood-recovery-grant-2026-08-07.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "신청·지급 2026.09.14부터(9월 제2회 추경 의결 전제, 마감일은 공고 예정) / 사용기한 2026.11.30" · 날짜 2026-09-14 D+1 · dateModified 2026-09-03T07:10:00.000Z |
+| 20 | 완주군 민생안정지원금 위임장 대리신청 서류와 9월 14일 이후 창구 (src/data/issues/2026-09-10/wanju-grant-proxy-application-after-sep14-2026-09-10.json) | 2026-09-14 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | 계획 §5 이정표: 위임장 대리신청 9/14 이후(9/2 위임장 공고) · 날짜 2026-09-14 D+1 · 갱신 이력 없음 |
 
 갱신 나머지 8건은 큐 JSON(track "갱신")에 있음.
 
@@ -67,10 +67,11 @@ SERP 실측: scout 25/35건(T1 15·T2 5·재측정 5)
 - [T1] 울진군 민생안정지원금 30만원 부결 — cluster-intents VETO: 울진 × V 이미 존재: uljin-grant-300k-rejected-resubmission-2026-09-10(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 광양 민생지원금 30만원 지급하나요 — cluster-intents VETO: 광양 × V 이미 존재: gwangyang-grant-300k-chuseok-postponed-2026-09-10(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 영암군 농촌기본수당 10만원 하반기 신청 — cluster-intents VETO: 영암 × A 이미 존재: yeongam-rural-basic-allowance-100k(2026-09-14). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
-- [T1] 대구 V — 보류: 확인 불가 — 첫 주 제외(계획 §5)
+- [T1] 대구 V — 보류: 확인 불가 — 첫 주 제외(계획 §5) · B 트리거: "대구 추석지원금" rank null(통블록)(2026-09-15)
 - [T1] 경기 V — 보류: 확인 불가 — 첫 주 제외(계획 §5) · B 트리거: "경기도 민생지원금" rank null(통블록)(2026-09-11)
 - [T1] 완주 B — B 트리거: "완주 민생지원금" r10(2026-09-09) → cluster-intents VETO: 완주 × B 이미 존재: wanju-grant-proxy-application-after-sep14(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 완주 B — B 트리거: "완주군 민생지원금" rank null(통블록)(2026-09-09) → cluster-intents VETO: 완주 × B 이미 존재: wanju-grant-proxy-application-after-sep14(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
+- [T1] 신안 B — B 트리거: "신안군 민생지원금" r9(2026-09-15) → cluster-intents VETO: 신안 × B 이미 존재: sinan-grant-100k-application-2026-09-12(2026-09-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 완주군 민생지원금 — 실유입 "완주군 민생지원금" 512/주 자사 미노출 → cluster-intents VETO: 완주 × A 이미 존재: wanju-livelihood-stability-grant-2026-08-12(2026-08-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 통영 지원금 신청 — 실유입 "통영 지원금 신청" 182/주 순위 미측정 → cluster-intents VETO: 통영 × A 이미 존재: tongyeong-livelihood-recovery-grant-2026-08-15(2026-08-15). 잠금 제외 2건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
 - [T1] 완주 민생지원금 — 실유입 "완주 민생지원금" 170/주 r10 → cluster-intents VETO: 완주 × A 이미 존재: wanju-livelihood-stability-grant-2026-08-12(2026-08-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
@@ -115,26 +116,25 @@ SERP 실측: scout 25/35건(T1 15·T2 5·재측정 5)
 - [T2] 본인부담상한액 초과금 환급 — 축 잠금 — medical-copay-cap-refund-2026-08-31(2026-08-31) 제목이 "초과금 환급" 축을 이미 잡고 있다
 - [T2] 2027 예산안 — mode update-only — 갱신 트랙 전용(지금은 1.77로 작고 하락 중(trend 0.56). 대응 글 0. 국회 심사(11월)·통과(12/2 법정)
 - [T2] 4차민생지원금 — 기존 글 있음 — minsaeng-4th-round-payment-status-2026-08-09(제목에 이 표현 포함). 새 글 아님
-- [T2] 경영안정바우처 — 기존 글 있음 — small-biz-management-voucher-detail-2026-09-15(제목에 이 표현 포함). 새 글 아님
-- [T2] 아이맞이지원금 — 기존 글 있음 — child-benefit-2027-overhaul-2026-09-03(제목에 이 표현 포함). 새 글 아님
+- [T2] 공익수당 — 기존 글 있음 — farmer-fisher-public-allowance-jangseong(제목에 이 표현 포함). 새 글 아님
 - [T2] 2026 근로장려금 대상 기준 — 기존 글 있음 — eitc-2026-eligibility-criteria(제목에 이 표현 포함). 새 글 아님
 - [T2] 2027년 아이맞이지원금 — 기존 글 있음 — child-benefit-2027-overhaul-2026-09-03(제목에 이 표현 포함). 새 글 아님
 - [T2] 조기재취업수당 조건 — 기존 글 있음 — early-reemployment-allowance-conditions-2026-07-31(제목에 이 표현 포함). 새 글 아님
 - [T3] 중도퇴사 연말정산 — hold: peak ≥3 ✗(2.86 — 미달) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인(asiatop 사회초년생 퇴사 각도). 재측정에서 ≥3 나올 때만
 - [T2] 2026 재난지원금 — scout 2026-09-15 verdictT2 closed: "2026 재난지원금" already r1, openSlots 0<2 — 자사 이미 r1 — 신규 불필요
 - [T2] 9월14일 민생지원금 — scout 2026-09-15 verdictT2 closed: "9월14일 민생지원금" already r1, openSlots 0<2 — 자사 이미 r1 — 신규 불필요
-- [T2] 조기취업수당 조건 — scout 2026-09-15 verdictT2 closed: "조기취업수당 조건" already r2, openSlots 0<2, offset 62.5%≥30 — 자사 이미 r2 — 신규 불필요
+- [T2] 조기취업수당 조건 — scout 2026-09-15 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 0<2, offset 62.3%≥30 — 자사 이미 r3 — 신규 불필요
 - [T2] 2026 주휴수당 포함 시급 — scout 2026-09-15 verdictT2 closed: "2026 주휴수당 포함 시급" already r2, openSlots 1<2 — 자사 이미 r2 — 신규 불필요
 - [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-09-15 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" already r2, openSlots 0<2, offset 37.8%≥30 — 자사 이미 r2 — 신규 불필요
-- [T2] 육아휴직수당 — scout 2026-09-15 verdictT2 closed: "육아휴직수당" offset 40%≥30 — 재측정 후 재판정
+- [T2] 3차민생지원금 — scout 2026-09-15 verdictT2 closed: "3차민생지원금" offset 48.2%≥30 — 재측정 후 재판정
+- [T2] 농민수당 — scout 2026-09-15 verdictT2 closed: "농민수당" offset 72%≥30 — 재측정 후 재판정
 - [T2] 기초노령연금 — scout 2026-09-15 verdictT2 closed: "기초노령연금" offset 57.1%≥30 — 재측정 후 재판정
-- [T2] 3차민생지원금 — scout 2026-09-15 verdictT2 closed: "3차민생지원금" offset 48.3%≥30 — 재측정 후 재판정
-- [T2] 청년월세지원금 — scout 2026-09-15 verdictT2 closed: "청년월세지원금" openSlots 1<2, offset 63.3%≥30 — 재측정 후 재판정
-- [T2] 중위소득 계산 — scout 2026-09-15 verdictT2 closed: "중위소득 계산" already r2, openSlots 0<2 — 자사 이미 r2 — 신규 불필요
-- [T2] 실업급여 구직급여 — scout 2026-09-15 verdictT2 closed: "실업급여 구직급여" openSlots 1<2, offset 45.8%≥30 — 재측정 후 재판정
-- [T1] 창원 지원금 — scout 2026-09-15 verdictT1 closed: "창원 지원금" already r3, openSlots 0<2, offset-warn 28.3% — 자사 이미 r3 — 신규 불필요
+- [T2] 청년월세지원금 — scout 2026-09-15 verdictT2 closed: "청년월세지원금" openSlots 1<2, offset 63.1%≥30 — 재측정 후 재판정
+- [T2] 중위소득 계산 — scout 2026-09-15 verdictT2 closed: "중위소득 계산" already r2, openSlots 0<2, offset 37%≥30 — 자사 이미 r2 — 신규 불필요
+- [T2] 실업급여 구직급여 — scout 2026-09-15 verdictT2 closed: "실업급여 구직급여" openSlots 1<2, offset 31%≥30 — 재측정 후 재판정
+- [T1] 창원 지원금 — scout 2026-09-15 verdictT1 closed: "창원 지원금" already r2, openSlots 0<2, offset-warn 25.6% — 자사 이미 r2 — 신규 불필요
 - [T1] 정읍시 민생지원금 — scout 2026-09-15 verdictT1 closed: "정읍시 민생지원금" already r2, openSlots 1<2 — 자사 이미 r2 — 신규 불필요
-- [T1] 부안군 민생안정지원금 못 받았으면 — scout 2026-09-15 verdictT1 closed: "부안군 민생안정지원금 못 받았으면" already r1, openSlots 0<2, offset-warn 15.1% / "부안군 민생안정지원금 9월 16일 출장 지급 이후" already r1, openSlots 0<2 — 자사 A글(buan-livelihood-stability-grant-2026-08-19)이 이미 r1 — 신규 대신 그 글 갱신(결정 #2, 갱신 후보에 올림)
+- [T1] 부안군 민생안정지원금 못 받았으면 — scout 2026-09-15 verdictT1 closed: "부안군 민생안정지원금 못 받았으면" already r1, openSlots 0<2 / "부안군 민생안정지원금 9월 16일 출장 지급 이후" already r1, openSlots 0<2 — 자사 A글(buan-livelihood-stability-grant-2026-08-19)이 이미 r1 — 신규 대신 그 글 갱신(결정 #2, 갱신 후보에 올림)
 - [T2] 검색량 미측정 22건(keyword-volume·레이더 측정 전 — 0이 아니라 "못 쟀다"): 실업급여 자발적 퇴사, 실업급여 면접 불참, 주휴수당 알바 계산기, 근로장려금 상반기, 중위소득 계산기, 기준 중위소득 표, 중위소득 가구원수, 기초연금 부부 감액, 기초연금 인상액, 월세 세액공제 신청 대상, 월세 세액공제 국세환급금 통지서, 국가장학금 서류, 국가장학금 서류제출 안 하면, 국가장학금 소득구간, 국가장학금 지급일, 청년월세 2027 주거급여, 청년월세 월세지원 사업, 노란우산공제 가입 조건, 노란우산공제 폐업 공제금, 본인부담상한액 환급 신청, 본인부담상한액 2026 상한액 표, 본인부담상한액 사후환급
 
 이전 큐에서 status가 남아 있는 항목(오늘 재생성되지 않음):
@@ -143,8 +143,9 @@ SERP 실측: scout 25/35건(T1 15·T2 5·재측정 5)
 - [T2] 월세 세액공제 월세환급금 — published 2026-09-14
 - [T2] 기초연금 소득인정액 — published 2026-09-12
 - [T1] 영암군 민생지원금 — published 2026-09-14
-- [T2] 노란우산공제 대출 — approved 2026-09-14
+- [T2] 노란우산공제 대출 — published 2026-09-15
 - [T2] 양육비 선지급 — approved 2026-09-14
+- [T1] 대구 추석지원금 — published 2026-09-15
 - [T2] 청주시4차민생지원금 — hold 2026-09-13
 
 ## 다음 물결 감시
@@ -168,10 +169,10 @@ SERP 실측: scout 25/35건(T1 15·T2 5·재측정 5)
 - 문경 신청 마감 10/23 — 2026-10-23(D-38) 갱신 예정 · mungyeong-high-oil-price-relief-2026-08-16, mungyeong-livelihood-grant-chuseok-payment-2026-08-27
 - 영동 영동페이 신청 마감 10/2 — 2026-10-02(D-17) 갱신 예정 · local-livelihood-support-payment-2026-07-15, yeongdong-livelihood-stability-grant-2026-08-18
 - 영암 신청 마감 10/30 — 2026-10-30(D-45) 갱신 예정 · yeongam-rural-basic-allowance-100k
-- 재측정 "나주 민생회복지원금 5부제": r2 · 본청 1 · 언론 0 · openSlots 0 · offset 11.9%
-- 재측정 "나주시 민생지원금": r9 · 본청 1 · 언론 3 · openSlots 7 · offset 19.9%
-- 재측정 "2026 김해 민생지원금": r2 · 본청 1 · 언론 0 · openSlots 0 · offset 23.6%
-- 재측정 "김해시 지원금": r9 · 본청 0 · 언론 7 · openSlots 8 · offset 52.7%
+- 재측정 "나주 민생회복지원금 5부제": r2 · 본청 1 · 언론 0 · openSlots 0 · offset 12%
+- 재측정 "나주시 민생지원금": r7 · 본청 1 · 언론 2 · openSlots 5 · offset 20.8%
+- 재측정 "2026 김해 민생지원금": r2 · 본청 1 · 언론 0 · openSlots 0 · offset 23.2%
+- 재측정 "김해시 지원금": r9 · 본청 0 · 언론 7 · openSlots 8 · offset 47.6%
 
 SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 4건 · 새 키워드 11건 · 재측정 24건 — 재측정: 나주 민생회복지원금 5부제, 나주시 민생지원금, 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청 …
 
