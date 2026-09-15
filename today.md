@@ -2,11 +2,13 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-09-15 08:38 KST
+> 마지막 갱신: 2026-09-15 10:14 KST
 
 ## 2026-09-15 (오늘)
 
-### 📰 신규 이슈 포스트 (2건)
+### 📰 신규 이슈 포스트 (3건)
+- `복지` [대구 추석지원금 전 시민 지급 없음, 군위 54만원은 1월분](https://awoo.or.kr/issues/daegu-chuseok-grant-check/)
+  - 대구 추석지원금, 시 전체 지급은 9월 15일 확인 기준 없습니다. 추석 전 남은 건 저소득 14,600명 10만원 상당 지원과 9월 21일 대구로페이 10% 할인입니다.
 - `창업` [소상공인 경영안정바우처 25만원 사용처와 신청 방법은?](https://awoo.or.kr/issues/small-biz-management-voucher-detail/)
   - 소상공인 경영안정바우처는 2025년 매출 1억 400만원 미만 소상공인에게 25만원을 카드로 지급합니다. 공과금 등 4가지 용도로만 쓸 수 있고, 예산 소진 시 조기 마감됩니다.
 - `창업` [노란우산공제 대출은 얼마까지 될까, 환급금 90% 한도 계산법](https://awoo.or.kr/issues/yellow-umbrella-mutual-aid-loan/)
