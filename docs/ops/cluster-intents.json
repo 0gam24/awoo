@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 264,
-    "entryCount": 58,
-    "regionCount": 44,
+    "scannedPosts": 267,
+    "entryCount": 59,
+    "regionCount": 45,
     "regions": [
       "강릉",
       "강북구",
@@ -19,6 +19,7 @@
       "고창",
       "고흥",
       "광양",
+      "군위",
       "김해",
       "나주",
       "당진",
@@ -55,10 +56,10 @@
     "families": {
       "A": 48,
       "B": 2,
-      "V": 8
+      "V": 9
     },
     "clusters": {
-      "minsaeng": 38,
+      "minsaeng": 39,
       "other": 20
     },
     "rollups": 8,
@@ -1403,6 +1404,28 @@
         "who=2026-08-24",
         "amount=10만원",
         "deadline=2026-10-30"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false
+    },
+    {
+      "region": [
+        "대구",
+        "군위"
+      ],
+      "family": "V",
+      "slug": "daegu-chuseok-grant-check",
+      "path": "src/data/issues/2026-09-15/daegu-chuseok-grant-check-2026-09-15.json",
+      "date": "2026-09-15",
+      "targetQuery": "대구 추석지원금",
+      "coreFacts": {
+        "who": "대구 9개 구·군 주민, 군위만 1월에 54만원 별도",
+        "amount": "전 시민 지급 없음, 저소득 14,600명 10만원 상당",
+        "deadline": "9월 16일 본회의 추경 의결 예정, 원안에 전 시민 지원금 없음"
+      },
+      "coreFactsKeys": [
+        "amount=10만원",
+        "deadline=2026-09-16"
       ],
       "cluster": "minsaeng",
       "rollup": false
