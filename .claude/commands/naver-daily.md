@@ -30,7 +30,7 @@ description: 네이버 상위노출 일일 루프 — 어제 성적 측정 → �
 
 - **올랐다** → 통한 요인을 오늘 글에 복제
 - **못 올라갔다** → 교정안(제목 대안·보강 섹션)
-- **버려라** → T2 쿼리에서 `openSlots 0`(옛 `externalCount 0`)이 반복되면 타깃에서 제외. 지역 쿼리의 `rank: null`은 버리지 말고 `aboveIsWholeBlock`·개시일 언론 벽(같은 제목 언론 ≥3)으로 원인을 먼저 가른다 — 4위 이하·미노출 지역 쿼리는 패밀리B 트리거다
+- **버려라** → T2 쿼리에서 `openSlots 0`(옛 `externalCount 0`)이 반복되면 타깃에서 제외. 지역 쿼리의 `rank: null`(30위 밖)은 버리지 말고 개시일 언론 벽(`newsSameTitle` ≥4)으로 원인을 먼저 가른다 — 4위 이하·미노출 지역 쿼리는 패밀리B 트리거다
 
 여기서 나온 **"다음 글에 반영할 규칙"** 을 5단계 작성자에게 그대로 넘긴다(4단계 운영자 보고에도 "도출한 교정"으로 싣는다).
 
@@ -55,21 +55,22 @@ description: 네이버 상위노출 일일 루프 — 어제 성적 측정 → �
 
 ### 3. SERP 실측 (naver-serp-scout spawn) — 건너뛰지 마라
 
-후보를 **네이버에 실제로 검색**한다. 하루 예산은 T1 15 / T2 5 / 재측정 5(계획 §7 결정 7). 이력에 남기지 않는 정찰 모드를 쓴다.
+후보를 **공식 웹문서 검색 API로 실측**한다(통합검색 페이지는 받지 않는다 — robots Disallow, 2026-09-15 전환). 하루 예산은 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5(계획 §7 결정 7·16). 이력에 남기지 않는 정찰 모드를 쓴다.
 
 ```bash
 node scripts/naver-rank-check.mjs --mode=scout --query="후보 쿼리"
-# → {rank, webDocCount, aboveIsWholeBlock, openSlots, mainGovAbove, pressAbove, sisterAbove,
-#    webDocOffset, verdictT1, verdictT2, above:[{host,kind,title,stale?}]}
+# → {rank(웹문서 검색 API 30위 기준), webDocCount, aboveIsWholeBlock, openSlots, mainGovAbove,
+#    sisterAbove, eyeOffset, newsWall, newsSameTitle, verdictT1, verdictT2, above:[{host,kind,title,stale?}]}
+#    pressAbove·webDocOffset·ugc·onPage는 항상 null — 공식 API로 못 잰다(2026-09-15 전환)
 ```
 
 판정은 **트랙별로 갈린다.**
 
-- **T1 지역** — 검색량 문턱 **없음**. 조건은 둘: ① 공고·가결이 실제로 존재(go.kr 공고 URL 또는 언론 3곳 이상) ② `verdictT1: "open"`(위에 시군 본청 go.kr ≤1 · 언론 ≤3 · 자사 미노출 또는 4위 이하 — 자사가 이미 3위 이내면 closed). 접미형("X군 민생지원금") 1개 + 최다 변형 1개, 두 쿼리를 잰다. 군 단위는 접미형이 유입의 85~100%다.
+- **T1 지역** — 검색량 문턱 **없음**. 조건은 둘: ① 공고·가결이 실제로 존재(go.kr 공고 URL 또는 언론 3곳 이상) ② `verdictT1: "open"`(위에 시군 본청 go.kr ≤1 · 자사 미노출 또는 4위 이하 — 자사가 이미 3위 이내면 closed). **"언론 ≤3"은 잴 수 없어 빠졌다** — 대신 `newsSameTitle` ≥4(같은 제목 기사 4곳)를 경고로 적는다. 접미형("X군 민생지원금") 1개 + 최다 변형 1개, 두 쿼리를 잰다. 군 단위는 접미형이 유입의 85~100%다.
 - **T2 롱테일** — `keyword-volume` `recentRelative`(= 레이더 `signals.volume.recent7`) ≥ 1.5 **하나만** 문턱, 그다음 `verdictT2: "open"`(openSlots ≥2; 자매는 `sisterAbove`로 보고만, verdict를 닫지 않는다).
-- `webDocOffset ≥ 30%`(웹문서 블록이 그만큼 아래) → 신규 금지. 15~30% → 경고로 보고.
-- awoo가 이미 노출 중 → 신규 금지, **갱신 트랙**으로 옮긴다. 순위가 4위 이하로 떨어진 지역 쿼리는 **패밀리B 트리거**. `above[]`에 같은 제목 언론 3건 이상이면 "개시일 언론 신디케이션" 원인 코드를 따로 적는다(품질 문제가 아니다).
-- `rank: null`은 `aboveIsWholeBlock`으로 구분한다 — 블록 전체가 위에 있는 것과 미노출은 다르다. null이 발행을 막지 않는다.
+- 웹문서 블록 위치는 **운영자 눈 확인**(`eyeOffset`)이다. 목록 위젯 상위 5건의 [첫 화면][한 번 스크롤][그 아래] 버튼 → `그 아래`면 신규 금지. 안 눌렀으면 그냥 진행(감점 없음). **네가 네이버 화면을 대신 보지 마라.**
+- awoo가 이미 노출 중 → 신규 금지, **갱신 트랙**으로 옮긴다. 순위가 4위 이하로 떨어진 지역 쿼리는 **패밀리B 트리거**. `newsSameTitle` 4 이상이면 "개시일 언론 신디케이션" 원인 코드를 따로 적는다(품질 문제가 아니다. 2026-09-29까지는 경고이지 탈락 사유가 아니다).
+- `rank: null`은 "30위 안에 없음"이다. 발행을 막지 않는다. 2026-09-15 전 이력(화면 순위)과 그 뒤 이력(API 순위)은 **서로 비교하지 마라**.
 - 옛 규칙 폐기: "`webDocCount` 3 이하면 UGC 질의라 못 이긴다"는 **틀렸다**(web3 1위 78, web5 1위 1,746 실측). 얇은 블록은 오히려 진입 조건이다. "`externalCount: 0`이면 버린다"는 T2에서 `verdictT2`(openSlots)로 흡수됐다. T1은 본청·언론 카운트가 기준이라 외부 웹 수로 판단하지 않는다.
 - 자매 호스트(`docs/ops/sister-sites.json`)가 위에 있으면 `sisterAbove`로 보고만 한다 — 민생 SERP 54건 중 자매 0이라 지연 사유가 아니다.
 
@@ -77,7 +78,7 @@ node scripts/naver-rank-check.mjs --mode=scout --query="후보 쿼리"
 
 **이 명령의 마지막 자동 단계다.** 후보 표를 운영자에게 보고하고, **발행은 운영자가 확인해 지시할 때까지 하지 않는다.** 0400 자동 발행은 이 보고와 무관하게 매일 1건 그대로 돈다(운영자 결정 ②).
 
-보고 표 열: **트랙 · 패밀리 · 타깃 쿼리(제목 선두) · 근거(신호·개시일·`--check` 판정·SERP 판정·webDocOffset) · 예상 유입/주 · 조건**(공고 URL·B키 2개·오프셋 등 발행 전 확인할 것). 갱신 후보(대상 글 경로·고칠 사실·날짜)도 같은 표 아래 붙인다. 같은 내용을 `docs/ops/DAILY-KEYWORDS.md`에도 남긴다(파이프라인 스크립트가 만들면 그것을 인용, 없으면 직접 쓴다).
+보고 표 열: **트랙 · 패밀리 · 타깃 쿼리(제목 선두) · 근거(신호·개시일·`--check` 판정·SERP 판정·눈 확인·뉴스 벽) · 예상 유입/주 · 조건**(공고 URL·B키 2개·눈 확인 등 발행 전 확인할 것). 갱신 후보(대상 글 경로·고칠 사실·날짜)도 같은 표 아래 붙인다. 같은 내용을 `docs/ops/DAILY-KEYWORDS.md`에도 남긴다(파이프라인 스크립트가 만들면 그것을 인용, 없으면 직접 쓴다).
 
 인자로 키워드가 지정된 실행은 그 자체가 운영자 지시이므로 4단계를 지나 5단계로 간다.
 
@@ -109,7 +110,7 @@ node scripts/naver-rank-check.mjs --mode=scout --query="후보 쿼리"
 
 ### 8. 발행
 
-운영자에게 [제목 / 타깃 쿼리 / 트랙·패밀리 / SERP 판정 근거(webDocOffset 포함) / 검증 결과 / 1단계 교정 반영 내역]을 최종 확인받고 발행.
+운영자에게 [제목 / 타깃 쿼리 / 트랙·패밀리 / SERP 판정 근거(눈 확인·뉴스 벽 포함) / 검증 결과 / 1단계 교정 반영 내역]을 최종 확인받고 발행.
 
 ```bash
 npm run sync:history && npm run indexnow:ping && npm run update:today
@@ -145,7 +146,7 @@ node scripts/build-cluster-intents.mjs --append <발행한 post.json 경로>
 
 | # | 트랙 | 패밀리 | 타깃 쿼리 | 근거 | 예상 유입/주 | 조건 |
 |---|---|---|---|---|---|---|
-| 1 | T1 | B | 완주군 민생안정지원금 위임장 대리신청 | 개시 9/8 D+2 · --check PASS · verdictT1 open · 본청 1·언론 3 · webDocOffset 12% | 150~350 | — |
+| 1 | T1 | B | 완주군 민생안정지원금 위임장 대리신청 | 개시 9/8 D+2 · --check PASS · verdictT1 open · 본청 1 · 7일 기사 19(같은 제목 2) · 눈 확인 첫 화면 | 150~350 | — |
 | 2 | T2 | — | 에너지바우처 잔액 조회 | recent7 9.98 · openSlots 4 · 자매 0 · verdictT2 open | 60~200 | — |
 
 🔁 갱신 후보: {글 경로} — {고칠 사실·날짜}
@@ -156,7 +157,7 @@ node scripts/build-cluster-intents.mjs --append <발행한 post.json 경로>
 
 ```
 ✅ 발행: {URL}  타깃 쿼리 "{쿼리}"  트랙 {T1|T2} · 패밀리 {A|B|V}
-🎯 SERP: verdict{T1|T2} open · 본청 {N} · 언론 {N} · openSlots {N} · webDocOffset {N}%
+🎯 SERP: verdict{T1|T2} open · 본청 {N} · 7일 기사 {N}(같은 제목 {N}) · openSlots {N} · 눈 확인 {첫 화면|한 번 스크롤|없음}
 🛡 gatekeeper PASS · shaper PASS · 팩트체크 {점수} · shingle {N}%
 📌 레지스트리 --append 완료 · targetQuery 접미형 등록
 ```

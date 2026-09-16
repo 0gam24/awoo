@@ -200,6 +200,13 @@ const HUMAN = [
   [/offset-warn ([\d.]+%)/g, '웹문서 비중 $1 주의'],
   [/offset ([\d.]+%)/g, '웹문서 비중 $1'],
   [/webDocOffset/g, '웹문서 비중'],
+  // 2026-09-15 공식 API 전환 — 못 재는 값과 그 대체 지표
+  [/offset·press 미측정\(API\)/g, '블록 위치·언론 수는 공식 API로 못 잼'],
+  [/eye 그 아래/g, '검색 결과 한참 아래(눈 확인)'],
+  [/눈 확인 전/g, '블록 위치 눈 확인 전'],
+  [/news-warn 같은 제목 (\d+)·7일 (\d+)건/g, '같은 제목 기사 $1곳(7일 $2건) — 개시일 언론 벽 주의'],
+  [/뉴스7일 (\S+)·같은제목 (\S+)/g, '7일 기사 $1건(같은 제목 $2곳)'],
+  [/언론 미측정/g, '언론 수 못 잼'],
   [/mainGovAbove/g, '위 본청'],
   [/pressAbove/g, '위 언론'],
   [/inbound7d?/g, '실유입/주'],
@@ -427,6 +434,7 @@ const rankRows = rankQueries.map((q) => {
     verdictT2: last?.verdictT2,
     gov: latest.mainGovAbove,
     press: latest.pressAbove,
+    newsWall: latest.newsWall ?? null,
     inbound7d: t?.inbound7d ?? null,
     targetUrl: t?.url ?? null,
   };
@@ -603,6 +611,7 @@ function slotOf(term) {
       wholeBlock: s.aboveIsWholeBlock === true,
       gov: s.mainGovAbove,
       press: s.pressAbove,
+      newsWall: s.newsWall ?? null,
       openSlots: s.openSlots,
       approx: s.approx === true,
       query: s.query,
@@ -620,6 +629,7 @@ function slotOf(term) {
       wholeBlock: l.aboveIsWholeBlock === true,
       gov: l.mainGovAbove,
       press: l.pressAbove,
+      newsWall: l.newsWall ?? null,
       openSlots: l.openSlots,
       approx: false,
       query: term,
@@ -632,8 +642,10 @@ function slotHtml(s) {
   const parts = [];
   if (s.verdict) {
     parts.push(badge(s.open ? 'good' : 'warn', s.open ? '열림' : '닫힘'));
-    if (s.gov !== undefined || s.press !== undefined)
-      parts.push(`위에 본청 ${num(s.gov)}·언론 ${num(s.press)}`);
+    // 언론 수는 2026-09-15 공식 API 전환 뒤 잴 수 없다(null) — "언론 없음"으로 읽히지 않게 숫자가 있을 때만 쓴다
+    if (s.gov !== undefined) parts.push(`위에 본청 ${num(s.gov)}`);
+    if (s.press != null) parts.push(`언론 ${num(s.press)}`);
+    else if (s.newsWall != null) parts.push(`7일 기사 ${num(s.newsWall)}건`);
   }
   parts.push(`우리 ${esc(rankText(s.rank, s.wholeBlock))}`);
   if (s.approx) parts.push('<span class="muted">(근사)</span>');
@@ -1104,7 +1116,8 @@ function ranksSection() {
   const fullRows = rankRows.map((r) => {
     const above =
       r.gov !== undefined || r.press !== undefined
-        ? `본청 ${num(r.gov)}·언론 ${num(r.press)}`
+        ? // 언론 수는 공식 API 전환(2026-09-15) 뒤 null — 7일 기사 수로 대신 보여준다
+          `본청 ${num(r.gov)}·${r.press != null ? `언론 ${num(r.press)}` : r.newsWall != null ? `7일 기사 ${num(r.newsWall)}` : '언론 못 잼'}`
         : `기관 ${num(r.kinds.institutional ?? 0)}·언론 ${num(r.kinds.press ?? 0)}`;
     const verdict =
       r.verdictT1 !== undefined

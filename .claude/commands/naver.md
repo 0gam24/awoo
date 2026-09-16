@@ -47,24 +47,25 @@ VETO(같은 지자체×패밀리 있음. **A가 있는 지자체에 V를 넣는 
 성적 측정까지 포함한 하루 루프는 `/naver-daily`를 써라.
 
 ### 3. SERP 실측 (naver-serp-scout spawn) — 이 단계를 건너뛰지 마라
-후보를 넘겨 **네이버에 실제로 검색**하게 한다. 예산은 하루 T1 15 / T2 5 / 재측정 5. 이력에 쓰지 않는 정찰 모드:
+후보를 넘겨 **공식 웹문서 검색 API로 실측**하게 한다(통합검색 페이지는 받지 않는다 — robots Disallow, 2026-09-15 전환). 예산은 하루 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5. 이력에 쓰지 않는 정찰 모드:
 
 ```bash
 node scripts/naver-rank-check.mjs --mode=scout --query="후보 쿼리"
-# → {rank, webDocCount, aboveIsWholeBlock, openSlots, mainGovAbove, pressAbove, sisterAbove,
-#    webDocOffset, verdictT1, verdictT2, above:[{host,kind,title,stale?}]}
+# → {rank(웹문서 검색 API 30위 기준), webDocCount, aboveIsWholeBlock, openSlots, mainGovAbove,
+#    sisterAbove, eyeOffset, newsWall, newsSameTitle, verdictT1, verdictT2, above:[{host,kind,title,stale?}]}
+#    pressAbove·webDocOffset·ugc·onPage는 항상 null — 공식 API로 못 잰다(2026-09-15 전환)
 ```
 
 트랙별 판정:
-- **T1 지역** — 검색량 문턱 없음. 공고·가결 존재 + `verdictT1: "open"`(본청 go.kr ≤1 · 언론 ≤3 · 자사 미노출 또는 4위 이하 — 자사가 이미 3위 이내면 closed). 접미형 1 + 변형 1, 두 쿼리를 잰다.
+- **T1 지역** — 검색량 문턱 없음. 공고·가결 존재 + `verdictT1: "open"`(본청 go.kr ≤1 · 자사 미노출 또는 4위 이하 — 자사가 이미 3위 이내면 closed). "언론 ≤3"은 잴 수 없어 빠졌고, `newsSameTitle` ≥4를 경고로 적는다. 접미형 1 + 변형 1, 두 쿼리를 잰다.
 - **T2 롱테일** — `keyword-volume` `recentRelative`(= 레이더 `signals.volume.recent7`) ≥ 1.5 하나만 문턱 + `verdictT2: "open"`(openSlots ≥2; 자매는 `sisterAbove`로 보고만, verdict를 닫지 않는다). 블로그·카페·지식iN이 1페이지를 채워 openSlots 0인 쿼리는 구조적으로 못 이긴다.
-- `webDocOffset ≥ 30%` 신규 금지, 15~30% 경고. `rank: null`은 `aboveIsWholeBlock`으로 구분하고 발행을 막지 않는다.
+- 블록 위치는 운영자 눈 확인(`eyeOffset`) — `그 아래`면 신규 금지, 안 누른 건 그냥 진행. `rank: null`(30위 밖)은 발행을 막지 않는다. 전환 전후 순위는 비교하지 않는다.
 - 옛 규칙 폐기: "webDocCount 3 이하는 UGC 질의라 못 이긴다"는 틀렸다(web3 1위 78, web5 1위 1,746). "외부 웹 0건이면 버린다"는 T2의 openSlots로 흡수됐고, T1은 본청·언론 카운트로 본다.
 
-awoo가 이미 노출 중인 쿼리가 나오면 **신규 금지 · 갱신 트랙**으로 옮긴다. 4위 이하로 떨어진 지역 쿼리는 패밀리B 트리거. `above[]`에 같은 제목 언론 3건 이상은 "개시일 언론 신디케이션" 원인 코드로 따로 적는다.
+awoo가 이미 노출 중인 쿼리가 나오면 **신규 금지 · 갱신 트랙**으로 옮긴다. 4위 이하로 떨어진 지역 쿼리는 패밀리B 트리거. `newsSameTitle` 4 이상은 "개시일 언론 신디케이션" 원인 코드로 따로 적는다(2026-09-29까지 경고).
 
 ### 4. 운영자 보고 — 인자 없는 실행은 여기서 멈춘다 (운영자 결정 ③)
-후보 표(**트랙 · 패밀리 · 타깃 쿼리 · 근거(--check·verdict·본청/언론·webDocOffset) · 예상 유입/주 · 조건**)와 갱신 후보(글 경로·고칠 사실·날짜)를 보고한다. **발행은 운영자가 확인해 지시할 때까지 하지 않는다.** 0400 자동 발행은 별도로 매일 1건 그대로다(운영자 결정 ②).
+후보 표(**트랙 · 패밀리 · 타깃 쿼리 · 근거(--check·verdict·본청·뉴스 벽·눈 확인) · 예상 유입/주 · 조건**)와 갱신 후보(글 경로·고칠 사실·날짜)를 보고한다. **발행은 운영자가 확인해 지시할 때까지 하지 않는다.** 0400 자동 발행은 별도로 매일 1건 그대로다(운영자 결정 ②).
 
 ## 운영자 지시 후 — 발행 단계
 
@@ -86,7 +87,7 @@ awoo가 이미 노출 중인 쿼리가 나오면 **신규 금지 · 갱신 트�
 **여기서 VETO면 점수와 무관하게 발행하지 않는다.** FIX면 신규 대신 기존 글 갱신(운영자 결정 ① 범위). 대체 조치는 패밀리B 신규 | 허브 표 행 | 기존 글 사실·날짜 갱신 셋 중 하나. 물결 창 안(개시 D-7~D+8)이면 속도 항목 면제.
 
 ### 8. 최종 확인 → 발행
-운영자에게 [제목 / URL / 타깃 쿼리 / 트랙·패밀리 / SERP 판정 근거(webDocOffset 포함) / 검증 결과] 보고 후 확인받아 발행. 그다음:
+운영자에게 [제목 / URL / 타깃 쿼리 / 트랙·패밀리 / SERP 판정 근거(눈 확인·뉴스 벽 포함) / 검증 결과] 보고 후 확인받아 발행. 그다음:
 ```bash
 npm run sync:history && npm run indexnow:ping && npm run update:today
 node scripts/build-cluster-intents.mjs --append <발행한 post.json 경로>
@@ -119,7 +120,7 @@ node scripts/naver-rank-check.mjs --mode=scout --query="타깃 쿼리"   # 이�
 ```
 | # | 트랙 | 패밀리 | 타깃 쿼리 | 근거 | 예상 유입/주 | 조건 |
 |---|---|---|---|---|---|---|
-| 1 | T1 | V | 울진군 민생안정지원금 30만원 부결 | 경북일보 9/8 · --check PASS · verdictT1 open · 본청 0·언론 2 · webDocOffset 8% | 40~120 | — |
+| 1 | T1 | V | 울진군 민생안정지원금 30만원 부결 | 경북일보 9/8 · --check PASS · verdictT1 open · 본청 0 · 7일 기사 2(같은 제목 1) · 눈 확인 첫 화면 | 40~120 | — |
 🔁 갱신 후보: {글 경로} — {고칠 사실·날짜}
 ⏸ 발행 대기 — 운영자 지시를 기다린다.
 ```
@@ -128,7 +129,7 @@ node scripts/naver-rank-check.mjs --mode=scout --query="타깃 쿼리"   # 이�
 
 ```
 ✅ 발행: {URL}  트랙 {T1|T2} · 패밀리 {A|B|V}
-🎯 타깃 쿼리: {쿼리} — verdict{T1|T2} open · 본청 {N} · 언론 {N} · openSlots {N} · webDocOffset {N}% · 제목 쿼리 선두 배치
+🎯 타깃 쿼리: {쿼리} — verdict{T1|T2} open · 본청 {N} · 7일 기사 {N}(같은 제목 {N}) · openSlots {N} · 눈 확인 {첫 화면|한 번 스크롤|없음} · 제목 쿼리 선두 배치
 📊 recent7 {N} · born {yes/no} · momentum {N} · 연령 {peak}
 🛡 gatekeeper PASS · shaper PASS · 팩트체크 {점수} · shingle {N}%
 📌 레지스트리 --append 완료

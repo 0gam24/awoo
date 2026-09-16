@@ -43,6 +43,13 @@ jobs:
         run: npm ci --no-audit --no-fund --ignore-scripts
 
       - name: Check ranks
+        env:
+          # 2026-09-15부터 공식 웹문서 검색 API로 잰다(통합검색 HTML 수집 중단 — robots Disallow).
+          # HUB 키가 있으면 HUB, 없으면 레거시 오픈API. 둘 다 없으면 스크립트가 바로 실패한다.
+          NCP_API_KEY_ID: ${{ secrets.NCP_API_KEY_ID }}
+          NCP_API_KEY: ${{ secrets.NCP_API_KEY }}
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
         run: node scripts/naver-rank-check.mjs --limit=${{ github.event.inputs.limit || '25' }}
 
       - name: Check for changes

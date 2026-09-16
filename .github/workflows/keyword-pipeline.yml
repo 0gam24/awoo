@@ -50,8 +50,8 @@ jobs:
 
       - name: Run pipeline
         env:
-          # 지금은 파이프라인이 네이버 API를 직접 부르지 않는다(SERP 정찰은 HTML 실측). 레이더·볼륨 호출을
-          # 나중에 붙일 때를 위해 naver-rank.yml·keyword-radar.yml과 같은 이름으로 넘긴다.
+          # SERP 정찰은 naver-rank-check.mjs를 자식 프로세스로 부르고, 그 스크립트가 2026-09-15부터
+          # 공식 웹문서 검색 API를 쓴다 — 이 키들이 없으면 정찰이 통째로 실패한다(큐는 옛 측정 재사용으로 생성).
           NCP_API_KEY_ID: ${{ secrets.NCP_API_KEY_ID }}
           NCP_API_KEY: ${{ secrets.NCP_API_KEY }}
           NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}

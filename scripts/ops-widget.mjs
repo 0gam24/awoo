@@ -18,6 +18,7 @@ import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { EYE_LABEL, eyeFor, loadEyeStore } from './lib/eye-offset.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
@@ -148,7 +149,13 @@ function humanize(text) {
     .replace(/실유입 "([^"]+)" (\d[\d,]*)\/주 순위 미측정/g, "'$1' 주 $2명 유입, 순위 미측정")
     .replace(/SERP 미측정 — --serp로 openSlots ≥2·자매 0 확인/g, '검색 결과 실측 필요')
     .replace(/공고 go\.kr URL 미확보\(fact-checker 대조 필요\)/g, '공고 URL 확인 필요')
-    .replace(/webDocOffset/g, '웹문서 비중')
+    .replace(/webDocOffset ([\d.]+)%[^·]*/g, '웹문서 묶음 위치 $1%')
+    .replace(/webDocOffset/g, '웹문서 묶음 위치')
+    .replace(
+      /뉴스 벽 경고: 같은 제목 기사 (\d+)건[^·]*/g,
+      '같은 제목 기사 $1곳 — 개시일 언론 벽 주의',
+    )
+    .replace(/눈 확인 그 아래/g, '검색 결과 한참 아래')
     .replace(/openSlots/g, '빈자리')
     .replace(/rank null/g, '미노출')
     .replace(/\(자사 미노출·미측정분 회수\)/g, '')
@@ -203,8 +210,26 @@ const generated = genIso
       .replace('T', ' ')
   : '';
 
+// 눈 확인(웹문서 블록 위치) — API로 못 재는 값이라 운영자가 직접 본다(결정 2026-09-15).
+// 상위 EYE_ROWS건에만 버튼을 단다. 하루 1분, 안 눌러도 감점 없음.
+const EYE_ROWS = 5;
+const eyeStore = await loadEyeStore();
+function eyeHtml(query, idx) {
+  if (idx >= EYE_ROWS) return '';
+  const cur = eyeFor(eyeStore, query);
+  const btn = (v, label) => {
+    const cmd = `눈확인: "${query}" = ${label} — eye-offset에 기록하고 목록을 다시 보여줘`;
+    const on = cur === v;
+    return `<button onclick="sendPrompt(${esc(jsStr(cmd))})" style="font-size:11px;padding:1px 6px;${on ? 'font-weight:600' : 'color:var(--text-secondary)'}">${on ? '✓ ' : ''}${label}</button>`;
+  };
+  const state = cur
+    ? `<span style="font-size:11px;color:var(--text-muted)">검색 결과에서 ${esc(EYE_LABEL[cur])}</span>`
+    : `<span style="font-size:11px;color:var(--text-muted)">네이버에서 이 검색어를 직접 보고 눌러 주세요 — 웹문서 묶음이 어디쯤?</span>`;
+  return `<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:3px">${state} ${btn(1, '첫 화면')}${btn(2, '한 번 스크롤')}${btn(3, '그 아래')}</div>`;
+}
+
 const rows = shown
-  .map((i) => {
+  .map((i, idx) => {
     const cmd = `/post ${i.query} — 대시보드 지시(큐 ${i.id ?? ''}). 파이프라인 큐 항목의 트랙·패밀리·조건을 브리프로 쓰고, 검증 통과 시 결재 질문 없이 발행한다.`;
     const hold = `보류: "${i.query}" — 큐 status를 hold로 바꾸고 이유는 묻지 말 것`;
     const c = cond(i);
@@ -226,7 +251,7 @@ const rows = shown
     return `<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:0.5px solid var(--border)">
   <div style="flex:1;min-width:0">
     <div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:15px;font-weight:500">${esc(i.query)}</span>${badge}</div>
-    <div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${esc(reason)} · ${esc(how(i))}</div>${condHtml}
+    <div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${esc(reason)} · ${esc(how(i))}</div>${condHtml}${eyeHtml(i.query, idx)}
   </div>
   <div style="display:flex;gap:6px;flex-shrink:0">
     <button onclick="sendPrompt(${esc(jsStr(cmd))})" style="font-size:13px">발행 지시 ↗</button>

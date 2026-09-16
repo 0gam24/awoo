@@ -28,6 +28,7 @@
  *   docs/ops/rank-targets.json            등록 쿼리(롤업 자리 등)
  *   src/data/issues/**                    기존 글의 coreFacts.deadline·updates[] — 갱신 후보 대조
  *   docs/ops/0400-queue.json              0400 지정 큐(읽기만 — 갱신 후보와 겹치면 표기)
+ *   docs/ops/eye-offset.json              운영자 눈 확인 블록 위치(1·2·3, 7일 유효). 3이면 닫힘 — webDocOffset 대체(2026-09-15)
  *
  * 산출:
  *   docs/ops/pipeline-queue.json          큐. 항목 {id, track, query, family?, region?, evidence[], expectedInbound?,
@@ -57,6 +58,7 @@ import { mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { EYE_CLOSED, EYE_LABEL, eyeFor, loadEyeStore } from './lib/eye-offset.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const P = {
@@ -88,7 +90,7 @@ if (args.includes('--help')) {
       'keyword-pipeline — 매일 후보(신규·갱신)를 큐에 적재하고 운영자 보고문을 만든다. 발행은 하지 않는다.',
       '  --dry-run            파일을 쓰지 않고 stdout만',
       '  --serp               SERP 실측(naver-rank-check --mode=scout). 기본은 naver-ranks 재사용',
-      '  --serp-budget=N      정찰 상한(기본 25 = T1 15 / T2 5 / 재측정 5)',
+      '  --serp-budget=N      정찰 상한(기본 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5)',
       '  --serp-replay        같은 날 pipeline-queue.json에 저장된 scout 결과를 재사용(실측 없이 재생성)',
       '  --today=YYYY-MM-DD   날짜 고정',
     ].join('\n'),
@@ -125,8 +127,28 @@ const REPORT_MAX_UPDATES = 20;
 const UPDATE_AHEAD_DAYS = 3;
 const T3_AHEAD_DAYS = 30;
 const T2_RECENT7_FLOOR = 1.5;
+// webDocOffset(%)은 2026-09-15 전 통합검색 HTML 측정에만 있다. 옛 naver-ranks 항목을 읽을 때만 쓰고,
+// 이후는 운영자 눈 확인 eyeOffset(3 = 그 아래 = 닫힘)이 같은 자리를 맡는다(결정 2026-09-15).
 const OFFSET_CLOSED = 30;
 const OFFSET_WARN = 15;
+// 뉴스 벽 경고선 — naver-rank-check.mjs NEWS_SAME_TITLE_WARN과 같게. 2026-09-29까지 경고만(verdict·점수 미반영)
+const NEWS_SAME_TITLE_WARN = 4;
+/** 블록 위치로 닫힌 자리인가 — 옛 측정 ≥30% 또는 눈 확인 '그 아래' */
+const positionClosed = (x) =>
+  (x?.webDocOffset != null && x.webDocOffset >= OFFSET_CLOSED) || x?.eyeOffset === EYE_CLOSED;
+/** 근거 줄의 위치·언론 칸. 못 잰 값은 숫자처럼 쓰지 않는다. */
+const positionText = (x) =>
+  x?.webDocOffset != null
+    ? `offset ${x.webDocOffset}%`
+    : x?.eyeOffset != null
+      ? `눈 확인 ${EYE_LABEL[x.eyeOffset]}`
+      : '눈 확인 전';
+const pressText = (x) =>
+  x?.pressAbove != null
+    ? `언론 ${x.pressAbove}`
+    : x?.newsWall != null
+      ? `뉴스7일 ${x.newsWallCapped ? '100+' : x.newsWall}·같은제목 ${x.newsSameTitle ?? '-'}`
+      : '언론 미측정';
 const T2_UNMEASURED_COND = 'SERP 미측정 — --serp로 openSlots ≥2·자매 0 확인';
 
 // ── 상수: 다음 물결(계획 §5, 2026-09-10 확인) + 첫 주 후보(계획 §6) ──
@@ -394,7 +416,8 @@ const ROLLUP_WATCH = [
     query: '4차 민생지원금 지역별 지급 현황',
     variants: ['4차 민생지원금 9월 신청 지역', '4차 민생지원금 개시일'],
     expectedInbound: '50~500',
-    condition: '변형 2개 webDocOffset <30%(결정 #4). 07-30 추석 롤업 잠식 시 noindex',
+    condition:
+      '변형 2개 웹문서 블록 위치 — 눈 확인 "그 아래" 아님(결정 #4, 2026-09-15 webDocOffset <30%에서 대체). 07-30 추석 롤업 잠식 시 noindex',
     evidence:
       'recent7 455·trend 2.46(volume-scale volumesUsed). rank-targets 2026-09-10: 자사 미노출·web4·본청 0',
     existingRollups: ['chuseok-livelihood-recovery-region-check-2026-07-30(추석 축)'],
@@ -521,7 +544,7 @@ function clusterCheck(region, family) {
 }
 
 // ── SERP 측정값(naver-ranks 재사용 · 근사 verdict) ─────────────
-function approxSerp(latest, sisterHosts) {
+function approxSerp(latest, sisterHosts, eyeStore) {
   if (!latest) return null;
   const above = latest.above ?? [];
   const kindOf = (d) => {
@@ -544,9 +567,11 @@ function approxSerp(latest, sisterHosts) {
           /\.go\.kr$/.test(d.host ?? '') &&
           !CENTRAL_GOV_RE.test(d.host)),
     ).length;
-  const pressAbove =
-    latest.pressAbove ??
-    above.filter((d) => d.kind === 'press' || PRESS_RE.test(d.host ?? '')).length;
+  // API 측정(measuredBy)은 pressAbove를 일부러 null로 둔다 — above[]로 다시 세면 "언론 0"을 지어내게 된다
+  const pressAbove = latest.measuredBy
+    ? (latest.pressAbove ?? null)
+    : (latest.pressAbove ??
+      above.filter((d) => d.kind === 'press' || PRESS_RE.test(d.host ?? '')).length);
   const sisterAbove = latest.sisterAbove ?? above.filter((d) => kindOf(d) === 'sister').length;
   const rank = latest.rank ?? null;
   const off = latest.webDocOffset ?? null;
@@ -577,7 +602,7 @@ function approxSerp(latest, sisterHosts) {
     }
     if (sisterAbove > 0) reason.push(`자매 ${sisterAbove}`);
   }
-  return {
+  const out = {
     query: latest.query,
     rank,
     webDocCount: latest.webDocCount ?? null,
@@ -587,12 +612,33 @@ function approxSerp(latest, sisterHosts) {
     pressAbove,
     sisterAbove,
     webDocOffset: off,
+    newsWall: latest.newsWall ?? null,
+    newsWallCapped: latest.newsWallCapped ?? false,
+    newsSameTitle: latest.newsSameTitle ?? null,
     verdictT1,
     verdictT2,
-    reason: latest.reason ?? reason,
+    reason: [...(latest.reason ?? reason)],
     source: `naver-ranks ${latest.date ?? '?'}${hasNew ? '' : '(근사)'}`,
     approx: !hasNew,
   };
+  return applyEye(out, eyeStore);
+}
+
+/**
+ * 운영자 눈 확인을 측정값에 얹는다. 측정 뒤에 누른 값도 반영해야 해서(--serp-replay·naver-ranks 재사용)
+ * 측정 스크립트와 별도로 여기서 한 번 더 적용한다. 3(그 아래)이면 두 verdict 모두 닫는다.
+ */
+function applyEye(x, eyeStore) {
+  if (!x) return x;
+  const eye = eyeFor(eyeStore, x.query, TODAY);
+  x.eyeOffset = eye;
+  const tag = `eye ${EYE_LABEL[EYE_CLOSED]}`;
+  if (eye === EYE_CLOSED) {
+    x.verdictT1 = 'closed';
+    x.verdictT2 = 'closed';
+    if (!(x.reason ?? []).includes(tag)) x.reason = [...(x.reason ?? []), tag];
+  }
+  return x;
 }
 
 /** naver-ranks에서 쿼리(정확 → 공백 무시 → 포함 순)를 찾는다 */
@@ -687,11 +733,21 @@ function exposureOf(item) {
     v += 10;
     reasons.push('위에 관공서 없음');
   } else if (s.mainGovAbove === 1) v += 5;
-  if (s.pressAbove === 0) {
+  // 언론: API 측정은 pressAbove가 null이다. null <= 3이 참이 되는 JS 함정을 막으려고 먼저 null을 거른다.
+  // 뉴스 벽(newsWall·newsSameTitle)은 2026-09-29까지 기록만 — 점수에 넣지 않는다(운영자 결정 2026-09-15).
+  if (s.pressAbove != null) {
+    if (s.pressAbove === 0) {
+      v += 10;
+      reasons.push('위에 언론 없음');
+    } else if (s.pressAbove <= 3) v += 5;
+  }
+  // 블록 위치: 운영자 눈 확인이 있으면 그것, 없으면 옛 HTML 측정 offset. 둘 다 없으면 0점(감점 없음).
+  if (s.eyeOffset === 1) {
     v += 10;
-    reasons.push('위에 언론 없음');
-  } else if (s.pressAbove <= 3) v += 5;
-  if (s.webDocOffset != null) {
+    reasons.push('첫 화면(눈 확인)');
+  } else if (s.eyeOffset === 2) {
+    v += 5;
+  } else if (s.eyeOffset == null && s.webDocOffset != null) {
     if (s.webDocOffset < 15) {
       v += 10;
       reasons.push('웹문서 블록 상단');
@@ -859,6 +915,7 @@ async function main() {
     regions,
     queue0400,
     prevQueue,
+    eyeStore,
   ] = await Promise.all([
     readJson(P.clusterIntents, { meta: {}, entries: [] }),
     readJson(P.ranks, { updatedAt: null, byQuery: {} }),
@@ -871,6 +928,7 @@ async function main() {
     readJson(P.regions, []),
     readJson(P.queue0400, {}),
     readJson(P.outQueue, { items: [] }),
+    loadEyeStore(),
   ]);
   const posts = await scanIssues(P.issuesDir);
   const dict = buildRegionDict(regions);
@@ -981,7 +1039,7 @@ async function main() {
       const recent7 = vol ? vol.v : proxy;
       // SERP는 타깃 쿼리 문자열 그대로만 쓴다 — 접미형(A 헤드)의 SERP를 B·V 후보의 verdict로 읽으면 틀린다
       const found = findRank(byQuery, a.query);
-      const serp = found ? approxSerp(found.rec.latest, sisterHosts) : null;
+      const serp = found ? approxSerp(found.rec.latest, sisterHosts, eyeStore) : null;
       const headFound =
         findRank(byQuery, suffixQuery) ?? findRank(byQuery, `${w.region} 민생지원금`);
       const headRank = headFound?.rec.latest?.rank;
@@ -998,7 +1056,7 @@ async function main() {
           ? `지역 헤드 "${headFound.key}" ${headRank == null ? '자사 미노출(통블록)' : `r${headRank}`}(${headFound.rec.latest?.date ?? '?'})`
           : null,
         serp
-          ? `${serp.source}: ${serp.rank == null ? '자사 미노출' : `r${serp.rank}`} · 본청 ${serp.mainGovAbove} · 언론 ${serp.pressAbove} · openSlots ${serp.openSlots}${serp.webDocOffset != null ? ` · offset ${serp.webDocOffset}%` : ''} · T1 ${serp.verdictT1}`
+          ? `${serp.source}: ${serp.rank == null ? '자사 미노출' : `r${serp.rank}`} · 본청 ${serp.mainGovAbove} · ${pressText(serp)} · openSlots ${serp.openSlots} · ${positionText(serp)} · T1 ${serp.verdictT1}`
           : 'SERP 미측정(타깃 쿼리 이력 없음 — --serp)',
         coef.note,
       ].filter(Boolean);
@@ -1136,7 +1194,7 @@ async function main() {
       );
       continue;
     }
-    const serp = approxSerp(latest, sisterHosts);
+    const serp = approxSerp(latest, sisterHosts, eyeStore);
     const vol = lookupRecent7(q);
     const cls = classOfKind(reg.kind);
     const recent7 = vol ? vol.v : classProxy(cls);
@@ -1157,7 +1215,7 @@ async function main() {
         trigText,
         `--check ${reg.name}×B PASS(${chk.existing?.map((e) => `${e.family} ${e.date?.slice(5) ?? ''}`).join('·') || '기존 없음'})`,
         vol ? `recent7 ${vol.v}(${vol.src})` : `recent7 미측정 → proxy ${recent7 ?? '없음'}`,
-        `${serp.source}: 본청 ${serp.mainGovAbove} · 언론 ${serp.pressAbove} · openSlots ${serp.openSlots}`,
+        `${serp.source}: 본청 ${serp.mainGovAbove} · ${pressText(serp)} · openSlots ${serp.openSlots}`,
         coef.note,
       ],
       expectedInbound: expectedRange(recent7, coef.perPoint) ?? '확인 불가',
@@ -1206,7 +1264,7 @@ async function main() {
       continue;
     }
     const f = findRank(byQuery, c.term);
-    const serp = f ? approxSerp(f.rec.latest, sisterHosts) : null;
+    const serp = f ? approxSerp(f.rec.latest, sisterHosts, eyeStore) : null;
     const vol = lookupRecent7(c.term);
     const cls = classOfKind(reg.kind);
     const recent7 = vol ? vol.v : classProxy(cls);
@@ -1235,7 +1293,7 @@ async function main() {
           : null,
         vol ? `recent7 ${vol.v}(${vol.src})` : `recent7 미측정 → proxy ${recent7 ?? '없음'}`,
         serp
-          ? `${serp.source}: 본청 ${serp.mainGovAbove} · 언론 ${serp.pressAbove} · openSlots ${serp.openSlots}`
+          ? `${serp.source}: 본청 ${serp.mainGovAbove} · ${pressText(serp)} · openSlots ${serp.openSlots}`
           : 'SERP 미측정',
         coef.note,
       ],
@@ -1258,7 +1316,7 @@ async function main() {
   // ── T1 롤업 자리 ──
   for (const rw of ROLLUP_WATCH) {
     const f = findRank(byQuery, rw.query);
-    const serp = f ? approxSerp(f.rec.latest, sisterHosts) : null;
+    const serp = f ? approxSerp(f.rec.latest, sisterHosts, eyeStore) : null;
     const vol = lookupRecent7(rw.axis === '4차' ? '4차 민생지원금' : rw.query);
     const coef = coefficientFor(coefficients, 'rollup', 'null');
     const tgt = (rankTargets.targets ?? []).find((t) => t.query === rw.query);
@@ -1268,15 +1326,15 @@ async function main() {
       tgt?.note ? `rank-targets: ${tgt.note}` : null,
       vol ? `recent7 ${vol.v}(${vol.src})` : 'recent7 미측정',
       serp
-        ? `${serp.source}: 본청 ${serp.mainGovAbove} · 언론 ${serp.pressAbove} · openSlots ${serp.openSlots}${serp.webDocOffset != null ? ` · offset ${serp.webDocOffset}%` : ''}`
+        ? `${serp.source}: 본청 ${serp.mainGovAbove} · ${pressText(serp)} · openSlots ${serp.openSlots} · ${positionText(serp)}`
         : 'SERP 이력 없음(--serp로 실측 필요)',
       coef.note,
     ].filter(Boolean);
-    if (serp && serp.webDocOffset != null && serp.webDocOffset >= OFFSET_CLOSED) {
+    if (serp && positionClosed(serp)) {
       addExcluded(
         'T1',
         rw.query,
-        `webDocOffset ${serp.webDocOffset}% ≥ ${OFFSET_CLOSED}(${serp.source}) — 결정 #4 미달`,
+        `웹문서 블록 위치 ${positionText(serp)}(${serp.source}) — 결정 #4 미달`,
       );
       continue;
     }
@@ -1385,7 +1443,7 @@ async function main() {
         );
         if (k) f = { key: k, rec: byQuery[k] };
       }
-      const serp = f ? approxSerp(f.rec.latest, sisterHosts) : null;
+      const serp = f ? approxSerp(f.rec.latest, sisterHosts, eyeStore) : null;
       if (serp && serp.rank != null && serp.rank <= 3) {
         addExcluded('T2', query, `자사 이미 r${serp.rank}("${f.key}", ${serp.source})`);
         continue;
@@ -1476,7 +1534,7 @@ async function main() {
         continue;
       }
       const f = findRank(byQuery, q);
-      const serp = f ? approxSerp(f.rec.latest, sisterHosts) : null;
+      const serp = f ? approxSerp(f.rec.latest, sisterHosts, eyeStore) : null;
       if (serp && serp.rank != null && serp.rank <= 3) {
         addExcluded('T2', q, `자사 이미 ${serp.rank}위("${f.key}", ${serp.source})`);
         continue;
@@ -1707,6 +1765,8 @@ async function main() {
     serpMeta.replay = canReplay;
     serpMeta.used = results.length;
     serpMeta.error = error;
+    // 눈 확인은 측정 뒤에 누를 수 있다(--serp-replay로 다시 만들 때) — 저장된 결과에도 지금 값을 얹는다
+    for (const r of results) if (r && !r.error) applyEye(r, eyeStore);
     const byQ = new Map(results.filter((r) => r && !r.error).map((r) => [r.query, r]));
     serpMeta.results = results.map((r) =>
       r.error
@@ -1722,16 +1782,19 @@ async function main() {
             verdictT1: r.verdictT1,
             verdictT2: r.verdictT2,
             reason: r.reason ?? [],
+            // 2026-09-15 API 전환 추가. --serp-replay가 이 배열을 다시 읽으므로 판정에 쓰는 값은 전부 남긴다
+            eyeOffset: r.eyeOffset ?? null,
+            newsWall: r.newsWall ?? null,
+            newsWallCapped: r.newsWallCapped ?? false,
+            newsSameTitle: r.newsSameTitle ?? null,
+            measuredBy: r.measuredBy ?? null,
           },
     );
     const postBySlug = new Map(posts.map((p) => [p.slug, p]));
     const line = (x, label) =>
-      `${label}${x.rank == null ? '자사 미노출' : `r${x.rank}`} · 본청 ${x.mainGovAbove} · 언론 ${x.pressAbove} · 자매 ${x.sisterAbove} · openSlots ${x.openSlots} · offset ${x.webDocOffset ?? '-'}% · T1 ${x.verdictT1} · T2 ${x.verdictT2}`;
+      `${label}${x.rank == null ? '자사 미노출' : `r${x.rank}`} · 본청 ${x.mainGovAbove} · ${pressText(x)} · 자매 ${x.sisterAbove} · openSlots ${x.openSlots} · ${positionText(x)} · T1 ${x.verdictT1} · T2 ${x.verdictT2}`;
     const closedWhy = (x) =>
-      (x.reason ?? []).join(', ') ||
-      (x.webDocOffset != null && x.webDocOffset >= OFFSET_CLOSED
-        ? `offset ${x.webDocOffset}%`
-        : 'closed');
+      (x.reason ?? []).join(', ') || (positionClosed(x) ? positionText(x) : 'closed');
     for (let i = items.length - 1; i >= 0; i--) {
       const it = items[i];
       const r = byQ.get(it.query);
@@ -1747,7 +1810,7 @@ async function main() {
       // 본 쿼리·변형 중 하나라도 열려 있으면 그 문자열을 타깃으로 남긴다(계획 §3 T1: 접미형 1 + 변형 1 실측)
       const okOf = (x) =>
         (isT2 ? x.verdictT2 : x.verdictT1) === 'open' &&
-        !(x.webDocOffset != null && x.webDocOffset >= OFFSET_CLOSED) &&
+        !positionClosed(x) &&
         !(isT2 && x.sisterAbove > 0);
       const open = measured.filter(okOf);
       it.evidence = it.evidence.filter((e) => !/^naver-ranks|^SERP 미측정|^SERP 이력 없음/.test(e));
@@ -1818,6 +1881,10 @@ async function main() {
         );
       if (chosen.webDocOffset != null && chosen.webDocOffset >= OFFSET_WARN)
         conds.push(`webDocOffset ${chosen.webDocOffset}% 경고(${OFFSET_WARN}~${OFFSET_CLOSED}%)`);
+      if (chosen.newsSameTitle >= NEWS_SAME_TITLE_WARN)
+        conds.push(
+          `뉴스 벽 경고: 같은 제목 기사 ${chosen.newsSameTitle}건(7일 ${chosen.newsWall}) — 2주간 기록만`,
+        );
       it.condition = conds.filter(Boolean).join(' · ') || null;
     }
     for (const q of rm) {
@@ -1825,7 +1892,7 @@ async function main() {
       if (r)
         watch.push({
           kind: 'remeasure',
-          text: `재측정 "${q}": ${r.rank == null ? '자사 미노출' : `r${r.rank}`} · 본청 ${r.mainGovAbove} · 언론 ${r.pressAbove} · openSlots ${r.openSlots} · offset ${r.webDocOffset ?? '-'}%`,
+          text: `재측정 "${q}": ${r.rank == null ? '자사 미노출' : `r${r.rank}`} · 본청 ${r.mainGovAbove} · ${pressText(r)} · openSlots ${r.openSlots} · ${positionText(r)}`,
         });
     }
   }
@@ -1930,6 +1997,7 @@ async function main() {
       'status: proposed(기본) · approved(운영자 승인 — 발행 대기) · rejected(반려) · published(발행됨) · hold(보류). 운영자가 이 파일에서 status·statusAt·operatorNote를 직접 바꾼다.',
       '발행은 이 스크립트가 하지 않는다. 0400 자동 발행은 별도로 매일 1건(결정 #11). 후보는 DAILY-KEYWORDS.md로 보고하고 운영자가 /post·/naver로 수동 지시한다(결정 #12).',
       '노출 가능성 = 자리(최대 70: 열림 40 · 빈자리 ≤15 · 위에 관공서 없음 ≤10 · 위에 언론 없음 ≤10 · 웹문서 블록 상단 ≤10 · 자사 4~10위 5) + 수요(최대 25: 실유입 ≤10 · 검색량 5 · 신생 5) + 개시 창 5 − 공고 URL 필요 10. 실측이 없으면 미측정으로 두고 점수를 매기지 않는다. 자사 1~3위는 이미 노출로 제외.',
+      '2026-09-15 측정이 공식 웹문서 검색 API로 바뀌었다. 언론(pressAbove)은 잴 수 없어 null — 그 10점은 비고, 뉴스 벽(newsWall·newsSameTitle)은 2026-09-29까지 기록만 한다. 블록 위치는 운영자 눈 확인 eyeOffset(1 첫 화면 +10 · 2 한 번 스크롤 +5 · 3 그 아래 = 닫힘, docs/ops/eye-offset.json)으로 채운다.',
       'score = recent7(없으면 proxy) × min(openSlots,4) × volume-scale 계수. T1은 개시일 임박순이 점수보다 우선. serp.approx=true는 naver-ranks 옛 항목에서 근사한 verdict — --serp 실측이 아니다.',
     ],
     meta: {
@@ -2039,7 +2107,7 @@ function renderReport({
   L.push('## 오늘 후보');
   L.push('');
   L.push(
-    '노출 가능성 높은 순(자리 열림·빈자리·위에 관공서/언론 없음·웹문서 블록 상단 + 실유입·신생·개시 임박). 미측정은 아래 실측 대기. 창 안 발행 상한 없음, 1지자체 1패밀리 1건.',
+    '노출 가능성 높은 순(자리 열림·빈자리·위에 관공서 없음·블록 위치 눈 확인 + 실유입·신생·개시 임박). 미측정은 아래 실측 대기. 창 안 발행 상한 없음, 1지자체 1패밀리 1건. 순위는 웹문서 검색 API 기준(2026-09-15~) — 통합검색 화면 순위와 다르고, 언론 수는 잴 수 없어 뉴스 벽은 경고로만 적는다.',
   );
   L.push('');
   L.push('| # | 노출 가능성 | 트랙 | 쿼리 | 왜 | 예상 유입/주 | 조건 |');

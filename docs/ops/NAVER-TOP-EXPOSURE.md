@@ -116,17 +116,21 @@ awoo의 네이버 문제는 색인도, 본문 길이도, 구조화 데이터도 
 ### 순위 측정
 
 ```bash
-npm run rank:check                                   # 전체(25건 상한)
+npm run rank:check                                   # 전체(일 40건 상한)
 node scripts/naver-rank-check.mjs --query="..."      # 단건
 ```
 
-통합검색 HTML을 직접 받아 `fds-web-doc-root` 컨테이너를 세어 순위를 뽑는다.
-요청 간 3초·1회 25건 상한. 매일 KST 09:40에 `naver-rank.yml`이 자동 실행한다.
+**2026-09-15부터 공식 웹문서 검색 API**(NAVER API HUB `webkr`, 30위까지)로 잰다. 통합검색 HTML을 받던
+종전 방식은 robots.txt(`User-agent: * / Disallow: /`) 위반이라 중단했다. 1회 40건 상한(정찰은 35건). 매일 KST 09:40에
+`naver-rank.yml`이 자동 실행한다. API 순위는 통합검색 화면 순위와 다르다 — 전환일 앞뒤 이력을 비교하지 마라
+(`measuredBy: "webkr-api"`로 갈린다).
 
 - **`externalCount: 0`이면 우리 잘못이 아니다.** 외부 사이트가 구조적으로 못 들어가는
   자리이니 글을 고칠 게 아니라 쿼리를 버려야 한다.
-- **`parseOk: false`는 "순위 없음"이 아니라 "못 읽음"이다.** 네이버가 SERP 구조를
-  바꿨다는 뜻이므로 0위로 집계하면 안 된다.
+- **API 호출 실패는 "순위 없음"이 아니라 "못 읽음"이다.** 전 건 실패면 스크립트가 종료 코드 1로 끝난다 —
+  키·권한을 먼저 보라. 0위로 집계하면 안 된다.
+- **`webDocOffset`·`pressAbove`·`ugc`·`onPage`는 이제 항상 `null`이다.** 화면 위치는 운영자 눈 확인
+  (`eyeOffset` 1·2·3, `docs/ops/eye-offset.json`), 언론 벽은 뉴스 API 7일 기사 수(`newsWall`·`newsSameTitle`)로 대신한다.
 
 ### 첫 측정 (2026-09-09, 14건) — 기준선
 

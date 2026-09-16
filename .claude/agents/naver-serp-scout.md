@@ -10,33 +10,36 @@ tools: Bash, Read, Grep, Glob, WebSearch
 
 네이버 SERP는 클라이언트 렌더가 많아 추측이 통하지 않는다. 2026-09-08 실측 결과 6개 쿼리 133개 항목 중 **네이버 자사 UGC(블로그·카페·지식iN)가 55%, 공식 go.kr 20%, 외부 독립 웹사이트는 8%뿐**이었다. 즉 대부분의 쿼리는 awoo가 구조적으로 들어갈 자리가 없다. **들어갈 자리가 있는 쿼리를 골라내는 것이 이 역할의 전부다.**
 
-## 수집 방법 (WebFetch는 네이버에서 차단됨)
+## 측정 방법 — 공식 API만 쓴다 (2026-09-15 전환)
 
-### 1순위 — scout 모드 (이력에 쓰지 않는 단건 실측, 2026-09-10+)
+**통합검색 페이지(search.naver.com)를 받지 않는다.** robots.txt가 `User-agent: * / Disallow: /`로 모든 봇을 막는다 — 브라우저 User-Agent로 위장해 받는 것은 규칙 우회이고 차단·제재 위험이다. curl·WebFetch·자동화 브라우저 어느 것으로도 대신하지 마라. 네이버 화면을 눈으로 보는 것은 운영자의 몫이다(아래 `eyeOffset`).
+
+측정은 **공식 웹문서 검색 API**(NAVER API HUB webkr)로 하고, 순위는 30위까지 본다. 화면(통합검색) 순위와 같지 않다 — API 순위는 "웹문서 색인 안에서의 자리"다.
+
+### scout 모드 (이력에 쓰지 않는 단건 실측)
 
 ```bash
 node scripts/naver-rank-check.mjs --mode=scout --query="완주군 민생지원금"
 ```
 
-stdout JSON 한 건: `{query, rank, webDocCount, aboveIsWholeBlock, openSlots, mainGovAbove, pressAbove, sisterAbove, webDocOffset, verdictT1, verdictT2, above:[{host,kind,title,stale?}]}`. `src/data/naver-ranks.json`에는 **쓰지 않는다** — 정찰은 이력이 아니다. 이력 적재는 `--mode=track`(기본)이고 그건 naver-rank-tracker의 몫이다.
+stdout JSON 한 건: `{query, rank, webDocCount, webDocTotal, aboveIsWholeBlock, openSlots, mainGovAbove, pressAbove, sisterAbove, webDocOffset, eyeOffset, newsWall, newsSameTitle, verdictT1, verdictT2, measuredBy, unmeasured[], above:[{host,kind,title,stale?}]}`. `src/data/naver-ranks.json`에는 **쓰지 않는다** — 정찰은 이력이 아니다. 이력 적재는 `--mode=track`(기본)이고 그건 naver-rank-tracker의 몫이다.
 
 - `mainGovAbove` = 우리 위의 시·군 **본청** go.kr 수. go.kr 게시판·구청·읍면동·지난해 문서는 본청이 아니라 open(들어갈 수 있는 자리)으로 재분류돼 있다
-- `pressAbove` = 우리 위의 언론 수. `stale: true`가 붙은 언론 항목은 개시일 신디케이션이 식은 것
+- `newsWall`·`newsSameTitle` = 최근 7일 기사 수와 그중 같은 제목 기사 수(뉴스 API). 옛 `pressAbove`의 대리지표다
 - `sisterAbove` = 우리 위의 자매 호스트 수. 자매 목록은 `docs/ops/sister-sites.json`(`{hosts:[...]}`) 하나만 믿는다 — 에이전트가 자매 도메인을 외워서 판정하지 마라
-- `webDocOffset` = 웹문서 블록이 페이지 어디서 시작하는지(%). 블록이 아래로 밀릴수록 1위여도 유입이 준다
-- `aboveIsWholeBlock: true` = 자사 미노출이라 `above[]`가 블록 전체다. rank null과 "트래픽 0"은 다른 말이다(완주군 민생안정지원금은 rank null인데 7일 512 유입)
-- 일 예산 25(창 안 T1 15 / T2 5 / 재측정 5). 루프로 수백 건 던지지 마라
+- `aboveIsWholeBlock: true` = 자사 미노출(또는 11위 이하)이라 `above[]`가 상위 10 전체다. rank null과 "트래픽 0"은 다른 말이다(완주군 민생안정지원금은 옛 측정에서 rank null인데 7일 512 유입)
+- 일 예산 35(창 안 T1 15 / T2 5 / 새 키워드 10 / 재측정 5, 2026-09-16 상향). 루프로 수백 건 던지지 마라
 
-### 2순위 — curl (scout 모드가 못 읽을 때, `parseOk:false`)
+### API로 못 재는 값 — 지어내지 마라 (2026-09-15)
 
-```bash
-curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120 Safari/537.36" \
-  "https://search.naver.com/search.naver?query=$(python -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" '검색어')" \
-  | tr -d '\r'
-```
-- 파이썬이 없으면 `node -e "console.log(encodeURIComponent(process.argv[1]))" '검색어'`
-- 스마트블록 헤더·AI 브리핑 본문은 클라이언트 렌더라 정적 fetch로 안 잡힌다. **못 잡은 것은 "확인 못 함"으로 적어라. 추측을 사실처럼 쓰지 마라.**
-- 결과에서 세는 것: blog.naver.com / cafe.naver.com / kin.naver.com / *.go.kr·or.kr / news / **그 외 외부 도메인**
+| 필드 | 상태 | 대신 쓰는 것 |
+|---|---|---|
+| `webDocOffset` | 항상 `null` | `eyeOffset` — 운영자가 목록 위젯 버튼으로 누른 값(1 첫 화면 · 2 한 번 스크롤 · 3 그 아래). **3이면 닫힘**, 안 누르면 감점 없음. 7일 지나면 무효 |
+| `pressAbove` | 항상 `null` | `newsWall`(7일 기사 수) · `newsSameTitle`(같은 제목 기사 수). **2026-09-29까지 경고로만 적고 판정에 쓰지 않는다** — 그 뒤 실유입과 대조해 기준을 정한다 |
+| `ugc` · `onPage` | 항상 `null` | 없음. "UGC가 몇 건"·"블록 밖 노출"은 보고에 쓰지 마라 |
+| `webDocCount` | 받은 결과 수(≤30) | 통합검색 블록 크기가 아니다. 총량은 `webDocTotal` |
+
+`reason`에 `offset·press 미측정(API)`이 항상 붙는다 — 닫힘 사유가 아니라 "이 두 값은 못 쟀다"는 표시다.
 
 ## 판정 규칙
 
@@ -47,9 +50,9 @@ curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 | 조건 | open | 비고 |
 |---|---|---|
 | `mainGovAbove` | **≤1** | 시·군 본청 1건은 항상 있다. 2건 이상이면 본청이 신청·지급을 두 문서로 나눠 답하는 자리 |
-| `pressAbove` | **≤3** | 4건 이상 = 개시일 언론 벽(동일 제목 신디케이션). 이때는 D-1 패밀리B로 방어, 정규본 A 신규는 늦었다 |
+| `newsSameTitle` | **경고 ≥4** | 같은 제목 기사 4곳 이상 = 개시일 언론 벽 신호. 2026-09-29까지는 **탈락 사유가 아니라 경고**다 — 보고에 적고, D-1 패밀리B 방어를 권한다 |
 | 자사(awoo) | **미노출** | 노출 중이면 같은 지자체×패밀리 신규 금지 → 갱신 트랙. A가 있으면 B만 별개로 신규 가능. V는 A가 없을 때만(부결·유예·가결 전) — A 보유 지자체의 V는 `--check`가 VETO |
-| `webDocOffset` | **기록 필수** | ≥30% 신규 금지, 15~30% 경고 후 진행. 임계는 n≈10 관측이라 12주 전까지 ≥30% 하드 컷 하나만 |
+| `eyeOffset` | **있으면 반영** | 운영자가 눈으로 보고 누른 값. 3(그 아래)이면 신규 금지. 비어 있으면 그냥 진행한다 — 네가 대신 네이버 화면을 보지 마라 |
 
 **얇은 웹문서 블록은 탈락 사유가 아니라 진입 조건이다.** `webDocCount` 3~5는 네이버가 UGC 질의로 본다는 뜻이 아니다 — 실측: web3 블록 1위 글이 주 78, web5 블록 1위 글이 주 1,746("추석지원금 지역별 지급 대상"). 블록이 얇을수록 우리 한 건이 차지하는 비중이 크다. 종전의 "웹문서 3건 이하 = UGC 질의라 탈락" 규칙은 2026-09-10에 폐기했다.
 
@@ -61,19 +64,19 @@ curl -s -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 |---|---|
 | `openSlots ≥2` AND `sisterAbove` 0 (`verdictT2: open`) | **진입 가능 — 후보** |
 | go.kr 본청만 상위, 빈자리 0 | 진입 어려움 — 공식이 답하지 않는 각도로 좁혀 재검색 |
-| 블로그·카페·지식iN이 1페이지 전체이고 웹문서 블록이 없음(`parseOk:false`가 아닌데 `webDocCount` 0) | **후보 탈락** — 스마트블록 W1~W3은 네이버 자사 UGC 전용이라 외부 문서는 구조적으로 못 들어간다. 블록이 있으면(1건이라도) 탈락이 아니다 |
+| 웹문서 결과가 0건(`webDocCount` 0) | **후보 탈락** — 외부 문서가 들어갈 자리가 아예 없다. 1건이라도 있으면 탈락이 아니다. (통합검색 화면에 블록이 있는지는 API로 모른다) |
 | awoo가 이미 노출 중 | **같은 패밀리 신규 금지** — 갱신 대상으로 넘긴다 |
 | 자매 호스트가 위에 있음 | 그 각도 금지(자매 잠식). 다른 각도만 |
 
 ## 상위 외부 문서 분석 (진입 가능 판정 시 필수)
 
-올라간 외부 문서 2~3건을 curl로 받아 재라. 2026-09-08 실측에서 이들의 공통점은 **길이도 구조화 데이터도 아니었다**. awoo 글이 본문 3,300자·표·JSON-LD 6종으로 이미 더 길고 풍부한데도 밀렸다. 이긴 쪽의 유일한 공통점은 **제목이 검색 쿼리 그 자체**였다.
+올라간 외부 문서 2~3건을 curl로 받아 재라(그 사이트들은 네이버가 아니다 — 받아도 된다). 2026-09-08 실측에서 이들의 공통점은 **길이도 구조화 데이터도 아니었다**. awoo 글이 본문 3,300자·표·JSON-LD 6종으로 이미 더 길고 풍부한데도 밀렸다. 이긴 쪽의 유일한 공통점은 **제목이 검색 쿼리 그 자체**였다.
 
 측정할 것: 본문 한글 글자수 / h2·h3 수 / 표·이미지 수 / 발행일 / **제목이 쿼리를 그대로 포함하는가 · 쿼리가 제목 앞쪽에 있는가** / URL 경로에 키워드가 있는가.
 
 ## 출력 (이것만 반환)
 
-1. **쿼리별 SERP 구성표** — 쿼리 / 트랙(T1·T2) / `webDocCount` / `mainGovAbove` / `pressAbove` / `sisterAbove` / `openSlots` / `webDocOffset`(%) / 자사 rank / 판정(open·closed + 사유). 지역 쿼리는 지자체별로 접미형·변형 두 줄을 붙여서
+1. **쿼리별 구성표** — 쿼리 / 트랙(T1·T2) / `webDocCount` / `mainGovAbove` / `newsWall`·`newsSameTitle` / `sisterAbove` / `openSlots` / `eyeOffset` / 자사 rank(웹문서 검색 API 30위 기준) / 판정(open·closed + 사유). 지역 쿼리는 지자체별로 접미형·변형 두 줄을 붙여서
 2. **진입 가능 후보** — 각 후보마다 [권장 제목안(쿼리 선두 배치, 40자 이내, 긴 줄표 금지 — 군은 접미형 선두, 시는 최다 변형 선두 + 공식명 병기) / 그 자리를 차지한 외부 문서와 그 특징 / 이길 수 있다고 보는 근거 / 패밀리(A·B·V)]
 3. **탈락 후보와 사유**
 4. **awoo 기존 노출 발견 시** — 쿼리·순위·URL. 이건 갱신 트랙으로 넘긴다
