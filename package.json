@@ -58,6 +58,7 @@
     "rank:one": "node scripts/naver-rank-check.mjs --query=",
     "typecheck": "npm run check",
     "rank:scout": "node scripts/naver-rank-check.mjs --mode=scout --query=",
+    "advisor:import": "node scripts/ingest-search-advisor.mjs",
     "volume:region": "node scripts/keyword-volume.mjs --region",
     "intents:build": "node scripts/build-cluster-intents.mjs",
     "intents:check": "node scripts/build-cluster-intents.mjs --check",
