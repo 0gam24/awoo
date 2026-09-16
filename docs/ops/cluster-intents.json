@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 269,
-    "entryCount": 60,
+    "scannedPosts": 270,
+    "entryCount": 61,
     "regionCount": 45,
     "regions": [
       "강릉",
@@ -55,11 +55,11 @@
     ],
     "families": {
       "A": 48,
-      "B": 3,
+      "B": 4,
       "V": 9
     },
     "clusters": {
-      "minsaeng": 40,
+      "minsaeng": 41,
       "other": 20
     },
     "rollups": 8,
@@ -1435,6 +1435,27 @@
       "coreFactsKeys": [
         "amount=10만원",
         "deadline=2026-09-16"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false
+    },
+    {
+      "region": [
+        "김해"
+      ],
+      "family": "B",
+      "slug": "gimhae-grant-usage-places-card-voucher",
+      "path": "src/data/issues/2026-09-16/gimhae-grant-usage-places-card-voucher-2026-09-16.json",
+      "date": "2026-09-16",
+      "targetQuery": "김해 민생회복지원금 사용처",
+      "coreFacts": {
+        "who": "상품권·선불카드로 받은 시민, 못 받은 가족의 대리인",
+        "amount": "1인 10만원, 11월 30일 23시 59분 뒤 잔액 소멸",
+        "deadline": "2026-11-30 사용 마감, 연장·환불 없음"
+      },
+      "coreFactsKeys": [
+        "amount=10만원",
+        "deadline=2026-11-30"
       ],
       "cluster": "minsaeng",
       "rollup": false
