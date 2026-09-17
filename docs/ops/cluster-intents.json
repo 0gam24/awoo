@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 272,
-    "entryCount": 61,
+    "scannedPosts": 273,
+    "entryCount": 62,
     "regionCount": 45,
     "regions": [
       "강릉",
@@ -55,14 +55,14 @@
     ],
     "families": {
       "A": 48,
-      "B": 4,
+      "B": 5,
       "V": 9
     },
     "clusters": {
-      "minsaeng": 41,
+      "minsaeng": 42,
       "other": 20
     },
-    "rollups": 8,
+    "rollups": 9,
     "knownPairEntries": 8,
     "manualOverrides": [
       {
@@ -72,6 +72,10 @@
         ],
         "family": "B",
         "cluster": "minsaeng"
+      },
+      {
+        "slug": "chuseok-holiday-livelihood-grant-application",
+        "family": "B"
       }
     ],
     "rules": {
@@ -1484,6 +1488,34 @@
       "regionOverride": true,
       "familyOverride": true,
       "clusterOverride": true
+    },
+    {
+      "region": [
+        "하동",
+        "함평",
+        "김해",
+        "나주",
+        "통영",
+        "영암"
+      ],
+      "family": "B",
+      "slug": "chuseok-holiday-livelihood-grant-application",
+      "path": "src/data/issues/2026-09-17/chuseok-holiday-livelihood-grant-application-2026-09-17.json",
+      "date": "2026-09-17",
+      "targetQuery": "추석 연휴 민생지원금 신청",
+      "coreFacts": {
+        "who": "신청기간이 연휴에 걸친 10개 시·군 주민과 대리인",
+        "amount": "1인 10만~50만원, 시·군마다 다름",
+        "deadline": "하동 2026-10-02 첫 마감, 최종 10월 30일"
+      },
+      "coreFactsKeys": [
+        "amount=50만원",
+        "deadline=2026-10-02"
+      ],
+      "cluster": "minsaeng",
+      "rollup": true,
+      "axis": "추석",
+      "familyOverride": true
     }
   ]
 }

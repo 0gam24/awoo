@@ -2,17 +2,19 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-09-17 15:39 KST
+> 마지막 갱신: 2026-09-17 15:46 KST
 
 ## 2026-09-17 (오늘)
 
-### 📰 신규 이슈 포스트 (6건)
+### 📰 신규 이슈 포스트 (7건)
 - `복지` [기초연금 9월 지급일 23일 수요일로 당겨진 이유와 10월 입금일](https://awoo.or.kr/issues/basic-pension-september-payment-date-chuseok/)
   - 기초연금 9월 지급일은 23일 수요일입니다. 25일이 추석 당일이고 24일도 연휴라 전날 규칙이 두 번 걸립니다. 입금이 없으면 창구가 닫히는 24일 전에 문의해야 합니다.
 - `복지` [양육비 선지급 소득기준 폐지 10월 29일 전후 신청 시기는?](https://awoo.or.kr/issues/child-support-advance-payment/)
   - 양육비 선지급의 중위소득 150% 기준이 10월 29일에 사라집니다. 150% 이하는 지금 신청하고, 넘는 가구는 석 달 미지급 기록과 이행확보 서류부터 갖추세요.
 - `복지` [추석 농축산물 할인 참여 마트, 9월 30일까지 한도 없이 최대 40%](https://awoo.or.kr/issues/chuseok-agri-livestock-discount-mart/)
   - 추석 농축산물 할인은 9월 30일까지 1인당 한도 없이 최대 40%입니다. 대형마트라도 참여업체 목록에 없는 곳이 있고, 한우 자조금 할인은 24일에 먼저 끝납니다.
+- `복지` [추석 연휴 민생지원금 신청 온라인 4곳과 10월 2일 첫 마감](https://awoo.or.kr/issues/chuseok-holiday-livelihood-grant-application/)
+  - 추석 연휴 나흘은 읍면동 창구가 닫히고 온라인 창구는 김해·나주·통영·영암 4곳뿐. 마감은 하동 10월 2일, 함평 10월 8일 순으로 오고 하동은 연휴 뒤 창구일이 5일 남습니다.
 - `복지` [무치악 임플란트 건강보험 지원, 2027년 1월 7만명 228만원](https://awoo.or.kr/issues/edentulous-implant-insurance-expansion/)
   - 2027년 1월부터 위나 아래턱 치아가 하나도 없는 만 65세 이상도 임플란트 2개를 건강보험으로 받습니다. 기존 틀니 지원자는 7년을 기다려야 합니다.
 - `복지` [프리랜서 육아수당 2027 정부안 8천명, 지금 챙길 출산급여 150만원](https://awoo.or.kr/issues/freelancer-childcare-allowance-2027-plan/)
