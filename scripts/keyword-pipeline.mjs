@@ -765,7 +765,8 @@ function exposureOf(item) {
   const inbound = item.inbound7d ?? (Number.isFinite(inb) ? inb : null);
   if (inbound != null && inbound >= 100) {
     v += 10;
-    reasons.push(`주 ${inbound}명 유입`);
+    // 실유입(inbound7d)과 추정치(expectedInbound)를 섞어 부르지 않는다 — 09-17 출산휴가급여 오표기
+    reasons.push(item.inbound7d != null ? `주 ${inbound}명 유입` : `예상 주 ${inbound}명`);
   } else if (inbound != null && inbound >= 30) v += 5;
   if ((item.recent7 ?? 0) >= 3) v += 5;
   if (item.born) {
