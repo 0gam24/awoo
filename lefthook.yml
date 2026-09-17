@@ -1,3 +1,25 @@
+# 훅이 lefthook 실행 파일을 찾는 방법을 고정한다 — 지우지 말 것.
+#
+# 이 줄이 없으면 lefthook 기본 훅 스크립트는 node_modules/lefthook 을 "지금 워크트리 루트"에서만
+# 찾는다(설치 때 박아 두는 절대경로는 따옴표가 없어 "00 Website" 의 공백에서 끊긴다). 못 찾으면
+# go → bundle → yarn → pnpm 순으로 `<도구> lefthook -h` 를 찔러 본다. .claude/worktrees/* 는
+# node_modules 가 없어 매번 pnpm 까지 내려갔고, pnpm 11 은 `pnpm lefthook -h` 만으로도 의존성을
+# 자동 설치한다 — package-lock.json 을 무시한 채 node_modules/.pnpm · pnpm-lock.yaml ·
+# pnpm-workspace.yaml 을 만들고, 빌드 스크립트 미승인(ERR_PNPM_IGNORED_BUILDS)으로 실패해서
+# 훅은 "Can't find lefthook in PATH" 만 찍고 통과한다. 그 뒤로는 그 오염된 node_modules 로
+# 빌드가 돌아 pre-push 가 매번 실패했다(2026-09-16, 5회):
+#   [astro] Unable to load your Astro config — The installed version of Wrangler (4.86.0) does
+#   not satisfy the peer dependency required by @cloudflare/vite-plugin (^4.131.2)
+#   (lockfile 은 1.33.2 인데 pnpm 이 1.54.9 로 새로 풀었다)
+#
+# npx --no 는 조상 폴더의 node_modules/.bin 까지 거슬러 올라가 메인 체크아웃의 lefthook 을 찾고,
+# 못 찾아도 아무것도 설치하지 않는다. 빌드도 같은 식으로 메인 체크아웃의 의존성을 쓴다.
+# - 조상 폴더에도 없는 곳(저장소 밖 워크트리)에서는 훅이 실패한다 → 거기서 `npm ci`.
+# - 이미 오염된 워크트리: node_modules · pnpm-lock.yaml · pnpm-workspace.yaml 을 지운다.
+# - .git/hooks 는 모든 워크트리가 공유한다. 이 줄이 없는 옛 커밋의 워크트리가 훅을 돌리면 옛
+#   스크립트로 되돌아가니, 증상이 재발하면 최신 워크트리에서 `npx --no lefthook install`.
+lefthook: npx --no lefthook
+
 pre-commit:
   parallel: true
   commands:
@@ -9,7 +31,37 @@ pre-commit:
       glob: '*.{ts,tsx,astro}'
       run: npx tsc --noEmit
 
+# 빌드 게이트는 pre-push 에 남긴다. main 직접 push 가 깨진 빌드를 올리면 deploy.yml 의 빌드가
+# 실패해, 고칠 때까지 이후 배포(0400 자동 발행 포함)가 전부 멈춘다 — CI 는 그 뒤에야 알려 준다.
+#
+# 요약 읽는 법: ✔️ 가 성공, 🥊 는 실패다. "🥊 build (155.39 seconds)" 는 빌드 통과가 아니라 빌드
+# 실패이고, 바로 뒤의 "error: failed to push some refs" 는 훅이 0 이 아닌 값으로 끝났을 때 git 이
+# 내는 문구다(원격 거부가 아니다). push 출력을 tail 로 자르지 말고 요약 위의 빌드 오류를 볼 것.
+# --no-verify 는 그 오류를 읽은 뒤에만 쓴다.
+#
+# stdin·refspec·작업 트리와는 무관하다 — `< /dev/null`·piped·skip 같은 우회는 필요 없다.
+# - git 은 훅의 stdin(ref 목록)을 되읽지 않는다. GIT_TRACE=1 로 보면 pre-push 훅 실행 →
+#   훅이 0 으로 끝남 → pack-objects 전송 순서뿐이고, refspec(HEAD:main)은 훅과 상관없이 그대로다.
+# - lefthook 2.1.6 도 stdin 을 쓰지 않는다. push 파일은 `git diff --name-only HEAD origin/main`
+#   으로 구하고, 비어 있으면(올릴 변경 없음) "build (skip) no matching push files" 로 건너뛴다.
+# - git push 는 작업 트리를 보지 않고, 빌드 전후 git status 도 같다.
+#
+# NODE_OPTIONS 는 이 PC(Windows)의 간헐 빌드 실패를 막는다 — 지우지 말 것.
+#   "prerendering static routes" 직후  fetch failed … at internalConnectMultiple (node:net)
+# @astrojs/cloudflare 는 프리렌더용 preview 서버를 localhost(=::1)에 띄우고 곧바로 같은 프로세스에서
+# fetch 한다. Node 는 주소마다 250ms 만 기다리는데(autoSelectFamily), 그 순간 workerd 기동으로
+# 프로세스가 바빠 ::1 연결이 250ms 를 넘기면 127.0.0.1 로 넘어가 거부당한다:
+#   AggregateError [ ETIMEDOUT ::1:<port>, ECONNREFUSED 127.0.0.1:<port> ]
+# 시도 제한을 5초로 늘리면 첫 주소(::1)가 그대로 붙는다. 훅의 빌드에만 적용되고 CI·사이트 코드는
+# 그대로다. 터미널에서 직접 `npm run build` 할 때 같은 오류가 나면 다시 돌리면 된다.
+# 2026-09-18 같은 시간대 교차 실행 5쌍: 적용 5/5 통과, 미적용 3/5 실패(앞선 표본까지 12회 중 7회).
+#
+# 2026-09-18 검증 — node_modules 없는 워크트리에서 --no-verify 없이 `git push … HEAD:main`:
+# 로컬 bare 원격(GIT_TRACE=1) 1회 성공. origin 은 첫 시도가 위 프리렌더 연결 실패로 막혔고,
+# NODE_OPTIONS 를 넣은 뒤 1회에 성공했다(이 커밋). ✔️ build 52~65초(OG 캐시 없는 첫 빌드는 약 3분 20초).
 pre-push:
   commands:
     build:
+      env:
+        NODE_OPTIONS: --network-family-autoselection-attempt-timeout=5000
       run: npm run build
