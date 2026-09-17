@@ -1,5 +1,9 @@
 {
   "_readme": "awoo 0400 자동 발행 루틴의 운영자 지정 큐. 키 = 발행일(KST, YYYY-MM-DD). 루틴은 실행 시 오늘 키가 있으면 최우선 적용. mode 없음/\"new\" = 신규 1건(keyword·angle·gate_a·sources_hint·must·profile_hint), mode \"update\" = 신규 대신 target 글 갱신(facts를 1차 출처로 재검증 후 updates[] append·사실 정정·dateModified, 제목·slug·구조 불변). 지정 항목도 GATE-A·확정 팩트·factCheckScore 0.8 게이트는 그대로(미충족 시 평소 선정으로 대체하고 종료 보고에 사유). _watch = 공식 공고가 뜨면 그날 최우선으로 검토할 주제. 지난 항목은 기록으로 남겨 둔다.",
+  "_policy": {
+    "since": "2026-09-17",
+    "rule": "운영자 지시(2026-09-17): 오늘 키가 없는 날의 평소 선정은 docs/ops/pipeline-queue.json 에서 고른다. status가 proposed이고 track이 갱신이 아닌 항목 중 exposure.score가 가장 높은 것(동점이면 expectedInbound 큰 것)을 신규 1건으로 발행한다. 제외: status가 approved·published·hold·rejected인 항목(운영자가 수동으로 지시했거나 보류한 글감), condition에 \"확보\"·\"확인 후\"·\"go.kr URL\"이 있는데 1차 출처를 직접 확보하지 못한 항목, 자사 글이 이미 그 쿼리를 소유한 항목. 발행하면 그 큐 항목을 status published·statusAt·publishedSlug·source \"0400\"으로 갱신한다(이 파일과 pipeline-queue.json은 콘텐츠 외 파일이라 자동 병합 조건에 걸리면 PR에 넣지 말고 종료 보고에만 적는다). 큐에 쓸 만한 항목이 없으면 기존 방식으로 선정한다."
+  },
   "_watch": [
     {
       "topic": "청년미래적금 9월 추가 모집",
