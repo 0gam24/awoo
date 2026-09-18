@@ -1,9 +1,9 @@
 # 키워드 후보 보고 — 2026-09-18 (KST)
 
-생성 2026-09-17 23:32Z · scripts/keyword-pipeline.mjs
-SERP 실측: scout 25/35건(T1 15·T2 5·재측정 5)
-입력: cluster-intents 62건 · naver-ranks 54쿼리 · 레이더 candidates 48건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 9 · 글 278건
-후보: T1 1 · T2 8 · T3 1 · 갱신 27 · 제외 99
+생성 2026-09-18 05:28Z · scripts/keyword-pipeline.mjs
+SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
+입력: cluster-intents 63건 · naver-ranks 57쿼리 · 레이더 candidates 46건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 9 · 글 278건
+후보: T1 1 · T2 6 · T3 1 · 갱신 27 · 제외 99
 
 ## 오늘 후보
 
@@ -14,11 +14,11 @@ SERP 실측: scout 25/35건(T1 15·T2 5·재측정 5)
 | 1 | 높음 75 | T2 | 2026 주휴수당 포함 시급 | 자리 열림 · 빈자리 7 · 위에 관공서 없음 | 현재 94/주 | [보류] 검색 결과 실측 필요 |
 | 2 | 높음 70 | T2 | 알바 주휴수당 계산기 | 자리 열림 · 빈자리 10 · 위에 관공서 없음 | 현재 81/주 | [보류] 검색 결과 실측 필요 |
 | 3 | 높음 70 | T2 | 실업급여 상실신고 | 자리 열림 · 빈자리 4 · 위에 관공서 없음 | 59~137 | [보류] 자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia |
-| 4 | 높음 70 | T2 | 3차민생지원금 | 자리 열림 · 빈자리 7 · 위에 관공서 없음 | 41~96 | 검색 결과 실측 필요 |
+| 4 | 높음 70 | T2 | 3차민생지원금 | 자리 열림 · 빈자리 7 · 위에 관공서 없음 | 41~96 | [보류] 검색 결과 실측 필요 |
 | 5 | 중간 65 | T2 | 4차 민생쿠폰 신청 | 자리 열림 · 자사 8위 — 다른 의도로 재진입 | 현재 81/주 | [보류] — |
 | 6 | 중간 50 | T1 A | 창원 지원금 (창원) | 자리 열림 · 공고 URL 필요 | 현재 60/주(자사 미노출·미측정분 회수) | 공고 go.kr URL 확보 + 접미형·변형 SERP 실측 |
 
-T2 나머지 3건(점수순, 큐 JSON에 있음): 중위소득 계산(142.8), 유가민생지원금(0), 조건부생계급여(48.6)
+T2 나머지 1건(점수순, 큐 JSON에 있음): 중위소득 계산(142.8)
 
 ### 실측 대기 1건
 검색 결과를 아직 안 봤다. 수요(실유입·검색량) 큰 순. `--serp` 회차나 `--scout="쿼리"`로 잰다.
@@ -69,12 +69,12 @@ T2 나머지 3건(점수순, 큐 JSON에 있음): 중위소득 계산(142.8), �
 - [T1] 울진군 민생안정지원금 30만원 부결 — cluster-intents VETO: 울진 × V 이미 존재: uljin-grant-300k-rejected-resubmission-2026-09-10(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 광양 민생지원금 30만원 지급하나요 — cluster-intents VETO: 광양 × V 이미 존재: gwangyang-grant-300k-chuseok-postponed-2026-09-10(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 영암군 농촌기본수당 10만원 하반기 신청 — cluster-intents VETO: 영암 × A 이미 존재: yeongam-rural-basic-allowance-100k(2026-09-14). 잠금 제외 1건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
-- [T1] 대구 V — 보류: 확인 불가 — 첫 주 제외(계획 §5) · B 트리거: "대구 추석지원금" rank null(통블록)(2026-09-17)
+- [T1] 대구 V — 보류: 확인 불가 — 첫 주 제외(계획 §5) · B 트리거: "대구 추석지원금" rank null(통블록)(2026-09-18)
 - [T1] 경기 V — 보류: 확인 불가 — 첫 주 제외(계획 §5) · B 트리거: "경기도 민생지원금" rank null(통블록)(2026-09-11)
 - [T1] 완주 B — B 트리거: "완주 민생지원금" r10(2026-09-09) → cluster-intents VETO: 완주 × B 이미 존재: wanju-grant-proxy-application-after-sep14(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 완주 B — B 트리거: "완주군 민생지원금" rank null(통블록)(2026-09-09) → cluster-intents VETO: 완주 × B 이미 존재: wanju-grant-proxy-application-after-sep14(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
-- [T1] 신안 B — B 트리거: "신안군 민생지원금" r6(2026-09-17) → cluster-intents VETO: 신안 × B 이미 존재: sinan-grant-100k-application-2026-09-12(2026-09-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
-- [T1] 영암 B — B 트리거: "영암군 민생지원금" r9(2026-09-17) → cluster-intents VETO: 영암 × B 이미 존재: yeongam-wolchulpay-balance-expiry-use(2026-09-16). 잠금 제외 1건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
+- [T1] 신안 B — B 트리거: "신안군 민생지원금" r6(2026-09-18) → cluster-intents VETO: 신안 × B 이미 존재: sinan-grant-100k-application-2026-09-12(2026-09-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
+- [T1] 영암 B — B 트리거: "영암군 민생지원금" r10(2026-09-18) → cluster-intents VETO: 영암 × B 이미 존재: yeongam-wolchulpay-balance-expiry-use(2026-09-16). 잠금 제외 1건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 완주군 민생지원금 — 실유입 "완주군 민생지원금" 512/주 자사 미노출 → cluster-intents VETO: 완주 × A 이미 존재: wanju-livelihood-stability-grant-2026-08-12(2026-08-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 통영 지원금 신청 — 실유입 "통영 지원금 신청" 182/주 순위 미측정 → cluster-intents VETO: 통영 × A 이미 존재: tongyeong-livelihood-recovery-grant-2026-08-15(2026-08-15). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
 - [T1] 완주 민생지원금 — 실유입 "완주 민생지원금" 170/주 r10 → cluster-intents VETO: 완주 × A 이미 존재: wanju-livelihood-stability-grant-2026-08-12(2026-08-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
@@ -126,7 +126,7 @@ T2 나머지 3건(점수순, 큐 JSON에 있음): 중위소득 계산(142.8), �
 - [T2] 2027년 아이맞이지원금 — 기존 글 있음 — child-benefit-2027-overhaul-2026-09-03(제목에 이 표현 포함). 새 글 아님
 - [T2] 조기재취업수당 조건 — 기존 글 있음 — early-reemployment-allowance-conditions-2026-07-31(제목에 이 표현 포함). 새 글 아님
 - [T3] 중도퇴사 연말정산 — hold: peak ≥3 ✗(2.86 — 미달) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인(asiatop 사회초년생 퇴사 각도). 재측정에서 ≥3 나올 때만
-- [T2] 2026 재난지원금 — scout 2026-09-18 verdictT2 closed: "2026 재난지원금" already r2, openSlots 0<2, news-warn 같은 제목 4·7일 55건, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
+- [T2] 2026 재난지원금 — scout 2026-09-18 verdictT2 closed: "2026 재난지원금" already r2, openSlots 0<2, news-warn 같은 제목 4·7일 61건, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T2] 9월14일 민생지원금 — scout 2026-09-18 verdictT2 closed: "9월14일 민생지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T2] 조기취업수당 조건 — scout 2026-09-18 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
 - [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-09-18 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
@@ -182,11 +182,11 @@ T2 나머지 3건(점수순, 큐 JSON에 있음): 중위소득 계산(142.8), �
 - 영동 영동페이 신청 마감 10/2 — 2026-10-02(D-14) 갱신 예정 · local-livelihood-support-payment-2026-07-15, yeongdong-livelihood-stability-grant-2026-08-18
 - 영암 신청 마감 10/30 — 2026-10-30(D-42) 갱신 예정 · yeongam-rural-basic-allowance-100k, yeongam-wolchulpay-balance-expiry-use
 - 재측정 "2026 김해 민생지원금": r1 · 본청 0 · 뉴스7일 8·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "김해시 지원금": 자사 미노출 · 본청 0 · 뉴스7일 95·같은제목 2 · openSlots 1 · 눈 확인 전
+- 재측정 "김해시 지원금": 자사 미노출 · 본청 0 · 뉴스7일 93·같은제목 3 · openSlots 1 · 눈 확인 전
 - 재측정 "통영 지원금 신청": r5 · 본청 0 · 뉴스7일 18·같은제목 1 · openSlots 0 · 눈 확인 전
 - 재측정 "문경시 지원금": r2 · 본청 0 · 뉴스7일 30·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "김해 지원금": 자사 미노출 · 본청 0 · 뉴스7일 100+·같은제목 2 · openSlots 2 · 눈 확인 전
+- 재측정 "김해 지원금": 자사 미노출 · 본청 0 · 뉴스7일 100+·같은제목 3 · openSlots 2 · 눈 확인 전
 
-SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 3건 · 새 키워드 10건 · 재측정 22건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
+SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 3건 · 새 키워드 8건 · 재측정 22건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
 
 0400 자동 발행은 그대로 1건 나갑니다. 위 후보 중 쓸 것을 지시해 주세요.

@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 273,
-    "entryCount": 62,
+    "scannedPosts": 278,
+    "entryCount": 63,
     "regionCount": 45,
     "regions": [
       "강릉",
@@ -54,12 +54,12 @@
       "해남"
     ],
     "families": {
-      "A": 48,
+      "A": 49,
       "B": 5,
       "V": 9
     },
     "clusters": {
-      "minsaeng": 42,
+      "minsaeng": 43,
       "other": 20
     },
     "rollups": 9,
@@ -1516,6 +1516,24 @@
       "rollup": true,
       "axis": "추석",
       "familyOverride": true
+    },
+    {
+      "region": [
+        "서울"
+      ],
+      "family": "A",
+      "slug": "seoul-chuseok-grant-check",
+      "path": "src/data/issues/2026-09-18/seoul-chuseok-grant-check-2026-09-18.json",
+      "date": "2026-09-18",
+      "targetQuery": "서울 추석지원금",
+      "coreFacts": {
+        "who": "서울시 전체 시민, 현금성 지원 대상자는 없음",
+        "amount": "현금 지원 없음, 상품권 최대 7% 혜택",
+        "deadline": "특별판 오늘 09-18 마지막 날, 어르신 우선구매 09-17 종료"
+      },
+      "coreFactsKeys": [],
+      "cluster": "minsaeng",
+      "rollup": false
     }
   ]
 }
