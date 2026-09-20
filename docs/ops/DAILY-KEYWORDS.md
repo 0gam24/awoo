@@ -1,9 +1,9 @@
 # 키워드 후보 보고 — 2026-09-20 (KST)
 
-생성 2026-09-20 05:36Z · scripts/keyword-pipeline.mjs
-SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
-입력: cluster-intents 63건 · naver-ranks 57쿼리 · 레이더 candidates 48건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 9 · 글 280건
-후보: T1 1 · T2 8 · T3 1 · 갱신 26 · 제외 98
+생성 2026-09-20 13:35Z · scripts/keyword-pipeline.mjs
+SERP 실측: scout 27/35건(T1 15·T2 5·재측정 5) · 같은 날 저장분 재사용(--serp-replay)
+입력: cluster-intents 63건 · naver-ranks 57쿼리 · 레이더 candidates 49건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 9 · 글 280건
+후보: T1 1 · T2 9 · T3 1 · 갱신 26 · 제외 98
 
 ## 오늘 후보
 
@@ -15,18 +15,11 @@ SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
 | 2 | 높음 70 | T2 | 알바 주휴수당 계산기 | 자리 열림 · 빈자리 10 · 위에 관공서 없음 | 현재 81/주 | [보류] 검색 결과 실측 필요 |
 | 3 | 높음 70 | T2 | 실업급여 상실신고 | 자리 열림 · 빈자리 5 · 위에 관공서 없음 | 59~137 | [보류] 자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia |
 | 4 | 중간 65 | T2 | 4차 민생쿠폰 신청 | 자리 열림 · 자사 8위 — 다른 의도로 재진입 | 현재 81/주 | [보류] — |
-| 5 | 중간 65 | T2 | 씨앗통장 | 자리 열림 · 빈자리 4 · 위에 관공서 없음 | 1~2 | 검색 결과 실측 필요 |
-| 6 | 중간 50 | T1 A | 창원 지원금 (창원) | 자리 열림 · 공고 URL 필요 | 현재 60/주(자사 미노출·미측정분 회수) | 공고 go.kr URL 확보 + 접미형·변형 SERP 실측 |
+| 5 | 중간 65 | T2 | 사회보장급여 | 자리 열림 · 위에 관공서 없음 | 49~114 | 검색 결과 실측 필요 |
+| 6 | 중간 55 | T3 | 난방비 지원 | 자리 열림 | 확인 불가(계절 피크 전) | peak ≥3 ✓(14.8) + openSlots ≥2 + 자매 0. 민생 물결 창 안 주간이면 T1 여력을 빼지 않고 창 밖 주간(또는 창 안 T2 주 1~2건 한도 안)에서만 1건 |
+| 7 | 중간 50 | T1 A | 창원 지원금 (창원) | 자리 열림 · 공고 URL 필요 | 현재 60/주(자사 미노출·미측정분 회수) | 공고 go.kr URL 확보 + 접미형·변형 SERP 실측 |
 
-T2 나머지 2건(점수순, 큐 JSON에 있음): 장애인고용장려금(58.1), 부산청년월세지원금(11)
-
-### 실측 대기 2건
-검색 결과를 아직 안 봤다. 수요(실유입·검색량) 큰 순. `--serp` 회차나 `--scout="쿼리"`로 잰다.
-
-| # | 쿼리 | 수요 | 트랙 |
-|---|---|---|---|
-| 1 | 난방비 지원 | 검색량 미측정 | T3 |
-| 2 | 쳥년미래적금 | 검색량 0 | T2 |
+T2 나머지 4건(점수순, 큐 JSON에 있음): 씨앗통장(4.4), 쳥년미래적금(0), 기초주거급여(34.6), 부산청년월세지원금(11)
 
 ## 갱신 후보
 
@@ -85,7 +78,7 @@ T2 나머지 2건(점수순, 큐 JSON에 있음): 장애인고용장려금(58.1)
 - [T2] 실업급여 조기재취업수당 — 축 잠금 — early-reemployment-allowance-2026-06-16(2026-06-16) 제목이 "조기재취업수당" 축을 이미 잡고 있다
 - [T2] 실업급여 하한액 — 축 잠금 — unemployment-benefit-amount-calc-2026-07-10(2026-07-10) 제목이 "하한액" 축을 이미 잡고 있다
 - [T2] 주휴수당 계산법 — 축 잠금 — weekly-holiday-pay-calculation-2026-08-10(2026-08-10) 제목이 "계산법" 축을 이미 잡고 있다
-- [T2] 주휴수당 포함 시급 — recent7 1.21 < 1.5(radar)
+- [T2] 주휴수당 포함 시급 — recent7 1.24 < 1.5(radar)
 - [T2] 주휴수당 쿠팡 — 축 잠금 — coupang-weekly-holiday-pay-5day-condition-2026-09-09(2026-09-09) 제목이 "쿠팡" 축을 이미 잡고 있다
 - [T2] 주휴수당 알바 조건 — 축 잠금 — weekly-holiday-pay-calculation-2026-08-10(2026-08-10) 제목이 "알바 조건" 축을 이미 잡고 있다
 - [T2] 주휴수당 주 15시간 — 축 잠금 — weekly-holiday-pay-calculation-2026-08-10(2026-08-10) 제목이 "주 15시간" 축을 이미 잡고 있다
@@ -93,7 +86,7 @@ T2 나머지 2건(점수순, 큐 JSON에 있음): 장애인고용장려금(58.1)
 - [T2] 근로장려금 지급일 — 축 잠금 — eitc-semiannual-vs-regular-payment-date-2026-07-01(2026-07-01) 제목이 "지급일" 축을 이미 잡고 있다
 - [T2] 근로장려금 자녀장려금 — 축 잠금 — child-tax-credit-payment-2026-07-15(2026-07-15) 제목이 "자녀장려금" 축을 이미 잡고 있다
 - [T2] 근로장려금 대상 기준 — 축 잠금 — eitc-2026-eligibility-criteria(2026-09-13) 제목이 "대상 기준" 축을 이미 잡고 있다
-- [T2] 근로장려금 계산기 — recent7 0.37 < 1.5(radar)
+- [T2] 근로장려금 계산기 — recent7 0.35 < 1.5(radar)
 - [T2] 근로장려금 현금수령 — 축 잠금 — eitc-refund-notice-cash-receipt-2026-08-07(2026-08-07) 제목이 "현금수령" 축을 이미 잡고 있다
 - [T2] 중위소득 계산 — 축 잠금 — median-income-calculation-guide-2026-09-19(2026-09-19) 제목이 "계산" 축을 이미 잡고 있다
 - [T2] 중위소득 2027 — 축 잠금 — median-income-2027-livelihood-benefit-threshold-2026-08-01(2026-08-01) 제목이 "2027" 축을 이미 잡고 있다
@@ -123,7 +116,7 @@ T2 나머지 2건(점수순, 큐 JSON에 있음): 장애인고용장려금(58.1)
 - [T2] 2027 예산안 — mode update-only — 갱신 트랙 전용(지금은 1.77로 작고 하락 중(trend 0.56). 대응 글 0. 국회 심사(11월)·통과(12/2 법정)
 - [T2] 4차민생지원금 — 기존 글 있음 — minsaeng-4th-round-payment-status-2026-08-09(제목에 이 표현 포함). 새 글 아님
 - [T2] 청년월세지원사업 — 기존 글 있음 — youth-rent-support-exclusion-criteria-2026-09-20(제목에 이 표현 포함). 새 글 아님
-- [T2] 조기재취업수당 — 기존 글 있음 — early-reemployment-allowance-2026-06-16(제목에 이 표현 포함). 새 글 아님
+- [T2] 주거급여 — 기존 글 있음 — housing-benefit-rent-eligibility-2026-06-16(제목에 이 표현 포함). 새 글 아님
 - [T2] 2026 근로장려금 대상 기준 — 기존 글 있음 — eitc-2026-eligibility-criteria(제목에 이 표현 포함). 새 글 아님
 - [T2] 2027년 아이맞이지원금 — 기존 글 있음 — child-benefit-2027-overhaul-2026-09-03(제목에 이 표현 포함). 새 글 아님
 - [T2] 조기재취업수당 조건 — 기존 글 있음 — early-reemployment-allowance-conditions-2026-07-31(제목에 이 표현 포함). 새 글 아님
@@ -131,7 +124,7 @@ T2 나머지 2건(점수순, 큐 JSON에 있음): 장애인고용장려금(58.1)
 - [T2] 2026 재난지원금 — scout 2026-09-20 verdictT2 closed: "2026 재난지원금" already r2, openSlots 0<2, news-warn 같은 제목 4·7일 59건, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T2] 9월14일 민생지원금 — scout 2026-09-20 verdictT2 closed: "9월14일 민생지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T2] 조기취업수당 조건 — scout 2026-09-20 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
-- [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-09-20 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
+- [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-09-20 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" already r3, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
 - [T2] 청년월세지원금 — scout 2026-09-20 verdictT2 closed: "청년월세지원금" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T2] 실업급여 구직급여 — scout 2026-09-20 verdictT2 closed: "실업급여 구직급여" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T1] 4차 민생지원금 지역별 지급 현황 — scout 2026-09-20 verdictT1 closed: "4차 민생지원금 지역별 지급 현황" already r2, openSlots 1<2, offset·press 미측정(API) / "4차 민생지원금 9월 신청 지역" already r1, openSlots 0<2, offset·press 미측정(API) / "4차 민생지원금 개시일" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
@@ -185,11 +178,11 @@ T2 나머지 2건(점수순, 큐 JSON에 있음): 장애인고용장려금(58.1)
 - 영동 영동페이 신청 마감 10/2 — 2026-10-02(D-12) 갱신 예정 · local-livelihood-support-payment-2026-07-15, yeongdong-livelihood-stability-grant-2026-08-18
 - 영암 신청 마감 10/30 — 2026-10-30(D-40) 갱신 예정 · yeongam-rural-basic-allowance-100k, yeongam-wolchulpay-balance-expiry-use
 - 재측정 "2026 김해 민생지원금": r1 · 본청 0 · 뉴스7일 10·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "김해시 지원금": 자사 미노출 · 본청 0 · 뉴스7일 94·같은제목 3 · openSlots 1 · 눈 확인 전
-- 재측정 "통영 지원금 신청": r6 · 본청 0 · 뉴스7일 18·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "문경시 지원금": r2 · 본청 0 · 뉴스7일 30·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "김해시 지원금": 자사 미노출 · 본청 0 · 뉴스7일 93·같은제목 3 · openSlots 1 · 눈 확인 전
+- 재측정 "통영 지원금 신청": r6 · 본청 0 · 뉴스7일 15·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "문경시 지원금": r2 · 본청 0 · 뉴스7일 29·같은제목 1 · openSlots 0 · 눈 확인 전
 - 재측정 "김해 지원금": r3 · 본청 0 · 뉴스7일 100+·같은제목 3 · openSlots 1 · 눈 확인 전
 
-SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 2건 · 새 키워드 11건 · 재측정 22건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
+SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 2건 · 새 키워드 12건 · 재측정 22건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
 
 0400 자동 발행은 그대로 1건 나갑니다. 위 후보 중 쓸 것을 지시해 주세요.
