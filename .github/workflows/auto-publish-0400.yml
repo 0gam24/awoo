@@ -47,9 +47,17 @@ concurrency:
 
 jobs:
   auto-merge:
+    # 브랜치명은 PR 을 만드는 예약 에이전트가 매일 다르게 짓는다(claude/0400-…,
+    # auto-0400-…, awoo-0400-…, auto/0400-…). 종전엔 'claude/' 접두사만 통과시켜
+    # 9/22 PR #76(auto-0400-20260922)처럼 접두사가 다른 날은 자동 병합이 skip 되고
+    # 발행이 멈췄다. 접두사 대신 '0400' 포함으로 넓힌다 — 실제 안전장치는 아래
+    # 세 가지이고 브랜치명은 거기에 더하는 게 없다:
+    #   (1) 동일 저장소 PR 만(포크 차단)  (2) 변경 파일이 콘텐츠뿐인지 검증
+    #   (3) CI 4×100 · Workers Builds 가 모두 success
     if: >
       github.event.pull_request.head.repo.full_name == github.repository &&
-      startsWith(github.event.pull_request.head.ref, 'claude/') &&
+      (startsWith(github.event.pull_request.head.ref, 'claude/') ||
+       contains(github.event.pull_request.head.ref, '0400')) &&
       contains(github.event.pull_request.title, '0400 자동 발행')
     runs-on: ubuntu-latest
     env:
