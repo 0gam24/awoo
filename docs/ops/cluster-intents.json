@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 283,
-    "entryCount": 63,
-    "regionCount": 45,
+    "scannedPosts": 288,
+    "entryCount": 68,
+    "regionCount": 49,
     "regions": [
       "강릉",
       "강북구",
@@ -16,6 +16,7 @@
       "경남",
       "경북",
       "고성",
+      "고양",
       "고창",
       "고흥",
       "광양",
@@ -26,10 +27,12 @@
       "대구",
       "문경",
       "미추홀구",
+      "부산",
       "부안",
       "서울",
       "속초",
       "신안",
+      "안산",
       "양산",
       "양양",
       "연수구",
@@ -51,15 +54,16 @@
       "통영",
       "하동",
       "함평",
-      "해남"
+      "해남",
+      "횡성"
     ],
     "families": {
       "A": 49,
       "B": 5,
-      "V": 9
+      "V": 14
     },
     "clusters": {
-      "minsaeng": 43,
+      "minsaeng": 48,
       "other": 20
     },
     "rollups": 9,
@@ -76,6 +80,41 @@
       {
         "slug": "chuseok-holiday-livelihood-grant-application",
         "family": "B"
+      },
+      {
+        "slug": "ansan-chuseok-grant-daon-cashback-2026-09-23",
+        "region": [
+          "안산"
+        ],
+        "family": "V"
+      },
+      {
+        "slug": "busan-chuseok-grant-check",
+        "region": [
+          "부산"
+        ],
+        "family": "V"
+      },
+      {
+        "slug": "goyang-chuseok-grant-check",
+        "region": [
+          "고양"
+        ],
+        "family": "V"
+      },
+      {
+        "slug": "hoengseong-livelihood-grant-200k-october-2026-09-23",
+        "region": [
+          "횡성"
+        ],
+        "family": "V"
+      },
+      {
+        "slug": "yangsan-livelihood-grant-rejected-2026-09-23",
+        "region": [
+          "양산"
+        ],
+        "family": "V"
       }
     ],
     "rules": {
@@ -1534,6 +1573,116 @@
       "coreFactsKeys": [],
       "cluster": "minsaeng",
       "rollup": false
+    },
+    {
+      "region": [
+        "안산"
+      ],
+      "family": "V",
+      "slug": "ansan-chuseok-grant-daon-cashback-2026-09-23",
+      "path": "src/data/issues/2026-09-23/ansan-chuseok-grant-daon-cashback-2026-09-23.json",
+      "date": "2026-09-23",
+      "targetQuery": "안산 추석지원금",
+      "coreFacts": {
+        "who": "안산시민 전체 현금 지급 없음, 다온 이용자만 환급 혜택",
+        "amount": "현금 지원 없음, 다온 충전·캐시백 합산 최대 4만5천원",
+        "deadline": "충전 인센티브 10%·추석 캐시백 5% 모두 9월 30일 종료"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-09-30"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true
+    },
+    {
+      "region": [
+        "부산"
+      ],
+      "family": "V",
+      "slug": "busan-chuseok-grant-check",
+      "path": "src/data/issues/2026-09-23/busan-chuseok-grant-check-2026-09-23.json",
+      "date": "2026-09-23",
+      "targetQuery": "부산 추석지원금",
+      "coreFacts": {
+        "who": "전 시민 지급 대상 없음, 위로금은 홀몸노인 2만 7천 세대",
+        "amount": "전 시민 0원, 동백전 캐시백 최대 15%",
+        "deadline": "동백전 15% 상향은 9월 말까지"
+      },
+      "coreFactsKeys": [],
+      "cluster": "minsaeng",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true
+    },
+    {
+      "region": [
+        "고양"
+      ],
+      "family": "V",
+      "slug": "goyang-chuseok-grant-check",
+      "path": "src/data/issues/2026-09-23/goyang-chuseok-grant-check-2026-09-23.json",
+      "date": "2026-09-23",
+      "targetQuery": "고양시 추석지원금",
+      "coreFacts": {
+        "who": "고양시민 전체, 전 시민 현금 지원 대상 없음",
+        "amount": "현금 지원 없음, 고양페이 5% 캐시백만 확정",
+        "deadline": "캐시백 12월 31일까지, 예산 소진 시 조기 종료"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-12-31"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true
+    },
+    {
+      "region": [
+        "횡성"
+      ],
+      "family": "V",
+      "slug": "hoengseong-livelihood-grant-200k-october-2026-09-23",
+      "path": "src/data/issues/2026-09-23/hoengseong-livelihood-grant-200k-october-2026-09-23.json",
+      "date": "2026-09-23",
+      "targetQuery": "횡성군 민생지원금",
+      "coreFacts": {
+        "who": "횡성군민 약 4만 6천명, 지급안 기준",
+        "amount": "미확정, 1인 20만원 안 예산 약 93억원",
+        "deadline": "10월 지급 추진, 9월 23일 기준 공고 없음"
+      },
+      "coreFactsKeys": [
+        "amount=20만원",
+        "deadline=2026-09-23"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true
+    },
+    {
+      "region": [
+        "양산"
+      ],
+      "family": "V",
+      "slug": "yangsan-livelihood-grant-rejected-2026-09-23",
+      "path": "src/data/issues/2026-09-23/yangsan-livelihood-grant-rejected-2026-09-23.json",
+      "date": "2026-09-23",
+      "targetQuery": "양산시 민생회복지원금",
+      "coreFacts": {
+        "who": "양산시민 약 35만5천명, 주민발의 조례안 기준",
+        "amount": "부결로 미지급, 조례안은 1인 10만원",
+        "deadline": "2026-09-14 본회의 찬 9·반 10 부결. 재상정 여부는 9월 23일 기준 미정"
+      },
+      "coreFactsKeys": [
+        "amount=10만원",
+        "deadline=2026-09-14"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true
     }
   ]
 }
