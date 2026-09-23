@@ -8,7 +8,7 @@
     "status 값: watch(감시 중, 아직 안 씀) · scheduled(writeBy에 후보 보고) · hold(게이트 미달 — 조건 충족 시만) · migrated(다른 트랙으로 이관 완료). 발행은 파이프라인이 하지 않는다 — 보고만 하고 운영자가 수동 지시한다(운영자 결정 2026-09-10 #12).",
     "T3는 민생 물결 창(T1)의 여력을 빼지 않는다. 창 안 주간에는 T3 후보를 보고서 하단에만 싣고 점수 경쟁에 넣지 않는다."
   ],
-  "updated": "2026-09-23",
+  "updated": "2026-09-24",
   "benchmark": "실업급여",
   "items": [
     {
@@ -111,7 +111,8 @@
       "peakRelative": null,
       "writeBy": "2026-09-28",
       "gate": "scout 2026-09-23: openSlots 9·뉴스벽 3·문서 15만 — 실측 통과. 10/5(개천절 대체)·10/9(한글날) 두 창. 레이더 신호 미약(휴일수당 9.0)이라 수요는 달력 강제 근거",
-      "status": "scheduled"
+      "status": "published",
+      "publishedSlug": "oct5-substitute-holiday-pay-2026-09-23"
     },
     {
       "topic": "독감 무료 예방접종 65세 연령별 날짜",
@@ -147,6 +148,24 @@
       "peakRelative": null,
       "writeBy": "2026-10-05",
       "gate": "신규 금지 — 2026-06-03 8건 클러스터 보유. 10/5까지 apply·eligibility·vs-leap 갱신 재점검 + 서치어드바이저 색인 확인. 레이더 146~213으로 측정된 10월 최대 수요",
+      "status": "scheduled"
+    },
+    {
+      "topic": "청년도약계좌 10월 가입 신청기간",
+      "track": "T2",
+      "peakMonth": 10,
+      "peakRelative": null,
+      "writeBy": "2026-10-01",
+      "gate": "scout 2026-09-24: openSlots 6·뉴스벽 2·총량 182만. fsc.go.kr 10월 가입신청 안내 원문 확보 후. 청년미래적금 갈아타기 글과 내부링크(도약계좌→미래적금 연계가입). 레이더 권외 — 수요는 매월 반복 패턴 근거",
+      "status": "scheduled"
+    },
+    {
+      "topic": "국가건강검진 2026 대상자(짝수년) 연내 마감",
+      "track": "T2",
+      "peakMonth": 11,
+      "peakRelative": null,
+      "writeBy": "2026-10-10",
+      "gate": "scout 2026-09-24: openSlots 8·뉴스벽 0·총량 1,896만(상업 블로그 강함). nhis.or.kr 원문. 각도는 대상자 조회가 아니라 \"연말 몰림·미수검 불이익·검진기관 예약\" 실무형",
       "status": "scheduled"
     }
   ]
