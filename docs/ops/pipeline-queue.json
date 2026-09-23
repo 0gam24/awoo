@@ -8,7 +8,7 @@
     "score = recent7(없으면 proxy) × min(openSlots,4) × volume-scale 계수. T1은 개시일 임박순이 점수보다 우선. serp.approx=true는 naver-ranks 옛 항목에서 근사한 verdict — --serp 실측이 아니다."
   ],
   "meta": {
-    "generatedAt": "2026-09-23T04:24:12.553Z",
+    "generatedAt": "2026-09-23T05:25:47.940Z",
     "today": "2026-09-23",
     "dryRun": false,
     "serp": {
@@ -124,7 +124,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 60,
+          "newsWall": 59,
           "newsWallCapped": false,
           "newsSameTitle": 3,
           "measuredBy": "webkr-api"
@@ -348,7 +348,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 50,
+          "newsWall": 52,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -396,15 +396,16 @@
         },
         {
           "query": "김해시 지원금",
-          "rank": null,
+          "rank": 3,
           "openSlots": 1,
           "mainGovAbove": 0,
           "pressAbove": null,
           "sisterAbove": 0,
           "webDocOffset": null,
-          "verdictT1": "open",
+          "verdictT1": "closed",
           "verdictT2": "closed",
           "reason": [
+            "already r3",
             "openSlots 1<2",
             "offset·press 미측정(API)"
           ],
@@ -481,19 +482,19 @@
     "counts": {
       "T1": 1,
       "T2": 4,
-      "T3": 1,
-      "갱신": 14,
+      "T3": 6,
+      "갱신": 15,
       "제외": 99,
       "감시": 24
     },
     "sources": {
       "clusterIntents": {
-        "entries": 63,
-        "regions": 45
+        "entries": 68,
+        "regions": 49
       },
       "naverRanks": {
         "queries": 57,
-        "updatedAt": "2026-09-22T05:23:51.906Z"
+        "updatedAt": "2026-09-23T05:11:31.425Z"
       },
       "radarCandidates": 45,
       "regionCandidateSource": "radar.candidates",
@@ -504,8 +505,8 @@
         "generatedAt": "2026-09-10T02:22:58.647Z"
       },
       "bigKeywords": 12,
-      "landgrab": 9,
-      "posts": 285
+      "landgrab": 14,
+      "posts": 291
     },
     "scoutPlan": {
       "T1": [
@@ -593,9 +594,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-09-23T04:24:38.111Z",
+        "measuredAt": "2026-09-23T05:26:15.727Z",
         "webDocRaw": 30,
-        "webDocTotal": 3709562,
+        "webDocTotal": 3709639,
         "eyeOffset": null,
         "newsWall": 3,
         "newsWallCapped": false,
@@ -689,9 +690,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-09-23T04:24:42.029Z",
+        "measuredAt": "2026-09-23T05:26:20.201Z",
         "webDocRaw": 30,
-        "webDocTotal": 1065357,
+        "webDocTotal": 1066496,
         "eyeOffset": null,
         "newsWall": 0,
         "newsWallCapped": false,
@@ -811,9 +812,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-09-23T04:24:34.555Z",
+        "measuredAt": "2026-09-23T05:26:11.361Z",
         "webDocRaw": 30,
-        "webDocTotal": 400960,
+        "webDocTotal": 401784,
         "eyeOffset": null,
         "newsWall": 0,
         "newsWallCapped": false,
@@ -966,7 +967,7 @@
         "지역 헤드 \"창원 민생지원금\" r1",
         "recent7 1.96(radar)",
         "계수 si/null 45.7(n=13)",
-        "scout 2026-09-23: 자사 미노출 · 본청 1 · 뉴스7일 60·같은제목 3 · 자매 0 · openSlots 2 · 눈 확인 전 · T1 open · T2 open"
+        "scout 2026-09-23: 자사 미노출 · 본청 1 · 뉴스7일 59·같은제목 3 · 자매 0 · openSlots 2 · 눈 확인 전 · T1 open · T2 open"
       ],
       "expectedInbound": "현재 60/주(자사 미노출·미측정분 회수)",
       "condition": "공고 go.kr URL 확보 + 접미형·변형 SERP 실측",
@@ -999,11 +1000,11 @@
         "region": "창원",
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-09-23T04:24:24.893Z",
+        "measuredAt": "2026-09-23T05:26:00.117Z",
         "webDocRaw": 30,
-        "webDocTotal": 10849054,
+        "webDocTotal": 10856626,
         "eyeOffset": null,
-        "newsWall": 60,
+        "newsWall": 59,
         "newsWallCapped": false,
         "newsSameTitle": 3,
         "measuredBy": "webkr-api",
@@ -1083,6 +1084,141 @@
       "createdAt": "2026-09-14T23:25:35.609Z"
     },
     {
+      "id": "T3:10월대체공휴일휴일근무수당",
+      "track": "T3",
+      "query": "10월 대체공휴일 휴일근무 수당",
+      "family": null,
+      "region": null,
+      "evidence": [
+        "writeBy 2026-09-28(D-5)",
+        "피크 10월 null(실업급여=100)"
+      ],
+      "expectedInbound": "확인 불가(계절 피크 전)",
+      "condition": "scout 2026-09-23: openSlots 9·뉴스벽 3·문서 15만 — 실측 통과. 10/5(개천절 대체)·10/9(한글날) 두 창. 레이더 신호 미약(휴일수당 9.0)이라 수요는 달력 강제 근거",
+      "recent7": null,
+      "recent7Source": null,
+      "serp": null,
+      "score": 0,
+      "scoreNote": "peakRelative × 2(openSlots 미측정) — T3는 점수 경쟁에 넣지 않는다",
+      "exposure": {
+        "score": null,
+        "label": "미측정",
+        "reasons": [
+          "검색 결과 실측 전"
+        ]
+      },
+      "status": "proposed",
+      "createdAt": "2026-09-23T05:25:47.940Z"
+    },
+    {
+      "id": "T3:독감무료예방접종65세연령별날짜",
+      "track": "T3",
+      "query": "독감 무료 예방접종 65세 연령별 날짜",
+      "family": null,
+      "region": null,
+      "evidence": [
+        "writeBy 2026-09-29(D-6)",
+        "피크 10월 null(실업급여=100)"
+      ],
+      "expectedInbound": "확인 불가(계절 피크 전)",
+      "condition": "scout 2026-09-23: openSlots 6·뉴스벽 20. 75세↑ 10/6·70~74세 10/12·65~69세 10/15 — kdca.go.kr 원문 확보 필수, 미확보 시 BLOCK. 6/21 범용 접종 글과 각도 분리",
+      "recent7": null,
+      "recent7Source": null,
+      "serp": null,
+      "score": 0,
+      "scoreNote": "peakRelative × 2(openSlots 미측정) — T3는 점수 경쟁에 넣지 않는다",
+      "exposure": {
+        "score": null,
+        "label": "미측정",
+        "reasons": [
+          "검색 결과 실측 전"
+        ]
+      },
+      "status": "proposed",
+      "createdAt": "2026-09-23T05:25:47.940Z"
+    },
+    {
+      "id": "T3:부가세예정고지세부안내면가산세",
+      "track": "T3",
+      "query": "부가세 예정고지 세부(안내면·가산세)",
+      "family": null,
+      "region": null,
+      "evidence": [
+        "writeBy 2026-10-06(D-13)",
+        "피크 10월 null(실업급여=100)"
+      ],
+      "expectedInbound": "확인 불가(계절 피크 전)",
+      "condition": "scout 2026-09-23: openSlots 7·뉴스벽 0. 납부기한은 2026 달력으로 국세청 원문 확정 후에만(상위 문서가 2025년 27일(월) 표기라 혼선). \"50만원 미만\" 변형은 자매 1 감지로 금지",
+      "recent7": null,
+      "recent7Source": null,
+      "serp": null,
+      "score": 0,
+      "scoreNote": "peakRelative × 2(openSlots 미측정) — T3는 점수 경쟁에 넣지 않는다",
+      "exposure": {
+        "score": null,
+        "label": "미측정",
+        "reasons": [
+          "검색 결과 실측 전"
+        ]
+      },
+      "status": "proposed",
+      "createdAt": "2026-09-23T05:25:47.940Z"
+    },
+    {
+      "id": "T3:기초연금10월지급일",
+      "track": "T3",
+      "query": "기초연금 10월 지급일",
+      "family": null,
+      "region": null,
+      "evidence": [
+        "writeBy 2026-10-14(D-21)",
+        "피크 10월 null(실업급여=100)"
+      ],
+      "expectedInbound": "확인 불가(계절 피크 전)",
+      "condition": "scout 2026-09-23: openSlots 2. 10/25 일요일 → 앞당김 여부는 공단 공지 확인 후에만 발행(미확인 발행 금지). 9/17 글 실적 선례 — T2 소유 잠식 검사 선행",
+      "recent7": null,
+      "recent7Source": null,
+      "serp": null,
+      "score": 0,
+      "scoreNote": "peakRelative × 2(openSlots 미측정) — T3는 점수 경쟁에 넣지 않는다",
+      "exposure": {
+        "score": null,
+        "label": "미측정",
+        "reasons": [
+          "검색 결과 실측 전"
+        ]
+      },
+      "status": "proposed",
+      "createdAt": "2026-09-23T05:25:47.940Z"
+    },
+    {
+      "id": "T3:청년미래적금2차신청개시10716",
+      "track": "T3",
+      "query": "청년미래적금 2차 신청 개시(10/7~16)",
+      "family": null,
+      "region": null,
+      "evidence": [
+        "writeBy 2026-10-05(D-12)",
+        "피크 10월 null(실업급여=100)"
+      ],
+      "expectedInbound": "확인 불가(계절 피크 전)",
+      "condition": "신규 금지 — 2026-06-03 8건 클러스터 보유. 10/5까지 apply·eligibility·vs-leap 갱신 재점검 + 서치어드바이저 색인 확인. 레이더 146~213으로 측정된 10월 최대 수요",
+      "recent7": null,
+      "recent7Source": null,
+      "serp": null,
+      "score": 0,
+      "scoreNote": "peakRelative × 2(openSlots 미측정) — T3는 점수 경쟁에 넣지 않는다",
+      "exposure": {
+        "score": null,
+        "label": "미측정",
+        "reasons": [
+          "검색 결과 실측 전"
+        ]
+      },
+      "status": "proposed",
+      "createdAt": "2026-09-23T05:25:47.940Z"
+    },
+    {
       "id": "갱신:basic-pension-september-payment-date-chuseok:2026-09-23",
       "track": "갱신",
       "query": "기초연금 9월 지급일 23일 수요일로 당겨진 이유와 10월 입금일",
@@ -1138,6 +1274,44 @@
       "score": 10,
       "status": "proposed",
       "createdAt": "2026-09-20T05:36:39.474Z"
+    },
+    {
+      "id": "갱신:hoengseong-livelihood-grant-200k-october-2026-09-23:2026-09-23",
+      "track": "갱신",
+      "query": "횡성군 민생지원금 20만원, 추석에 왜 안 나왔나",
+      "slug": "hoengseong-livelihood-grant-200k-october-2026-09-23",
+      "path": "src/data/issues/2026-09-23/hoengseong-livelihood-grant-200k-october-2026-09-23.json",
+      "region": "횡성",
+      "dueDate": "2026-09-23",
+      "daysLeft": 0,
+      "evidence": [
+        "coreFacts.deadline \"10월 지급 추진, 9월 23일 기준 공고 없음\"",
+        "날짜 2026-09-23 D-day",
+        "갱신 이력 없음"
+      ],
+      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
+      "score": 10,
+      "status": "proposed",
+      "createdAt": "2026-09-23T05:25:47.940Z"
+    },
+    {
+      "id": "갱신:yangsan-livelihood-grant-rejected-2026-09-23:2026-09-23",
+      "track": "갱신",
+      "query": "양산시 민생회복지원금 10만원 부결 경위와 재추진 가능성",
+      "slug": "yangsan-livelihood-grant-rejected-2026-09-23",
+      "path": "src/data/issues/2026-09-23/yangsan-livelihood-grant-rejected-2026-09-23.json",
+      "region": "양산",
+      "dueDate": "2026-09-23",
+      "daysLeft": 0,
+      "evidence": [
+        "coreFacts.deadline \"2026-09-14 본회의 찬 9·반 10 부결. 재상정 여부는 9월 23일 기준 미정\"",
+        "날짜 2026-09-23 D-day",
+        "갱신 이력 없음"
+      ],
+      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
+      "score": 10,
+      "status": "proposed",
+      "createdAt": "2026-09-23T05:25:47.940Z"
     },
     {
       "id": "갱신:chuseok-agri-livestock-discount-mart:2026-09-24",
@@ -1250,26 +1424,6 @@
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
       "score": 7,
-      "status": "proposed",
-      "createdAt": "2026-09-17T04:04:45.877Z"
-    },
-    {
-      "id": "갱신:buan-livelihood-stability-grant-2026-08-19:2026-09-18",
-      "track": "갱신",
-      "query": "부안군 민생안정지원금 30만원, 대상 기준일과 지급 일정",
-      "slug": "buan-livelihood-stability-grant-2026-08-19",
-      "path": "src/data/issues/2026-08-19/buan-livelihood-stability-grant-2026-08-19.json",
-      "region": "부안",
-      "dueDate": "2026-09-18",
-      "daysLeft": -5,
-      "evidence": [
-        "coreFacts.deadline \"지급 2026.09.16~09.18(읍·면 현지출장 집중 지급) / 사용기한 2026.11.30까지\"",
-        "날짜 2026-09-18 D+5 (+ 2026-09-16 D+7)",
-        "갱신 이력 없음",
-        "계획 §5 이정표: 출장 지급 9/16~18 개시(2026-09-16)"
-      ],
-      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 5,
       "status": "proposed",
       "createdAt": "2026-09-17T04:04:45.877Z"
     },
@@ -4494,7 +4648,7 @@
     },
     {
       "kind": "remeasure",
-      "text": "재측정 \"김해시 지원금\": 자사 미노출 · 본청 0 · 뉴스7일 35·같은제목 3 · openSlots 1 · 눈 확인 전"
+      "text": "재측정 \"김해시 지원금\": r3 · 본청 0 · 뉴스7일 35·같은제목 3 · openSlots 1 · 눈 확인 전"
     },
     {
       "kind": "remeasure",
