@@ -1,9 +1,9 @@
 # 키워드 후보 보고 — 2026-09-24 (KST)
 
-생성 2026-09-23 20:09Z · scripts/keyword-pipeline.mjs
+생성 2026-09-24 05:44Z · scripts/keyword-pipeline.mjs
 SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
-입력: cluster-intents 68건 · naver-ranks 57쿼리 · 레이더 candidates 46건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 14 · 글 292건
-후보: T1 1 · T2 5 · T3 6 · 갱신 13 · 제외 99
+입력: cluster-intents 68건 · naver-ranks 57쿼리 · 레이더 candidates 46건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 16 · 글 293건
+후보: T1 1 · T2 5 · T3 8 · 갱신 13 · 제외 99
 
 ## 오늘 후보
 
@@ -18,7 +18,7 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 | 5 | 중간 65 | T2 | 국취유형과생계급여 | 자리 열림 · 빈자리 8 · 위에 관공서 없음 | 0~0 | 검색 결과 실측 필요 |
 | 6 | 중간 55 | T1 A | 창원 지원금 (창원) | 자리 열림 · 위에 관공서 없음 · 공고 URL 필요 | 현재 60/주(자사 미노출·미측정분 회수) | 공고 go.kr URL 확보 + 접미형·변형 SERP 실측 |
 
-### 실측 대기 6건
+### 실측 대기 8건
 검색 결과를 아직 안 봤다. 수요(실유입·검색량) 큰 순. `--serp` 회차나 `--scout="쿼리"`로 잰다.
 
 | # | 쿼리 | 수요 | 트랙 |
@@ -29,6 +29,8 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 | 4 | 부가세 예정고지 세부(안내면·가산세) | 검색량 미측정 | T3 |
 | 5 | 기초연금 10월 지급일 | 검색량 미측정 | T3 |
 | 6 | 청년미래적금 2차 신청 개시(10/7~16) | 검색량 미측정 | T3 |
+| 7 | 청년도약계좌 10월 가입 신청기간 | 검색량 미측정 | T3 |
+| 8 | 국가건강검진 2026 대상자(짝수년) 연내 마감 | 검색량 미측정 | T3 |
 
 ## 갱신 후보
 
@@ -124,7 +126,7 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 - [T2] 2026 재난지원금 — scout 2026-09-24 verdictT2 closed: "2026 재난지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T2] 9월14일 민생지원금 — scout 2026-09-24 verdictT2 closed: "9월14일 민생지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T2] 조기취업수당 조건 — scout 2026-09-24 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
-- [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-09-24 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" already r3, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
+- [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-09-24 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T2] 육아휴직수당 — scout 2026-09-24 verdictT2 closed: "육아휴직수당" openSlots 1<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T2] 이번추석은삼일남아는데요지원금 — scout 2026-09-24 verdictT2 closed: "이번추석은삼일남아는데요지원금" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T2] 실업급여 구직급여 — scout 2026-09-24 verdictT2 closed: "실업급여 구직급여" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
@@ -138,7 +140,9 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 - [T2] 사회보장급여 — published 2026-09-20
 - [T2] 쳥년미래적금 — hold 2026-09-20
 - [T2] 3차민생지원금 — hold 2026-09-18
+- [T2] 건강생활실천지원금 신청 — published 2026-09-24
 - [T1] 고양시 추석지원금 — published 2026-09-23
+- [T3] 아동수당 9월 지급일 — hold 2026-09-24
 - [T1] 안산 추석지원금 — published 2026-09-23
 - [T1] 횡성군 민생지원금 — published 2026-09-23
 - [T1] 4차 민생지원금 지역별 지급 현황 — hold 2026-09-15
@@ -162,6 +166,7 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 - [T3] 추석 연휴 민생지원금 신청 — published 2026-09-17
 - [T1] 서울 추석지원금 — hold 2026-09-23
 - [T1] 양산시 민생회복지원금 — published 2026-09-23
+- [T2] 추석 임금체불 대지급금 — hold 2026-09-24
 - [T1] 영암 월출페이 사용처 — published 2026-09-17
 - [T1] 부산 추석지원금 — published 2026-09-23
 - [T2] 청주시4차민생지원금 — hold 2026-09-13
@@ -188,9 +193,9 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 - 영동 영동페이 신청 마감 10/2 — 2026-10-02(D-8) 갱신 예정 · local-livelihood-support-payment-2026-07-15, yeongdong-livelihood-stability-grant-2026-08-18
 - 영암 신청 마감 10/30 — 2026-10-30(D-36) 갱신 예정 · yeongam-rural-basic-allowance-100k, yeongam-wolchulpay-balance-expiry-use
 - 재측정 "2026 김해 민생지원금": r1 · 본청 0 · 뉴스7일 6·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "김해시 지원금": r3 · 본청 0 · 뉴스7일 32·같은제목 3 · openSlots 1 · 눈 확인 전
-- 재측정 "통영 지원금 신청": r5 · 본청 0 · 뉴스7일 10·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "문경시 지원금": r2 · 본청 0 · 뉴스7일 17·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "김해시 지원금": r3 · 본청 0 · 뉴스7일 31·같은제목 3 · openSlots 1 · 눈 확인 전
+- 재측정 "통영 지원금 신청": r5 · 본청 0 · 뉴스7일 9·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "문경시 지원금": r2 · 본청 0 · 뉴스7일 16·같은제목 1 · openSlots 0 · 눈 확인 전
 - 재측정 "김해 지원금": r3 · 본청 0 · 뉴스7일 43·같은제목 3 · openSlots 1 · 눈 확인 전
 
 SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 2건 · 새 키워드 9건 · 재측정 22건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
