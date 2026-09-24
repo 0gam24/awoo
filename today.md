@@ -2,11 +2,13 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-09-24 10:42 KST
+> 마지막 갱신: 2026-09-24 16:16 KST
 
 ## 2026-09-24 (오늘)
 
-### 📰 신규 이슈 포스트 (2건)
+### 📰 신규 이슈 포스트 (3건)
+- `취업` [2026 국군의날 임시공휴일, 10월 1일 목요일 쉬나요?](https://awoo.or.kr/issues/armed-forces-day-temporary-holiday/)
+  - 2026년 10월 1일 국군의날은 9월 24일 기준 임시공휴일 미지정이라 평일 근무입니다. 지정 시 5인 이상 사업장만 유급휴일, 10월 5일·9일은 이미 쉬는 날입니다.
 - `복지` [건강생활실천지원금 신청 대상 관리형 8만원·예방형 12만원 차이](https://awoo.or.kr/issues/health-living-practice-incentive-detail/)
   - 국민건강보험공단 건강생활실천지원금제는 관리형 연 8만 포인트, 예방형은 2년 누적 최대 12만 포인트까지 받습니다.
 - `복지` [명절 연휴 응급실 진료비, 왜 비싸고 경증이면 90% 내나요?](https://awoo.or.kr/issues/holiday-er-fee-surcharge-copay/)
