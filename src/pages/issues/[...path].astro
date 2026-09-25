@@ -161,6 +161,10 @@ const modifiedCandidates = [lastSeenForTrend, latestUpdateDate].filter(
 const modifiedDate = modifiedCandidates.length > 0 ? modifiedCandidates.sort().at(-1)! : null;
 const lastSeenIso = modifiedDate ? `${modifiedDate}T00:00:00.000Z` : post.publishedAt;
 const isUpdated = modifiedDate != null && modifiedDate > post.date;
+// 2026-09-26+ 발행분은 소제목(h2)을 파란 배너 박스로 그린다(운영자 지시 2026-09-25).
+// 기존 글 불변 원칙(DUAL-STANDARD)에 따라 issue-url의 DATELESS_CUTOFF처럼 발행일로 가른다.
+const HEADING_BANNER_CUTOFF = '2026-09-26';
+const headingBanner = typeof post.date === 'string' && post.date >= HEADING_BANNER_CUTOFF;
 
 // 토픽 hub는 한국어 키워드 + totalCount≥1 일 때만 빌드됨([term].astro 가드와 동일).
 // 미빌드 term에는 pill을 링크하지 않는다 — 죽은 hub 링크(dangling) 차단.
@@ -793,7 +797,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
             // Cycle #35: anchor id 자동 생성 — AI 답변 엔진 + 검색 결과 deep-link
             const anchorId = `sec-${i + 1}`;
             return (
-            <section class="post-section" id={anchorId}>
+            <section class:list={['post-section', headingBanner && 'heading-banner']} id={anchorId}>
               <h2>
                 <a class="sec-anchor" href={`#${anchorId}`} aria-label={`${s.heading} 섹션 직접 링크`}>
                   {s.heading}
@@ -819,7 +823,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
           );})}
 
           {post.table && (
-            <section class="post-section">
+            <section class:list={['post-section', headingBanner && 'heading-banner']}>
               <h2>{post.table.title}</h2>
               <div class="table-wrap">
                 <table>
@@ -1630,6 +1634,25 @@ const reportTypeBadge = rt && rt in RT_LABELS
     line-height: 1.3;
     letter-spacing: -0.01em;
     margin: 0 0 12px;
+  }
+  /* 2026-09-26+ 발행분: 소제목을 파란 그라데이션 띠 안에 흰 글씨·가운데 정렬 (운영자 지시 2026-09-25) */
+  .heading-banner h2 {
+    background: linear-gradient(90deg, #1e6fe6 0%, #2f8bff 100%);
+    color: #fff;
+    text-align: center;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: clamp(18px, 2.2vw, 22px);
+    font-weight: 700;
+    line-height: 1.35;
+    margin: 0 0 16px;
+  }
+  .heading-banner .sec-anchor {
+    color: #fff;
+    display: block;
+  }
+  .heading-banner .sec-anchor::before {
+    display: none;
   }
   /* Cycle #35: section anchor 링크 — 시각적으로 일반 h2처럼 보이지만 클릭/공유 가능 */
   .sec-anchor {
