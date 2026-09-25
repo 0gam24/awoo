@@ -1,9 +1,9 @@
 # 키워드 후보 보고 — 2026-09-25 (KST)
 
-생성 2026-09-25 05:41Z · scripts/keyword-pipeline.mjs
-SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
-입력: cluster-intents 68건 · naver-ranks 57쿼리 · 레이더 candidates 45건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 16 · 글 295건
-후보: T1 1 · T2 4 · T3 8 · 갱신 13 · 제외 99
+생성 2026-09-25 13:03Z · scripts/keyword-pipeline.mjs
+SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
+입력: cluster-intents 68건 · naver-ranks 57쿼리 · 레이더 candidates 47건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 16 · 글 295건
+후보: T1 1 · T2 7 · T3 8 · 갱신 13 · 제외 98
 
 ## 오늘 후보
 
@@ -15,21 +15,25 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 | 2 | 높음 70 | T2 | 알바 주휴수당 계산기 | 자리 열림 · 빈자리 10 · 위에 관공서 없음 | 현재 81/주 | [보류] 검색 결과 실측 필요 |
 | 3 | 높음 70 | T2 | 실업급여 상실신고 | 자리 열림 · 빈자리 5 · 위에 관공서 없음 | 59~137 | [보류] 자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia |
 | 4 | 중간 65 | T2 | 4차 민생쿠폰 신청 | 자리 열림 · 자사 8위 — 다른 의도로 재진입 | 현재 81/주 | [보류] — |
-| 5 | 중간 55 | T1 A | 창원 지원금 (창원) | 자리 열림 · 위에 관공서 없음 · 공고 URL 필요 | 현재 60/주(자사 미노출·미측정분 회수) | 공고 go.kr URL 확보 + 접미형·변형 SERP 실측 |
+| 5 | 중간 65 | T2 | 연휴수당 | 자리 열림 · 빈자리 7 · 위에 관공서 없음 | 14~32 | 검색 결과 실측 필요 |
+| 6 | 중간 55 | T1 A | 창원 지원금 (창원) | 자리 열림 · 위에 관공서 없음 · 공고 URL 필요 | 현재 60/주(자사 미노출·미측정분 회수) | 공고 go.kr URL 확보 + 접미형·변형 SERP 실측 |
 
-### 실측 대기 8건
+T2 나머지 1건(점수순, 큐 JSON에 있음): 청년내일통장(0)
+
+### 실측 대기 9건
 검색 결과를 아직 안 봤다. 수요(실유입·검색량) 큰 순. `--serp` 회차나 `--scout="쿼리"`로 잰다.
 
 | # | 쿼리 | 수요 | 트랙 |
 |---|---|---|---|
 | 1 | 난방비 지원 | 검색량 미측정 | T3 |
-| 2 | 10월 대체공휴일 휴일근무 수당 | 검색량 미측정 | T3 |
-| 3 | 독감 무료 예방접종 65세 연령별 날짜 | 검색량 미측정 | T3 |
-| 4 | 부가세 예정고지 세부(안내면·가산세) | 검색량 미측정 | T3 |
-| 5 | 기초연금 10월 지급일 | 검색량 미측정 | T3 |
-| 6 | 청년미래적금 2차 신청 개시(10/7~16) | 검색량 미측정 | T3 |
-| 7 | 청년도약계좌 10월 가입 신청기간 | 검색량 미측정 | T3 |
-| 8 | 국가건강검진 2026 대상자(짝수년) 연내 마감 | 검색량 미측정 | T3 |
+| 2 | 청년도약계좌vs청년미래적금 | 검색량 0 | T2 |
+| 3 | 10월 대체공휴일 휴일근무 수당 | 검색량 미측정 | T3 |
+| 4 | 독감 무료 예방접종 65세 연령별 날짜 | 검색량 미측정 | T3 |
+| 5 | 부가세 예정고지 세부(안내면·가산세) | 검색량 미측정 | T3 |
+| 6 | 기초연금 10월 지급일 | 검색량 미측정 | T3 |
+| 7 | 청년미래적금 2차 신청 개시(10/7~16) | 검색량 미측정 | T3 |
+| 8 | 청년도약계좌 10월 가입 신청기간 | 검색량 미측정 | T3 |
+| 9 | 국가건강검진 2026 대상자(짝수년) 연내 마감 | 검색량 미측정 | T3 |
 
 ## 갱신 후보
 
@@ -121,13 +125,12 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 - [T2] 2027년 아이맞이지원금 — 기존 글 있음 — child-benefit-2027-overhaul-2026-09-03(제목에 이 표현 포함). 새 글 아님
 - [T2] 조기재취업수당 조건 — 기존 글 있음 — early-reemployment-allowance-conditions-2026-07-31(제목에 이 표현 포함). 새 글 아님
 - [T3] 중도퇴사 연말정산 — hold: peak ≥3 ✗(2.86 — 미달) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인(asiatop 사회초년생 퇴사 각도). 재측정에서 ≥3 나올 때만
-- [T2] 2026 재난지원금 — scout 2026-09-25 verdictT2 closed: "2026 재난지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
+- [T2] 2026 재난지원금 — scout 2026-09-25 verdictT2 closed: "2026 재난지원금" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
 - [T2] 9월14일 민생지원금 — scout 2026-09-25 verdictT2 closed: "9월14일 민생지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T2] 조기취업수당 조건 — scout 2026-09-25 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
 - [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-09-25 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
-- [T2] 차상위장애수당 — scout 2026-09-25 verdictT2 closed: "차상위장애수당" openSlots 1<2, offset·press 미측정(API) — 재측정 후 재판정
-- [T2] 이번추석은삼일남아는데요지원금 — scout 2026-09-25 verdictT2 closed: "이번추석은삼일남아는데요지원금" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T2] 청년월세지원금 — scout 2026-09-25 verdictT2 closed: "청년월세지원금" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
+- [T2] 이번추석은삼일남아는데요지원금 — scout 2026-09-25 verdictT2 closed: "이번추석은삼일남아는데요지원금" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T2] 실업급여 구직급여 — scout 2026-09-25 verdictT2 closed: "실업급여 구직급여" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T1] 4차 민생지원금 지역별 지급 현황 — scout 2026-09-25 verdictT1 closed: "4차 민생지원금 지역별 지급 현황" already r3, offset·press 미측정(API) / "4차 민생지원금 9월 신청 지역" already r1, openSlots 0<2, offset·press 미측정(API) / "4차 민생지원금 개시일" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
 - [T1] 정읍시 민생지원금 — scout 2026-09-25 verdictT1 closed: "정읍시 민생지원금" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
@@ -191,12 +194,12 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 - 문경 신청 마감 10/23 — 2026-10-23(D-28) 갱신 예정 · mungyeong-high-oil-price-relief-2026-08-16, mungyeong-livelihood-grant-chuseok-payment-2026-08-27
 - 영동 영동페이 신청 마감 10/2 — 2026-10-02(D-7) 갱신 예정 · local-livelihood-support-payment-2026-07-15, yeongdong-livelihood-stability-grant-2026-08-18
 - 영암 신청 마감 10/30 — 2026-10-30(D-35) 갱신 예정 · yeongam-rural-basic-allowance-100k, yeongam-wolchulpay-balance-expiry-use
-- 재측정 "2026 김해 민생지원금": r1 · 본청 0 · 뉴스7일 4·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "김해시 지원금": r3 · 본청 0 · 뉴스7일 23·같은제목 1 · openSlots 1 · 눈 확인 전
+- 재측정 "2026 김해 민생지원금": r1 · 본청 0 · 뉴스7일 3·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "김해시 지원금": r3 · 본청 0 · 뉴스7일 22·같은제목 1 · openSlots 1 · 눈 확인 전
 - 재측정 "통영 지원금 신청": r5 · 본청 0 · 뉴스7일 8·같은제목 1 · openSlots 0 · 눈 확인 전
 - 재측정 "문경시 지원금": r2 · 본청 0 · 뉴스7일 17·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "김해 지원금": r3 · 본청 0 · 뉴스7일 33·같은제목 1 · openSlots 1 · 눈 확인 전
+- 재측정 "김해 지원금": r3 · 본청 0 · 뉴스7일 32·같은제목 1 · openSlots 1 · 눈 확인 전
 
-SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 2건 · 새 키워드 9건 · 재측정 22건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
+SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 2건 · 새 키워드 11건 · 재측정 22건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
 
 0400 자동 발행은 그대로 1건 나갑니다. 위 후보 중 쓸 것을 지시해 주세요.
