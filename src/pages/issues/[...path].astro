@@ -2095,6 +2095,8 @@ const reportTypeBadge = rt && rt in RT_LABELS
   /* ── 섹션 제목·리드: 본문과 우측선 통일(640px), 섹션 간격 확대 ── */
   .post--v2 .post-section { margin: 40px 0; }
   .post--v2 .post-section h2 { max-width: 640px; margin: 0 0 14px; }
+  /* 배너 소제목은 본문 640px 제한을 풀어 글 영역 폭에 꽉 차게(운영자 지시 2026-09-26) — 모바일은 자연히 100% */
+  .post--v2 .heading-banner h2 { max-width: none; width: 100%; margin: 0 0 16px; }
   .post--v2 .post-section .lead {
     max-width: 640px;
     line-height: 1.6;
