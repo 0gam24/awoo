@@ -2,7 +2,7 @@
   "_readme": "awoo 0400 자동 발행 루틴의 운영자 지정 큐. 키 = 발행일(KST, YYYY-MM-DD). 루틴은 실행 시 오늘 키가 있으면 최우선 적용. mode 없음/\"new\" = 신규 1건(keyword·angle·gate_a·sources_hint·must·profile_hint), mode \"update\" = 신규 대신 target 글 갱신(facts를 1차 출처로 재검증 후 updates[] append·사실 정정·dateModified, 제목·slug·구조 불변). 지정 항목도 GATE-A·확정 팩트·factCheckScore 0.8 게이트는 그대로(미충족 시 평소 선정으로 대체하고 종료 보고에 사유). _watch = 공식 공고가 뜨면 그날 최우선으로 검토할 주제. 지난 항목은 기록으로 남겨 둔다.",
   "_policy": {
     "since": "2026-09-17",
-    "rule": "운영자 지시(2026-09-17): 오늘 키가 없는 날의 평소 선정은 docs/ops/pipeline-queue.json 에서 고른다. status가 proposed이고 track이 갱신이 아닌 항목 중 exposure.score가 가장 높은 것(동점이면 expectedInbound 큰 것)을 신규 1건으로 발행한다. 제외: status가 approved·published·hold·rejected인 항목(운영자가 수동으로 지시했거나 보류한 글감), condition에 \"확보\"·\"확인 후\"·\"go.kr URL\"이 있는데 1차 출처를 직접 확보하지 못한 항목, 자사 글이 이미 그 쿼리를 소유한 항목. 발행하면 그 큐 항목을 status published·statusAt·publishedSlug·source \"0400\"으로 갱신한다(이 파일과 pipeline-queue.json은 콘텐츠 외 파일이라 자동 병합 조건에 걸리면 PR에 넣지 말고 종료 보고에만 적는다). 큐에 쓸 만한 항목이 없으면 기존 방식으로 선정한다."
+    "rule": "운영자 지시(2026-09-17): 오늘 키가 없는 날의 평소 선정은 docs/ops/pipeline-queue.json 에서 고른다. status가 proposed이고 track이 갱신이 아닌 항목 중 exposure.score가 가장 높은 것(동점이면 expectedInbound 큰 것)을 신규 1건으로 발행한다. 제외: status가 approved·published·hold·rejected인 항목(운영자가 수동으로 지시했거나 보류한 글감), condition에 \"확보\"·\"확인 후\"·\"go.kr URL\"이 있는데 1차 출처를 직접 확보하지 못한 항목, 자사 글이 이미 그 쿼리를 소유한 항목. 발행하면 그 큐 항목을 status published·statusAt·publishedSlug·source \"0400\"으로 갱신한다(이 파일과 pipeline-queue.json은 콘텐츠 외 파일이라 자동 병합 조건에 걸리면 PR에 넣지 말고 종료 보고에만 적는다). 큐에 쓸 만한 항목이 없으면 기존 방식으로 선정한다. ▶ 2026-09-27 보강(운영자 지시): 0400은 매일 신규 1건이 원칙이다. mode \"update\" 대체는 (1) 오늘 키에 update가 명시됐거나 (2) 큐·레이더·keyword-scout 추가 발굴 5건 이상을 공식 API scout로 잰 뒤에도 게이트를 넘는 신규가 없을 때만 허용하고, 이틀 연속 update 대체는 금지한다(전날이 update였으면 오늘은 반드시 신규). 갱신은 신규에 더해 하는 것이지 신규를 대신하는 것이 아니다. 9/26·9/27 이틀 연속 갱신으로 신규 0건이 된 것이 이 규칙을 만든 이유."
   },
   "_watch": [
     {
@@ -16,6 +16,18 @@
     {
       "topic": "주휴수당 계산법 글(08-10) 2027-01-01 갱신",
       "note": "2027년 최저임금 10,700원·주휴 포함 시급 12,840원 적용 개시일에 weekly-holiday-pay-calculation updates[] 한 줄 + 표·본문 연도 정정. 신규 글이 아니라 갱신 트랙"
+    },
+    {
+      "topic": "국군의날 10/1 임시공휴일 — 9/29(화) 국무회의 결과",
+      "note": "지정되면 armed-forces-day-temporary-holiday 글을 update(answer·tldr[0]·표 1행). 미지정이면 손대지 않음. 신규 금지"
+    },
+    {
+      "topic": "기초연금·국민연금·아동수당 10월 지급일(10/25 일요일)",
+      "note": "국민연금공단 앞당김 공지가 뜨는 날 신규 1건으로 셋을 한 글에. 9월 지급일 글 클릭률 40%가 근거. 아동수당 10월 지급일은 mohw 옛 글이 r9라 targetQuery로 흡수"
+    },
+    {
+      "topic": "강릉 민생안정지원금 지급계획 공고(10월)",
+      "note": "공고 뜨는 날 A(정규본) 신규 — V글 보유라 A 허용. 신청기간·강릉페이·대상 기준일"
     }
   ],
   "2026-09-04": {
@@ -53,5 +65,38 @@
       "hometax.go.kr 반기신청 안내"
     ],
     "note": "8/24 글에 기한후신청·정기신청 FAQ가 이미 있으므로 신규 글 금지. 선택: 7/1 글(eitc-semiannual-vs-regular-payment-date)에도 12/17 지급일을 updates[]로 반영. 귀속연도 코호트 주의(반기 = 당해연도 귀속 선지급)"
+  },
+  "2026-09-28": {
+    "mode": "new",
+    "keyword": "청년도약계좌 10월 가입 신청기간",
+    "angle": "10월 가입신청 기간·절차·심사 일정을 금융위 원문 그대로 한 표로. 청년미래적금 2차(10/7~16)와 같은 달이라 \"둘 중 뭘 신청하나·갈아타기\" 갈림길을 판단 프레임으로",
+    "gate_a": "youth-leap-account-maintain(유지), youth-future-savings-vs-leap(비교·갈아타기) 보유 — 이 글은 \"10월 가입 신청기간·절차\"만. 갈아타기 규칙 본문 반복 금지, 내부링크로 위임",
+    "sources_hint": [
+      "fsc.go.kr \"청년도약계좌 10월 가입신청 기간 확인하세요\" 공지(원문 확인됨, 2026-09 게시)",
+      "서민금융진흥원 청년도약계좌 안내"
+    ],
+    "must": [
+      "신청기간 날짜는 금융위 원문에서만",
+      "2026-09-24 scout: 칸 6·뉴스벽 2 — 자리 확인됨",
+      "contentVersion 2, 배너 소제목(2026-09-26+ 자동 적용)"
+    ],
+    "profile_hint": "최근 발행분(3/5/4, 4/6/4, 3/4/5, 5/4/6)과 다르게 tldr 4·faq 5·sections 5·표 1(월별 가입 일정)·제목 명사구"
+  },
+  "2026-09-29": {
+    "mode": "new",
+    "keyword": "국가건강검진 2026 대상자 연내 마감",
+    "angle": "\"대상자 조회\"는 상업 블로그 포화(총량 1,896만) — 그쪽은 버리고 \"연말 예약 몰림·안 받으면 생기는 불이익(과태료 주체는 사업주)·직장인 근무시간 검진 권리\" 실무형으로만",
+    "gate_a": "건강검진 전용 보유 글 없음(의료급여 개편·건강생활실천지원금에서 스침만). 신규 허용",
+    "sources_hint": [
+      "nhis.or.kr 건강검진 안내(대상자·기간)",
+      "산업안전보건법 건강진단 의무·과태료(고용노동부)",
+      "국민건강보험법 건강검진 실시 기준"
+    ],
+    "must": [
+      "짝수년 출생자 2026 대상 규칙·12/31 마감 원문 확인",
+      "과태료 금액은 원문 없으면 쓰지 말 것",
+      "2026-09-24 scout: 칸 8·뉴스벽 0"
+    ],
+    "profile_hint": "tldr 3·faq 6·sections 4·표 1(대상자 유형별 마감·비용)·제목 질문형"
   }
 }
