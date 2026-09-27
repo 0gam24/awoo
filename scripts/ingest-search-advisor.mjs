@@ -40,8 +40,8 @@ const kstDate = () => new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice
 
 // 열 이름 사전. 네이버 리포트는 탭마다 이름이 조금씩 다르고 영문 내보내기도 있다.
 const KEYS = {
-  query: [/^검색어/, /^키워드/, /query/i, /keyword/i],
-  url: [/^url$/i, /주소/, /^문서/, /페이지/, /랜딩/, /^page/i],
+  query: [/^검색어/, /^검색 키워드/, /^키워드/, /query/i, /keyword/i],
+  url: [/^url$/i, /주소/, /^문서/, /^검색 웹문서/, /페이지/, /랜딩/, /^page/i],
   impressions: [/노출\s*수?/, /impression/i, /^노출$/],
   clicks: [/클릭\s*수/, /^클릭$/, /click(s)?$/i],
   ctr: [/클릭\s*률/, /ctr/i],
