@@ -1,6 +1,6 @@
 # 키워드 후보 보고 — 2026-09-27 (KST)
 
-생성 2026-09-27 04:48Z · scripts/keyword-pipeline.mjs
+생성 2026-09-27 06:04Z · scripts/keyword-pipeline.mjs
 SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
 입력: cluster-intents 68건 · naver-ranks 57쿼리 · 레이더 candidates 49건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 16 · 글 296건
 후보: T1 1 · T2 8 · T3 7 · 갱신 22 · 제외 100
