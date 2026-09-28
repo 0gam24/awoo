@@ -8,7 +8,7 @@
     "score = recent7(없으면 proxy) × min(openSlots,4) × volume-scale 계수. T1은 개시일 임박순이 점수보다 우선. serp.approx=true는 naver-ranks 옛 항목에서 근사한 verdict — --serp 실측이 아니다."
   ],
   "meta": {
-    "generatedAt": "2026-09-27T23:35:56.042Z",
+    "generatedAt": "2026-09-28T06:13:28.756Z",
     "today": "2026-09-28",
     "dryRun": false,
     "serp": {
@@ -108,7 +108,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 4,
+          "newsWall": 3,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -127,7 +127,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 39,
+          "newsWall": 37,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -210,7 +210,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 24,
+          "newsWall": 25,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -269,7 +269,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 2,
+          "newsWall": 3,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -330,7 +330,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 5,
+          "newsWall": 3,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -351,7 +351,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 40,
+          "newsWall": 34,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -398,15 +398,14 @@
         {
           "query": "노인지원금",
           "rank": null,
-          "openSlots": 1,
+          "openSlots": 2,
           "mainGovAbove": 1,
           "pressAbove": null,
           "sisterAbove": 0,
           "webDocOffset": null,
           "verdictT1": "open",
-          "verdictT2": "closed",
+          "verdictT2": "open",
           "reason": [
-            "openSlots 1<2",
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
@@ -470,7 +469,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 18,
+          "newsWall": 21,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -511,7 +510,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 16,
+          "newsWall": 15,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -532,7 +531,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 28,
+          "newsWall": 31,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -541,20 +540,20 @@
     },
     "counts": {
       "T1": 1,
-      "T2": 5,
-      "T3": 7,
+      "T2": 6,
+      "T3": 6,
       "갱신": 22,
       "제외": 99,
       "감시": 23
     },
     "sources": {
       "clusterIntents": {
-        "entries": 68,
+        "entries": 70,
         "regions": 49
       },
       "naverRanks": {
-        "queries": 57,
-        "updatedAt": "2026-09-27T05:47:10.654Z"
+        "queries": 58,
+        "updatedAt": "2026-09-28T05:53:46.019Z"
       },
       "radarCandidates": 45,
       "regionCandidateSource": "radar.candidates",
@@ -566,7 +565,7 @@
       },
       "bigKeywords": 12,
       "landgrab": 16,
-      "posts": 299
+      "posts": 303
     },
     "scoutPlan": {
       "T1": [
@@ -632,7 +631,7 @@
       "inbound7d": 94,
       "evidence": [
         "실유입 94/주",
-        "scout 2026-09-28: r6 · 본청 0 · 뉴스7일 2·같은제목 1 · 자매 0 · openSlots 5 · 눈 확인 전 · T1 open · T2 open"
+        "scout 2026-09-28: r6 · 본청 0 · 뉴스7일 3·같은제목 1 · 자매 0 · openSlots 5 · 눈 확인 전 · T1 open · T2 open"
       ],
       "expectedInbound": "현재 94/주",
       "condition": "검색 결과 실측 필요",
@@ -657,11 +656,11 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-09-27T23:36:06.325Z",
+        "measuredAt": "2026-09-28T06:13:54.726Z",
         "webDocRaw": 30,
-        "webDocTotal": 3630585,
+        "webDocTotal": 3626686,
         "eyeOffset": null,
-        "newsWall": 2,
+        "newsWall": 3,
         "newsWallCapped": false,
         "newsSameTitle": 1,
         "measuredBy": "webkr-api",
@@ -753,9 +752,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-09-27T23:36:07.506Z",
+        "measuredAt": "2026-09-28T06:13:59.276Z",
         "webDocRaw": 30,
-        "webDocTotal": 1116363,
+        "webDocTotal": 1122698,
         "eyeOffset": null,
         "newsWall": 0,
         "newsWallCapped": false,
@@ -875,9 +874,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-09-27T23:36:05.076Z",
+        "measuredAt": "2026-09-28T06:13:50.367Z",
         "webDocRaw": 30,
-        "webDocTotal": 453155,
+        "webDocTotal": 458351,
         "eyeOffset": null,
         "newsWall": 0,
         "newsWallCapped": false,
@@ -1023,8 +1022,8 @@
       "born": false,
       "inbound7d": null,
       "evidence": [
-        "기회도 40(수요 78% · 공급희소 52%)",
-        "블로그 문서 13676건",
+        "기회도 49(수요 83% · 공급희소 58%)",
+        "블로그 문서 13678건",
         "scout 2026-09-28: 자사 미노출 · 본청 0 · 뉴스7일 30·같은제목 2 · 자매 0 · openSlots 2 · 눈 확인 전 · T1 open · T2 open"
       ],
       "expectedInbound": "58~135",
@@ -1035,7 +1034,7 @@
         "query": "월세지원금",
         "rank": null,
         "url": null,
-        "webDocCount": 16,
+        "webDocCount": 17,
         "aboveIsWholeBlock": true,
         "openSlots": 2,
         "mainGovAbove": 0,
@@ -1050,9 +1049,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-09-27T23:36:10.084Z",
+        "measuredAt": "2026-09-28T06:14:08.715Z",
         "webDocRaw": 30,
-        "webDocTotal": 8575551,
+        "webDocTotal": 8598116,
         "eyeOffset": null,
         "newsWall": 30,
         "newsWallCapped": false,
@@ -1105,14 +1104,14 @@
             "title": "청년 주택 임차보증금(전 월세 ) 대출이자 지원 사업 - 주거종합포털 대구안방 - ...."
           },
           {
-            "host": "daejeonyouthportal.kr",
-            "kind": "commercial",
-            "title": "대전 청년 월세 지원 사업"
-          },
-          {
             "host": "soco.seoul.go.kr",
             "kind": "institutional",
             "title": "서울시 청년 월세지원 | 금융 지원"
+          },
+          {
+            "host": "daejeonyouthportal.kr",
+            "kind": "commercial",
+            "title": "대전 청년 월세 지원 사업"
           },
           {
             "host": "youth.incheon.go.kr",
@@ -1153,7 +1152,7 @@
         "지역 헤드 \"창원 민생지원금\" r1",
         "recent7 1.24(radar)",
         "계수 si/null 45.7(n=13)",
-        "scout 2026-09-28: 자사 미노출 · 본청 0 · 뉴스7일 39·같은제목 1 · 자매 0 · openSlots 3 · 눈 확인 전 · T1 open · T2 open"
+        "scout 2026-09-28: 자사 미노출 · 본청 0 · 뉴스7일 37·같은제목 1 · 자매 0 · openSlots 3 · 눈 확인 전 · T1 open · T2 open"
       ],
       "expectedInbound": "현재 60/주(자사 미노출·미측정분 회수)",
       "condition": "공고 go.kr URL 확보 + 접미형·변형 SERP 실측",
@@ -1171,7 +1170,7 @@
         "query": "창원 지원금",
         "rank": null,
         "url": null,
-        "webDocCount": 3,
+        "webDocCount": 4,
         "aboveIsWholeBlock": true,
         "openSlots": 3,
         "mainGovAbove": 0,
@@ -1186,11 +1185,11 @@
         "region": "창원",
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-09-27T23:36:01.443Z",
+        "measuredAt": "2026-09-28T06:13:38.788Z",
         "webDocRaw": 30,
-        "webDocTotal": 11108465,
+        "webDocTotal": 11174414,
         "eyeOffset": null,
-        "newsWall": 39,
+        "newsWall": 37,
         "newsWallCapped": false,
         "newsSameTitle": 1,
         "measuredBy": "webkr-api",
@@ -1225,6 +1224,11 @@
             "openBy": [
               "stale"
             ]
+          },
+          {
+            "host": "bizinfo.go.kr",
+            "kind": "institutional",
+            "title": "[경남] 창원 시ㆍ 거제시ㆍ하동군 2026년 9차 청년여성 일경험 지원 사업 참여기업...."
           }
         ],
         "source": "scout 2026-09-28",
@@ -1243,6 +1247,132 @@
       },
       "status": "proposed",
       "createdAt": "2026-09-16T05:33:32.070Z"
+    },
+    {
+      "id": "새키워드:노인지원금",
+      "track": "T2",
+      "query": "노인지원금",
+      "family": null,
+      "region": null,
+      "source": "레이더",
+      "born": false,
+      "inbound7d": null,
+      "evidence": [
+        "기회도 37(수요 57% · 공급희소 65%)",
+        "블로그 문서 10203건",
+        "scout 2026-09-28: 자사 미노출 · 본청 1 · 뉴스7일 100+·같은제목 3 · 자매 0 · openSlots 2 · 눈 확인 전 · T1 open · T2 open"
+      ],
+      "expectedInbound": "5~12",
+      "condition": "검색 결과 실측 필요",
+      "recent7": 0.23,
+      "recent7Source": "radar",
+      "serp": {
+        "query": "노인지원금",
+        "rank": null,
+        "url": null,
+        "webDocCount": 15,
+        "aboveIsWholeBlock": true,
+        "openSlots": 2,
+        "mainGovAbove": 1,
+        "pressAbove": null,
+        "sisterAbove": 0,
+        "webDocOffset": null,
+        "verdictT1": "open",
+        "verdictT2": "open",
+        "reason": [
+          "offset·press 미측정(API)"
+        ],
+        "region": null,
+        "onPage": null,
+        "parseOk": true,
+        "measuredAt": "2026-09-28T06:14:11.112Z",
+        "webDocRaw": 30,
+        "webDocTotal": 17063315,
+        "eyeOffset": null,
+        "newsWall": 100,
+        "newsWallCapped": true,
+        "newsSameTitle": 3,
+        "measuredBy": "webkr-api",
+        "unmeasured": [
+          "webDocOffset",
+          "pressAbove",
+          "ugc",
+          "onPage"
+        ],
+        "above": [
+          {
+            "host": "paju.go.kr",
+            "kind": "institutional",
+            "title": "저소득(독거) 노인 지원 사업 : HOME > 분야별정보 > 복지 > 노인 > 사업 > 저소득(독...."
+          },
+          {
+            "host": "cheongju.go.kr",
+            "kind": "institutional-open",
+            "title": "노인 복지 지원금 < 노인 복지 < 복지정보 - 서원구청",
+            "openBy": [
+              "sub-office"
+            ]
+          },
+          {
+            "host": "bokjiro.go.kr",
+            "kind": "institutional",
+            "title": "노인 고용촉진장려금 지원"
+          },
+          {
+            "host": "mohw.go.kr",
+            "kind": "institutional",
+            "title": "노인 맞춤돌봄서비스 < 노인 정책 < 노인 < 정책"
+          },
+          {
+            "host": "guri.go.kr",
+            "kind": "institutional",
+            "title": "분야별 정보 > 복지 > 노인 복지 > 장수 노인 생일축하금 지급"
+          },
+          {
+            "host": "kordi.or.kr",
+            "kind": "institutional",
+            "title": "현장실습 훈련 지원 사업"
+          },
+          {
+            "host": "gimpo.go.kr",
+            "kind": "institutional",
+            "title": "노인 보청기 지원 사업"
+          },
+          {
+            "host": "easylaw.go.kr",
+            "kind": "institutional",
+            "title": "노인 복지 > 일상생활 복지 > 교통 등 요금할인 혜택 > 교통·이동통신·에너지요...."
+          },
+          {
+            "host": "goyang.go.kr",
+            "kind": "institutional",
+            "title": "장수축하금 지원 : 고양특례시청 > 분야별정보 > 사회복지 > 노인 복지 > 장수축....",
+            "mainGov": true
+          },
+          {
+            "host": "seogu.go.kr",
+            "kind": "institutional-open",
+            "title": "장수축하금 지원 > 노인 > 분야별정보",
+            "stale": true,
+            "openBy": [
+              "stale"
+            ]
+          }
+        ],
+        "source": "scout 2026-09-28",
+        "approx": false
+      },
+      "score": 16.9,
+      "scoreNote": "0.23 × min(2,4) × 36.8",
+      "exposure": {
+        "score": 55,
+        "label": "중간",
+        "reasons": [
+          "자리 열림"
+        ]
+      },
+      "status": "proposed",
+      "createdAt": "2026-09-28T06:13:28.756Z"
     },
     {
       "id": "T3:난방비지원",
@@ -4801,7 +4931,8 @@
       "status": "published",
       "createdAt": "2026-09-28T00:27:29.648Z",
       "statusAt": "2026-09-28T00:27:29.648Z",
-      "operatorNote": "질병청 9/17 원문, 관공서 5·뉴스벽 1 | 2026-09-28 발행 /issues/covid-vaccine-65-free-start-dates/"
+      "operatorNote": "질병청 9/17 원문, 관공서 5·뉴스벽 1 | 2026-09-28 발행 /issues/covid-vaccine-65-free-start-dates/",
+      "lastSeenAt": "2026-09-28T00:27:29.648Z"
     },
     {
       "id": "scout-2026-09-28-78",
@@ -4835,7 +4966,8 @@
       "status": "published",
       "createdAt": "2026-09-28T00:27:29.648Z",
       "statusAt": "2026-09-28T00:27:29.648Z",
-      "operatorNote": "B글, 함평군 고시공고 SEQ=32566, 10/8 마감 | 2026-09-28 발행 /issues/hampyeong-livelihood-grant-unclaimed-oct8-deadline/"
+      "operatorNote": "B글, 함평군 고시공고 SEQ=32566, 10/8 마감 | 2026-09-28 발행 /issues/hampyeong-livelihood-grant-unclaimed-oct8-deadline/",
+      "lastSeenAt": "2026-09-28T00:27:29.648Z"
     },
     {
       "id": "scout-2026-09-28-79",
@@ -4869,75 +5001,8 @@
       "status": "published",
       "createdAt": "2026-09-28T00:27:29.648Z",
       "statusAt": "2026-09-28T01:58:10.720Z",
-      "operatorNote": "10/1 하반기 확인조사, 뉴스벽 57·관공서 7, 정리글 없음 — 운영자 선택 대기 | 2026-09-28 발행 /issues/social-security-benefit-verification-survey-oct/"
-    },
-    {
-      "id": "scout-2026-09-28-80",
-      "track": "proposed",
-      "query": "고창군 군민활력지원금 미신청",
-      "family": null,
-      "region": null,
-      "source": "keyword-scout+scout 2026-09-28",
-      "born": false,
-      "inbound7d": 0,
-      "evidence": [
-        "B 후보, 10/16 마감, 뉴스벽 14 → 10월 초"
-      ],
-      "expectedInbound": null,
-      "condition": null,
-      "recent7": null,
-      "recent7Source": "datalab",
-      "serp": {
-        "measuredAt": "2026-09-28T00:27:29.648Z",
-        "measuredBy": "webkr-api"
-      },
-      "score": 0,
-      "scoreNote": "수동 산정",
-      "exposure": {
-        "score": 40,
-        "label": "낮음",
-        "reasons": [
-          "B 후보, 10/16 마감, 뉴스벽 14 → 10월 초"
-        ]
-      },
-      "status": "proposed",
-      "createdAt": "2026-09-28T00:27:29.648Z",
-      "statusAt": "2026-09-28T00:27:29.648Z",
-      "operatorNote": "B 후보, 10/16 마감, 뉴스벽 14 → 10월 초"
-    },
-    {
-      "id": "scout-2026-09-28-81",
-      "track": "proposed",
-      "query": "통영 민생회복지원금 신청",
-      "family": null,
-      "region": null,
-      "source": "keyword-scout+scout 2026-09-28",
-      "born": false,
-      "inbound7d": 0,
-      "evidence": [
-        "B 후보, 10/30 마감, 관공서 1·뉴스벽 2 → 10월 중순"
-      ],
-      "expectedInbound": null,
-      "condition": null,
-      "recent7": null,
-      "recent7Source": "datalab",
-      "serp": {
-        "measuredAt": "2026-09-28T00:27:29.648Z",
-        "measuredBy": "webkr-api"
-      },
-      "score": 0,
-      "scoreNote": "수동 산정",
-      "exposure": {
-        "score": 40,
-        "label": "낮음",
-        "reasons": [
-          "B 후보, 10/30 마감, 관공서 1·뉴스벽 2 → 10월 중순"
-        ]
-      },
-      "status": "proposed",
-      "createdAt": "2026-09-28T00:27:29.648Z",
-      "statusAt": "2026-09-28T00:27:29.648Z",
-      "operatorNote": "B 후보, 10/30 마감, 관공서 1·뉴스벽 2 → 10월 중순"
+      "operatorNote": "10/1 하반기 확인조사, 뉴스벽 57·관공서 7, 정리글 없음 — 운영자 선택 대기 | 2026-09-28 발행 /issues/social-security-benefit-verification-survey-oct/",
+      "lastSeenAt": "2026-09-28T00:27:29.648Z"
     }
   ],
   "excluded": [
@@ -5446,22 +5511,15 @@
     },
     {
       "track": "T2",
-      "query": "청년월세지원금",
-      "reason": "scout 2026-09-28 verdictT2 closed: \"청년월세지원금\" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정",
-      "region": null,
-      "family": null
-    },
-    {
-      "track": "T2",
-      "query": "노인지원금",
-      "reason": "scout 2026-09-28 verdictT2 closed: \"노인지원금\" openSlots 1<2, offset·press 미측정(API) — 재측정 후 재판정",
-      "region": null,
-      "family": null
-    },
-    {
-      "track": "T2",
       "query": "이번추석은삼일남아는데요지원금",
       "reason": "scout 2026-09-28 verdictT2 closed: \"이번추석은삼일남아는데요지원금\" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정",
+      "region": null,
+      "family": null
+    },
+    {
+      "track": "T2",
+      "query": "청년월세지원금",
+      "reason": "scout 2026-09-28 verdictT2 closed: \"청년월세지원금\" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정",
       "region": null,
       "family": null
     },
@@ -5497,6 +5555,11 @@
       "track": "T3",
       "query": "부가세 예정고지 세부(안내면·가산세)",
       "reason": "발행됨(2026-09-25)"
+    },
+    {
+      "track": "T3",
+      "query": "청년도약계좌 10월 가입 신청기간",
+      "reason": "발행됨(2026-09-28T00:27:29.648Z)"
     }
   ],
   "watch": [
@@ -5590,7 +5653,7 @@
     },
     {
       "kind": "remeasure",
-      "text": "재측정 \"김해시 지원금\": r4 · 본청 0 · 뉴스7일 18·같은제목 1 · openSlots 2 · 눈 확인 전"
+      "text": "재측정 \"김해시 지원금\": r4 · 본청 0 · 뉴스7일 21·같은제목 1 · openSlots 2 · 눈 확인 전"
     },
     {
       "kind": "remeasure",
@@ -5598,11 +5661,11 @@
     },
     {
       "kind": "remeasure",
-      "text": "재측정 \"문경시 지원금\": r2 · 본청 0 · 뉴스7일 16·같은제목 1 · openSlots 0 · 눈 확인 전"
+      "text": "재측정 \"문경시 지원금\": r2 · 본청 0 · 뉴스7일 15·같은제목 1 · openSlots 0 · 눈 확인 전"
     },
     {
       "kind": "remeasure",
-      "text": "재측정 \"김해 지원금\": r3 · 본청 0 · 뉴스7일 28·같은제목 1 · openSlots 1 · 눈 확인 전"
+      "text": "재측정 \"김해 지원금\": r3 · 본청 0 · 뉴스7일 31·같은제목 1 · openSlots 1 · 눈 확인 전"
     }
   ]
 }

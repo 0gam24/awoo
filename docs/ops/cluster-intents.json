@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 296,
-    "entryCount": 68,
+    "scannedPosts": 303,
+    "entryCount": 70,
     "regionCount": 49,
     "regions": [
       "강릉",
@@ -58,12 +58,12 @@
       "횡성"
     ],
     "families": {
-      "A": 49,
-      "B": 5,
+      "A": 50,
+      "B": 6,
       "V": 14
     },
     "clusters": {
-      "minsaeng": 48,
+      "minsaeng": 50,
       "other": 20
     },
     "rollups": 9,
@@ -1683,6 +1683,50 @@
       "rollup": false,
       "regionOverride": true,
       "familyOverride": true
+    },
+    {
+      "region": [
+        "경기"
+      ],
+      "family": "A",
+      "slug": "gyeonggi-youth-basic-income-q3-payment-q4-apply-2026-09-27",
+      "path": "src/data/issues/2026-09-27/gyeonggi-youth-basic-income-q3-payment-q4-apply-2026-09-27.json",
+      "date": "2026-09-27",
+      "targetQuery": "경기도 청년기본소득 3분기 지급일",
+      "coreFacts": {
+        "who": "2001-07-02~2002-07-01 출생, 경기도 3년 연속·합산 10년 거주, 성남·고양 제외",
+        "amount": "분기 25만원 시군 지역화폐, 연 최대 100만원, 유효기간 3년",
+        "deadline": "2026-10-02 18시 3분기 신청 마감, 지급 10-20 개시"
+      },
+      "coreFactsKeys": [
+        "who=2001-07-02",
+        "amount=25만원",
+        "deadline=2026-10-02"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false
+    },
+    {
+      "region": [
+        "함평"
+      ],
+      "family": "B",
+      "slug": "hampyeong-livelihood-grant-unclaimed-oct8-deadline-2026-09-28",
+      "path": "src/data/issues/2026-09-28/hampyeong-livelihood-grant-unclaimed-oct8-deadline-2026-09-28.json",
+      "date": "2026-09-28",
+      "targetQuery": "함평 민생회복지원금 미신청",
+      "coreFacts": {
+        "who": "2026-07-01부터 계속 거주한 함평 군민·F-5·F-6 외국인 중 미수령자",
+        "amount": "1인 50만원 선불카드, 함평사랑상품권 가맹점 전용",
+        "deadline": "2026-10-08 신청 마감, 2026-12-31 사용기한"
+      },
+      "coreFactsKeys": [
+        "who=2026-07-01",
+        "amount=50만원",
+        "deadline=2026-10-08"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false
     }
   ]
 }

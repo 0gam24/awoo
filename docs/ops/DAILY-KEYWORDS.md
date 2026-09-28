@@ -1,9 +1,9 @@
 # 키워드 후보 보고 — 2026-09-28 (KST)
 
-생성 2026-09-27 23:35Z · scripts/keyword-pipeline.mjs
+생성 2026-09-28 06:13Z · scripts/keyword-pipeline.mjs
 SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
-입력: cluster-intents 68건 · naver-ranks 57쿼리 · 레이더 candidates 45건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 16 · 글 299건
-후보: T1 1 · T2 5 · T3 7 · 갱신 22 · 제외 99
+입력: cluster-intents 70건 · naver-ranks 58쿼리 · 레이더 candidates 45건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 16 · 글 303건
+후보: T1 1 · T2 6 · T3 6 · 갱신 22 · 제외 99
 
 ## 오늘 후보
 
@@ -18,7 +18,9 @@ SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
 | 5 | 중간 65 | T2 | 월세지원금 | 자리 열림 · 위에 관공서 없음 | 58~135 | 검색 결과 실측 필요 |
 | 6 | 중간 55 | T1 A | 창원 지원금 (창원) | 자리 열림 · 위에 관공서 없음 · 공고 URL 필요 | 현재 60/주(자사 미노출·미측정분 회수) | 공고 go.kr URL 확보 + 접미형·변형 SERP 실측 |
 
-### 실측 대기 7건
+T2 나머지 1건(점수순, 큐 JSON에 있음): 노인지원금(16.9)
+
+### 실측 대기 6건
 검색 결과를 아직 안 봤다. 수요(실유입·검색량) 큰 순. `--serp` 회차나 `--scout="쿼리"`로 잰다.
 
 | # | 쿼리 | 수요 | 트랙 |
@@ -28,8 +30,7 @@ SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
 | 3 | 독감 무료 예방접종 65세 연령별 날짜 | 검색량 미측정 | T3 |
 | 4 | 기초연금 10월 지급일 | 검색량 미측정 | T3 |
 | 5 | 청년미래적금 2차 신청 개시(10/7~16) | 검색량 미측정 | T3 |
-| 6 | 청년도약계좌 10월 가입 신청기간 | 검색량 미측정 | T3 |
-| 7 | 국가건강검진 2026 대상자(짝수년) 연내 마감 | 검색량 미측정 | T3 |
+| 6 | 국가건강검진 2026 대상자(짝수년) 연내 마감 | 검색량 미측정 | T3 |
 
 ## 갱신 후보
 
@@ -133,14 +134,14 @@ SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
 - [T2] 9월14일 민생지원금 — scout 2026-09-28 verdictT2 closed: "9월14일 민생지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T2] 조기취업수당 조건 — scout 2026-09-28 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
 - [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-09-28 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" already r3, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
-- [T2] 청년월세지원금 — scout 2026-09-28 verdictT2 closed: "청년월세지원금" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
-- [T2] 노인지원금 — scout 2026-09-28 verdictT2 closed: "노인지원금" openSlots 1<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T2] 이번추석은삼일남아는데요지원금 — scout 2026-09-28 verdictT2 closed: "이번추석은삼일남아는데요지원금" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
+- [T2] 청년월세지원금 — scout 2026-09-28 verdictT2 closed: "청년월세지원금" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T2] 실업급여 구직급여 — scout 2026-09-28 verdictT2 closed: "실업급여 구직급여" openSlots 0<2, offset·press 미측정(API) — 재측정 후 재판정
 - [T1] 4차 민생지원금 지역별 지급 현황 — scout 2026-09-28 verdictT1 closed: "4차 민생지원금 지역별 지급 현황" already r2, openSlots 1<2, offset·press 미측정(API) / "4차 민생지원금 9월 신청 지역" already r1, openSlots 0<2, offset·press 미측정(API) / "4차 민생지원금 개시일" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
 - [T1] 정읍시 민생지원금 — scout 2026-09-28 verdictT1 closed: "정읍시 민생지원금" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T1] 부안군 민생안정지원금 못 받았으면 — scout 2026-09-28 verdictT1 closed: "부안군 민생안정지원금 못 받았으면" already r1, openSlots 0<2, offset·press 미측정(API) / "부안군 민생안정지원금 9월 16일 출장 지급 이후" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 A글(buan-livelihood-stability-grant-2026-08-19)이 이미 r1 — 신규 대신 그 글 갱신(결정 #2, 갱신 후보에 올림)
 - [T3] 부가세 예정고지 세부(안내면·가산세) — 발행됨(2026-09-25)
+- [T3] 청년도약계좌 10월 가입 신청기간 — 발행됨(2026-09-28T00:27:29.648Z)
 - [T2] 검색량 미측정 20건(keyword-volume·레이더 측정 전 — 0이 아니라 "못 쟀다"): 실업급여 자발적 퇴사, 실업급여 면접 불참, 주휴수당 알바 계산기, 근로장려금 상반기, 중위소득 계산기, 중위소득 가구원수, 기초연금 부부 감액, 기초연금 인상액, 월세 세액공제 신청 대상, 월세 세액공제 국세환급금 통지서, 국가장학금 서류, 국가장학금 서류제출 안 하면, 국가장학금 소득구간, 국가장학금 지급일, 청년월세 2027 주거급여, 노란우산공제 가입 조건, 노란우산공제 폐업 공제금, 본인부담상한액 환급 신청, 본인부담상한액 2026 상한액 표, 본인부담상한액 사후환급
 
 이전 큐에서 status가 남아 있는 항목(오늘 재생성되지 않음):
@@ -184,6 +185,9 @@ SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
 - [national] 희망저축계좌2 10월 모집 — published 2026-09-27T12:20:09.253Z
 - [national] 경기도 청년기본소득 3분기 지급일 — published 2026-09-27T12:20:09.253Z
 - [national] 보금자리론 신혼부부 소득요건 — published 2026-09-27T12:20:09.253Z
+- [published] 코로나 백신 65세 이상 무료 접종 언제부터 — published 2026-09-28T00:27:29.648Z
+- [published] 함평 민생회복지원금 미신청 — published 2026-09-28T00:27:29.648Z
+- [proposed] 사회보장급여 확인조사 소명 — published 2026-09-28T01:58:10.720Z
 
 ## 다음 물결 감시
 
@@ -206,10 +210,10 @@ SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
 - 영동 영동페이 신청 마감 10/2 — 2026-10-02(D-4) 갱신 예정 · local-livelihood-support-payment-2026-07-15, yeongdong-livelihood-stability-grant-2026-08-18
 - 영암 신청 마감 10/30 — 2026-10-30(D-32) 갱신 예정 · yeongam-rural-basic-allowance-100k, yeongam-wolchulpay-balance-expiry-use
 - 재측정 "2026 김해 민생지원금": r1 · 본청 0 · 뉴스7일 3·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "김해시 지원금": r4 · 본청 0 · 뉴스7일 18·같은제목 1 · openSlots 2 · 눈 확인 전
+- 재측정 "김해시 지원금": r4 · 본청 0 · 뉴스7일 21·같은제목 1 · openSlots 2 · 눈 확인 전
 - 재측정 "통영 지원금 신청": r4 · 본청 0 · 뉴스7일 7·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "문경시 지원금": r2 · 본청 0 · 뉴스7일 16·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "김해 지원금": r3 · 본청 0 · 뉴스7일 28·같은제목 1 · openSlots 1 · 눈 확인 전
+- 재측정 "문경시 지원금": r2 · 본청 0 · 뉴스7일 15·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "김해 지원금": r3 · 본청 0 · 뉴스7일 31·같은제목 1 · openSlots 1 · 눈 확인 전
 
 SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 2건 · 새 키워드 10건 · 재측정 22건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
 
