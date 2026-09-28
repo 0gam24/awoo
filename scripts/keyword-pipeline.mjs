@@ -68,6 +68,7 @@ const P = {
   ranks: join(ROOT, 'src', 'data', 'naver-ranks.json'),
   radar: join(ROOT, 'src', 'data', 'keyword-radar.json'),
   analyticsDir: join(ROOT, 'src', 'data', 'analytics'),
+  searchAdvisorDir: join(ROOT, 'src', 'data', 'search-advisor'),
   volumeScale: join(ROOT, 'docs', 'ops', 'volume-scale.json'),
   bigKeywords: join(ROOT, 'docs', 'ops', 'big-keywords.json'),
   landgrab: join(ROOT, 'docs', 'ops', 'landgrab-calendar.json'),
@@ -714,11 +715,24 @@ function exposureOf(item) {
   if (!s) return { score: null, label: '미측정', reasons: ['검색 결과 실측 전'] };
   const reasons = [];
   // 이미 1~3위면 그 자리는 우리 것이다 — 새 글의 값이 0
-  if (s.rank != null && s.rank <= 3) {
+  if (s.rank != null && s.rank <= 3 && !item.phaseB) {
     return { score: 0, label: '이미 노출', reasons: [`자사 ${s.rank}위`] };
   }
   let v = 0;
-  const open = item.track === 'T1' ? s.verdictT1 === 'open' : s.verdictT2 === 'open';
+  if (item.phaseB) {
+    // 지급 후 단계: 신청 글과 찾는 말이 다르다. 관공서가 둘 이상 막고 있지 않으면 자리로 본다.
+    v += 10;
+    reasons.push('신청 끝나고 사용 단계');
+    if ((item.regionInbound ?? 0) >= 100) {
+      v += 10;
+      reasons.push(`지역 유입 주 ${item.regionInbound}명`);
+    } else if ((item.regionInbound ?? 0) >= 30) v += 5;
+  }
+  const open = item.phaseB
+    ? (s.mainGovAbove ?? 0) <= 1 && !(s.sisterAbove > 0)
+    : item.track === 'T1'
+      ? s.verdictT1 === 'open'
+      : s.verdictT2 === 'open';
   if (open) {
     v += 40;
     reasons.push('자리 열림');
@@ -980,6 +994,28 @@ async function main() {
   } catch {
     /* 없으면 비운다 */
   }
+  // 서치어드바이저(네이버가 사이트 주인에게 주는 화면 클릭 실측, 주 1회 적재). 애널리틱스보다 새것이다.
+  // 2026-09-28: 빈틈 찾기가 이 파일을 읽지 않아 추석 뒤 "사용처" 유입(김해 B 1,345/주)을 못 봤다.
+  let saFile = null;
+  let saRows = [];
+  try {
+    const files = (await readdir(P.searchAdvisorDir))
+      .filter((f) => /^search-advisor-.*\.json$/.test(f))
+      .sort();
+    saFile = files.at(-1) ?? null;
+    if (saFile) saRows = (await readJson(join(P.searchAdvisorDir, saFile), {})).queries ?? [];
+  } catch {
+    /* 없으면 비운다 */
+  }
+  /** 지역 이름이 든 검색어의 주간 유입 합 — 서치어드바이저 클릭(새것)과 애널리틱스 방문(옛것) 중 큰 쪽 */
+  const regionInbound = (name) => {
+    const hit = (q) => String(q ?? '').includes(name);
+    const sa = saRows.filter((r) => hit(r.query)).reduce((s, r) => s + (Number(r.clicks) || 0), 0);
+    const an = analyticsRows
+      .filter((r) => hit(r.query))
+      .reduce((s, r) => s + (Number(r.visits) || 0), 0);
+    return { total: Math.max(sa, an), sa, an };
+  };
   let candidateSource = 'radar.candidates';
   let regionCandidates = radarCandidates.filter(
     (c) => (c.born || c.fromAnalytics) && (c.regionPattern || regionOf(c.term, dict)),
@@ -1232,6 +1268,110 @@ async function main() {
     items.push(item);
     seenT1.set(key, item);
     scoutPlan.T1.push(query);
+  }
+
+  // ── T1: 지급 후 단계(사용처·사용기한·못 받았을 때) — 2026-09-28 운영자 지적으로 추가 ──
+  // 위 트리거는 "우리 신청 글 순위가 떨어질 때"만 울려서, 신청이 끝나고 사람들이 찾는 말이
+  // 신청 → 사용처·사용기한·미신청으로 바뀌는 시점을 못 봤다. 김해는 신청 글(A)이 1위인 채로
+  // 사용처 글(B)이 한 주 1,345명을 따로 받았다(서치어드바이저 9/20~26: A 2,893 · B 1,345).
+  // 그래서 여기서는 "우리 A가 이미 1~3위"를 제외 사유로 쓰지 않는다(phaseB).
+  const parseDates = (text) => {
+    const s = String(text ?? '');
+    const out = [];
+    for (const m of s.matchAll(/(20\d{2})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})/g))
+      out.push(`${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`);
+    const rest = s.replace(/(20\d{2})\s*[.\-/년]\s*(\d{1,2})\s*[.\-/월]\s*(\d{1,2})/g, ' ');
+    for (const m of rest.matchAll(/(?<![\d.])(\d{1,2})\s*(?:\.|월)\s*(\d{1,2})\s*일?(?![\d.])/g)) {
+      const mo = Number(m[1]);
+      const d = Number(m[2]);
+      if (mo >= 1 && mo <= 12 && d >= 1 && d <= 31)
+        out.push(
+          `${TODAY.slice(0, 4)}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`,
+        );
+    }
+    return out.sort();
+  };
+  const PHASE_B_SINCE = new Date(toUtc(TODAY) - 90 * dayMs).toISOString().slice(0, 10); // 이번 물결(여름~추석) 글만
+  const byRegion = new Map();
+  for (const e of registry.entries ?? []) {
+    if (e.cluster !== 'minsaeng') continue;
+    for (const r of [].concat(e.region ?? [])) {
+      if (!byRegion.has(r)) byRegion.set(r, []);
+      byRegion.get(r).push(e);
+    }
+  }
+  const phaseB = [];
+  for (const [name, list] of byRegion) {
+    const as = list.filter(
+      (e) => e.family === 'A' && !e.rollup && !e.spoke && e.date >= PHASE_B_SINCE,
+    );
+    if (!as.length) continue;
+    if (list.some((e) => e.family === 'B' && !e.rollup)) continue; // 이미 지급 후 글이 있다
+    // 손으로 넣은 B("못 받았으면" 등)가 있어도 사용처 각도가 아니면 따로 올린다(부안 9/28)
+    const seenB = seenT1.get(`${name}|B`);
+    if (seenB && (seenB.phaseB || /사용처/.test(seenB.query))) continue;
+    // 광역(도·특별시) 단위와 지원금이 아닌 A(청년기본소득 등)는 빼고, 날짜는 그 지역 비롤업 글 전부(A·V)에서 읽는다
+    const reg0 = regionOf(name, dict);
+    if (reg0 && (reg0.kind === '도' || reg0.kind === '광역')) continue;
+    const grantAs = as.filter(
+      (e) =>
+        /민생|지원금|회복|안정|활력|기본수당|livelihood|relief|grant|allowance|stability|vitality|recovery/.test(
+          `${e.targetQuery ?? ''} ${e.slug ?? ''}`,
+        ) && !/청년|youth/.test(`${e.targetQuery ?? ''} ${e.slug ?? ''}`),
+    );
+    if (!grantAs.length) continue;
+    const dates = list
+      .filter((e) => !e.rollup && !e.spoke)
+      .flatMap((e) => parseDates(Object.values(e.coreFacts ?? {}).join(' ')));
+    if (!dates.length) continue;
+    const first = dates[0];
+    const last = dates.at(-1);
+    const started = first <= TODAY;
+    const stillUsable = last >= TODAY;
+    if (!started || !stillUsable) continue;
+    const inb = regionInbound(name);
+    phaseB.push({ name, as: grantAs, first, last, inb });
+  }
+  phaseB.sort((a, b) => b.inb.total - a.inb.total);
+  for (const pb of phaseB) {
+    const reg = regionOf(pb.name, dict) ?? { name: pb.name, kind: '' };
+    const suffix = reg.kind === '군' || reg.kind === '시' ? reg.kind : '';
+    const query = `${pb.name}${suffix} 민생지원금 사용처`;
+    const variant = `${pb.name} 민생지원금 사용기한`;
+    const a = pb.as.at(-1);
+    const lo = Math.round(pb.inb.total * 0.2);
+    const hi = Math.round(pb.inb.total * 0.5);
+    const item = {
+      id: idOf('T1', query),
+      track: 'T1',
+      query,
+      variant,
+      family: 'B',
+      phaseB: true,
+      region: pb.name,
+      regionKind: reg.kind,
+      start: pb.first,
+      dStart: daysFrom(pb.first, TODAY),
+      inWindow: true,
+      regionInbound: pb.inb.total,
+      evidence: [
+        `지급 후 단계: 신청·지급 시작 ${pb.first} 지남, 마지막 날짜(사용기한 등) ${pb.last} 전`,
+        `지역 유입 주 ${pb.inb.total}명(서치어드바이저 ${saFile ?? '없음'} ${pb.inb.sa} · 애널리틱스 ${analyticsFile ?? '없음'} ${pb.inb.an})`,
+        `기존 신청 글(A): ${pb.as.map((e) => `${e.slug} ${e.date?.slice(5) ?? ''}`).join(' · ')} — 지급 후 글(B) 없음`,
+        '김해 선례: 신청 글 1위 유지한 채 사용처 글이 주 1,345명 추가(2026-09-20~26)',
+      ],
+      expectedInbound: pb.inb.total ? `${lo}~${hi}(김해 선례 기준 추정)` : '확인 불가',
+      condition: `사용처(가맹점 조회)·사용기한·잔액 확인·못 받았을 때 창구를 1차 출처로 확인(장부 속 마지막 날짜 ${pb.last} — 사용기한인지 신청 마감인지 원문으로 가릴 것) · 신청 방법은 A글(${a.slug}) 몫`,
+      recent7: null,
+      recent7Source: null,
+      existingPosts: pb.as.map((e) => ({ ...e })),
+      serp: null,
+      score: pb.inb.total,
+      scoreNote: `지역 유입 ${pb.inb.total}/주`,
+    };
+    items.push(item);
+    if (!seenT1.has(`${pb.name}|B`)) seenT1.set(`${pb.name}|B`, item);
+    scoutPlan.T1.unshift(query);
   }
 
   // ── T1: 레이더 born·fromAnalytics 지역 패턴 ──
@@ -1810,9 +1950,11 @@ async function main() {
       const isT2 = it.track === 'T2';
       // 본 쿼리·변형 중 하나라도 열려 있으면 그 문자열을 타깃으로 남긴다(계획 §3 T1: 접미형 1 + 변형 1 실측)
       const okOf = (x) =>
-        (isT2 ? x.verdictT2 : x.verdictT1) === 'open' &&
-        !positionClosed(x) &&
-        !(isT2 && x.sisterAbove > 0);
+        it.phaseB
+          ? (x.mainGovAbove ?? 0) <= 1 && !(x.sisterAbove > 0) && !positionClosed(x)
+          : (isT2 ? x.verdictT2 : x.verdictT1) === 'open' &&
+            !positionClosed(x) &&
+            !(isT2 && x.sisterAbove > 0);
       const open = measured.filter(okOf);
       it.evidence = it.evidence.filter((e) => !/^naver-ranks|^SERP 미측정|^SERP 이력 없음/.test(e));
       if (r) it.evidence.push(line(r, `scout ${TODAY}: `));
