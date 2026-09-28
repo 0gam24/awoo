@@ -2,13 +2,15 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-09-28 23:38 KST
+> 마지막 갱신: 2026-09-28 23:46 KST
 
 ## 2026-09-28 (오늘)
 
-### 📰 신규 이슈 포스트 (6건)
+### 📰 신규 이슈 포스트 (7건)
 - `복지` [코로나 백신 65세 이상 무료 접종 언제부터? 70세 10월 12일부터](https://awoo.or.kr/issues/covid-vaccine-65-free-start-dates/)
   - 2026-2027절기 코로나19 무료 접종은 70세 이상 10월 12일, 65~69세 10월 15일 시작. 2027년 6월 30일까지 위탁의료기관과 보건소에서 독감과 같은 날 맞을 수 있습니다.
+- `복지` [고흥군 민생지원금 사용처는 어디? 종이 상품권 가맹점과 거스름돈](https://awoo.or.kr/issues/goheung-grant-paper-voucher-where-to-use/)
+  - 고흥군 민생지원금 사용처는 군 안 고흥사랑상품권 가맹점, 기한은 12월 31일입니다. 1차에 못 받은 세대는 10월 30일까지 9월 3일 주소지 읍·면사무소에서, 대리는 위임장이 있어야 받습니다.
 - `복지` [함평군 민생회복지원금 미신청 마감 10월 8일, 잔액 소멸 12월 31일](https://awoo.or.kr/issues/hampyeong-livelihood-grant-unclaimed-oct8-deadline/)
   - 함평군 민생회복지원금 50만원을 아직 못 받았다면 10월 8일 목요일 18시까지 7월 1일 주소지 읍면사무소로. 남은 평일 8일, 10월 5일은 휴무, 카드 잔액은 12월 31일까지.
 - `복지` [문경시 민생지원금 사용처, 고유가 25만원 카드 주유소도 되나요?](https://awoo.or.kr/issues/mungyeong-grant-prepaid-card-usage-places/)
