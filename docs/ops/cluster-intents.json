@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 308,
-    "entryCount": 75,
+    "scannedPosts": 309,
+    "entryCount": 76,
     "regionCount": 49,
     "regions": [
       "강릉",
@@ -59,11 +59,11 @@
     ],
     "families": {
       "A": 50,
-      "B": 11,
+      "B": 12,
       "V": 14
     },
     "clusters": {
-      "minsaeng": 55,
+      "minsaeng": 56,
       "other": 20
     },
     "rollups": 9,
@@ -134,6 +134,10 @@
       },
       {
         "slug": "gochang-vitality-grant-where-to-use-2026-09-29",
+        "family": "B"
+      },
+      {
+        "slug": "jangheung-grant-policy-voucher-store-finder-2026-09-29",
         "family": "B"
       }
     ],
@@ -1857,6 +1861,29 @@
         "who=2026-10-16",
         "amount=30만원",
         "deadline=2026-12-31"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false,
+      "familyOverride": true
+    },
+    {
+      "region": [
+        "장흥"
+      ],
+      "family": "B",
+      "slug": "jangheung-grant-policy-voucher-store-finder-2026-09-29",
+      "path": "src/data/issues/2026-09-29/jangheung-grant-policy-voucher-store-finder-2026-09-29.json",
+      "date": "2026-09-29",
+      "targetQuery": "장흥군 민생지원금 사용처",
+      "coreFacts": {
+        "who": "받은 군민, 10월 16일까지 신청할 미수령자와 가족",
+        "amount": "1인 30만원 정책발행 장흥사랑상품권",
+        "deadline": "2026-10-16 신청 마감, 사용기한은 군 발표 없음"
+      },
+      "coreFactsKeys": [
+        "who=2026-10-16",
+        "amount=30만원",
+        "deadline=2026-10-16"
       ],
       "cluster": "minsaeng",
       "rollup": false,
