@@ -2,7 +2,7 @@
   "_readme": "awoo 0400 자동 발행 루틴의 운영자 지정 큐. 키 = 발행일(KST, YYYY-MM-DD). 루틴은 실행 시 오늘 키가 있으면 최우선 적용. mode 없음/\"new\" = 신규 1건(keyword·angle·gate_a·sources_hint·must·profile_hint), mode \"update\" = 신규 대신 target 글 갱신(facts를 1차 출처로 재검증 후 updates[] append·사실 정정·dateModified, 제목·slug·구조 불변). 지정 항목도 GATE-A·확정 팩트·factCheckScore 0.8 게이트는 그대로(미충족 시 평소 선정으로 대체하고 종료 보고에 사유). _watch = 공식 공고가 뜨면 그날 최우선으로 검토할 주제. 지난 항목은 기록으로 남겨 둔다.",
   "_policy": {
     "since": "2026-09-17",
-    "rule": "운영자 지시(2026-09-17): 오늘 키가 없는 날의 평소 선정은 docs/ops/pipeline-queue.json 에서 고른다. status가 proposed이고 track이 갱신이 아닌 항목 중 exposure.score가 가장 높은 것(동점이면 expectedInbound 큰 것)을 신규 1건으로 발행한다. 제외: status가 approved·published·hold·rejected인 항목(운영자가 수동으로 지시했거나 보류한 글감), condition에 \"확보\"·\"확인 후\"·\"go.kr URL\"이 있는데 1차 출처를 직접 확보하지 못한 항목, 자사 글이 이미 그 쿼리를 소유한 항목. 발행하면 그 큐 항목을 status published·statusAt·publishedSlug·source \"0400\"으로 갱신한다(이 파일과 pipeline-queue.json은 콘텐츠 외 파일이라 자동 병합 조건에 걸리면 PR에 넣지 말고 종료 보고에만 적는다). 큐에 쓸 만한 항목이 없으면 기존 방식으로 선정한다. ▶ 2026-09-27 보강(운영자 지시): 0400은 매일 신규 1건이 원칙이다. mode \"update\" 대체는 (1) 오늘 키에 update가 명시됐거나 (2) 큐·레이더·keyword-scout 추가 발굴 5건 이상을 공식 API scout로 잰 뒤에도 게이트를 넘는 신규가 없을 때만 허용하고, 이틀 연속 update 대체는 금지한다(전날이 update였으면 오늘은 반드시 신규). 갱신은 신규에 더해 하는 것이지 신규를 대신하는 것이 아니다. 9/26·9/27 이틀 연속 갱신으로 신규 0건이 된 것이 이 규칙을 만든 이유."
+    "rule": "운영자 지시(2026-09-17): 오늘 키가 없는 날의 평소 선정은 docs/ops/pipeline-queue.json 에서 고른다. status가 proposed이고 track이 갱신이 아닌 항목 중 exposure.score가 가장 높은 것(동점이면 expectedInbound 큰 것)을 신규 1건으로 발행한다. 제외: status가 approved·published·hold·rejected인 항목(운영자가 수동으로 지시했거나 보류한 글감), condition에 \"확보\"·\"확인 후\"·\"go.kr URL\"이 있는데 1차 출처를 직접 확보하지 못한 항목, 자사 글이 이미 그 쿼리를 소유한 항목. 발행하면 그 큐 항목을 status published·statusAt·publishedSlug·source \"0400\"으로 갱신한다(이 파일과 pipeline-queue.json은 콘텐츠 외 파일이라 자동 병합 조건에 걸리면 PR에 넣지 말고 종료 보고에만 적는다). 큐에 쓸 만한 항목이 없으면 기존 방식으로 선정한다. ▶ 2026-09-27 보강(운영자 지시): 0400은 매일 신규 1건이 원칙이다. mode \"update\" 대체는 (1) 오늘 키에 update가 명시됐거나 (2) 큐·레이더·keyword-scout 추가 발굴 5건 이상을 공식 API scout로 잰 뒤에도 게이트를 넘는 신규가 없을 때만 허용하고, 이틀 연속 update 대체는 금지한다(전날이 update였으면 오늘은 반드시 신규). 갱신은 신규에 더해 하는 것이지 신규를 대신하는 것이 아니다. 9/26·9/27 이틀 연속 갱신으로 신규 0건이 된 것이 이 규칙을 만든 이유. | 배정 키워드의 1차 출처는 게시일(연도)까지 확인할 것 — 연도 없는 카드뉴스가 상위에 뜨는 반복 제도(청년도약계좌 등)는 함정."
   },
   "_watch": [
     {
@@ -83,7 +83,8 @@
       "2026-09-24 scout: 칸 6·뉴스벽 2 — 자리 확인됨",
       "contentVersion 2, 배너 소제목(2026-09-26+ 자동 적용)"
     ],
-    "profile_hint": "최근 발행분(3/5/4, 4/6/4, 3/4/5, 5/4/6)과 다르게 tldr 4·faq 5·sections 5·표 1(월별 가입 일정)·제목 명사구"
+    "profile_hint": "최근 발행분(3/5/4, 4/6/4, 3/4/5, 5/4/6)과 다르게 tldr 4·faq 5·sections 5·표 1(월별 가입 일정)·제목 명사구",
+    "result": "2026-09-28 0400 미실행(PR 없음). 수동 발행으로 대체 — 전제 오류: fsc 공지 \"10월 가입신청 기간\"은 2023-09-27 게시물, 청년도약계좌 신규 가입은 2025-12 종료(조특법 91조의22). 검증형 글로 발행."
   },
   "2026-09-29": {
     "mode": "new",
