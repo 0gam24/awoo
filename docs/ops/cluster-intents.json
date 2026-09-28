@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 304,
-    "entryCount": 71,
+    "scannedPosts": 305,
+    "entryCount": 72,
     "regionCount": 49,
     "regions": [
       "강릉",
@@ -59,11 +59,11 @@
     ],
     "families": {
       "A": 50,
-      "B": 7,
+      "B": 8,
       "V": 14
     },
     "clusters": {
-      "minsaeng": 51,
+      "minsaeng": 52,
       "other": 20
     },
     "rollups": 9,
@@ -118,6 +118,10 @@
       },
       {
         "slug": "mungyeong-grant-prepaid-card-usage-places-2026-09-28",
+        "family": "B"
+      },
+      {
+        "slug": "tongyeong-grant-usage-places-expiry",
         "family": "B"
       }
     ],
@@ -1749,6 +1753,28 @@
       "coreFactsKeys": [
         "who=2026-10-23",
         "amount=25만원",
+        "deadline=2026-12-31"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false,
+      "familyOverride": true
+    },
+    {
+      "region": [
+        "통영"
+      ],
+      "family": "B",
+      "slug": "tongyeong-grant-usage-places-expiry",
+      "path": "src/data/issues/2026-09-28/tongyeong-grant-usage-places-expiry-2026-09-28.json",
+      "date": "2026-09-28",
+      "targetQuery": "통영시 민생지원금 사용처",
+      "coreFacts": {
+        "who": "모바일 상품권·선불카드 수령자와 미수령자",
+        "amount": "1인 35만원, 기한 뒤 환불·연장 안내 없음",
+        "deadline": "2026-12-31 사용 마감, 신청은 10월 30일 18시"
+      },
+      "coreFactsKeys": [
+        "amount=35만원",
         "deadline=2026-12-31"
       ],
       "cluster": "minsaeng",
