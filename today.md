@@ -2,11 +2,13 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-09-30 10:17 KST
+> 마지막 갱신: 2026-09-30 11:05 KST
 
 ## 2026-09-30 (오늘)
 
-### 📰 신규 이슈 포스트 (3건)
+### 📰 신규 이슈 포스트 (4건)
+- `복지` [밀양 반값여행 제로페이 아니면 10만원 환급 못 받나요?](https://awoo.or.kr/issues/miryang-half-price-travel-zeropay-refund/)
+  - 밀양 반값여행은 11월 30일까지 여행에서 제로페이로 낸 돈의 50%를 돌려줍니다. 카드는 온라인 숙박·체험과 관광지 6곳만 예외, 10만원 미만 소비는 0원입니다.
 - `복지` [모두의카드 환급 10월부터, 반값 끝나고 시차 30%p는 12월까지](https://awoo.or.kr/issues/modu-card-refund-changes-from-october/)
   - 모두의카드 정액형 반값은 9월 이용분으로 끝나고, 시차시간 30%p 추가 환급은 12월까지 이어집니다. 시차 탑승 없이 월 7만원 쓰는 수도권 일반 이용자는 4만원에서 1만4천원으로 줄어듭니다.
 - `복지` [나주시 민생지원금 사용처, 20만원 선불카드와 착 상품권 쓰는 곳 다르다](https://awoo.or.kr/issues/naju-grant-prepaid-card-vs-chak-usage-places/)
