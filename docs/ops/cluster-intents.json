@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 313,
-    "entryCount": 79,
-    "regionCount": 49,
+    "scannedPosts": 322,
+    "entryCount": 87,
+    "regionCount": 54,
     "regions": [
       "강릉",
       "강북구",
@@ -27,8 +27,10 @@
       "대구",
       "문경",
       "미추홀구",
+      "밀양",
       "부산",
       "부안",
+      "산청",
       "서울",
       "속초",
       "신안",
@@ -40,6 +42,7 @@
       "영동",
       "영암",
       "영천",
+      "완도",
       "완주",
       "울진",
       "의령",
@@ -51,20 +54,22 @@
       "정읍",
       "창원",
       "청양",
+      "태안",
       "통영",
       "하동",
+      "함양",
       "함평",
       "해남",
       "횡성"
     ],
     "families": {
-      "A": 50,
+      "A": 58,
       "B": 15,
       "V": 14
     },
     "clusters": {
       "minsaeng": 59,
-      "other": 20
+      "other": 28
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -699,11 +704,11 @@
       "coreFacts": {
         "who": "서울 지하철·시내버스 구간에서 기후동행카드 30일권(선불 실물·모바일, 후불)을 쓰던 이용자. 서울시가 단독 운영해 온 제도라 서울 구간을 타지 않는 지역 주민에게는 적용되지 않음",
         "amount": "정액권 자체는 사라지고 기준금액 초과분을 돌려받는 모두의 카드로 일원화. 전환 대상인 모두의 카드는 2026년 9월까지 기준금액이 한시로 절반(수도권 일반형 3만원) 적용",
-        "deadline": "선불 충전 마감 2026-07-31(마지막 충전분 8월 29일까지 이용), 후불 할인 2026-08-31 사용분까지, 전면 운영 종료 2026-09-01"
+        "deadline": "선불 충전 마감 2026-08-31(7월 31일에서 한 달 연장, 마지막 충전분 9월 29일까지 이용), 후불 할인 2026-09-30 사용분까지, 선·후불 운영 종료 2026-10-01, 4~6월분 페이백 신청 2026-09-30까지"
       },
       "coreFactsKeys": [
         "amount=3만원",
-        "deadline=2026-07-31"
+        "deadline=2026-08-31"
       ],
       "cluster": "other",
       "rollup": false
@@ -769,8 +774,8 @@
       "targetQuery": null,
       "coreFacts": {
         "who": "2026년 7월 1일 기준 나주시에 주민등록을 둔 시민 전원(소득·재산 무관) + 나주에 체류지를 둔 결혼이민자·영주권자",
-        "amount": "1인당 20만원(나주사랑상품권, 착 CHAK 앱 충전 또는 선불카드 중 선택, 총사업비 약 238억원)",
-        "deadline": "신청·지급 2026.09.14부터(9월 제2회 추경 의결 전제, 마감일은 공고 예정) / 사용기한 2026.11.30"
+        "amount": "1인당 20만원(온라인 신청은 모바일 나주사랑상품권 착 CHAK 앱 충전, 현장 신청은 선불카드, 총사업비 약 238억원)",
+        "deadline": "신청 온라인 2026.09.14~09.30 23시, 방문 09.14~10.16 18시 / 사용기한 2026.11.30"
       },
       "coreFactsKeys": [
         "who=2026-07-01",
@@ -1372,9 +1377,9 @@
       "date": "2026-09-03",
       "targetQuery": null,
       "coreFacts": {
-        "who": "2026년 7월 1일부터 신청일까지 계속 나주시에 주민등록을 둔 시민(소득·재산 무관, 결혼이민자·영주권자 포함, 시 새소식 공식 게시물·조례 제5조 기준). 온라인 신청 안내 페이지 한 곳만 '2026년 9월 1일 기준'으로 표기",
+        "who": "2026년 7월 1일부터 신청일까지 계속 나주시에 주민등록을 둔 시민(소득·재산 무관, 결혼이민자·영주권자 포함, 시 새소식 공식 게시물·조례 제5조 기준). 온라인 신청 안내도 9/30 현재 '7.1. 기준일부터 신청일까지'로 같음(외국인은 현장 신청만)",
         "amount": "1인당 20만원. 지급인원 약 11만6천 명(시 공식 게시물)~11만7천 명(9월 3일 보도), 편성액 시 발표 240억원·시의회 발표 238억원, 산술 소요 232억~234억원",
-        "deadline": "온라인·방문 공통 2026.09.14~10.16(시 공식 게시물), 첫 주 9.14~18 출생연도 끝자리 5부제. 온라인 안내의 출생연도 무관 줄만 9.21~9.30 표기(10월 온라인 접수 여부는 일자리경제과 문의). 사용기한 2026.11.30 잔액 소멸"
+        "deadline": "온라인 2026.09.14~09.30 23시, 방문 09.14~10.16 18시(시 게시물 첨부 홍보물), 첫 주 9.14~18 출생연도 끝자리 5부제. 사용기한 2026.11.30(선불카드는 기간 내 미사용 금액 소멸, 신청서 유의사항)"
       },
       "coreFactsKeys": [
         "who=2026-07-01",
@@ -1948,6 +1953,90 @@
     },
     {
       "region": [
+        "함양"
+      ],
+      "family": "A",
+      "slug": "hamyang-half-price-travel-neighbors-excluded-2026-09-30",
+      "path": "src/data/issues/2026-09-30/hamyang-half-price-travel-neighbors-excluded-2026-09-30.json",
+      "date": "2026-09-30",
+      "targetQuery": "함양 반값여행",
+      "coreFacts": {
+        "who": "함양·남원·장수·산청·거창·하동 외 거주 내국인",
+        "amount": "여행경비 50%, 개인 10만원·청년 70%로 14만원",
+        "deadline": "3차 사전신청 10월 19일~28일, 11월 여행분"
+      },
+      "coreFactsKeys": [
+        "amount=10만원",
+        "deadline=2026-10-19"
+      ],
+      "cluster": "other",
+      "rollup": false
+    },
+    {
+      "region": [
+        "횡성"
+      ],
+      "family": "A",
+      "slug": "hoengseong-half-price-travel-card-transport-2026-09-30",
+      "path": "src/data/issues/2026-09-30/hoengseong-half-price-travel-card-transport-2026-09-30.json",
+      "date": "2026-09-30",
+      "targetQuery": "횡성 반값여행",
+      "coreFacts": {
+        "who": "3차 승인자, 횡성·원주·홍천·영월·평창·양평 밖 거주",
+        "amount": "대표자 카드 10만원 이상 결제 시 50%, 청년 70%",
+        "deadline": "여행 종료 후 7일 안 정산, 상품권 12월 31일 소멸"
+      },
+      "coreFactsKeys": [
+        "amount=10만원",
+        "deadline=2026-12-31"
+      ],
+      "cluster": "other",
+      "rollup": false
+    },
+    {
+      "region": [
+        "장흥"
+      ],
+      "family": "A",
+      "slug": "jangheung-half-price-travel-attractions-chak-2026-09-30",
+      "path": "src/data/issues/2026-09-30/jangheung-half-price-travel-attractions-chak-2026-09-30.json",
+      "date": "2026-09-30",
+      "targetQuery": "장흥 반값여행",
+      "coreFacts": {
+        "who": "장흥·강진·보성·화순·영암 밖 성인, 연 1회",
+        "amount": "사용액 50%·청년 70%, 1인 10만·청년 14만·가족 50만원",
+        "deadline": "2차 여행 10월 12일~11월 2일, 이틀 전 신청"
+      },
+      "coreFactsKeys": [
+        "amount=50만원",
+        "deadline=2026-10-12"
+      ],
+      "cluster": "other",
+      "rollup": false
+    },
+    {
+      "region": [
+        "밀양"
+      ],
+      "family": "A",
+      "slug": "miryang-half-price-travel-zeropay-refund-2026-09-30",
+      "path": "src/data/issues/2026-09-30/miryang-half-price-travel-zeropay-refund-2026-09-30.json",
+      "date": "2026-09-30",
+      "targetQuery": "밀양 반값여행",
+      "coreFacts": {
+        "who": "밀양 밖 거주자, 대표자 만 18세 이상, 연접 6곳 제외",
+        "amount": "소비액 50%, 1인 10만원·팀 20만원·청년 14만원",
+        "deadline": "11월 여행 신청 10월 15일 10시부터, 여행은 11월 30일까지"
+      },
+      "coreFactsKeys": [
+        "amount=10만원",
+        "deadline=2026-10-15"
+      ],
+      "cluster": "other",
+      "rollup": false
+    },
+    {
+      "region": [
         "나주"
       ],
       "family": "B",
@@ -1968,6 +2057,89 @@
       "cluster": "minsaeng",
       "rollup": false,
       "familyOverride": true
+    },
+    {
+      "region": [
+        "산청"
+      ],
+      "family": "A",
+      "slug": "sancheong-half-price-travel-settlement-checklist-2026-09-30",
+      "path": "src/data/issues/2026-09-30/sancheong-half-price-travel-settlement-checklist-2026-09-30.json",
+      "date": "2026-09-30",
+      "targetQuery": "산청 반값여행",
+      "coreFacts": {
+        "who": "산청·연접 6개 시군 밖 내국인, 1인 연 1회",
+        "amount": "인정 소비액 50%, 청년 70%, 5천원 단위 지급",
+        "deadline": "10월 여행 신청 10월 11일, 정산은 여행 후 10일"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-10-11"
+      ],
+      "cluster": "other",
+      "rollup": false
+    },
+    {
+      "region": [
+        "태안"
+      ],
+      "family": "A",
+      "slug": "taean-half-price-travel-round2-chak-prep-2026-09-30",
+      "path": "src/data/issues/2026-09-30/taean-half-price-travel-round2-chak-prep-2026-09-30.json",
+      "date": "2026-09-30",
+      "targetQuery": "태안 반값여행",
+      "coreFacts": {
+        "who": "태안·서산·보령 밖 거주자, 대표자 19세 이상",
+        "amount": "소비액 50%, 1인 10만·청년 1인 14만·가족 50만원",
+        "deadline": "2차 신청 10월 1일 10시~10월 8일 선착순"
+      },
+      "coreFactsKeys": [
+        "amount=50만원",
+        "deadline=2026-10-01"
+      ],
+      "cluster": "other",
+      "rollup": false
+    },
+    {
+      "region": [
+        "완도"
+      ],
+      "family": "A",
+      "slug": "wando-half-price-travel-round6-refund-expiry-2026-09-30",
+      "path": "src/data/issues/2026-09-30/wando-half-price-travel-round6-refund-expiry-2026-09-30.json",
+      "date": "2026-09-30",
+      "targetQuery": "완도 반값여행",
+      "coreFacts": {
+        "who": "완도·해남·강진 밖 거주자, 올해 첫 참여자",
+        "amount": "소비액 50%, 1인 10만·팀 20만·청년 14만원",
+        "deadline": "6차 여행 11월 30일, 환급금 2027년 4월 30일"
+      },
+      "coreFactsKeys": [
+        "amount=14만원",
+        "deadline=2026-11-30"
+      ],
+      "cluster": "other",
+      "rollup": false
+    },
+    {
+      "region": [
+        "영천"
+      ],
+      "family": "A",
+      "slug": "yeongcheon-half-price-travel-refund-2026-09-30",
+      "path": "src/data/issues/2026-09-30/yeongcheon-half-price-travel-refund-2026-09-30.json",
+      "date": "2026-09-30",
+      "targetQuery": "영천 반값여행",
+      "coreFacts": {
+        "who": "영천 밖 거주 내국인, 인접 6개 시군 주민 제외",
+        "amount": "개인 10만원·청년 14만원·단체 20만원·가족 50만원",
+        "deadline": "1차 9.3~9.30·2차 10.1~10.31, 7일 전 사전신청"
+      },
+      "coreFactsKeys": [
+        "amount=10만원",
+        "deadline=2026-09-03"
+      ],
+      "cluster": "other",
+      "rollup": false
     }
   ]
 }
