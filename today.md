@@ -2,15 +2,17 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-09-30 13:55 KST
+> 마지막 갱신: 2026-09-30 13:59 KST
 
 ## 2026-09-30 (오늘)
 
-### 📰 신규 이슈 포스트 (9건)
+### 📰 신규 이슈 포스트 (10건)
 - `복지` [함양 반값여행 인근 5개 시군 주민 제외와 차수별 신청 창구](https://awoo.or.kr/issues/hamyang-half-price-travel-neighbors-excluded/)
   - 함양 반값여행은 남원·장수·산청·거창·하동과 함양 주민을 받지 않습니다. 11월 여행 신청은 10월 19일부터 28일까지, 카드 결제는 숙박·대봉스카이랜드만 인정됩니다.
 - `복지` [횡성 반값여행 렌터카·택시비도 돌려받나, 카드 1장 원칙](https://awoo.or.kr/issues/hoengseong-half-price-travel-card-transport/)
   - 횡성 반값여행은 관내 업체 렌터카·택시와 숙박·식비를 대표자 카드 1장으로 10만원 이상 내야 50% 환급됩니다. 기차·시외버스·낭만택시는 빠지고, 정산은 여행 뒤 7일 안이에요.
+- `복지` [장흥 반값여행 인정 관광지와 가맹점 722곳 찾는 법](https://awoo.or.kr/issues/jangheung-half-price-travel-attractions-chak/)
+  - 장흥 반값여행은 인정 관광지 2곳 사진, 또는 1곳 사진과 디지털관광주민증 가맹점 1곳 소비로 인증합니다. 숙박을 빼면 결제는 관광 소비 가맹점 722곳에서 chak으로 해야 인정돼요.
 - `복지` [밀양 반값여행 제로페이 아니면 10만원 환급 못 받나요?](https://awoo.or.kr/issues/miryang-half-price-travel-zeropay-refund/)
   - 밀양 반값여행은 11월 30일까지 여행에서 제로페이로 낸 돈의 50%를 돌려줍니다. 카드는 온라인 숙박·체험과 관광지 6곳만 예외, 10만원 미만 소비는 0원입니다.
 - `복지` [모두의카드 환급 10월부터, 반값 끝나고 시차 30%p는 12월까지](https://awoo.or.kr/issues/modu-card-refund-changes-from-october/)
