@@ -8,7 +8,7 @@
     "score = recent7(없으면 proxy) × min(openSlots,4) × volume-scale 계수. T1은 개시일 임박순이 점수보다 우선. serp.approx=true는 naver-ranks 옛 항목에서 근사한 verdict — --serp 실측이 아니다."
   ],
   "meta": {
-    "generatedAt": "2026-10-01T03:58:48.389Z",
+    "generatedAt": "2026-10-01T06:44:56.094Z",
     "today": "2026-10-01",
     "dryRun": false,
     "serp": {
@@ -206,11 +206,11 @@
           "verdictT2": "closed",
           "reason": [
             "openSlots 0<2",
-            "news-warn 같은 제목 5·7일 97건",
+            "news-warn 같은 제목 5·7일 96건",
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 97,
+          "newsWall": 96,
           "newsWallCapped": false,
           "newsSameTitle": 5,
           "measuredBy": "webkr-api"
@@ -455,7 +455,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 6,
+          "newsWall": 5,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -476,7 +476,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 14,
+          "newsWall": 15,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -487,18 +487,18 @@
       "T1": 2,
       "T2": 4,
       "T3": 1,
-      "갱신": 24,
-      "제외": 104,
+      "갱신": 12,
+      "제외": 112,
       "감시": 22
     },
     "sources": {
       "clusterIntents": {
-        "entries": 87,
-        "regions": 54
+        "entries": 89,
+        "regions": 56
       },
       "naverRanks": {
         "queries": 58,
-        "updatedAt": "2026-09-30T05:59:51.280Z"
+        "updatedAt": "2026-10-01T06:33:56.980Z"
       },
       "radarCandidates": 42,
       "regionCandidateSource": "radar.candidates",
@@ -510,7 +510,7 @@
       },
       "bigKeywords": 12,
       "landgrab": 16,
-      "posts": 323
+      "posts": 326
     },
     "scoutPlan": {
       "T1": [
@@ -598,9 +598,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-01T03:59:23.679Z",
+        "measuredAt": "2026-10-01T06:45:26.128Z",
         "webDocRaw": 30,
-        "webDocTotal": 1036599,
+        "webDocTotal": 1040022,
         "eyeOffset": null,
         "newsWall": 0,
         "newsWallCapped": false,
@@ -720,9 +720,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-01T03:59:14.126Z",
+        "measuredAt": "2026-10-01T06:45:17.372Z",
         "webDocRaw": 30,
-        "webDocTotal": 386216,
+        "webDocTotal": 388462,
         "eyeOffset": null,
         "newsWall": 2,
         "newsWallCapped": false,
@@ -927,9 +927,9 @@
         "region": "속초시",
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-01T03:58:56.883Z",
+        "measuredAt": "2026-10-01T06:45:01.629Z",
         "webDocRaw": 30,
-        "webDocTotal": 456115,
+        "webDocTotal": 457292,
         "eyeOffset": null,
         "newsWall": 1,
         "newsWallCapped": false,
@@ -1020,7 +1020,7 @@
         "query": "의령군 민생지원금 사용처",
         "rank": 2,
         "url": "https://awoo.or.kr/issues/uiryeong-livelihood-stability-grant/",
-        "webDocCount": 15,
+        "webDocCount": 16,
         "aboveIsWholeBlock": false,
         "openSlots": 1,
         "mainGovAbove": 0,
@@ -1037,9 +1037,9 @@
         "region": "의령군",
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-01T03:58:54.540Z",
+        "measuredAt": "2026-10-01T06:44:59.368Z",
         "webDocRaw": 30,
-        "webDocTotal": 142176,
+        "webDocTotal": 142465,
         "eyeOffset": null,
         "newsWall": 1,
         "newsWallCapped": false,
@@ -1115,9 +1115,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-01T03:59:31.138Z",
+        "measuredAt": "2026-10-01T06:45:32.912Z",
         "webDocRaw": 30,
-        "webDocTotal": 351521,
+        "webDocTotal": 352254,
         "eyeOffset": null,
         "newsWall": 15,
         "newsWallCapped": false,
@@ -1158,7 +1158,7 @@
           {
             "host": "namu.wiki",
             "kind": "commercial",
-            "title": "유급 휴가 - 나무위키"
+            "title": "육아 휴직 - 나무위키"
           },
           {
             "host": "ppfk.or.kr",
@@ -1425,27 +1425,6 @@
       "statusAt": "2026-09-29T04:54:48.865Z"
     },
     {
-      "id": "갱신:armed-forces-day-temporary-holiday-2026-09-24:2026-10-01",
-      "track": "갱신",
-      "query": "2026 국군의날 임시공휴일, 10월 1일 목요일 쉬나요?",
-      "slug": "armed-forces-day-temporary-holiday-2026-09-24",
-      "path": "src/data/issues/2026-09-24/armed-forces-day-temporary-holiday-2026-09-24.json",
-      "region": null,
-      "dueDate": "2026-10-01",
-      "daysLeft": 0,
-      "evidence": [
-        "coreFacts.deadline \"2026-10-01 목요일, 9월 24일 기준 미지정\"",
-        "날짜 2026-10-01 D-day (+ 2026-09-24 D+7)",
-        "갱신 이력 없음"
-      ],
-      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 10,
-      "status": "published",
-      "createdAt": "2026-09-27T23:35:56.042Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
-    },
-    {
       "id": "갱신:climate-card-charge-deadline-2026-07-27:2026-10-01",
       "track": "갱신",
       "query": "기후동행카드 충전 7월 31일 마감, 서울 9월 종료 K패스 전환",
@@ -1463,8 +1442,7 @@
       "score": 10,
       "status": "published",
       "createdAt": "2026-09-30T06:13:58.585Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
+      "statusAt": "2026-10-01T04:20:36.065Z"
     },
     {
       "id": "갱신:energy-voucher-2026-multichild-expansion-2026-08-25:2026-10-01",
@@ -1484,8 +1462,7 @@
       "score": 10,
       "status": "published",
       "createdAt": "2026-10-01T03:58:48.389Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
+      "statusAt": "2026-10-01T04:20:36.065Z"
     },
     {
       "id": "갱신:energy-voucher-usage-period-carryover-2026-07-01:2026-10-01",
@@ -1505,8 +1482,7 @@
       "score": 10,
       "status": "published",
       "createdAt": "2026-10-01T03:58:48.389Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
+      "statusAt": "2026-10-01T04:20:36.065Z"
     },
     {
       "id": "갱신:hope-savings-account-type2-october-round3-2026-09-27:2026-10-01",
@@ -1526,48 +1502,6 @@
       "score": 10,
       "status": "proposed",
       "createdAt": "2026-09-27T23:35:56.042Z"
-    },
-    {
-      "id": "갱신:taean-half-price-travel-round2-chak-prep-2026-09-30:2026-10-01",
-      "track": "갱신",
-      "query": "태안 반값여행 2차 신청 준비물, 착 앱·신분증·유형 선택",
-      "slug": "taean-half-price-travel-round2-chak-prep-2026-09-30",
-      "path": "src/data/issues/2026-09-30/taean-half-price-travel-round2-chak-prep-2026-09-30.json",
-      "region": null,
-      "dueDate": "2026-10-01",
-      "daysLeft": 0,
-      "evidence": [
-        "coreFacts.deadline \"2차 신청 10월 1일 10시~10월 8일 선착순\"",
-        "날짜 2026-10-01 D-day",
-        "dateModified 2026-09-30T04:23:14.000Z"
-      ],
-      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 10,
-      "status": "published",
-      "createdAt": "2026-09-30T06:13:58.585Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
-    },
-    {
-      "id": "갱신:yeongcheon-half-price-travel-refund-2026-09-30:2026-10-01",
-      "track": "갱신",
-      "query": "영천 반값여행 최대 10만원 청년 14만원 환급받기",
-      "slug": "yeongcheon-half-price-travel-refund-2026-09-30",
-      "path": "src/data/issues/2026-09-30/yeongcheon-half-price-travel-refund-2026-09-30.json",
-      "region": null,
-      "dueDate": "2026-10-01",
-      "daysLeft": 0,
-      "evidence": [
-        "coreFacts.deadline \"1차 9.3~9.30·2차 10.1~10.31, 7일 전 사전신청\"",
-        "날짜 2026-10-01 D-day (+ 2026-09-30 D+1)",
-        "갱신 이력 없음"
-      ],
-      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 10,
-      "status": "published",
-      "createdAt": "2026-10-01T03:58:48.389Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
     },
     {
       "id": "갱신:chuseok-holiday-livelihood-grant-application:2026-10-02",
@@ -1760,29 +1694,7 @@
       "score": 9,
       "status": "published",
       "createdAt": "2026-09-27T04:48:34.544Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
-    },
-    {
-      "id": "갱신:energy-voucher-balance-check-carryover:2026-09-30",
-      "track": "갱신",
-      "query": "에너지바우처 잔액 조회, 안 보일 때 확인할 3가지와 사용기간",
-      "slug": "energy-voucher-balance-check-carryover",
-      "path": "src/data/issues/2026-09-12/energy-voucher-balance-check-carryover-2026-09-12.json",
-      "region": null,
-      "dueDate": "2026-09-30",
-      "daysLeft": -1,
-      "evidence": [
-        "coreFacts.deadline \"하절기 9월 30일, 사용 2027년 5월 31일\"",
-        "날짜 2026-09-30 D+1",
-        "갱신 이력 없음"
-      ],
-      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
-      "score": 9,
-      "status": "published",
-      "createdAt": "2026-09-27T04:48:34.544Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
+      "statusAt": "2026-10-01T04:20:36.065Z"
     },
     {
       "id": "갱신:energy-voucher-household-size-amount-2026-07-19:2026-09-30",
@@ -1802,8 +1714,7 @@
       "score": 9,
       "status": "published",
       "createdAt": "2026-09-27T04:48:34.544Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
+      "statusAt": "2026-10-01T04:20:36.065Z"
     },
     {
       "id": "갱신:energy-voucher-pregnant-eligibility-2026-08-08:2026-09-30",
@@ -1823,8 +1734,7 @@
       "score": 9,
       "status": "published",
       "createdAt": "2026-09-27T04:48:34.544Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
+      "statusAt": "2026-10-01T04:20:36.065Z"
     },
     {
       "id": "갱신:naju-grant-prepaid-card-vs-chak-usage-places-2026-09-30:2026-09-30",
@@ -1844,8 +1754,7 @@
       "score": 9,
       "status": "published",
       "createdAt": "2026-09-30T06:13:58.585Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
+      "statusAt": "2026-10-01T04:20:36.065Z"
     },
     {
       "id": "갱신:summer-energy-voucher-cooling-2026-07-13:2026-09-30",
@@ -1865,8 +1774,7 @@
       "score": 9,
       "status": "published",
       "createdAt": "2026-09-27T04:48:34.544Z",
-      "statusAt": "2026-10-01T04:20:36.065Z",
-      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)"
+      "statusAt": "2026-10-01T04:20:36.065Z"
     },
     {
       "id": "갱신:chuseok-livelihood-coupon-duplicate-2026-08-07:2026-09-25",
@@ -1905,6 +1813,94 @@
       "score": 4,
       "status": "proposed",
       "createdAt": "2026-09-22T05:43:45.894Z"
+    },
+    {
+      "id": "갱신:armed-forces-day-temporary-holiday-2026-09-24:2026-10-01",
+      "track": "갱신",
+      "query": "2026 국군의날 임시공휴일, 10월 1일 목요일 쉬나요?",
+      "slug": "armed-forces-day-temporary-holiday-2026-09-24",
+      "path": "src/data/issues/2026-09-24/armed-forces-day-temporary-holiday-2026-09-24.json",
+      "region": null,
+      "dueDate": "2026-10-01",
+      "daysLeft": 0,
+      "evidence": [
+        "coreFacts.deadline \"2026-10-01 목요일, 9월 24일 기준 미지정\"",
+        "날짜 2026-10-01 D-day (+ 2026-09-24 D+7)",
+        "갱신 이력 없음"
+      ],
+      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
+      "score": 10,
+      "status": "published",
+      "createdAt": "2026-09-27T23:35:56.042Z",
+      "statusAt": "2026-10-01T04:20:36.065Z",
+      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)",
+      "lastSeenAt": "2026-09-27T23:35:56.042Z"
+    },
+    {
+      "id": "갱신:taean-half-price-travel-round2-chak-prep-2026-09-30:2026-10-01",
+      "track": "갱신",
+      "query": "태안 반값여행 2차 신청 준비물, 착 앱·신분증·유형 선택",
+      "slug": "taean-half-price-travel-round2-chak-prep-2026-09-30",
+      "path": "src/data/issues/2026-09-30/taean-half-price-travel-round2-chak-prep-2026-09-30.json",
+      "region": null,
+      "dueDate": "2026-10-01",
+      "daysLeft": 0,
+      "evidence": [
+        "coreFacts.deadline \"2차 신청 10월 1일 10시~10월 8일 선착순\"",
+        "날짜 2026-10-01 D-day",
+        "dateModified 2026-09-30T04:23:14.000Z"
+      ],
+      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
+      "score": 10,
+      "status": "published",
+      "createdAt": "2026-09-30T06:13:58.585Z",
+      "statusAt": "2026-10-01T04:20:36.065Z",
+      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)",
+      "lastSeenAt": "2026-09-30T06:13:58.585Z"
+    },
+    {
+      "id": "갱신:yeongcheon-half-price-travel-refund-2026-09-30:2026-10-01",
+      "track": "갱신",
+      "query": "영천 반값여행 최대 10만원 청년 14만원 환급받기",
+      "slug": "yeongcheon-half-price-travel-refund-2026-09-30",
+      "path": "src/data/issues/2026-09-30/yeongcheon-half-price-travel-refund-2026-09-30.json",
+      "region": null,
+      "dueDate": "2026-10-01",
+      "daysLeft": 0,
+      "evidence": [
+        "coreFacts.deadline \"1차 9.3~9.30·2차 10.1~10.31, 7일 전 사전신청\"",
+        "날짜 2026-10-01 D-day (+ 2026-09-30 D+1)",
+        "갱신 이력 없음"
+      ],
+      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
+      "score": 10,
+      "status": "published",
+      "createdAt": "2026-10-01T03:58:48.389Z",
+      "statusAt": "2026-10-01T04:20:36.065Z",
+      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)",
+      "lastSeenAt": "2026-10-01T03:58:48.389Z"
+    },
+    {
+      "id": "갱신:energy-voucher-balance-check-carryover:2026-09-30",
+      "track": "갱신",
+      "query": "에너지바우처 잔액 조회, 안 보일 때 확인할 3가지와 사용기간",
+      "slug": "energy-voucher-balance-check-carryover",
+      "path": "src/data/issues/2026-09-12/energy-voucher-balance-check-carryover-2026-09-12.json",
+      "region": null,
+      "dueDate": "2026-09-30",
+      "daysLeft": -1,
+      "evidence": [
+        "coreFacts.deadline \"하절기 9월 30일, 사용 2027년 5월 31일\"",
+        "날짜 2026-09-30 D+1",
+        "갱신 이력 없음"
+      ],
+      "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
+      "score": 9,
+      "status": "published",
+      "createdAt": "2026-09-27T04:48:34.544Z",
+      "statusAt": "2026-10-01T04:20:36.065Z",
+      "statusReason": "2026-09-30~10-01 사실·시제 점검 완료(에너지바우처는 공식 안내와 일치 확인, 수정 불필요분 포함)",
+      "lastSeenAt": "2026-09-27T04:48:34.544Z"
     },
     {
       "id": "새키워드:2026주휴수당포함시급",
@@ -7817,7 +7813,7 @@
     {
       "track": "T2",
       "query": "실업급여 구직급여",
-      "reason": "scout 2026-10-01 verdictT2 closed: \"실업급여 구직급여\" openSlots 0<2, news-warn 같은 제목 5·7일 97건, offset·press 미측정(API) — 재측정 후 재판정",
+      "reason": "scout 2026-10-01 verdictT2 closed: \"실업급여 구직급여\" openSlots 0<2, news-warn 같은 제목 5·7일 96건, offset·press 미측정(API) — 재측정 후 재판정",
       "region": null,
       "family": null
     },
@@ -7876,6 +7872,46 @@
       "track": "T3",
       "query": "국가건강검진 2026 대상자(짝수년) 연내 마감",
       "reason": "운영자 반려(2026-09-29T04:54:48.865Z)"
+    },
+    {
+      "track": "갱신",
+      "query": "기후동행카드 충전 7월 31일 마감, 서울 9월 종료 K패스 전환",
+      "reason": "발행됨(2026-10-01T04:20:36.065Z)"
+    },
+    {
+      "track": "갱신",
+      "query": "에너지바우처 2026 다자녀 2자녀 확대 대상·금액",
+      "reason": "발행됨(2026-10-01T04:20:36.065Z)"
+    },
+    {
+      "track": "갱신",
+      "query": "에너지바우처 하절기 언제까지·잔액 동절기 이월 총정리",
+      "reason": "발행됨(2026-10-01T04:20:36.065Z)"
+    },
+    {
+      "track": "갱신",
+      "query": "여름 냉방지원금 뭐가 있나, 수급가구 중복 수급 정리",
+      "reason": "발행됨(2026-10-01T04:20:36.065Z)"
+    },
+    {
+      "track": "갱신",
+      "query": "에너지바우처 4인 70만원, 가구원수별 금액과 소득기준",
+      "reason": "발행됨(2026-10-01T04:20:36.065Z)"
+    },
+    {
+      "track": "갱신",
+      "query": "임산부 에너지바우처 대상 조건과 소득기준, 지원금액",
+      "reason": "발행됨(2026-10-01T04:20:36.065Z)"
+    },
+    {
+      "track": "갱신",
+      "query": "나주시 민생지원금 사용처, 20만원 선불카드와 착 상품권 쓰는 곳 다르다",
+      "reason": "발행됨(2026-10-01T04:20:36.065Z)"
+    },
+    {
+      "track": "갱신",
+      "query": "2026 여름 에너지바우처 냉방 신청, 대상·금액·사용기간",
+      "reason": "발행됨(2026-10-01T04:20:36.065Z)"
     }
   ],
   "watch": [
@@ -7972,11 +8008,11 @@
     },
     {
       "kind": "remeasure",
-      "text": "재측정 \"문경시 지원금\": r1 · 본청 0 · 뉴스7일 6·같은제목 1 · openSlots 0 · 눈 확인 전"
+      "text": "재측정 \"문경시 지원금\": r1 · 본청 0 · 뉴스7일 5·같은제목 1 · openSlots 0 · 눈 확인 전"
     },
     {
       "kind": "remeasure",
-      "text": "재측정 \"김해 지원금\": r2 · 본청 0 · 뉴스7일 14·같은제목 1 · openSlots 0 · 눈 확인 전"
+      "text": "재측정 \"김해 지원금\": r2 · 본청 0 · 뉴스7일 15·같은제목 1 · openSlots 0 · 눈 확인 전"
     }
   ]
 }

@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 322,
-    "entryCount": 87,
-    "regionCount": 54,
+    "scannedPosts": 326,
+    "entryCount": 89,
+    "regionCount": 56,
     "regions": [
       "강릉",
       "강북구",
@@ -32,8 +32,10 @@
       "부안",
       "산청",
       "서울",
+      "서천",
       "속초",
       "신안",
+      "안동",
       "안산",
       "양산",
       "양양",
@@ -63,13 +65,13 @@
       "횡성"
     ],
     "families": {
-      "A": 58,
+      "A": 60,
       "B": 15,
       "V": 14
     },
     "clusters": {
       "minsaeng": 59,
-      "other": 28
+      "other": 30
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -2090,7 +2092,7 @@
       "coreFacts": {
         "who": "태안·서산·보령 밖 거주자, 대표자 19세 이상",
         "amount": "소비액 50%, 1인 10만·청년 1인 14만·가족 50만원",
-        "deadline": "2차 신청 10월 1일 10시~10월 8일 선착순"
+        "deadline": "2차 10월 1일 마감, 3차 11월 2일 10시 선착순"
       },
       "coreFactsKeys": [
         "amount=50만원",
@@ -2132,11 +2134,54 @@
       "coreFacts": {
         "who": "영천 밖 거주 내국인, 인접 6개 시군 주민 제외",
         "amount": "개인 10만원·청년 14만원·단체 20만원·가족 50만원",
-        "deadline": "1차 9.3~9.30·2차 10.1~10.31, 7일 전 사전신청"
+        "deadline": "2차 여행 10.1~10.31 접수 중, 여행 7일 전까지 신청"
       },
       "coreFactsKeys": [
         "amount=10만원",
-        "deadline=2026-09-03"
+        "deadline=2026-10-01"
+      ],
+      "cluster": "other",
+      "rollup": false
+    },
+    {
+      "region": [
+        "안동"
+      ],
+      "family": "A",
+      "slug": "andong-half-price-travel-round2-payment-rules-2026-10-01",
+      "path": "src/data/issues/2026-10-01/andong-half-price-travel-round2-payment-rules-2026-10-01.json",
+      "date": "2026-10-01",
+      "targetQuery": "안동 반값여행",
+      "coreFacts": {
+        "who": "안동·인접 시군 밖 거주 국내 관광객, 2026-10-12 2차 접수",
+        "amount": "여행경비 50%·청년 70%, 개인 10만원·청년 14만원·단체 20만원",
+        "deadline": "2차 신청 10.12 오전10시, 여행 10.15~11.30"
+      },
+      "coreFactsKeys": [
+        "who=2026-10-12",
+        "amount=10만원",
+        "deadline=2026-10-12"
+      ],
+      "cluster": "other",
+      "rollup": false
+    },
+    {
+      "region": [
+        "서천"
+      ],
+      "family": "A",
+      "slug": "seocheon-half-price-travel-round3-lodging-settlement-2026-10-01",
+      "path": "src/data/issues/2026-10-01/seocheon-half-price-travel-round3-lodging-settlement-2026-10-01.json",
+      "date": "2026-10-01",
+      "targetQuery": "서천 반값여행",
+      "coreFacts": {
+        "who": "서천·보령·부여·군산·익산 밖 거주자",
+        "amount": "소비액 50%·청년 70%, 개인 10만·단체 20만·청년 14만원",
+        "deadline": "정산 14일 안, 3차 신청 10월 26일 10시"
+      },
+      "coreFactsKeys": [
+        "amount=14만원",
+        "deadline=2026-10-26"
       ],
       "cluster": "other",
       "rollup": false
