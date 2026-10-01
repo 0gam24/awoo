@@ -8,7 +8,8 @@
 
 import { type Metric, onCLS, onFCP, onINP, onLCP, onTTFB } from 'web-vitals';
 
-const ENDPOINT = '/api/vitals';
+// 끝 슬래시 필수 — trailingSlash: 'always'라 /api/vitals는 308로 한 번 더 돈다.
+const ENDPOINT = '/api/vitals/';
 
 // 로컬 호스트에서는 비콘을 쏘지 않는다.
 // Lighthouse CI는 dist/client를 정적 서버로 띄우므로 Worker 라우트인 /api/vitals가 없고,

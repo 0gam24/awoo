@@ -1,3 +1,4 @@
+import { env as cfEnv } from 'cloudflare:workers';
 import type { APIRoute } from 'astro';
 import { logError } from '@/lib/api/error-log';
 import { checkRateLimit, rateLimitHeaders } from '@/lib/api/rate-limit';
@@ -53,7 +54,7 @@ interface Env {
  * - TURNSTILE_SECRET_KEY: Cloudflare Turnstile 봇 차단
  * - ADMIN_EMAIL: 알림 수신처 (기본 smartdatashop@gmail.com — 운영 주체 이메일)
  */
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
   if (!isAllowedOrigin(request, ALLOWED_ORIGINS)) {
     return errorJson(403, 'origin_not_allowed');
   }
@@ -71,7 +72,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const c = parsed.data;
-  const env = (locals as { runtime?: { env?: Env } }).runtime?.env ?? {};
+  const env = cfEnv as Env;
   const ip = getClientIp(request);
   const ipHash = await hashIp(ip);
 

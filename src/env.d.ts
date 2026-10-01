@@ -1,13 +1,14 @@
 /// <reference path="../.astro/types.d.ts" />
 
-declare namespace App {
-  interface Locals {
-    runtime: {
-      env: Env;
-      cf?: IncomingRequestCfProperties;
-      ctx: ExecutionContext;
-    };
-  }
+// Astro.locals 타입은 @astrojs/cloudflare가 준다 (cfContext만). locals.runtime은 Astro 6에서 제거됐고,
+// locals.runtime.env는 읽는 순간 throw한다 — 2026-10-02 /api/* 전부 500이던 원인.
+
+/**
+ * Worker 바인딩·시크릿을 읽는 유일한 길: `import { env } from 'cloudflare:workers'`.
+ * `wrangler types`로 worker-configuration.d.ts를 만들면 거기에도 같은 선언이 생기니 이 블록을 지울 것.
+ */
+declare module 'cloudflare:workers' {
+  export const env: Env;
 }
 
 /**

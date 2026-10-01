@@ -1,4 +1,5 @@
 import { getCollection } from 'astro:content';
+import { env as cfEnv } from 'cloudflare:workers';
 import type { APIRoute } from 'astro';
 
 export const prerender = false;
@@ -29,8 +30,8 @@ interface Env {
  *
  * 인증 X — 민감 정보 노출 없음 (카운트만).
  */
-export const GET: APIRoute = async ({ locals }) => {
-  const env = (locals as { runtime?: { env?: Env } }).runtime?.env ?? {};
+export const GET: APIRoute = async () => {
+  const env = cfEnv as Env;
 
   let subsidies = 0;
   let personas = 0;

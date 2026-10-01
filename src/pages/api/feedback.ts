@@ -1,3 +1,4 @@
+import { env as cfEnv } from 'cloudflare:workers';
 import type { APIRoute } from 'astro';
 import { logError } from '@/lib/api/error-log';
 import { checkRateLimit, rateLimitHeaders } from '@/lib/api/rate-limit';
@@ -41,7 +42,7 @@ interface Env {
  * 저장: D1 `DB` 바인딩 있으면 INSERT, 없으면 console.log (개발 환경).
  * 봇 차단: honeypot `_hp` 필드 + Origin 검증.
  */
-export const POST: APIRoute = async ({ request, locals }) => {
+export const POST: APIRoute = async ({ request }) => {
   if (!isAllowedOrigin(request, ALLOWED_ORIGINS)) {
     return errorJson(403, 'origin_not_allowed');
   }
@@ -61,11 +62,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const f = parsed.data;
   const ipHash = await hashIp(getClientIp(request));
   const ua = request.headers.get('user-agent')?.slice(0, 200) ?? null;
-  const env = (locals as { runtime?: { env?: Env } }).runtime?.env;
+  const env = cfEnv as Env;
 
   // Rate limit — IP 해시당 시간당 10건. KV 바인딩 있으면 글로벌.
   const rl = await checkRateLimit(`feedback:${ipHash}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SEC, {
-    kv: env?.RATE_LIMIT_KV,
+    kv: env.RATE_LIMIT_KV,
   });
   if (!rl.allowed) {
     return new Response(
@@ -83,7 +84,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
   }
 
-  if (env?.DB) {
+  if (env.DB) {
     try {
       await env.DB.prepare(
         `INSERT INTO feedback (page_path, helpful, comment, user_agent, ip_hash, created_at)
