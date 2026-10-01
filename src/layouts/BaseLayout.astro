@@ -105,7 +105,7 @@ const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
 
     {/* Google AdSense — 사이트 소유권 확인 + 광고 게재.
         정책·약관 페이지와 noindex(404·thin) 페이지에는 미주입 (showAds 가드).
-        CSP: script-src/connect-src/frame-src 에 googlesyndication·doubleclick 허용 (public/_headers). */}
+        CSP: script-src/connect-src/frame-src 에 googlesyndication·doubleclick·adtrafficquality(광고 품질 확인) 허용 (public/_headers). */}
     {showAds && (
       <script is:inline async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7830821732287404" crossorigin="anonymous"></script>
     )}
