@@ -11,8 +11,11 @@
  *   node scripts/ops-widget.mjs --limit=6
  *   node scripts/ops-widget.mjs --count     # "오늘 발행 N건(자동 1 · 수동 N) · 어제 N건" 한 줄
  *
+ *   node scripts/ops-widget.mjs --waves=4  # "다음에 크게 뜰 주제" 칸 줄 수(기본 6)
+ *
  * 입력: docs/ops/pipeline-queue.json (status proposed, 발행된 targetQuery와 겹치지 않는 것)
  *       src/data/issues/** (targetQuery만 — 발행 여부 판정)
+ *       docs/ops/next-wave.json (다음에 크게 뜰 주제 — scripts/next-wave.mjs, 없으면 그 칸을 빼고 그린다)
  */
 import { execFileSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
@@ -195,8 +198,11 @@ const items = q.items
     const keys = [i.query, ...String(i.variant ?? '').split(' / ')].map(norm).filter(Boolean);
     return !keys.some((k) => published.has(k));
   });
-// 큐가 이미 노출 가능성 순으로 정렬돼 있다(keyword-pipeline). 그 순서를 그대로 쓴다.
-const ready = items.filter((i) => i.exposure?.score != null);
+// 큐는 노출 가능성 순으로 정렬돼 있지만(keyword-pipeline), wave-split이 뒤에 붙인 빈틈 항목은 그 순서 밖이다.
+// 점수로 한 번 더 세운다 — 같은 점수끼리는 큐 순서를 지킨다(안정 정렬).
+const ready = items
+  .filter((i) => i.exposure?.score != null)
+  .sort((a, b) => b.exposure.score - a.exposure.score);
 const pending = items
   .filter((i) => i.exposure?.score == null)
   .sort((a, b) => (b.inbound7d ?? 0) - (a.inbound7d ?? 0) || (b.recent7 ?? 0) - (a.recent7 ?? 0));
@@ -230,7 +236,8 @@ function eyeHtml(query, idx) {
 
 const rows = shown
   .map((i, idx) => {
-    const cmd = `/post ${i.query} — 대시보드 지시(큐 ${i.id ?? ''}). 파이프라인 큐 항목의 트랙·패밀리·조건을 브리프로 쓰고, 검증 통과 시 결재 질문 없이 발행한다.`;
+    // 슬래시로 시작하는 버튼 문구는 앱이 명령으로 해석하다 전송을 놓친다(2026-09-25) — 일반 문장 "발행:"으로 시작
+    const cmd = `발행: ${i.query} — 대시보드 지시(큐 ${i.id ?? ''}). 파이프라인 큐 항목의 트랙·패밀리·조건을 브리프로 쓰고, 검증 통과 시 결재 질문 없이 발행한다.`;
     const hold = `보류: "${i.query}" — 큐 status를 hold로 바꾸고 이유는 묻지 말 것`;
     const c = cond(i);
     const condHtml = c
@@ -279,6 +286,69 @@ ${pending
 </div>`
   : '';
 
+// 다음에 크게 뜰 주제 — scripts/next-wave.mjs가 묶음 단위로 잰 결과(운영자 지시 2026-10-02:
+// "빈틈 목록 요청하면 다음에 크게 뜰 주제도 함께"). 검색어 하나가 아니라 주제 묶음이 커지는지를 본다.
+const WAVE_LIMIT = Number(argv.find((a) => a.startsWith('--waves='))?.slice(8) ?? 6);
+const WAVE_STAGE = {
+  rising: { label: '지금 뜨는 중', tone: 'var(--text-success)' },
+  soon: { label: '곧 뜸', tone: 'var(--text-warning)' },
+  growing: { label: '커지는 중', tone: 'var(--text-secondary)' },
+  gap: { label: '큰데 우리 글 적음', tone: 'var(--text-secondary)' },
+};
+/** 주간 8칸 → 작은 선 그래프(SVG). 색은 글자색을 따른다 */
+function spark(weekly) {
+  const v = (weekly ?? []).map((x) => Number(x) || 0);
+  if (v.length < 2) return '';
+  const max = Math.max(...v, 0.1);
+  const pts = v
+    .map((y, i) => `${(i * 56) / (v.length - 1)},${(18 - (y / max) * 16).toFixed(1)}`)
+    .join(' ');
+  return `<svg width="56" height="20" viewBox="0 0 56 20" aria-hidden="true" style="flex-shrink:0;color:var(--text-secondary)"><polyline points="${pts}" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`;
+}
+function waveDetail(w) {
+  const lv = Math.round(w.level);
+  const mine = w.posts ? `우리 글 ${w.posts}개` : '우리 글 없음';
+  const regions = w.regions?.length >= 3 ? ` · 기사에 지역 ${w.regions.length}곳` : '';
+  if (w.stage === 'soon')
+    return `지금 ${lv} · 작년엔 ${w.season.month}월에 ${w.season.up}배로 커짐 · ${mine}${regions}`;
+  if (w.stage === 'gap') return `지금 ${lv} · 이미 큰 주제인데 ${mine}${regions}`;
+  return `지금 ${lv} · 3주 전보다 ${w.growth}배 · ${mine}${regions}`;
+}
+function wavesHtml() {
+  const nw = readJson('docs/ops/next-wave.json');
+  if (!nw?.items?.length) return '';
+  const picks = nw.items.filter((w) => WAVE_STAGE[w.stage]).slice(0, WAVE_LIMIT);
+  const fading = nw.items.filter((w) => w.stage === 'fading').slice(0, 4);
+  const rowsHtml = picks
+    .map((w) => {
+      const st = WAVE_STAGE[w.stage];
+      const go = `선점: "${w.term}" — 다음 물결. 지역·세부 검색어로 쪼개서 빈틈 목록에 넣고 다시 보여줘`;
+      const hold = `보류: "${w.term}" 물결 — next-wave 감시에서 빼고 이유는 묻지 말 것`;
+      return `<div style="display:flex;gap:10px;align-items:center;padding:8px 0;border-top:0.5px solid var(--border)">
+  ${spark(w.weekly)}
+  <div style="flex:1;min-width:0">
+    <div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:15px;font-weight:500">${esc(w.term)}</span><span style="font-size:12px;color:${st.tone}">${esc(st.label)}${w.isNew ? ' · 새로 등장' : ''}</span></div>
+    <div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${esc(waveDetail(w))}</div>
+  </div>
+  <div style="display:flex;gap:6px;flex-shrink:0">
+    <button onclick="sendPrompt(${esc(jsStr(go))})" style="font-size:13px">선점 ↗</button>
+    <button onclick="sendPrompt(${esc(jsStr(hold))})" style="font-size:13px;color:var(--text-secondary)">보류</button>
+  </div>
+</div>`;
+    })
+    .join('\n');
+  const fadingHtml = fading.length
+    ? `<div style="font-size:12px;color:var(--text-muted);padding-top:6px">꺾이는 중: ${fading
+        .map((w) => `${esc(w.term)} ${w.growth}배`)
+        .join(' · ')} — 새 글보다 기존 글 갱신만</div>`
+    : '';
+  return `<div style="margin-top:14px;padding-top:8px;border-top:1px solid var(--border)">
+  <div style="font-size:13px;color:var(--text-secondary);margin-bottom:2px">다음에 크게 뜰 주제 · 묶음 검색량(실업급여 = 100) · ${esc(nw.meta?.today ?? '')} 측정</div>
+${rowsHtml || '<p style="font-size:13px;color:var(--text-secondary)">지금 커지는 주제가 없습니다.</p>'}
+${fadingHtml}
+</div>`;
+}
+
 console.log(`<h2 class="sr-only" style="position:absolute;left:-9999px">오늘 쓸 글감 ${shown.length}건 — 버튼을 누르면 발행 지시가 채팅에 입력됩니다</h2>
 <div style="padding:0.5rem 0 0">
   <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
@@ -287,4 +357,5 @@ console.log(`<h2 class="sr-only" style="position:absolute;left:-9999px">오늘 �
   </div>
 ${rows || '<p style="color:var(--text-secondary)">지시 대기 글감이 없습니다.</p>'}
 ${pendingRows}
+${wavesHtml()}
 </div>`);

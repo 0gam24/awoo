@@ -65,6 +65,8 @@
     "analytics:ingest": "node scripts/ingest-analytics.mjs",
     "pipeline": "node scripts/keyword-pipeline.mjs",
     "pipeline:serp": "node scripts/keyword-pipeline.mjs --serp",
+    "wave": "node scripts/next-wave.mjs",
+    "wave:split": "node scripts/wave-split.mjs",
     "ops:dashboard": "node scripts/ops-dashboard.mjs"
   },
   "dependencies": {
