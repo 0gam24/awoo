@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 328,
-    "entryCount": 90,
+    "scannedPosts": 329,
+    "entryCount": 91,
     "regionCount": 56,
     "regions": [
       "강릉",
@@ -66,11 +66,11 @@
     ],
     "families": {
       "A": 61,
-      "B": 15,
+      "B": 16,
       "V": 14
     },
     "clusters": {
-      "minsaeng": 59,
+      "minsaeng": 60,
       "other": 31
     },
     "rollups": 9,
@@ -158,6 +158,12 @@
       {
         "slug": "naju-grant-prepaid-card-vs-chak-usage-places-2026-09-30",
         "family": "B"
+      },
+      {
+        "slug": "busan-small-business-energy-voucher-200k-2026-10-02",
+        "region": [
+          "부산"
+        ]
       },
       {
         "slug": "goseong-gyeongnam-half-price-travel-type-limits-2026-10-02",
@@ -2191,6 +2197,29 @@
       ],
       "cluster": "other",
       "rollup": false
+    },
+    {
+      "region": [
+        "부산"
+      ],
+      "family": "B",
+      "slug": "busan-small-business-energy-voucher-200k-2026-10-02",
+      "path": "src/data/issues/2026-10-02/busan-small-business-energy-voucher-200k-2026-10-02.json",
+      "date": "2026-10-02",
+      "targetQuery": "부산 소상공인 에너지바우처",
+      "coreFacts": {
+        "who": "부산 사업장, 연매출 3억원 이하, 8월 31일 이전 개업",
+        "amount": "업체당 20만원, 동백전 정책지원금",
+        "deadline": "2026년 11월 6일 18시 마감, 예산 소진 시 조기 마감"
+      },
+      "coreFactsKeys": [
+        "who=2026-08-31",
+        "amount=20만원",
+        "deadline=2026-11-06"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false,
+      "regionOverride": true
     },
     {
       "region": [
