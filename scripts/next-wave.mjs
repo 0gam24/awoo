@@ -316,6 +316,12 @@ function extract(title, rx) {
       tok = `${prev} ${tok}`;
     }
     if (tok.replace(/\s/g, '').length < 3 || tok.length > 14 || NOISE.has(tok)) continue;
+    // 행사 이름(디페스타 소극장축제·안산페스타)은 지원금 독자의 물결이 아니다 — 할인·숙박·여행 행사만 남긴다
+    if (
+      /(페스타|세일)$/.test(tok) &&
+      !/(세일|할인|숙박|여행|쇼핑|동행)/.test(tok.replace(/세일$/, ''))
+    )
+      continue;
     terms.add(tok);
   }
   return { terms, regions };
