@@ -1,17 +1,12 @@
 @import 'tailwindcss';
 
 /* ============================================================
-   Pretendard Variable — 셀프호스팅 (KS X 1001 + Latin 서브셋)
+   본문 글꼴 — 웹폰트 없이 기기 기본 한글 글꼴
+   2026-04-28~10-02의 Pretendard woff2는 GitHub 404 HTML이라 한 번도 적용된 적이 없고, 방문자는
+   늘 아래 'Pretendard Adjusted'(기기 글꼴)로 봤다. 10-02 진짜 Pretendard(KS X 1001 서브셋 326KB)를
+   실측해 보니 모바일 기사 페이지에서 레이아웃 작업 +0.4~0.8s, LCP +0.15s, /issues/ 데스크톱
+   Lighthouse 99 → 운영자 결정으로 웹폰트를 쓰지 않는다. 아래 규칙은 그동안의 모습 그대로 두려고 유지.
    ============================================================ */
-@font-face {
-  font-family: 'Pretendard Variable';
-  src: url('/fonts/PretendardVariable.subset.woff2') format('woff2-variations');
-  font-weight: 45 920;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Fallback 메트릭을 Pretendard에 맞춰 CLS 0 달성 */
 @font-face {
   font-family: 'Pretendard Adjusted';
   src:
@@ -59,7 +54,7 @@
 
   /* Typography */
   --font-sans:
-    'Pretendard Variable', 'Pretendard Adjusted', -apple-system, BlinkMacSystemFont,
+    'Pretendard Adjusted', -apple-system, BlinkMacSystemFont,
     'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif;
 
   /* Radii */

@@ -19,7 +19,7 @@
 - TypeScript 5.9.3 (strict, astro check + tsc --noEmit)
 - Zod 4.3.6 (Content Collections schema)
 - web-vitals 5.2.0
-- Pretendard Variable 셀프호스팅 (KS X 1001 + Latin subset)
+- 웹폰트 없음 — 기기 기본 한글 글꼴 (2026-10-02 결정, global.css 상단 주석)
 - Biome 2.4.13 (lint/format)
 - Lighthouse CI 0.15.1 (4×100 게이트)
 - Wrangler 4.86.0 (Cloudflare 배포)
@@ -295,7 +295,7 @@
   - biome ignore 등록 (자동 생성물 churn 차단)
 
 ## 21. NETWORK.md 헌법 적용 가능성
-- 디자인 토큰 (color/font) 메인과 일치: (미확인) — smartdatashop.kr 메인 토큰을 본 repo에서 확인 불가. 본 사이트는 자체 토큰(`src/styles/global.css` + Tailwind 4)·Pretendard Variable 사용. NETWORK.md v0.6 dual-brand 정책에 따라 자매 자율성 인정. MainBackrefBox 한정으로만 메인 토큰(#8b1538) 사용.
+- 디자인 토큰 (color/font) 메인과 일치: (미확인) — smartdatashop.kr 메인 토큰을 본 repo에서 확인 불가. 본 사이트는 자체 토큰(`src/styles/global.css` + Tailwind 4)·기기 기본 한글 글꼴 사용. NETWORK.md v0.6 dual-brand 정책에 따라 자매 자율성 인정. MainBackrefBox 한정으로만 메인 토큰(#8b1538) 사용.
 - 4 절대 규칙 (신뢰성·실시간·정확성·출처표기) 준수: ✓
   - 신뢰성: editorial-policy + about(편집책임자·정정 정책) + Organization JSON-LD(parentOrganization=스마트데이터샵) ✓
   - 실시간: 일간 sync-issues cron + IndexNow + lastmod 자동 갱신 ✓

@@ -133,7 +133,7 @@ git config user.name "김준혁"
 - **타입**: TypeScript strict (extends `astro/tsconfigs/strictest`)
 - **린트/포맷**: Biome 2 (단일 도구, ESLint+Prettier 대체)
 - **콘텐츠**: Astro Content Collections (`src/data/personas.json`, `src/data/subsidies/*.json`, `src/data/issues.json`)
-- **폰트**: Pretendard Variable subset (KS X 1001 + Latin), 셀프호스팅 `public/fonts/`, fallback 메트릭 매칭(`size-adjust: 100.6%`)
+- **폰트**: 웹폰트 없음 — 기기 기본 한글 글꼴(`Pretendard Adjusted` 규칙, `size-adjust: 100.6%`). 2026-10-02 실측 후 운영자 결정 (global.css 상단 주석)
 
 ### 4-2. 빌드 설정 (`astro.config.mjs`)
 - `output: 'static'` — 모든 페이지 prerendered (Worker 함수 미사용, 속도 최우선)
@@ -183,8 +183,7 @@ awoo/
 ├── public/
 │   ├── _headers                  # CSP·HSTS·X-Frame·Permissions·CORP
 │   ├── _redirects                # /issues/main → /issues/ 등 301
-│   ├── favicon.svg / og-default.png / robots.txt
-│   └── fonts/PretendardVariable.subset.woff2   # KS X 1001 + Latin
+│   └── favicon.svg / og-default.png / robots.txt
 ├── src/
 │   ├── content.config.ts         # Content Collections + _archived/** 제외 패턴
 │   ├── data/
@@ -241,7 +240,7 @@ awoo/
 ### 6-1. 디자인 토큰 (Apple-inspired)
 - 라이트모드 본문 secondary는 `--gray-2 #6e6e73` (WCAG AA 5.0:1) — `#86868b`(3.7:1)는 큰 텍스트(18pt+)에만
 - 다크모드 자동 추적: `[data-theme]` 속성 + `prefers-color-scheme` (BaseLayout 인라인 스크립트)
-- 폰트: `Pretendard Variable` → `Pretendard Adjusted`(size-adjust matched fallback) → 시스템
+- 폰트: `Pretendard Adjusted`(기기 한글 글꼴) → 시스템 — 웹폰트 없음
 
 ### 6-2. 페르소나 6개 그라데이션
 - `persona-blue`(사회초년생) / `persona-orange`(자영업) / `persona-pink`(신혼육아) / `persona-green`(중장년) / `persona-purple`(저소득) / `persona-amber`(농업)

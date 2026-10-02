@@ -27,7 +27,7 @@ npm run dev                          # http://localhost:4321
 
 - **Astro 6** + React 19 Islands + Tailwind 4 + TypeScript strict
 - **Cloudflare Workers + Static Assets** 배포 (GitHub push → 자동 배포)
-- **Pretendard Variable** 셀프호스팅 (KS X 1001 + Latin subset)
+- **웹폰트 없음** — 기기 기본 한글 글꼴 (2026-10-02 실측 후 결정, global.css 상단 주석)
 - **Astro Content Collections** (페르소나 6 / 지원금 119 / 일간 이슈 자동 생성)
 - **자동 콘텐츠 파이프라인** — 보조금24·네이버 뉴스 + Claude Sonnet 4.6 일간 생성
 - 커스텀 도메인 [awoo.or.kr](https://awoo.or.kr)
@@ -89,8 +89,7 @@ scripts/                         # 빌드/운영 자동화 (Node CLI)
 public/
 ├── _headers                     # CSP·HSTS·X-Frame·Permissions
 ├── _redirects                   # 301 매핑
-├── robots.txt / og-default.png / favicon.svg
-└── fonts/PretendardVariable.subset.woff2
+└── robots.txt / og-default.png / favicon.svg
 
 .github/workflows/               # CI · 배포 · 5종 cron
 docs/ops/                        # 운영 가이드 (Search Console, IndexNow, ...)

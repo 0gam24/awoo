@@ -136,9 +136,7 @@ const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
         Google: <meta name="google-site-verification" content="..." />
         Naver:  <meta name="naver-site-verification" content="..." />  */}
 
-    {/* Pretendard 폰트는 preload 안 함 — Pretendard Adjusted(size-adjust) fallback이
-        먼저 그려지고 woff2 로드 후 CLS 없이 swap. preload하면 모바일 LCP가
-        font 다운로드를 기다리느라 지연됨 (300KB / Slow 4G = ~1.5s 페널티). */}
+    {/* 웹폰트 없음 — 기기 기본 한글 글꼴만 쓴다 (global.css 상단 주석: 2026-10-02 실측과 운영자 결정). */}
 
     {/* noindex여도 follow 유지 — 페이지네이션(/issues/all/2+)이 nofollow면 뒤 페이지에만
         실린 포스트로 가는 크롤 경로가 끊긴다. 색인 차단과 링크 발견은 별개 신호. */}
