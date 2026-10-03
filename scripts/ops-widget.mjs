@@ -317,7 +317,11 @@ function waveDetail(w) {
 function wavesHtml() {
   const nw = readJson('docs/ops/next-wave.json');
   if (!nw?.items?.length) return '';
-  const picks = nw.items.filter((w) => WAVE_STAGE[w.stage]).slice(0, WAVE_LIMIT);
+  // 보류(ignore)는 다음 측정부터 빠지지만, 그날 이미 잰 결과에서도 바로 숨긴다
+  const ignore = new Set((readJson('docs/ops/next-wave-seeds.json')?.ignore ?? []).map(norm));
+  const picks = nw.items
+    .filter((w) => WAVE_STAGE[w.stage] && !ignore.has(norm(w.term)))
+    .slice(0, WAVE_LIMIT);
   const fading = nw.items.filter((w) => w.stage === 'fading').slice(0, 4);
   const rowsHtml = picks
     .map((w) => {
