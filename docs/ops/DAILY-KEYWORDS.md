@@ -1,9 +1,9 @@
-# 키워드 후보 보고 — 2026-10-04 (KST)
+# 키워드 후보 보고 — 2026-10-05 (KST)
 
-생성 2026-10-04 06:35Z · scripts/keyword-pipeline.mjs
-SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
-입력: cluster-intents 91건 · naver-ranks 58쿼리 · 레이더 candidates 46건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 16 · 글 331건
-후보: T1 2 · T2 4 · T3 1 · 갱신 12 · 제외 116
+생성 2026-10-05 06:29Z · scripts/keyword-pipeline.mjs
+SERP 실측: scout 24/35건(T1 15·T2 5·재측정 5)
+입력: cluster-intents 91건 · naver-ranks 58쿼리 · 레이더 candidates 46건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 16 · 글 332건
+후보: T1 2 · T2 5 · T3 1 · 갱신 16 · 제외 115
 
 ## 오늘 후보
 
@@ -11,12 +11,13 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 
 | # | 노출 가능성 | 트랙 | 쿼리 | 왜 | 예상 유입/주 | 조건 |
 |---|---|---|---|---|---|---|
-| 1 | 높음 75 | T2 | 알바 주휴수당 계산기 | 자리 열림 · 빈자리 10 · 위에 관공서 없음 | 현재 81/주 | [보류] 검색 결과 실측 필요 |
-| 2 | 높음 70 | T2 | 실업급여 상실신고 | 자리 열림 · 빈자리 4 · 위에 관공서 없음 | 59~137 | [보류] 자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia |
-| 3 | 중간 65 | T2 | 4차 민생쿠폰 신청 | 자리 열림 · 자사 8위 — 다른 의도로 재진입 | 현재 81/주 | [보류] — |
-| 4 | 중간 65 | T1 B | 속초시 민생지원금 사용처 · 변형: 속초 민생지원금 사용기한 (속초) | 신청 끝나고 사용 단계 · 자리 열림 · 위에 관공서 없음 | 확인 불가 | 사용처(가맹점 조회)·사용기한·잔액 확인·못 받았을 때 창구를 1차 출처로 확인(장부 속 마지막 날짜 2026-11-30 — 사용기한인지 신청 마감인지 원문으로 가릴 것) · 신청 방법은 A글(sokcho-livelihood-recovery-grant-2026-07-19) 몫 · 자사 글이 이미 "속초시 민생지원금 사용처" r2 — 그 글을 잠식하지 않는 각도(B키 선두)로만 |
-| 5 | 중간 65 | T1 B | 의령군 민생지원금 사용처 · 변형: 의령 민생지원금 사용기한 (의령) | 신청 끝나고 사용 단계 · 자리 열림 · 위에 관공서 없음 | 확인 불가 | 사용처(가맹점 조회)·사용기한·잔액 확인·못 받았을 때 창구를 1차 출처로 확인(장부 속 마지막 날짜 2026-12-31 — 사용기한인지 신청 마감인지 원문으로 가릴 것) · 신청 방법은 A글(uiryeong-livelihood-stability-grant-2026-08-12) 몫 · 자사 글이 이미 "의령군 민생지원금 사용처" r2 — 그 글을 잠식하지 않는 각도(B키 선두)로만 |
-| 6 | 중간 65 | T2 | 출산휴가지원금 | 자리 열림 · 위에 관공서 없음 | 32~74 | 검색 결과 실측 필요 |
+| 1 | 높음 80 | T2 | 노령연금 | 자리 열림 · 빈자리 5 · 위에 관공서 없음 | 328~765 | 검색 결과 실측 필요 |
+| 2 | 높음 75 | T2 | 알바 주휴수당 계산기 | 자리 열림 · 빈자리 10 · 위에 관공서 없음 | 현재 81/주 | [보류] 검색 결과 실측 필요 |
+| 3 | 높음 70 | T2 | 실업급여 상실신고 | 자리 열림 · 빈자리 4 · 위에 관공서 없음 | 59~137 | [보류] 자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia |
+| 4 | 높음 70 | T2 | 교직원공제 | 자리 열림 · 빈자리 7 · 위에 관공서 없음 | 31~73 | 검색 결과 실측 필요 |
+| 5 | 중간 65 | T2 | 4차 민생쿠폰 신청 | 자리 열림 · 자사 8위 — 다른 의도로 재진입 | 현재 81/주 | [보류] — |
+| 6 | 중간 65 | T1 B | 속초시 민생지원금 사용처 · 변형: 속초 민생지원금 사용기한 (속초) | 신청 끝나고 사용 단계 · 자리 열림 · 위에 관공서 없음 | 확인 불가 | 사용처(가맹점 조회)·사용기한·잔액 확인·못 받았을 때 창구를 1차 출처로 확인(장부 속 마지막 날짜 2026-11-30 — 사용기한인지 신청 마감인지 원문으로 가릴 것) · 신청 방법은 A글(sokcho-livelihood-recovery-grant-2026-07-19) 몫 · 자사 글이 이미 "속초시 민생지원금 사용처" r2 — 그 글을 잠식하지 않는 각도(B키 선두)로만 |
+| 7 | 중간 65 | T1 B | 의령군 민생지원금 사용처 · 변형: 의령 민생지원금 사용기한 (의령) | 신청 끝나고 사용 단계 · 자리 열림 · 위에 관공서 없음 | 확인 불가 | 사용처(가맹점 조회)·사용기한·잔액 확인·못 받았을 때 창구를 1차 출처로 확인(장부 속 마지막 날짜 2026-12-31 — 사용기한인지 신청 마감인지 원문으로 가릴 것) · 신청 방법은 A글(uiryeong-livelihood-stability-grant-2026-08-12) 몫 · 자사 글이 이미 "의령군 민생지원금 사용처" r2 — 그 글을 잠식하지 않는 각도(B키 선두)로만 |
 
 ### 실측 대기 1건
 검색 결과를 아직 안 봤다. 수요(실유입·검색량) 큰 순. `--serp` 회차나 `--scout="쿼리"`로 잰다.
@@ -31,18 +32,22 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 
 | # | 글 | 날짜 | 고칠 것 | 근거 |
 |---|---|---|---|---|
-| 1 | 10월 5일 대체공휴일 수당, 5인 미만 제외와 시급제 20만원 계산 (src/data/issues/2026-09-23/oct5-substitute-holiday-pay-2026-09-23.json) | 2026-10-05 D-1 | 1일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2026-10-05 대체공휴일, 10-09 한글날" · 날짜 2026-10-05 D-1 · dateModified 2026-09-24 |
-| 2 | 하동군 민생지원금 30만원 신청 10월 2일까지 (src/data/issues/2026-08-19/hadong-livelihood-grant-2026-08-19.json) | 2026-10-06 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "신청 2026.08.24~10.02 마감(연장 공고 없음) / 이의신청 2026.08.24~10.09(연휴 뒤 창구 10.6~10.8)" · 날짜 2026-10-06 D-2 · dateModified 2026-10-03T23:06:06.000Z |
-| 3 | 청년미래적금 추가 모집 언제? 9월 검토·잔여예산 182만명분 2026 (src/data/issues/2026-07-22/youth-future-savings-2nd-round-additional-2026-07-22.json) | 2026-10-07 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2차 가입신청 2026.10.7~10.16(7~8일 홀짝제, 12~16일 전체) · 심사 10.19~11.13 · 계좌개설 11.16~27(금융" · 날짜 2026-10-07 D-3 · dateModified 2026-09-27 |
-| 4 | 청년미래적금 신청기간, 2차 모집 10월 7~16일 확정 (src/data/issues/2026-06-03/youth-future-savings-apply-2026-06-03.json) | 2026-10-07 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2차 신청 2026.10.7~10.16(10.7~8 출생연도 홀짝제 · 10.12~16 자유) · 가입심사 10.19~11.13 · 계좌 개설 " · 날짜 2026-10-07 D-3 · dateModified 2026-09-22 |
-| 5 | 청년미래적금 은행별 금리·우대금리 2026 — 최대 연 8% 확정 (src/data/issues/2026-06-03/youth-future-savings-bank-rates-2026-06-03.json) | 2026-10-07 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "금리 공시 완료(2026-05-29) · 1차 모집 2026.7.3 종료 · 2차 모집 2026.10.7~10.16 확정" · 날짜 2026-10-07 D-3 · dateModified 2026-09-27 |
-| 6 | 청년미래적금 예상수령액·정부기여금 계산 — 월50만 3년 (src/data/issues/2026-06-03/youth-future-savings-calculator-2026-06-03.json) | 2026-10-07 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "만기 3년 · 1차 모집 2026.7.3 종료 · 2차 모집 2026.10.7~10.16 확정" · 날짜 2026-10-07 D-3 · dateModified 2026-09-27 |
-| 7 | 청년미래적금 가입조건·자격 2026 — 나이·소득기준 총정리 (src/data/issues/2026-06-03/youth-future-savings-eligibility-2026-06-03.json) | 2026-10-07 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2차 신청 2026.10.7~10.16 · 가입심사 10.19~11.13 · 계좌 개설 11.16~11.27 · 대상 1991.11.17~200" · 날짜 2026-10-07 D-3 · dateModified 2026-09-22 |
-| 8 | 청년미래적금 총정리 2026 — 신청 전 체크리스트·FAQ (src/data/issues/2026-06-03/youth-future-savings-summary-faq-2026-06-03.json) | 2026-10-07 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "1차 모집 2026.6.22~7.3 종료 · 계좌 개설 7.27~8.7 종료 · 2차 모집 2026.10.7~10.16 확정" · 날짜 2026-10-07 D-3 · dateModified 2026-09-27 |
-| 9 | 청년미래적금 일반형·우대형 차이 — 대상별 가입 가이드 (src/data/issues/2026-06-03/youth-future-savings-types-personas-2026-06-03.json) | 2026-10-07 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "1차 종료(모집 6.22~7.3 · 계좌 개설 7.27~8.7) · 2차 모집 2026.10.7~10.16 확정" · 날짜 2026-10-07 D-3 · dateModified 2026-09-27 |
-| 10 | 청년미래적금 vs 청년도약계좌 — 차이·갈아타기 2026 비교 (src/data/issues/2026-06-03/youth-future-savings-vs-leap-2026-06-03.json) | 2026-10-07 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "청년미래적금 2차 모집 2026.10.7~10.16(갈아타기 기회 추가 제공) / 청년도약계좌 상시 신청" · 날짜 2026-10-07 D-3 · dateModified 2026-09-22 |
-| 11 | 청년도약계좌 10월 가입 신청기간 2026 없음, 7일부터 청년미래적금 (src/data/issues/2026-09-28/youth-leap-account-october-application-period-2026-09-28.json) | 2026-10-07 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "미래적금 2차 2026-10-07~16, 도약계좌 접수 2025-12-05 종료" · 날짜 2026-10-07 D-3 · 갱신 이력 없음 |
-| 12 | 아동수당 자동지급 통과, 신청은 지금도 해야 하나요 (src/data/issues/2026-10-04/child-benefit-auto-payment-law-passed-2026-10-04.json) | 2026-10-01 D+3 | 마감·지급일 3일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "국회통과 2026-10-01, 시행은 공포 후 3개월 뒤, 공포일은 추후 확정" · 날짜 2026-10-01 D+3 · 갱신 이력 없음 |
+| 1 | 10월 5일 대체공휴일 수당, 5인 미만 제외와 시급제 20만원 계산 (src/data/issues/2026-09-23/oct5-substitute-holiday-pay-2026-09-23.json) | 2026-10-05 D-day | 오늘 마감·지급일 — 당일 표기 | coreFacts.deadline "2026-10-05 대체공휴일, 10-09 한글날" · 날짜 2026-10-05 D-day · dateModified 2026-09-24 |
+| 2 | 하동군 민생지원금 30만원 신청 10월 2일까지 (src/data/issues/2026-08-19/hadong-livelihood-grant-2026-08-19.json) | 2026-10-06 D-1 | 1일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "신청 2026.08.24~10.02 마감(연장 공고 없음) / 이의신청 2026.08.24~10.09(연휴 뒤 창구 10.6~10.8)" · 날짜 2026-10-06 D-1 (+ 2026-10-08 D-3) · dateModified 2026-10-03T23:06:06.000Z |
+| 3 | 청년미래적금 추가 모집 언제? 9월 검토·잔여예산 182만명분 2026 (src/data/issues/2026-07-22/youth-future-savings-2nd-round-additional-2026-07-22.json) | 2026-10-07 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2차 가입신청 2026.10.7~10.16(7~8일 홀짝제, 12~16일 전체) · 심사 10.19~11.13 · 계좌개설 11.16~27(금융" · 날짜 2026-10-07 D-2 · dateModified 2026-09-27 |
+| 4 | 청년미래적금 신청기간, 2차 모집 10월 7~16일 확정 (src/data/issues/2026-06-03/youth-future-savings-apply-2026-06-03.json) | 2026-10-07 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2차 신청 2026.10.7~10.16(10.7~8 출생연도 홀짝제 · 10.12~16 자유) · 가입심사 10.19~11.13 · 계좌 개설 " · 날짜 2026-10-07 D-2 (+ 2026-10-08 D-3) · dateModified 2026-09-22 |
+| 5 | 청년미래적금 은행별 금리·우대금리 2026 — 최대 연 8% 확정 (src/data/issues/2026-06-03/youth-future-savings-bank-rates-2026-06-03.json) | 2026-10-07 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "금리 공시 완료(2026-05-29) · 1차 모집 2026.7.3 종료 · 2차 모집 2026.10.7~10.16 확정" · 날짜 2026-10-07 D-2 · dateModified 2026-09-27 |
+| 6 | 청년미래적금 예상수령액·정부기여금 계산 — 월50만 3년 (src/data/issues/2026-06-03/youth-future-savings-calculator-2026-06-03.json) | 2026-10-07 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "만기 3년 · 1차 모집 2026.7.3 종료 · 2차 모집 2026.10.7~10.16 확정" · 날짜 2026-10-07 D-2 · dateModified 2026-09-27 |
+| 7 | 청년미래적금 가입조건·자격 2026 — 나이·소득기준 총정리 (src/data/issues/2026-06-03/youth-future-savings-eligibility-2026-06-03.json) | 2026-10-07 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2차 신청 2026.10.7~10.16 · 가입심사 10.19~11.13 · 계좌 개설 11.16~11.27 · 대상 1991.11.17~200" · 날짜 2026-10-07 D-2 · dateModified 2026-09-22 |
+| 8 | 청년미래적금 총정리 2026 — 신청 전 체크리스트·FAQ (src/data/issues/2026-06-03/youth-future-savings-summary-faq-2026-06-03.json) | 2026-10-07 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "1차 모집 2026.6.22~7.3 종료 · 계좌 개설 7.27~8.7 종료 · 2차 모집 2026.10.7~10.16 확정" · 날짜 2026-10-07 D-2 · dateModified 2026-09-27 |
+| 9 | 청년미래적금 일반형·우대형 차이 — 대상별 가입 가이드 (src/data/issues/2026-06-03/youth-future-savings-types-personas-2026-06-03.json) | 2026-10-07 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "1차 종료(모집 6.22~7.3 · 계좌 개설 7.27~8.7) · 2차 모집 2026.10.7~10.16 확정" · 날짜 2026-10-07 D-2 · dateModified 2026-09-27 |
+| 10 | 청년미래적금 vs 청년도약계좌 — 차이·갈아타기 2026 비교 (src/data/issues/2026-06-03/youth-future-savings-vs-leap-2026-06-03.json) | 2026-10-07 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "청년미래적금 2차 모집 2026.10.7~10.16(갈아타기 기회 추가 제공) / 청년도약계좌 상시 신청" · 날짜 2026-10-07 D-2 · dateModified 2026-09-22 |
+| 11 | 청년도약계좌 10월 가입 신청기간 2026 없음, 7일부터 청년미래적금 (src/data/issues/2026-09-28/youth-leap-account-october-application-period-2026-09-28.json) | 2026-10-07 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "미래적금 2차 2026-10-07~16, 도약계좌 접수 2025-12-05 종료" · 날짜 2026-10-07 D-2 · 갱신 이력 없음 |
+| 12 | 추석 지원금 50만원 받는 지역, 의령·함평 대상 확인 (src/data/issues/2026-08-27/chuseok-grant-50man-uiryeong-hampyeong-2026-08-27.json) | 2026-10-08 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "의령 2026.8.10~9.11(마감 임박) / 함평 2026.9.7~10.8(첫 주 9.7~11 출생연도 끝자리 5부제)" · 날짜 2026-10-08 D-3 · 갱신 이력 없음 |
+| 13 | 함평군 민생회복지원금 미신청 마감 10월 8일, 잔액 소멸 12월 31일 (src/data/issues/2026-09-28/hampyeong-livelihood-grant-unclaimed-oct8-deadline-2026-09-28.json) | 2026-10-08 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2026-10-08 신청 마감, 2026-12-31 사용기한" · 날짜 2026-10-08 D-3 · 갱신 이력 없음 |
+| 14 | 함평 민생회복지원금 50만원, 9월 7일 신청 시작 (src/data/issues/2026-08-16/hampyeong-livelihood-recovery-grant-2026-08-16.json) | 2026-10-08 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "신청·지급 2026.09.07부터 읍·면사무소, 추석 전 집중 지급 후 10.08까지 완료 / 사용기한 2026.12.31" · 날짜 2026-10-08 D-3 · dateModified 2026-09-28 |
+| 15 | 4차 민생지원금 지급 여부, 지금 신청받는 건 지자체 지원금이다 (src/data/issues/2026-08-09/minsaeng-4th-round-payment-status-2026-08-09.json) | 2026-10-08 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "고유가 피해지원금 사용기한 2026.08.31 24시 종료(잔액 소멸·환수) / 지자체 추석 지원금은 지역별 공고(통영 8.31~10.30, 고" · 날짜 2026-10-08 D-3 · dateModified 2026-09-18 |
+| 16 | 아동수당 자동지급 통과, 신청은 지금도 해야 하나요 (src/data/issues/2026-10-04/child-benefit-auto-payment-law-passed-2026-10-04.json) | 2026-10-01 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "국회통과 2026-10-01, 시행은 공포 후 3개월 뒤, 공포일은 추후 확정" · 날짜 2026-10-01 D+4 · 갱신 이력 없음 |
 
 ## 제외(사유)
 
@@ -69,7 +74,6 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 - [T1] 완주 지원금 — 실유입 "완주 지원금" 149/주 순위 미측정 → cluster-intents VETO: 완주 × A 이미 존재: wanju-livelihood-stability-grant-2026-08-12(2026-08-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
 - [T1] 통영시 민생지원금 신청 — 실유입 "통영시 민생지원금 신청" 134/주 순위 미측정 → cluster-intents VETO: 통영 × A 이미 존재: tongyeong-livelihood-recovery-grant-2026-08-15(2026-08-15). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
 - [T1] 함평 지원금 — 실유입 "함평 지원금" 60/주 순위 미측정 → cluster-intents VETO: 함평 × A 이미 존재: hampyeong-livelihood-recovery-grant-2026-08-16(2026-08-16). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
-- [T1] 완주군 지원금 — 실유입 "완주군 지원금" 58/주 순위 미측정 → cluster-intents VETO: 완주 × A 이미 존재: wanju-livelihood-stability-grant-2026-08-12(2026-08-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
 - [T2] 실업급여 이직확인서 — 축 잠금 — separation-certificate-request-10days-2026-09-09(2026-09-09) 제목이 "이직확인서" 축을 이미 잡고 있다
 - [T2] 실업급여 조기재취업수당 — 축 잠금 — early-reemployment-allowance-2026-06-16(2026-06-16) 제목이 "조기재취업수당" 축을 이미 잡고 있다
 - [T2] 실업급여 하한액 — 축 잠금 — unemployment-benefit-amount-calc-2026-07-10(2026-07-10) 제목이 "하한액" 축을 이미 잡고 있다
@@ -81,7 +85,7 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 - [T2] 근로장려금 지급일 — 축 잠금 — eitc-semiannual-vs-regular-payment-date-2026-07-01(2026-07-01) 제목이 "지급일" 축을 이미 잡고 있다
 - [T2] 근로장려금 자녀장려금 — 축 잠금 — child-tax-credit-payment-2026-07-15(2026-07-15) 제목이 "자녀장려금" 축을 이미 잡고 있다
 - [T2] 근로장려금 대상 기준 — 축 잠금 — eitc-2026-eligibility-criteria(2026-09-13) 제목이 "대상 기준" 축을 이미 잡고 있다
-- [T2] 근로장려금 계산기 — recent7 0.31 < 1.5(radar)
+- [T2] 근로장려금 계산기 — recent7 0.33 < 1.5(radar)
 - [T2] 근로장려금 현금수령 — 축 잠금 — eitc-refund-notice-cash-receipt-2026-08-07(2026-08-07) 제목이 "현금수령" 축을 이미 잡고 있다
 - [T2] 중위소득 계산 — 축 잠금 — median-income-calculation-guide-2026-09-19(2026-09-19) 제목이 "계산" 축을 이미 잡고 있다
 - [T2] 중위소득 2027 — 축 잠금 — median-income-2027-livelihood-benefit-threshold-2026-08-01(2026-08-01) 제목이 "2027" 축을 이미 잡고 있다
@@ -109,24 +113,24 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 - [T2] 노란우산공제 해지 세금 — 축 잠금 — yellow-umbrella-termination-other-income-tax-2026-09-09(2026-09-09) 제목이 "해지 세금" 축을 이미 잡고 있다
 - [T2] 본인부담상한액 초과금 환급 — 축 잠금 — medical-copay-cap-refund-2026-08-31(2026-08-31) 제목이 "초과금 환급" 축을 이미 잡고 있다
 - [T2] 2027 예산안 — mode update-only — 갱신 트랙 전용(지금은 1.77로 작고 하락 중(trend 0.56). 대응 글 0. 국회 심사(11월)·통과(12/2 법정)
-- [T2] 긴급생계지원금 — 기존 글 있음 — emergency-welfare-livelihood-support-2026-06-18(제목에 이 표현 포함). 새 글 아님
-- [T2] 주휴수당 — 기존 글 있음 — weekly-holiday-pay-calculation-2026-08-10(제목에 이 표현 포함). 새 글 아님
+- [T2] 에너지바우처 — 기존 글 있음 — energy-voucher-summer-2026-06-08(제목에 이 표현 포함). 새 글 아님
+- [T2] 청년미래적금 — 기존 글 있음 — youth-future-savings-apply-2026-06-03(제목에 이 표현 포함). 새 글 아님
 - [T2] 청년일자리도약장려금 — 기존 글 있음 — youth-job-leap-nonmetro-incentive-2026-07-30(제목에 이 표현 포함). 새 글 아님
-- [T2] 국가장학금 — 기존 글 있음 — national-scholarship-2nd-semester-2026-06-17(제목에 이 표현 포함). 새 글 아님
+- [T2] 2026 근로장려금 대상 기준 — 기존 글 있음 — eitc-2026-eligibility-criteria(제목에 이 표현 포함). 새 글 아님
 - [T2] 2027년 아이맞이지원금 — 기존 글 있음 — child-benefit-2027-overhaul-2026-09-03(제목에 이 표현 포함). 새 글 아님
 - [T2] 조기재취업수당 조건 — 기존 글 있음 — early-reemployment-allowance-conditions-2026-07-31(제목에 이 표현 포함). 새 글 아님
 - [T3] 중도퇴사 연말정산 — hold: peak ≥3 ✗(2.86 — 미달) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인(asiatop 사회초년생 퇴사 각도). 재측정에서 ≥3 나올 때만
-- [T2] 2026 재난지원금 — scout 2026-10-04 verdictT2 closed: "2026 재난지원금" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
-- [T2] 9월14일 민생지원금 — scout 2026-10-04 verdictT2 closed: "9월14일 민생지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
-- [T2] 조기취업수당 조건 — scout 2026-10-04 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
-- [T2] 2026 주휴수당 포함 시급 — scout 2026-10-04 verdictT2 closed: "2026 주휴수당 포함 시급" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
-- [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-10-04 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" already r3, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
-- [T2] 애향장학금 — scout 2026-10-04 verdictT2 closed: "애향장학금" openSlots 1<2, offset·press 미측정(API) — 재측정 후 재판정
-- [T2] 주휴수당 포함 시급 — scout 2026-10-04 verdictT2 closed: "주휴수당 포함 시급" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
-- [T2] 실업급여 구직급여 — scout 2026-10-04 verdictT2 closed: "실업급여 구직급여" openSlots 0<2, news-warn 같은 제목 5·7일 96건, offset·press 미측정(API) — 재측정 후 재판정
-- [T1] 4차 민생지원금 지역별 지급 현황 — scout 2026-10-04 verdictT1 closed: "4차 민생지원금 지역별 지급 현황" already r2, openSlots 1<2, offset·press 미측정(API) / "4차 민생지원금 9월 신청 지역" already r1, openSlots 0<2, offset·press 미측정(API) / "4차 민생지원금 개시일" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
-- [T1] 창원 지원금 — scout 2026-10-04 verdictT1 closed: "창원 지원금" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
-- [T1] 정읍시 민생지원금 — scout 2026-10-04 verdictT1 closed: "정읍시 민생지원금" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
+- [T2] 2026 재난지원금 — scout 2026-10-05 verdictT2 closed: "2026 재난지원금" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
+- [T2] 9월14일 민생지원금 — scout 2026-10-05 verdictT2 closed: "9월14일 민생지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
+- [T2] 조기취업수당 조건 — scout 2026-10-05 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
+- [T2] 2026 주휴수당 포함 시급 — scout 2026-10-05 verdictT2 closed: "2026 주휴수당 포함 시급" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
+- [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-10-05 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" already r3, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
+- [T2] 애향장학금 — scout 2026-10-05 verdictT2 closed: "애향장학금" openSlots 1<2, offset·press 미측정(API) — 재측정 후 재판정
+- [T2] 주휴수당 포함 시급 — scout 2026-10-05 verdictT2 closed: "주휴수당 포함 시급" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
+- [T2] 실업급여 구직급여 — scout 2026-10-05 verdictT2 closed: "실업급여 구직급여" openSlots 0<2, news-warn 같은 제목 5·7일 93건, offset·press 미측정(API) — 재측정 후 재판정
+- [T1] 4차 민생지원금 지역별 지급 현황 — scout 2026-10-05 verdictT1 closed: "4차 민생지원금 지역별 지급 현황" already r2, openSlots 1<2, offset·press 미측정(API) / "4차 민생지원금 9월 신청 지역" already r1, openSlots 0<2, offset·press 미측정(API) / "4차 민생지원금 개시일" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
+- [T1] 창원 지원금 — scout 2026-10-05 verdictT1 closed: "창원 지원금" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
+- [T1] 정읍시 민생지원금 — scout 2026-10-05 verdictT1 closed: "정읍시 민생지원금" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
 - [T3] 10월 대체공휴일 휴일근무 수당 — 운영자 반려(2026-09-29T04:54:48.865Z)
 - [T3] 독감 무료 예방접종 65세 연령별 날짜 — 운영자 반려(2026-09-29T04:54:48.865Z)
 - [T3] 부가세 예정고지 세부(안내면·가산세) — 발행됨(2026-09-25)
@@ -229,29 +233,29 @@ SERP 실측: scout 23/35건(T1 15·T2 5·재측정 5)
 
 ## 다음 물결 감시
 
-- 나주 — 개시 09/14 D+20 · 신규 없음. D-1·D+1 재측정, 4위 이하면 B(계획 §5)
-- 문경 — 개시 09/14 D+20 · 신규 없음. 9/16 B 필요 여부 판단(계획 §5) (판단일 2026-09-16)
-- 김해 — 개시 09/17 D+17 · 김해시 공고 게시 후 B키 2개 확정 시만(결정 #5)
+- 나주 — 개시 09/14 D+21 · 신규 없음. D-1·D+1 재측정, 4위 이하면 B(계획 §5)
+- 문경 — 개시 09/14 D+21 · 신규 없음. 9/16 B 필요 여부 판단(계획 §5) (판단일 2026-09-16)
+- 김해 — 개시 09/17 D+18 · 김해시 공고 게시 후 B키 2개 확정 시만(결정 #5)
 - 강릉 — 개시일 미정 · V글 보유. 신규 금지, bill.do 새 uid 감시(결정 #6) · https://gncl.go.kr:8080/assembly/bill.do
 - 당진 — 개시일 미정 · V글 보유. 신규 금지, 가결 감시(결정 #6)
 - 대구 — 개시일 미정 · 확인 불가 — 첫 주 제외(계획 §5)
 - 경기 — 개시일 미정 · 확인 불가 — 첫 주 제외(계획 §5)
 - 설 2027 지자체 지원금 — watch · 감시 시작 2026-11-01 · 가결 트리거 — 지자체별 조례·추경 가결 또는 공고 확인 시 즉시(개시 D-7 안). 날짜 캘린더 아님
-- 연말정산 월세 세액공제 — writeBy 2026-11-05(D-32) · 피크 1월 76.21
-- 연말정산 부양가족 — writeBy 2026-11-15(D-42) · 피크 1월 16.51
-- 연말정산 의료비 — writeBy 2026-11-25(D-52) · 피크 1월 14.08
-- 연말정산 연금저축 — writeBy 2026-12-05(D-62) · 피크 1월 7.49
-- 연말정산 경정청구 — writeBy 2026-12-20(D-77) · 피크 5월 12.9
-- 완주 신청·지급 마감 10/30 카운트다운 정정(계획 §7-2) — 2026-10-30(D-26) 갱신 예정 · wanju-livelihood-stability-grant-2026-08-12, wanju-grant-proxy-application-after-sep14
-- 나주 신청 마감 10/16 카운트다운 정정(계획 §7-2) — 2026-10-16(D-12) 갱신 예정 · naju-livelihood-recovery-grant-2026-08-07, naju-livelihood-grant-rotation-days-2026-09-03, naju-grant-prepaid-card-vs-chak-usage-places-2026-09-30
-- 문경 신청 마감 10/23 — 2026-10-23(D-19) 갱신 예정 · mungyeong-high-oil-price-relief-2026-08-16, mungyeong-livelihood-grant-chuseok-payment-2026-08-27, mungyeong-grant-prepaid-card-usage-places-2026-09-28
-- 영암 신청 마감 10/30 — 2026-10-30(D-26) 갱신 예정 · yeongam-rural-basic-allowance-100k, yeongam-wolchulpay-balance-expiry-use
+- 연말정산 월세 세액공제 — writeBy 2026-11-05(D-31) · 피크 1월 76.21
+- 연말정산 부양가족 — writeBy 2026-11-15(D-41) · 피크 1월 16.51
+- 연말정산 의료비 — writeBy 2026-11-25(D-51) · 피크 1월 14.08
+- 연말정산 연금저축 — writeBy 2026-12-05(D-61) · 피크 1월 7.49
+- 연말정산 경정청구 — writeBy 2026-12-20(D-76) · 피크 5월 12.9
+- 완주 신청·지급 마감 10/30 카운트다운 정정(계획 §7-2) — 2026-10-30(D-25) 갱신 예정 · wanju-livelihood-stability-grant-2026-08-12, wanju-grant-proxy-application-after-sep14
+- 나주 신청 마감 10/16 카운트다운 정정(계획 §7-2) — 2026-10-16(D-11) 갱신 예정 · naju-livelihood-recovery-grant-2026-08-07, naju-livelihood-grant-rotation-days-2026-09-03, naju-grant-prepaid-card-vs-chak-usage-places-2026-09-30
+- 문경 신청 마감 10/23 — 2026-10-23(D-18) 갱신 예정 · mungyeong-high-oil-price-relief-2026-08-16, mungyeong-livelihood-grant-chuseok-payment-2026-08-27, mungyeong-grant-prepaid-card-usage-places-2026-09-28
+- 영암 신청 마감 10/30 — 2026-10-30(D-25) 갱신 예정 · yeongam-rural-basic-allowance-100k, yeongam-wolchulpay-balance-expiry-use
 - 재측정 "2026 김해 민생지원금": r1 · 본청 0 · 뉴스7일 1·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "김해시 지원금": r1 · 본청 0 · 뉴스7일 19·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "통영 지원금 신청": r2 · 본청 0 · 뉴스7일 5·같은제목 1 · openSlots 0 · 눈 확인 전
-- 재측정 "문경시 지원금": r1 · 본청 0 · 뉴스7일 12·같은제목 2 · openSlots 0 · 눈 확인 전
-- 재측정 "김해 지원금": r2 · 본청 0 · 뉴스7일 24·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "김해시 지원금": r2 · 본청 0 · 뉴스7일 17·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "통영 지원금 신청": r2 · 본청 0 · 뉴스7일 6·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "문경시 지원금": r1 · 본청 0 · 뉴스7일 19·같은제목 2 · openSlots 0 · 눈 확인 전
+- 재측정 "김해 지원금": r2 · 본청 0 · 뉴스7일 23·같은제목 1 · openSlots 0 · 눈 확인 전
 
-SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 3건 · 새 키워드 8건 · 재측정 23건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
+SERP 정찰 계획(--serp 시 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5): T1 7건 · T2 3건 · 새 키워드 9건 · 재측정 22건 — 재측정: 2026 김해 민생지원금, 김해시 지원금, 통영 지원금 신청, 문경시 지원금, 김해 지원금, 통영 민생지원금 신청, 완주 지원금, 문경 지원금 …
 
 0400 자동 발행은 그대로 1건 나갑니다. 위 후보 중 쓸 것을 지시해 주세요.
