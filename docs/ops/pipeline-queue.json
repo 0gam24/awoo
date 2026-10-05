@@ -644,7 +644,7 @@
         "scout 2026-10-05: 자사 미노출 · 본청 0 · 뉴스7일 55·같은제목 1 · 자매 0 · openSlots 5 · 눈 확인 전 · T1 open · T2 open"
       ],
       "expectedInbound": "328~765",
-      "condition": "검색 결과 실측 필요",
+      "condition": "국민연금공단 1차 출처로 노령연금 종류(완전·조기·연기·분할)·지급개시연령 출생연도표·2026 감액기준 · 7/3 감액 완화·7/22 조기수령 글과 의도 겹침 금지(링크) · 기초연금과 혼동 구분",
       "recent7": 14.85,
       "recent7Source": "radar",
       "serp": {
@@ -8084,6 +8084,136 @@
       "status": "proposed",
       "createdAt": "2026-10-03T23:00:34.367Z",
       "lastSeenAt": "2026-10-03T23:00:34.367Z"
+    },
+    {
+      "id": "빈틈:출산휴가지원금",
+      "track": "T2",
+      "query": "출산휴가지원금",
+      "family": null,
+      "region": null,
+      "source": "10/4 자동 후보(높음 70) — 10/5 재생성에서 빠져 빈틈으로 보존",
+      "born": false,
+      "inbound7d": null,
+      "evidence": [
+        "기회도 31(수요 40% · 공급희소 77%)",
+        "블로그 문서 82488건",
+        "scout 2026-10-04: 자사 미노출 · 본청 0 · 뉴스7일 28·같은제목 1 · 자매 0 · openSlots 4 · 눈 확인 전 · T1 open · T2 open",
+        "10/4 확인: 검색 결과 위쪽이 worklife.kr 대체인력·업무분담 지원금, 복지로 출산육아기 고용안정장려금, 고용노동부 배우자 출산휴가 업무분담 지원금 — 사업주 지원금 의도. 데이터랩 1.41(30일 1.2), 출산휴가급여 13.97은 9/17 글 몫"
+      ],
+      "expectedInbound": "31~73",
+      "condition": "사업주가 받는 지원금 각도로(대체인력 지원금·업무분담 지원금·출산육아기 고용안정장려금 — 고용노동부·고용24 1차 출처) · 근로자가 받는 출산휴가급여는 9/17 글(출산휴가급여 언제 들어오나요)로 링크, 같은 의도 잠식 금지",
+      "recent7": 1.41,
+      "recent7Source": "radar",
+      "serp": {
+        "query": "출산휴가지원금",
+        "rank": null,
+        "url": null,
+        "webDocCount": 12,
+        "aboveIsWholeBlock": true,
+        "openSlots": 4,
+        "mainGovAbove": 0,
+        "pressAbove": null,
+        "sisterAbove": 0,
+        "webDocOffset": null,
+        "verdictT1": "open",
+        "verdictT2": "open",
+        "reason": [
+          "offset·press 미측정(API)"
+        ],
+        "region": null,
+        "onPage": null,
+        "parseOk": true,
+        "measuredAt": "2026-10-03T22:58:55.711Z",
+        "webDocRaw": 30,
+        "webDocTotal": 2462590,
+        "eyeOffset": null,
+        "newsWall": 28,
+        "newsWallCapped": false,
+        "newsSameTitle": 1,
+        "measuredBy": "webkr-api",
+        "unmeasured": [
+          "webDocOffset",
+          "pressAbove",
+          "ugc",
+          "onPage"
+        ],
+        "above": [
+          {
+            "host": "worklife.kr",
+            "kind": "commercial",
+            "title": "대체인력･업무분담 지원금 - 고용노동부 일생활균형 - 육아휴직, 유연근무, 근...."
+          },
+          {
+            "host": "bokjiro.go.kr",
+            "kind": "institutional",
+            "title": "출산 육아기 고용안정장려금"
+          },
+          {
+            "host": "bizinfo.go.kr",
+            "kind": "institutional",
+            "title": "[서울] 2026년 아이 키우기 좋은 기업 지원 사업 육아휴직ㆍ 출산휴가 기업 지원금 ...."
+          },
+          {
+            "host": "moel.go.kr",
+            "kind": "institutional-open",
+            "title": "[인포그래픽] 배우자 출산휴가 업무분담 지원금 | 고용노동부 > 뉴스·소식 > 홍....",
+            "openBy": [
+              "board"
+            ]
+          },
+          {
+            "host": "easylaw.go.kr",
+            "kind": "institutional",
+            "title": "일과 가정생활 > 일·가정 양립 근로 환경 > 배우자 출산휴가 > 배우자 출산휴가 ...."
+          },
+          {
+            "host": "work24.go.kr",
+            "kind": "institutional",
+            "title": "고용정책 상세_제도안내 | 고용정책 목록 | 정책/제도 | 고객센터>대체인력 지원 ...."
+          },
+          {
+            "host": "korea.kr",
+            "kind": "institutional",
+            "title": "배우자 출산휴가 준 사업자에도 업무분담 지원금 지급 - 정책뉴스 | 뉴스"
+          },
+          {
+            "host": "seoulwomen.or.kr",
+            "kind": "institutional",
+            "title": "2026년 서울시 육아휴직· 출산휴가 기업 지원금 및 출산휴가 급여 근로자 지원금 ...."
+          },
+          {
+            "host": "bokji.gangnam.go.kr",
+            "kind": "institutional-open",
+            "title": "출산 육아기 고용안정장려금(대체인력 지원금 ) | 복지플랫폼 > 복지정보 > 내가 ....",
+            "openBy": [
+              "board"
+            ]
+          },
+          {
+            "host": "busan.childcare.go.kr",
+            "kind": "institutional-open",
+            "title": "[베이비뉴스] [달라지는 것] 배우자 출산휴가 도 지원금 …업무분담 사업주에 정....",
+            "openBy": [
+              "board"
+            ]
+          }
+        ],
+        "source": "scout 2026-10-04",
+        "approx": false
+      },
+      "score": 207.6,
+      "scoreNote": "1.41 × min(4,4) × 36.8",
+      "exposure": {
+        "score": 70,
+        "label": "높음",
+        "reasons": [
+          "자리 열림",
+          "빈자리 4",
+          "위에 관공서 없음"
+        ]
+      },
+      "status": "proposed",
+      "createdAt": "2026-10-05T12:55:23.033Z"
     }
   ],
   "excluded": [
