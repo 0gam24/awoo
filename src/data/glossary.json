@@ -23,7 +23,7 @@
     "shortDef": "최저생활 보장을 위한 정부의 직접 지원 제도. 생계·의료·주거·교육 4종 급여로 분리 운영.",
     "longDef": "수급권자 인정 기준은 가구 소득·재산·근로능력. 부양의무자 기준은 2021년 폐지(생계·의료) 또는 완화. 신청은 거주지 주민센터.",
     "category": "복지",
-    "related": ["median-income", "low-income-support", "income-percentile"],
+    "related": ["median-income", "near-poor", "income-percentile"],
     "synonyms": ["기초수급", "수급자"]
   },
   {
@@ -59,7 +59,7 @@
     "shortDef": "차상위 이하 청년이 매월 10만원 적립 시 정부가 1:1~3 매칭으로 저축 보조하는 자산형성 제도.",
     "longDef": "만 19~34세 + 근로·사업소득 50~220만원 + 가구 중위 100% 이하. 3년 만기. 통장 운영처는 서민금융진흥원.",
     "category": "자산",
-    "related": ["youth-leap-account", "low-income-support"],
+    "related": ["youth-leap-account", "near-poor"],
     "synonyms": ["내일저축계좌"]
   },
   {
@@ -113,7 +113,7 @@
     "shortDef": "만 65세 이상 중 소득 하위 70% 노인에게 월 최대 33만원(2026년 기준)을 매월 지급.",
     "longDef": "본인·배우자 소득인정액(소득 + 재산 환산)이 선정기준액 이하. 자동 가입 X — 만 65세 직전 월에 신청. 신청은 국민연금공단·주민센터.",
     "category": "복지",
-    "related": ["low-income-support", "median-income"],
+    "related": ["near-poor", "median-income"],
     "synonyms": ["노령연금"]
   },
   {
@@ -122,7 +122,7 @@
     "shortDef": "저소득 근로자·자영업자에게 가구 유형·소득에 따라 연 최대 330만원을 환급해주는 세제 혜택.",
     "longDef": "단독·홑벌이·맞벌이 3유형. 총소득 한도(단독 2,200만원·맞벌이 3,800만원). 5월 정기 신청 + 9·12·3월 반기 신청 가능. 신청은 홈택스.",
     "category": "자산",
-    "related": ["ctc", "low-income-support"],
+    "related": ["ctc", "near-poor"],
     "synonyms": ["EITC", "근로장려세제"]
   },
   {
@@ -221,7 +221,7 @@
     "shortDef": "만 19세 이상 저소득 성인 학습자에게 연 35만원 바우처를 지급하여 비형식 학습기관 수강료로 사용.",
     "longDef": "기초생활수급자·차상위·중위 65% 이하 우선. 평생교육시설 등록기관 한정. 신청은 평생교육원·복지로.",
     "category": "교육",
-    "related": ["training-card", "low-income-support"],
+    "related": ["training-card", "near-poor"],
     "synonyms": ["성인학습바우처"]
   },
   {
@@ -248,17 +248,8 @@
     "shortDef": "냉·난방 에너지 비용 부담을 줄이도록 가구원 수에 따라 2026년 기준 연 29만5,200원~70만1,300원을 바우처로 지급.",
     "longDef": "기초생활수급자(생계·의료·주거·교육) 가운데 노인·영유아·장애인·임산부 등이 있는 세대. 2026년분은 하·동절기 구분 없이 2026년 7월 1일~2027년 5월 31일 사용. 신청은 읍·면·동 행정복지센터나 복지로.",
     "category": "복지",
-    "related": ["low-income-support", "basic-livelihood"],
+    "related": ["near-poor", "basic-livelihood"],
     "synonyms": ["냉난방 바우처"]
-  },
-  {
-    "id": "low-income-support",
-    "term": "차상위계층",
-    "shortDef": "기초생활수급자는 아니지만 중위소득 50% 이하의 저소득층. 별도 다양한 감면·지원 자격을 부여받음.",
-    "longDef": "기초수급보다 자격 완만 — 부양의무자 미고려. 의료비·통신비·문화비 감면, 자녀 학비 감면 등 50종 이상 혜택. 신청은 주민센터.",
-    "category": "복지",
-    "related": ["basic-livelihood", "median-income"],
-    "synonyms": ["차상위"]
   },
   {
     "id": "single-parent-support",
@@ -275,7 +266,7 @@
     "shortDef": "고유가로 인한 생활 부담 완화를 위해 정부가 한시적으로 지급하는 현금성 지원금. 항구 제도 아닌 정책 결정에 따라 도입·종료.",
     "longDef": "2026년 2차 지급은 소득 하위 70% 국민 대상으로 수도권 1인 10만원, 특별지원지역 25만원 지급. 2026년 3월 부과 건강보험료와 재산 기준을 동시에 적용해 대상자 선정, 고액자산가 약 100만 가구는 명시적 제외. 거주지 읍·면·동 행정복지센터 신청. 항구적 고유가 관련 정부 지원은 별도(화물차 유가보조금·농어업인 면세유·도서지역 유류 운송비 보조 등).",
     "category": "재난·생계",
-    "related": ["basic-livelihood", "income-percentile", "low-income-support"],
+    "related": ["basic-livelihood", "income-percentile", "near-poor"],
     "synonyms": ["민생지원금", "유가 보전 지원금"]
   },
   {
@@ -302,7 +293,7 @@
     "shortDef": "보건복지부가 운영하는 복지 종합 포털(bokjiro.go.kr). 복지서비스 모의계산·온라인 신청·수급 이력 조회를 한곳에서 처리.",
     "longDef": "보건복지부·한국사회보장정보원이 운영하는 대표 복지 포털로, 중앙부처·지자체 복지사업을 통합 안내합니다. '복지서비스 모의계산'으로 기초생활보장·기초연금 등 자격을 미리 가늠하고, 공동인증서·간편인증 로그인 후 온라인으로 신청·변경 신고가 가능합니다. 모바일 앱과 정부24와도 연계됩니다.",
     "category": "복지",
-    "related": ["basic-livelihood", "median-income", "low-income-support"],
+    "related": ["basic-livelihood", "median-income", "near-poor"],
     "synonyms": ["복지로 포털", "bokjiro"]
   },
   {
@@ -311,7 +302,7 @@
     "shortDef": "기초생활수급자는 아니지만 소득인정액이 기준 중위소득 50% 이하인 잠재적 빈곤층. 본인부담경감·자활 등 별도 지원 대상.",
     "longDef": "소득인정액이 기준 중위소득 50% 이하이면서 기초생활보장 수급 요건에는 못 미치거나 부양의무자 기준 등으로 수급에서 제외된 계층입니다. 차상위 본인부담경감(의료비), 차상위 자활근로, 차상위계층 확인서 기반 각종 감면(통신·에너지·문화누리 등) 대상이 됩니다. 자격은 행정복지센터·복지로에서 확인합니다.",
     "category": "소득·자격",
-    "related": ["median-income", "basic-livelihood", "low-income-support"],
+    "related": ["median-income", "basic-livelihood"],
     "synonyms": ["차상위", "차상위 계층"]
   },
   {
@@ -329,7 +320,7 @@
     "shortDef": "아동양육시설·위탁가정 등의 보호가 종료된 청년(구 보호종료아동). 자립수당·자립정착금 등으로 홀로서기를 지원.",
     "longDef": "아동복지시설·가정위탁 보호를 받다가 보호가 종료됐거나 종료를 앞둔 청년으로, 통상 만 18세 이후 자립을 시작하며 본인이 원하면 보호기간을 만 24세까지 연장할 수 있습니다. 보호종료 후 최대 5년간 월 자립수당, 초기 정착을 돕는 자립정착금, 주거·의료·심리 지원과 자립지원전담기관 사례관리를 받습니다. '보호종료아동'을 대체하는 공식 용어입니다.",
     "category": "복지",
-    "related": ["basic-livelihood", "youth-leap-account", "low-income-support"],
+    "related": ["basic-livelihood", "youth-leap-account", "near-poor"],
     "synonyms": ["보호종료아동", "자립준비 청년"]
   },
   {
