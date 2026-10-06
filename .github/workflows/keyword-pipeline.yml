@@ -74,10 +74,21 @@ jobs:
             node scripts/keyword-pipeline.mjs --serp
           fi
 
+      # 돈 되는 물결(수익 배수 1.5↑)이 뜨면 선점 버튼을 기다리지 않고 지역·세부로 쪼개 빈틈 목록에 넣는다.
+      # 운영자 목표(2026-10-06) 하루 200달러 — 파이프라인이 큐를 다시 만든 뒤에 붙인다. 실패해도 큐는 저장한다.
+      - name: Auto-split money waves
+        continue-on-error: true
+        env:
+          NCP_API_KEY_ID: ${{ secrets.NCP_API_KEY_ID }}
+          NCP_API_KEY: ${{ secrets.NCP_API_KEY }}
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+        run: node scripts/wave-auto.mjs
+
       - name: Check for changes
         id: diff
         run: |
-          if [ -n "$(git status --porcelain docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json docs/ops/next-wave.json)" ]; then
+          if [ -n "$(git status --porcelain docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json docs/ops/next-wave.json docs/ops/wave-auto-log.json)" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
@@ -92,7 +103,7 @@ jobs:
           MSG="chore(pipeline): $(TZ=Asia/Seoul date +'%m/%d') 키워드 후보 보고
 
           [skip ci]"
-          git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json docs/ops/next-wave.json
+          git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json docs/ops/next-wave.json docs/ops/wave-auto-log.json
           git commit -m "$MSG"
 
           # 큐·보고문은 "오늘 상태"라 매번 통째로 다시 만든다 — 시계열 병합(merge-data-store)이 필요 없다.
@@ -105,8 +116,8 @@ jobs:
             echo "원격이 앞서 있다 — rebase 후 재시도 ($i/3)"
             # rebase에서 -X theirs = 재생(replay)되는 우리 커밋 쪽
             if ! git rebase -X theirs origin/main; then
-              git checkout --theirs docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json docs/ops/next-wave.json || true
-              git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json docs/ops/next-wave.json
+              git checkout --theirs docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json docs/ops/next-wave.json docs/ops/wave-auto-log.json || true
+              git add docs/ops/pipeline-queue.json docs/ops/DAILY-KEYWORDS.md docs/ops/cluster-intents.json docs/ops/next-wave.json docs/ops/wave-auto-log.json
               GIT_EDITOR=true git rebase --continue || { git rebase --abort; exit 1; }
             fi
           done

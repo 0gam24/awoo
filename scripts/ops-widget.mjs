@@ -205,7 +205,6 @@ const ready = items.filter((i) => i.exposure?.score != null).sort(valueOrder);
 const pending = items
   .filter((i) => i.exposure?.score == null)
   .sort((a, b) => (b.inbound7d ?? 0) - (a.inbound7d ?? 0) || (b.recent7 ?? 0) - (a.recent7 ?? 0));
-const shown = ready.slice(0, LIMIT);
 
 // 하루 몇 달러짜리 글감인가 — 운영자 목표(2026-10-06) "일 200달러 평균". 금액 자료는 로컬 전용
 // docs/ops/adsense-private/rpm-groups.json(공개 저장소라 gitignore). 없으면(봇·다른 PC) 이 칸을 통째로 뺀다.
@@ -243,9 +242,25 @@ function goalHtml() {
     <span style="font-size:13px;color:var(--text-secondary)">최근 하루 평균 ${now ?? '?'}달러 (${esc(money.recent?.from?.slice(5) ?? '')}~${esc(money.recent?.to?.slice(5) ?? '')})</span>
   </div>
   <div style="height:6px;border-radius:3px;background:rgba(127,127,127,.2);margin:6px 0 4px"><div style="height:6px;border-radius:3px;width:${pct}%;background:var(--text-success)"></div></div>
-  <div style="font-size:12px;color:var(--text-muted)">아래 글감이 모두 1~3위에 들어도 하루 약 +${fmtUsd(sum)}달러${unknown ? ` (${unknown}건은 검색량을 몰라 뺌)` : ''} · 글감 옆 금액 = 1~3위일 때 하루 예상</div>
+  <div style="font-size:12px;color:var(--text-muted)">아래 글감이 모두 1~3위에 들어도 하루 약 +${fmtUsd(sum + tiny.reduce((s, i) => s + (usdPerDay(i) ?? 0), 0))}달러${unknown ? ` (${unknown}건은 검색량을 몰라 뺌)` : ''} · 글감 옆 금액 = 1~3위일 때 하루 예상</div>
 </div>`;
 }
+// 하루 1달러도 안 되는 글감은 접는다(운영자 2026-10-06 "진행해" — 목표 하루 200달러). 검색량을 몰라 계산 못 한 글감은 남긴다.
+// 금액 자료가 없는 곳(봇·다른 PC)에서는 아무것도 접지 않는다.
+const MIN_USD = money?.minUsdPerDay ?? 1;
+const tiny = money
+  ? ready.filter((i) => {
+      const u = usdPerDay(i);
+      return u != null && u < MIN_USD;
+    })
+  : [];
+const shown = ready.filter((i) => !tiny.includes(i)).slice(0, LIMIT);
+const tinyHtml = tiny.length
+  ? `<div style="font-size:12px;color:var(--text-muted);padding:8px 0 0;border-top:0.5px solid var(--border)">하루 ${MIN_USD}달러 미만이라 접어 둔 글감 ${tiny.length}건: ${tiny
+      .slice(0, 8)
+      .map((i) => `${esc(i.query)}(${fmtUsd(usdPerDay(i))})`)
+      .join(' · ')}${tiny.length > 8 ? ' …' : ''} — 1위를 해도 목표에 거의 보탬이 안 됩니다</div>`
+  : '';
 const genIso = q.meta?.generatedAt ?? q.generatedAt ?? null;
 // 큐의 시각은 UTC ISO — 화면은 KST
 const generated = genIso
@@ -409,6 +424,7 @@ console.log(`<h2 class="sr-only" style="position:absolute;left:-9999px">오늘 �
   </div>
 ${goalHtml()}
 ${rows || '<p style="color:var(--text-secondary)">지시 대기 글감이 없습니다.</p>'}
+${tinyHtml}
 ${pendingRows}
 ${wavesHtml()}
 </div>`);
