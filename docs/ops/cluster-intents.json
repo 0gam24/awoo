@@ -3,7 +3,7 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 332,
+    "scannedPosts": 336,
     "entryCount": 91,
     "regionCount": 56,
     "regions": [
@@ -2236,11 +2236,10 @@
       "coreFacts": {
         "who": "고성·창원·진주·사천·통영 밖 주민, 신청자 만 19세 이상",
         "amount": "사용액 50%, 개인 10만·팀 20만·가족 50만원, 청년 마감",
-        "deadline": "여행 종료일부터 10일 안 정산, 3차 10월 14일 예정"
+        "deadline": "여행 종료일부터 10일 안 정산, 3차는 잔액 생길 때만"
       },
       "coreFactsKeys": [
-        "amount=50만원",
-        "deadline=2026-10-14"
+        "amount=50만원"
       ],
       "cluster": "other",
       "rollup": false,
