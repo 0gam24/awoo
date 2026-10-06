@@ -1631,6 +1631,11 @@ async function main() {
   // ── T3: 선점 캘린더 ──
   for (const it of landgrab.items ?? []) {
     if (it.status === 'migrated') continue;
+    // 0400 큐(docs/ops/0400-queue.json)에 날짜를 배정한 항목 — 새벽 자동 발행이 쓴다. 목록 후보로 또 띄우면 겹쳐 쓴다
+    if (it.status === '0400-queue') {
+      watch.push({ kind: 'landgrab', text: `${it.topic} — 새벽 자동 발행 ${it.writeBy} 배정` });
+      continue;
+    }
     if (!isDate(it.writeBy)) {
       watch.push({
         kind: 'landgrab',
