@@ -206,6 +206,46 @@ const pending = items
   .filter((i) => i.exposure?.score == null)
   .sort((a, b) => (b.inbound7d ?? 0) - (a.inbound7d ?? 0) || (b.recent7 ?? 0) - (a.recent7 ?? 0));
 const shown = ready.slice(0, LIMIT);
+
+// 하루 몇 달러짜리 글감인가 — 운영자 목표(2026-10-06) "일 200달러 평균". 금액 자료는 로컬 전용
+// docs/ops/adsense-private/rpm-groups.json(공개 저장소라 gitignore). 없으면(봇·다른 PC) 이 칸을 통째로 뺀다.
+const money = readJson('docs/ops/adsense-private/rpm-groups.json');
+// 데이터랩 1점(실업급여=100)당 1~2위 주 방문자 — docs/ops/volume-scale.json 9/2~8 실측 계수 중앙값(군 99·시 32·묶음 151)
+const VISITORS_PER_POINT = 50;
+/** 주 방문자 — 실유입이 있으면 그것, 다음은 검색량×계수(1~2위 가정), 없으면 큐 추정 "주 A~B"의 가운데. 모르면 null */
+function visitorsWeek(i) {
+  if (i.inbound7d != null) return Number(i.inbound7d) || 0;
+  if (i.recent7 != null) return Number(i.recent7) * VISITORS_PER_POINT;
+  const m = String(i.expectedInbound ?? '').match(/(\d[\d,]*)\s*~\s*(\d[\d,]*)/);
+  if (!m) return null;
+  const [a, b] = [m[1], m[2]].map((x) => Number(x.replace(/,/g, '')));
+  return (a + b) / 2;
+}
+/** 1~3위에 들었을 때 하루 예상 수익(달러). 계산 불가면 null */
+function usdPerDay(i) {
+  if (!money?.rpm) return null;
+  const v = visitorsWeek(i);
+  if (v == null) return null;
+  const rpm = money.rpm[revenueOf(i).key] ?? money.rpm.other ?? 0;
+  return (v * (money.pvPerVisitor ?? 1.2) * rpm) / 1000 / 7;
+}
+const fmtUsd = (x) => (x >= 10 ? Math.round(x).toString() : x >= 1 ? x.toFixed(1) : x.toFixed(2));
+function goalHtml() {
+  if (!money?.goalPerDay) return '';
+  const vals = shown.map(usdPerDay).filter((x) => x != null);
+  const sum = vals.reduce((s, x) => s + x, 0);
+  const unknown = shown.length - vals.length;
+  const now = money.recent?.usdPerDay;
+  const pct = now ? Math.min(100, Math.round((now / money.goalPerDay) * 100)) : 0;
+  return `<div style="margin:2px 0 8px;padding:8px 10px;border-radius:8px;background:var(--surface-2, rgba(127,127,127,.08))">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap">
+    <span style="font-size:14px;font-weight:500">목표 하루 ${money.goalPerDay}달러</span>
+    <span style="font-size:13px;color:var(--text-secondary)">최근 하루 평균 ${now ?? '?'}달러 (${esc(money.recent?.from?.slice(5) ?? '')}~${esc(money.recent?.to?.slice(5) ?? '')})</span>
+  </div>
+  <div style="height:6px;border-radius:3px;background:rgba(127,127,127,.2);margin:6px 0 4px"><div style="height:6px;border-radius:3px;width:${pct}%;background:var(--text-success)"></div></div>
+  <div style="font-size:12px;color:var(--text-muted)">아래 글감이 모두 1~3위에 들어도 하루 약 +${fmtUsd(sum)}달러${unknown ? ` (${unknown}건은 검색량을 몰라 뺌)` : ''} · 글감 옆 금액 = 1~3위일 때 하루 예상</div>
+</div>`;
+}
 const genIso = q.meta?.generatedAt ?? q.generatedAt ?? null;
 // 큐의 시각은 UTC ISO — 화면은 KST
 const generated = genIso
@@ -257,10 +297,15 @@ const rows = shown
     const rvChip = rv.tag
       ? `<span style="font-size:12px;color:${rv.weight >= 1.5 ? 'var(--text-success)' : 'var(--text-muted)'};flex-shrink:0">${esc(rv.tag)}</span>`
       : '';
+    const usd = usdPerDay(i);
+    const usdChip =
+      usd == null
+        ? ''
+        : `<span style="font-size:12px;color:var(--text-secondary);flex-shrink:0">하루 약 ${fmtUsd(usd)}달러</span>`;
     const reason = (ex.reasons ?? []).join(' · ') || why(i);
     return `<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:0.5px solid var(--border)">
   <div style="flex:1;min-width:0">
-    <div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:15px;font-weight:500">${esc(i.query)}</span>${badge}${rvChip}</div>
+    <div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:15px;font-weight:500">${esc(i.query)}</span>${badge}${rvChip}${usdChip}</div>
     <div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${esc(reason)} · ${esc(how(i))}</div>${condHtml}${eyeHtml(i.query, idx)}
   </div>
   <div style="display:flex;gap:6px;flex-shrink:0">
@@ -359,9 +404,10 @@ ${fadingHtml}
 console.log(`<h2 class="sr-only" style="position:absolute;left:-9999px">오늘 쓸 글감 ${shown.length}건 — 버튼을 누르면 발행 지시가 채팅에 입력됩니다</h2>
 <div style="padding:0.5rem 0 0">
   <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
-    <span style="font-size:13px;color:var(--text-secondary)">오늘 쓸 글감 ${shown.length}건 · 노출 가능성 높은 순 · 큐 ${esc(generated)} KST</span>
+    <span style="font-size:13px;color:var(--text-secondary)">오늘 쓸 글감 ${shown.length}건 · 자리 잡을 수 있는 것 중 돈 되는 순 · 큐 ${esc(generated)} KST</span>
     <span style="font-size:12px;color:var(--text-muted)">${esc(countLine())}</span>
   </div>
+${goalHtml()}
 ${rows || '<p style="color:var(--text-secondary)">지시 대기 글감이 없습니다.</p>'}
 ${pendingRows}
 ${wavesHtml()}
