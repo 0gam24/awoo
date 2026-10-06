@@ -30,6 +30,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { revenueOf, valueOrder } from './lib/revenue-weight.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'docs', 'ops', 'dashboard.html');
@@ -924,8 +925,8 @@ function ideasSection() {
     );
   const published = pqNew.filter((i) => i.status === 'proposed' && publishedPostFor(i));
   const proposed = pqNew.filter((i) => i.status === 'proposed' && !publishedPostFor(i));
-  // 큐가 이미 노출 가능성 순으로 정렬돼 있다(keyword-pipeline exposureOf). 실측 전은 뒤로.
-  const ready = proposed.filter((i) => i.exposure?.score != null);
+  // 목록 위젯과 같은 자 — 자리 잡을 수 있는 글감 먼저, 그 안에서 노출 가능성 × 주제 수익 배수(2026-10-06). 실측 전은 뒤로.
+  const ready = proposed.filter((i) => i.exposure?.score != null).sort(valueOrder);
   const pendingMeasure = proposed
     .filter((i) => i.exposure?.score == null)
     .sort((a, b) => (b.inbound7d ?? 0) - (a.inbound7d ?? 0) || (b.recent7 ?? 0) - (a.recent7 ?? 0));
@@ -949,7 +950,11 @@ function ideasSection() {
     const ev = `<details class="ev"><summary>근거 보기</summary><ul class="plain small">${facts}${evLines.join('')}</ul></details>`;
     const ex = i.exposure ?? {};
     const exTone = ex.label === '높음' ? 'good' : ex.label === '중간' ? 'warn' : 'none';
-    const exHtml = ex.score == null ? '' : `${badge(exTone, `${ex.label} ${ex.score}`)} `;
+    const rv = revenueOf(i);
+    const exHtml =
+      ex.score == null
+        ? ''
+        : `${badge(exTone, `${ex.label} ${ex.score}`)} ${rv.tag ? `${badge(rv.weight >= 1.5 ? 'good' : 'none', rv.tag, `주제 묶음: ${rv.label}`)} ` : ''}`;
     const why = (ex.reasons ?? []).join(' · ') || whyOf(i);
     return `<div class="ln"><div class="c1">${exHtml}${qLink(i.query)}</div><div class="c2">${esc(why)}</div><div class="c3">${esc(howOfIdea(i))}</div><div class="c4">${ideaBadge(i)}</div>${cond ? `<div class="cond">조건: ${esc(cond)}</div>` : ''}${ev}</div>`;
   });

@@ -22,6 +22,7 @@ import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EYE_LABEL, eyeFor, loadEyeStore } from './lib/eye-offset.mjs';
+import { revenueOf, valueOrder } from './lib/revenue-weight.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
@@ -198,11 +199,9 @@ const items = q.items
     const keys = [i.query, ...String(i.variant ?? '').split(' / ')].map(norm).filter(Boolean);
     return !keys.some((k) => published.has(k));
   });
-// 큐는 노출 가능성 순으로 정렬돼 있지만(keyword-pipeline), wave-split이 뒤에 붙인 빈틈 항목은 그 순서 밖이다.
-// 점수로 한 번 더 세운다 — 같은 점수끼리는 큐 순서를 지킨다(안정 정렬).
-const ready = items
-  .filter((i) => i.exposure?.score != null)
-  .sort((a, b) => b.exposure.score - a.exposure.score);
+// 큐는 keyword-pipeline이 세운 순서지만, wave-split이 뒤에 붙인 빈틈 항목은 그 순서 밖이다.
+// 같은 자로 한 번 더 세운다 — 자리 잡을 수 있는 글감 먼저, 그 안에서 노출 가능성 × 주제 수익 배수(2026-10-06).
+const ready = items.filter((i) => i.exposure?.score != null).sort(valueOrder);
 const pending = items
   .filter((i) => i.exposure?.score == null)
   .sort((a, b) => (b.inbound7d ?? 0) - (a.inbound7d ?? 0) || (b.recent7 ?? 0) - (a.recent7 ?? 0));
@@ -254,10 +253,14 @@ const rows = shown
       ex.score == null
         ? ''
         : `<span style="font-size:12px;color:${tone};flex-shrink:0">${esc(ex.label)} ${ex.score}</span>`;
+    const rv = revenueOf(i);
+    const rvChip = rv.tag
+      ? `<span style="font-size:12px;color:${rv.weight >= 1.5 ? 'var(--text-success)' : 'var(--text-muted)'};flex-shrink:0">${esc(rv.tag)}</span>`
+      : '';
     const reason = (ex.reasons ?? []).join(' · ') || why(i);
     return `<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:0.5px solid var(--border)">
   <div style="flex:1;min-width:0">
-    <div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:15px;font-weight:500">${esc(i.query)}</span>${badge}</div>
+    <div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:15px;font-weight:500">${esc(i.query)}</span>${badge}${rvChip}</div>
     <div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${esc(reason)} · ${esc(how(i))}</div>${condHtml}${eyeHtml(i.query, idx)}
   </div>
   <div style="display:flex;gap:6px;flex-shrink:0">

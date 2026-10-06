@@ -48,6 +48,8 @@
  * 점수 = recent7(없으면 proxy) × min(openSlots, 4) × volume-scale 계수(없으면 1). T1은 개시일 임박순이 점수보다 우선.
  * SERP 예산(--serp): 일 35 = T1 15 / T2 5 / 새 키워드 10 / 재측정 5. 기본은 naver-ranks 최근 측정 재사용.
  * 후보 정렬은 노출 가능성(exposureOf) 내림차순 — "빈틈이 큰 순"(운영자 2026-09-11).
+ * 2026-10-06부터는 자리 잡을 수 있는 글감(45↑) 안에서 노출 가능성 × 주제 수익 배수(revenueOf) 순 —
+ * 운영자 결정 "목록 순서에 수익성 반영". 지원금·소상공인 글이 공휴일·주휴수당 글보다 조회당 8~10배 번다.
  *
  * 데이터랩 주의: 검색 0인 날은 응답에서 빠진다(keyword-volume 묶음 실측). recent7는 '마지막 7개 응답점' 평균일 수
  * 있어 희소 시계열(window<29)은 과대일 수 있다 — 정렬 지표로만 쓴다(계획 §0 "데이터랩은 게이트가 아니라 정렬 지표").
@@ -60,6 +62,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { exposureOf } from './lib/exposure.mjs';
 import { EYE_CLOSED, EYE_LABEL, eyeFor, loadEyeStore } from './lib/eye-offset.mjs';
+import { revenueOf, valueOrder } from './lib/revenue-weight.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const P = {
@@ -1983,13 +1986,11 @@ async function main() {
       items.splice(i, 1);
     }
   }
-  // 정렬: 노출 가능성 높은 순 → 실유입 → 개시일 임박순. 미측정은 맨 뒤(실측 대기).
+  // 정렬: 자리 잡을 수 있는 글감 먼저 → 노출 가능성 × 수익 배수 → 실유입 → 개시일 임박순. 미측정은 맨 뒤(실측 대기).
+  for (const it of items) it.revenue = revenueOf(it);
   items.sort((a, b) => {
-    const sa = a.exposure?.score;
-    const sb = b.exposure?.score;
-    if (sa == null && sb != null) return 1;
-    if (sb == null && sa != null) return -1;
-    if (sa != null && sb != null && sa !== sb) return sb - sa;
+    const v = valueOrder(a, b);
+    if (v !== 0) return v;
     const ia = a.inbound7d ?? 0;
     const ib = b.inbound7d ?? 0;
     if (ia !== ib) return ib - ia;
@@ -2156,7 +2157,7 @@ function renderReport({
   L.push('## 오늘 후보');
   L.push('');
   L.push(
-    '노출 가능성 높은 순(자리 열림·빈자리·위에 관공서 없음·블록 위치 눈 확인 + 실유입·신생·개시 임박). 미측정은 아래 실측 대기. 창 안 발행 상한 없음, 1지자체 1패밀리 1건. 순위는 웹문서 검색 API 기준(2026-09-15~) — 통합검색 화면 순위와 다르고, 언론 수는 잴 수 없어 뉴스 벽은 경고로만 적는다.',
+    '자리 잡을 수 있는 글감(노출 가능성 45↑) 먼저, 그 안에서 노출 가능성 × 주제 수익 배수 순(지원금·소상공인 2배, 공휴일·주휴수당·혼인·청년 적금 0.4배 — 애드센스 주제별 실측). 노출 가능성 = 자리 열림·빈자리·위에 관공서 없음·블록 위치 눈 확인 + 실유입·신생·개시 임박. 미측정은 아래 실측 대기. 창 안 발행 상한 없음, 1지자체 1패밀리 1건. 순위는 웹문서 검색 API 기준(2026-09-15~) — 통합검색 화면 순위와 다르고, 언론 수는 잴 수 없어 뉴스 벽은 경고로만 적는다.',
   );
   L.push('');
   L.push('| # | 노출 가능성 | 트랙 | 쿼리 | 왜 | 예상 유입/주 | 조건 |');
@@ -2171,7 +2172,9 @@ function renderReport({
     const q = `${it.query}${it.variant ? ` · 변형: ${it.variant}` : ''}${it.region ? ` (${it.region})` : ''}`;
     const cond = `${it.status === 'approved' ? '[승인됨] ' : it.status === 'hold' ? '[보류] ' : ''}${it.condition ?? '—'}`;
     const ex = it.exposure ?? {};
-    const exCell = ex.score == null ? '미측정' : `${ex.label} ${ex.score}`;
+    const rv = it.revenue ?? revenueOf(it);
+    const exCell =
+      ex.score == null ? '미측정' : `${ex.label} ${ex.score}${rv.tag ? ` · ${rv.tag}` : ''}`;
     const why = `${(ex.reasons ?? []).join(' · ') || it.evidence[0] || ''}`;
     L.push(
       `| ${i + 1} | ${cell(exCell)} | ${cell(track)} | ${cell(q)} | ${cell(why)} | ${cell(it.expectedInbound)} | ${cell(cond)} |`,
