@@ -2,9 +2,15 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-10-06 22:43 KST
+> 마지막 갱신: 2026-10-07 04:34 KST
 
-## 2026-10-06 (오늘)
+## 2026-10-07 (오늘)
+
+### 📰 신규 이슈 포스트 (1건)
+- `복지` [연말정산 미리보기, 신용카드 공제 25% 넘겼나요?](https://awoo.or.kr/issues/yearend-tax-preview-credit-card-threshold/)
+  - 국세청 연말정산 미리보기는 작년 11월 5일 홈택스에서 열렸고 올해 개통일은 발표 대기 중입니다. 신용카드 등 소득공제는 총급여 25%를 넘긴 금액부터 시작됩니다.
+
+## 2026-10-06
 
 ### 📰 신규 이슈 포스트 (4건)
 - `취업` [출산휴가지원금, 직원이 휴가 쓰면 회사가 받는 돈](https://awoo.or.kr/issues/maternity-leave-employer-subsidy/)
@@ -297,9 +303,3 @@
 ### 📰 신규 이슈 포스트 (1건)
 - `복지` [2027년엔 부양의무자 있어도 희귀질환 의료비 받을까](https://awoo.or.kr/issues/rare-disease-medical-expense-guarantor-abolish/)
   - 질병관리청 발표에 따르면 희귀질환 의료비 지원 부양의무자 기준이 2027년 1월 극희귀질환부터, 2028년 전체 질환으로 단계 폐지됩니다.
-
-## 2026-09-06
-
-### 📰 신규 이슈 포스트 (1건)
-- `농업` [9월 공익직불금 이행점검 감액 피하는 법](https://awoo.or.kr/issues/public-direct-payment-inspection-deduction/)
-  - 공익직불금 이행점검이 9월까지 진행됩니다. 위반 항목마다 5% 또는 10%, 반복 위반 시 2배까지 감액될 수 있어 지금 확인해야 11월 지급에서 손해를 피할 수 있습니다.
