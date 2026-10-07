@@ -2,11 +2,13 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-10-07 10:07 KST
+> 마지막 갱신: 2026-10-07 10:10 KST
 
 ## 2026-10-07 (오늘)
 
-### 📰 신규 이슈 포스트 (2건)
+### 📰 신규 이슈 포스트 (3건)
+- `복지` [속초시 민생지원금 사용처, 가맹점 유형으로 가려내고 잔액은 기한 안에](https://awoo.or.kr/issues/sokcho-grant-usage-places-balance/)
+  - 속초시 민생지원금 20만원은 속초 안 연매출 30억원 미만 상품권 가맹점에서만 결제됩니다. 사용기한 11월 30일이 지나면 잔액이 자동 소멸된다고 보도됐고, 선불카드 잔액은 전화로 물어야 합니다.
 - `복지` [의령군 민생지원금 사용처, 정책상품권과 일반 상품권 무엇부터 낼까](https://awoo.or.kr/issues/uiryeong-grant-policy-voucher-vs-general-usage/)
   - 의령군 민생지원금 50만원 중 정책상품권 20만원은 하나로마트·관내 주유소까지 되고, 일반 30만원은 기존 가맹점 기준을 따릅니다. 두 상품권 모두 12월 31일까지 의령 안에서만.
 - `복지` [연말정산 미리보기, 신용카드 공제 25% 넘겼나요?](https://awoo.or.kr/issues/yearend-tax-preview-credit-card-threshold/)
