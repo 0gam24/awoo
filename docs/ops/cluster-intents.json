@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 336,
-    "entryCount": 91,
+    "scannedPosts": 337,
+    "entryCount": 92,
     "regionCount": 56,
     "regions": [
       "강릉",
@@ -66,11 +66,11 @@
     ],
     "families": {
       "A": 62,
-      "B": 15,
+      "B": 16,
       "V": 14
     },
     "clusters": {
-      "minsaeng": 59,
+      "minsaeng": 60,
       "other": 32
     },
     "rollups": 9,
@@ -2245,6 +2245,28 @@
       "rollup": false,
       "regionOverride": true,
       "clusterOverride": true
+    },
+    {
+      "region": [
+        "의령"
+      ],
+      "family": "B",
+      "slug": "uiryeong-grant-policy-voucher-vs-general-usage-2026-10-07",
+      "path": "src/data/issues/2026-10-07/uiryeong-grant-policy-voucher-vs-general-usage-2026-10-07.json",
+      "date": "2026-10-07",
+      "targetQuery": "의령군 민생지원금 사용처",
+      "coreFacts": {
+        "who": "8월 10일~9월 11일 상품권을 받은 의령군민",
+        "amount": "정책상품권 20만원, 일반 의령사랑상품권 30만원",
+        "deadline": "2026-12-31 사용기한, 연장·추가 접수 공지 없음"
+      },
+      "coreFactsKeys": [
+        "who=2026-08-10",
+        "amount=20만원",
+        "deadline=2026-12-31"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false
     }
   ]
 }
