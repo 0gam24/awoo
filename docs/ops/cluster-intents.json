@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 342,
-    "entryCount": 97,
+    "scannedPosts": 343,
+    "entryCount": 98,
     "regionCount": 58,
     "regions": [
       "강릉",
@@ -67,13 +67,13 @@
       "횡성"
     ],
     "families": {
-      "A": 65,
+      "A": 66,
       "B": 18,
       "V": 14
     },
     "clusters": {
       "minsaeng": 61,
-      "other": 36
+      "other": 37
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -202,6 +202,14 @@
       },
       {
         "slug": "small-biz-closure-money-checklist-2026-10-08",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "youth-employment-linked-fund-2026-10-08",
         "region": [
           "전국"
         ],
@@ -2411,6 +2419,29 @@
         "deadline": "부가세 확정신고는 폐업한 달의 다음 달 25일까지"
       },
       "coreFactsKeys": [],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "youth-employment-linked-fund-2026-10-08",
+      "path": "src/data/issues/2026-10-08/youth-employment-linked-fund-2026-10-08.json",
+      "date": "2026-10-08",
+      "targetQuery": "청년고용연계자금",
+      "coreFacts": {
+        "who": "업력 3년 미만 청년 대표 또는 청년 고용 소상공인",
+        "amount": "최대 7천만원, 4분기 금리 연 4.12%",
+        "deadline": "4분기 접수 10월 6일 개시, 예산 소진 시 마감"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-10-06"
+      ],
       "cluster": "other",
       "rollup": false,
       "regionOverride": true,
