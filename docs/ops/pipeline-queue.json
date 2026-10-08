@@ -8940,6 +8940,125 @@
           "위에 관공서 없음"
         ]
       }
+    },
+    {
+      "id": "빈틈:농어촌기본소득",
+      "track": "T2",
+      "query": "농어촌 기본소득",
+      "family": null,
+      "region": null,
+      "source": "manual-scan",
+      "born": false,
+      "inbound7d": null,
+      "evidence": [
+        "데이터랩 최근7일 9.2 (실업급여=100)",
+        "운영자 표(추석 지역 민생지원금 클릭률 20%↑) 패턴의 다음 후보 — 17개 군 매달 지급, 2027년 35개 군 확대안",
+        "지역 지원금 묶음(수익 배수 2배)",
+        "scout 2026-10-08: openSlots 0 · 위 ihc.go.kr·mafra.go.kr·bokjiro.go.kr·boseong.go.kr · 자매 0"
+      ],
+      "expectedInbound": "주 276~644 (추정: 검색량×30~70, 1~3위 가정)",
+      "condition": "17개 군 묶음 글(지급 군·금액 15만/20만원·지급일·2027년 35개 군 확대안은 예산안 단계). 농식품부 보도자료·각 군 공고로만. 지역별 검색은 아직 작아 지역 글 대신 묶음 1편",
+      "recent7": 9.2,
+      "recent7Source": "keyword-volume 2026-10-08",
+      "serp": {
+        "query": "농어촌 기본소득",
+        "rank": null,
+        "url": null,
+        "webDocCount": 13,
+        "aboveIsWholeBlock": true,
+        "openSlots": 0,
+        "mainGovAbove": 1,
+        "pressAbove": null,
+        "sisterAbove": 0,
+        "webDocOffset": null,
+        "verdictT1": "open",
+        "verdictT2": "closed",
+        "reason": [
+          "openSlots 0<2",
+          "offset·press 미측정(API)"
+        ],
+        "region": null,
+        "onPage": null,
+        "parseOk": true,
+        "measuredAt": "2026-10-08T01:03:53.702Z",
+        "webDocRaw": 30,
+        "webDocTotal": 3537298,
+        "eyeOffset": null,
+        "newsWall": 100,
+        "newsWallCapped": true,
+        "newsSameTitle": 2,
+        "measuredBy": "webkr-api",
+        "unmeasured": [
+          "webDocOffset",
+          "pressAbove",
+          "ugc",
+          "onPage"
+        ],
+        "above": [
+          {
+            "host": "ihc.go.kr",
+            "kind": "institutional",
+            "title": "농어촌기본소득 안내 - 농어촌기본소득 - 농어촌기본소득 안내 - 참여마당"
+          },
+          {
+            "host": "mafra.go.kr",
+            "kind": "institutional",
+            "title": "농어촌기본소득 첫 지급"
+          },
+          {
+            "host": "bokjiro.go.kr",
+            "kind": "institutional",
+            "title": "농어촌 기본소득 시범사업"
+          },
+          {
+            "host": "boseong.go.kr",
+            "kind": "institutional",
+            "title": "농어촌 기본소득 결제 MANUAL"
+          },
+          {
+            "host": "imsil.go.kr",
+            "kind": "institutional",
+            "title": "분야별정보 > 농업·귀농 > 농어촌 기본소득 시범사업"
+          },
+          {
+            "host": "jangsu.go.kr",
+            "kind": "institutional",
+            "title": "분야별정보 > 산업경제 > 농어촌 기본소득 > 기본소득 안내"
+          },
+          {
+            "host": "gokseong.go.kr",
+            "kind": "institutional",
+            "title": "분야별정보 > 지역경제 > 곡성군 농어촌 기본소득 > 기본소득 사용안내"
+          },
+          {
+            "host": "cs.go.kr",
+            "kind": "institutional",
+            "title": "산소카페 청송군-명품사과의 고장, 청송 > 분야별정보 > 농림축산 > 농어촌기본 ...."
+          },
+          {
+            "host": "oc.go.kr",
+            "kind": "institutional",
+            "title": "농어촌 기본소득 - 옥천군청",
+            "mainGov": true
+          },
+          {
+            "host": "pcafrp.go.kr",
+            "kind": "institutional",
+            "title": "농어촌기본소득 특별위원회 | 특별위원회 | 위원회구성"
+          }
+        ]
+      },
+      "status": "hold",
+      "createdAt": "2026-10-08T01:03:53.848Z",
+      "exposure": {
+        "score": 20,
+        "label": "낮음",
+        "reasons": [
+          "예상 주 276명"
+        ]
+      },
+      "statusAt": "2026-10-08",
+      "holdReason": "scout 빈자리 0 — 위 6자리 전부 관공서(농식품부·복지로·군청). 2027년 35개 군 확정 발표 때 재측정"
     }
   ],
   "excluded": [
