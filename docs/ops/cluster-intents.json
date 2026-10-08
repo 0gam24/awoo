@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 339,
-    "entryCount": 93,
-    "regionCount": 56,
+    "scannedPosts": 341,
+    "entryCount": 95,
+    "regionCount": 57,
     "regions": [
       "강릉",
       "강북구",
@@ -51,6 +51,7 @@
       "의성",
       "장성",
       "장흥",
+      "전국",
       "전남",
       "정선",
       "정읍",
@@ -65,13 +66,13 @@
       "횡성"
     ],
     "families": {
-      "A": 62,
+      "A": 64,
       "B": 17,
       "V": 14
     },
     "clusters": {
       "minsaeng": 61,
-      "other": 32
+      "other": 34
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -172,6 +173,22 @@
         "region": [
           "고성"
         ],
+        "cluster": "other"
+      },
+      {
+        "slug": "hope-return-package-closure-support-2026-10-08",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "small-biz-closure-money-checklist-2026-10-08",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
         "cluster": "other"
       }
     ],
@@ -2288,6 +2305,51 @@
       ],
       "cluster": "minsaeng",
       "rollup": false
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "hope-return-package-closure-support-2026-10-08",
+      "path": "src/data/issues/2026-10-08/hope-return-package-closure-support-2026-10-08.json",
+      "date": "2026-10-08",
+      "targetQuery": "희망리턴패키지",
+      "coreFacts": {
+        "who": "2023년 이후 폐업했거나 폐업할 소상공인, 운영 60일 이상",
+        "amount": "점포철거비 최대 600만원, 3.3㎡당 20만원 이내",
+        "deadline": "예산 소진 시까지, 10월 8일 조기 마감 공지 못 찾음"
+      },
+      "coreFactsKeys": [
+        "amount=600만원",
+        "deadline=2026-10-08"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "small-biz-closure-money-checklist-2026-10-08",
+      "path": "src/data/issues/2026-10-08/small-biz-closure-money-checklist-2026-10-08.json",
+      "date": "2026-10-08",
+      "targetQuery": "폐업지원금",
+      "coreFacts": {
+        "who": "자영업자 고용보험·노란우산 가입자, 생계 위기 가구",
+        "amount": "실업급여 하루 최대 68,100원, 긴급복지 1인 월 78만3,000원",
+        "deadline": "부가세 확정신고는 폐업한 달의 다음 달 25일까지"
+      },
+      "coreFactsKeys": [],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
     }
   ]
 }
