@@ -9202,6 +9202,257 @@
       "statusAt": "2026-10-08",
       "holdReason": "scout 빈자리 0 — 위 6자리 전부 관공서(농식품부·복지로·군청). 2027년 35개 군 확정 발표 때 재측정",
       "lastSeenAt": "2026-10-08T01:03:53.848Z"
+    },
+    {
+      "id": "빈틈:청년고용연계자금",
+      "track": "T2",
+      "query": "청년고용연계자금",
+      "variant": "소상공인 청년고용연계자금",
+      "family": null,
+      "region": null,
+      "source": "manual-scan",
+      "born": false,
+      "inbound7d": null,
+      "evidence": [
+        "데이터랩 최근7일 7.77 (실업급여=100), 7일 새 4.2배",
+        "10/6 10시 소진공 접수 시작·최대 7천만원(bnt뉴스 2026-10-06) — 우리 글 언급 0건",
+        "소상공인 정책자금 묶음(수익 배수 2배)",
+        "scout 2026-10-08: openSlots 6 · T2 open · 우리 없음"
+      ],
+      "expectedInbound": "주 233~544 (추정: 검색량×30~70, 1~3위 가정)",
+      "condition": "소진공 정책자금 공고(중기부 2026 융자사업 공고·변경 공고)로 대상(청년 근로자 고용 소상공인)·한도·금리·접수 방식 확인. 뉴스 숫자만으로 쓰지 말 것. 6/18 정책자금 총정리 글과 겹치지 않게 이 자금 하나만",
+      "recent7": 7.77,
+      "recent7Source": "keyword-volume 2026-10-08",
+      "serp": {
+        "query": "청년고용연계자금",
+        "rank": null,
+        "url": null,
+        "webDocCount": 23,
+        "aboveIsWholeBlock": true,
+        "openSlots": 6,
+        "mainGovAbove": 0,
+        "pressAbove": null,
+        "sisterAbove": 0,
+        "webDocOffset": null,
+        "verdictT1": "open",
+        "verdictT2": "open",
+        "reason": [
+          "offset·press 미측정(API)"
+        ],
+        "region": null,
+        "onPage": null,
+        "parseOk": true,
+        "measuredAt": "2026-10-08T07:37:52.210Z",
+        "webDocRaw": 30,
+        "webDocTotal": 3551953,
+        "eyeOffset": null,
+        "newsWall": 51,
+        "newsWallCapped": false,
+        "newsSameTitle": 1,
+        "measuredBy": "webkr-api",
+        "unmeasured": [
+          "webDocOffset",
+          "pressAbove",
+          "ugc",
+          "onPage"
+        ],
+        "above": [
+          {
+            "host": "gov.kr",
+            "kind": "institutional",
+            "title": "청년고용연계자금"
+          },
+          {
+            "host": "bizinfo.go.kr",
+            "kind": "institutional-open",
+            "title": "청년고용연계자금 (2022년 중소벤처기업부 소관 소상공인 정책 자금 융자계획 공....",
+            "stale": true,
+            "openBy": [
+              "stale"
+            ]
+          },
+          {
+            "host": "easylaw.go.kr",
+            "kind": "institutional",
+            "title": "소상공인 지원 > 소상공인 운영 > 소상공인 자금 지원 > 소상공인 정책 자금 지원...."
+          },
+          {
+            "host": "bsjob4u.co.kr",
+            "kind": "commercial",
+            "title": "중소벤처기업부 청년고용연계자금 - 부산일포유"
+          },
+          {
+            "host": "ols.semas.or.kr",
+            "kind": "institutional",
+            "title": "소상공인정책 자금"
+          },
+          {
+            "host": "nowon.kr",
+            "kind": "commercial",
+            "title": "노원구청 : 노원구청 > 분야별정보 > 일자리/경제 > 중소기업‧소상공인 지원 > ...."
+          },
+          {
+            "host": "goesan.go.kr",
+            "kind": "institutional-open",
+            "title": "2026년 소상공인 정책 자금 융자계획 공고 알림(변경) - 공지사항-교육/체육",
+            "openBy": [
+              "board"
+            ]
+          },
+          {
+            "host": "semas.or.kr",
+            "kind": "institutional",
+            "title": "지원사업 - 소상공인시장진흥공단"
+          },
+          {
+            "host": "biz.passorder.co.kr",
+            "kind": "commercial",
+            "title": "카페 창업 지원금 2가지, 청년 창업자가 자금 마련하는 법 ｜ 패스오더 인사이...."
+          },
+          {
+            "host": "ggbaro.kr",
+            "kind": "commercial",
+            "title": "그 외 지원사업 - 경기바로"
+          }
+        ]
+      },
+      "status": "proposed",
+      "createdAt": "2026-10-08T07:37:52.327Z",
+      "exposure": {
+        "score": 80,
+        "label": "높음",
+        "reasons": [
+          "자리 열림",
+          "빈자리 6",
+          "위에 관공서 없음"
+        ]
+      }
+    },
+    {
+      "id": "빈틈:소상공인정책자금대리대출",
+      "track": "T2",
+      "query": "소상공인 정책자금 대리대출",
+      "variant": "소상공인 정책자금 4분기 / 소상공인 정책자금 직접대출 / 소상공인 정책자금 신청",
+      "family": null,
+      "region": null,
+      "source": "manual-scan",
+      "born": false,
+      "inbound7d": null,
+      "evidence": [
+        "세부 검색어 합 1.7 — 대리대출 1.07(11.8배↑)·직접대출 0.38(7.8배↑)·4분기 0.2(13배↑)",
+        "머리 검색어 \"소상공인 정책자금\" 245.9, 7일 새 1.9배 — 우리 지원금 페이지 11위, 6/18 글은 안 보임",
+        "10/6 4분기 대리대출 접수 시작·예산 소진 시 조기 마감(중기부 공고)",
+        "신용취약소상공인자금 선착순→필요성 심사 변경(중기부 보도)",
+        "scout 2026-10-08: openSlots 6 · T2 open · 우리 없음"
+      ],
+      "expectedInbound": "주 51~119 (추정: 검색량×30~70, 1~3위 가정)",
+      "condition": "6/18 글(소상공인 정책자금 2026 총정리)에 직접·대리 신청 H2가 있어 잠식 위험 — 문지기 판단 필수. 새 글이면 \"접수 순서·조기 마감 대비·신용취약 심사 변경\"만, 아니면 6/18 글 갱신으로 돌린다",
+      "recent7": 1.7,
+      "recent7Source": "keyword-volume 2026-10-08",
+      "serp": {
+        "query": "소상공인 정책자금 대리대출",
+        "rank": null,
+        "url": null,
+        "webDocCount": 18,
+        "aboveIsWholeBlock": true,
+        "openSlots": 6,
+        "mainGovAbove": 0,
+        "pressAbove": null,
+        "sisterAbove": 0,
+        "webDocOffset": null,
+        "verdictT1": "open",
+        "verdictT2": "open",
+        "reason": [
+          "offset·press 미측정(API)"
+        ],
+        "region": null,
+        "onPage": null,
+        "parseOk": true,
+        "measuredAt": "2026-10-08T07:37:52.848Z",
+        "webDocRaw": 30,
+        "webDocTotal": 870052,
+        "eyeOffset": null,
+        "newsWall": 46,
+        "newsWallCapped": false,
+        "newsSameTitle": 2,
+        "measuredBy": "webkr-api",
+        "unmeasured": [
+          "webDocOffset",
+          "pressAbove",
+          "ugc",
+          "onPage"
+        ],
+        "above": [
+          {
+            "host": "ols.semas.or.kr",
+            "kind": "institutional",
+            "title": "소상공인정책자금"
+          },
+          {
+            "host": "obank.kbstar.com",
+            "kind": "commercial",
+            "title": "소상공인정책자금 부터 이자지원 보증서 대출 까지 한번에 알아보기"
+          },
+          {
+            "host": "easylaw.go.kr",
+            "kind": "institutional-open",
+            "title": "2025년 소상공인 정책자금 대리대출 신청안내자료",
+            "stale": true,
+            "openBy": [
+              "stale"
+            ]
+          },
+          {
+            "host": "obiz.kbstar.com",
+            "kind": "commercial",
+            "title": "소상공인 정책자금 대출 ( KB기업뱅킹 | 금융상품 | 대출 | 비대면 대출 상품관 | ...."
+          },
+          {
+            "host": "bizinfo.go.kr",
+            "kind": "institutional",
+            "title": "소상공인 정책자금 ( 대리대출 ) 3분기 접수 개시 안내"
+          },
+          {
+            "host": "benefit.studygov.kr",
+            "kind": "commercial",
+            "title": "소상공인 지원금· 정책자금 · 대출 ( 소상공인 24·2026 신청)"
+          },
+          {
+            "host": "geumcheon.go.kr",
+            "kind": "institutional-open",
+            "title": "2026년 소상공인 정책자금 대리대출 4분기 접수일정 안내",
+            "openBy": [
+              "board"
+            ]
+          },
+          {
+            "host": "mybudget.go.kr",
+            "kind": "institutional",
+            "title": "□ 소상공인 정책자금 ( 대리대출 ) 지원절차"
+          },
+          {
+            "host": "portal.barogov.kr",
+            "kind": "commercial",
+            "title": "정부 정책 포털 - 소상공인 정책자금 총정리 | 직접 대출 · 대리대출 ·지원대상·신...."
+          },
+          {
+            "host": "semas.or.kr",
+            "kind": "institutional",
+            "title": "지원사업 - 소상공인 시장진흥공단"
+          }
+        ]
+      },
+      "status": "proposed",
+      "createdAt": "2026-10-08T07:37:52.981Z",
+      "exposure": {
+        "score": 70,
+        "label": "높음",
+        "reasons": [
+          "자리 열림",
+          "빈자리 6",
+          "위에 관공서 없음"
+        ]
+      }
     }
   ],
   "excluded": [
