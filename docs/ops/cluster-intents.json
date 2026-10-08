@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 341,
-    "entryCount": 95,
-    "regionCount": 57,
+    "scannedPosts": 343,
+    "entryCount": 97,
+    "regionCount": 58,
     "regions": [
       "강릉",
       "강북구",
@@ -26,6 +26,7 @@
       "당진",
       "대구",
       "문경",
+      "문화누리카드",
       "미추홀구",
       "밀양",
       "부산",
@@ -66,17 +67,25 @@
       "횡성"
     ],
     "families": {
-      "A": 64,
-      "B": 17,
+      "A": 65,
+      "B": 18,
       "V": 14
     },
     "clusters": {
       "minsaeng": 61,
-      "other": 34
+      "other": 36
     },
     "rollups": 9,
     "knownPairEntries": 8,
     "manualOverrides": [
+      {
+        "slug": "culture-nuri-card-balance-guide-2026-06-26",
+        "region": [
+          "문화누리카드"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
       {
         "slug": "yeongam-wolchulpay-balance-expiry-use",
         "region": [
@@ -173,6 +182,14 @@
         "region": [
           "고성"
         ],
+        "cluster": "other"
+      },
+      {
+        "slug": "culture-nuri-card-where-to-use-2026-10-08",
+        "region": [
+          "문화누리카드"
+        ],
+        "family": "B",
         "cluster": "other"
       },
       {
@@ -629,6 +646,31 @@
       "regionContext": [
         "전남"
       ]
+    },
+    {
+      "region": [
+        "문화누리카드"
+      ],
+      "family": "A",
+      "slug": "culture-nuri-card-balance-guide-2026-06-26",
+      "path": "src/data/issues/2026-06-26/culture-nuri-card-balance-guide-2026-06-26.json",
+      "date": "2026-06-26",
+      "targetQuery": null,
+      "coreFacts": {
+        "who": "6세 이상(2020.12.31 이전 출생) 기초생활수급자·법정 차상위계층",
+        "amount": "1인당 연 15만원(청소년 13~18세·준고령 60~64세는 생애주기 1만원 추가, 최대 16만원)",
+        "deadline": "발급 2026.2.2~11.30 / 사용 2026.2.2~12.31 23:59 (이후 잔액 국고 자동반납)"
+      },
+      "coreFactsKeys": [
+        "who=2020-12-31",
+        "amount=15만원",
+        "deadline=2026-02-02"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
     },
     {
       "region": [
@@ -2305,6 +2347,30 @@
       ],
       "cluster": "minsaeng",
       "rollup": false
+    },
+    {
+      "region": [
+        "문화누리카드"
+      ],
+      "family": "B",
+      "slug": "culture-nuri-card-where-to-use-2026-10-08",
+      "path": "src/data/issues/2026-10-08/culture-nuri-card-where-to-use-2026-10-08.json",
+      "date": "2026-10-08",
+      "targetQuery": "문화누리카드 사용처",
+      "coreFacts": {
+        "who": "6세 이상 기초생활수급자·차상위계층 카드 소지자",
+        "amount": "1인 연 15만원, 13~18세·60~64세는 16만원",
+        "deadline": "2026-12-31 23시59분 사용 마감, 잔액 국고 반납"
+      },
+      "coreFactsKeys": [
+        "amount=15만원",
+        "deadline=2026-12-31"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
     },
     {
       "region": [
