@@ -8,7 +8,7 @@
     "score = recent7(없으면 proxy) × min(openSlots,4) × volume-scale 계수. T1은 개시일 임박순이 점수보다 우선. serp.approx=true는 naver-ranks 옛 항목에서 근사한 verdict — --serp 실측이 아니다."
   ],
   "meta": {
-    "generatedAt": "2026-10-09T23:10:38.379Z",
+    "generatedAt": "2026-10-10T06:36:49.949Z",
     "today": "2026-10-10",
     "dryRun": false,
     "serp": {
@@ -20,7 +20,7 @@
         "newKw": 10,
         "remeasure": 5
       },
-      "used": 21,
+      "used": 22,
       "error": null,
       "queries": [
         "정읍시 민생지원금",
@@ -37,6 +37,7 @@
         "알바 주휴수당 계산기",
         "9월14일 민생지원금",
         "2026 재난지원금",
+        "신업급여",
         "질병수술퇴사때실업급여",
         "년겨울에너지바우처",
         "2026 김해 민생지원금",
@@ -82,7 +83,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 56,
+          "newsWall": 55,
           "newsWallCapped": false,
           "newsSameTitle": 2,
           "measuredBy": "webkr-api"
@@ -184,7 +185,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 3,
+          "newsWall": 2,
           "newsWallCapped": false,
           "newsSameTitle": 1,
           "measuredBy": "webkr-api"
@@ -335,6 +336,25 @@
           "measuredBy": "webkr-api"
         },
         {
+          "query": "신업급여",
+          "rank": null,
+          "openSlots": 9,
+          "mainGovAbove": 0,
+          "pressAbove": null,
+          "sisterAbove": 0,
+          "webDocOffset": null,
+          "verdictT1": "open",
+          "verdictT2": "open",
+          "reason": [
+            "offset·press 미측정(API)"
+          ],
+          "eyeOffset": null,
+          "newsWall": 0,
+          "newsWallCapped": false,
+          "newsSameTitle": 0,
+          "measuredBy": "webkr-api"
+        },
+        {
           "query": "질병수술퇴사때실업급여",
           "rank": null,
           "openSlots": 7,
@@ -355,8 +375,8 @@
         },
         {
           "query": "년겨울에너지바우처",
-          "rank": 16,
-          "openSlots": 3,
+          "rank": 17,
+          "openSlots": 4,
           "mainGovAbove": 0,
           "pressAbove": null,
           "sisterAbove": 0,
@@ -450,7 +470,7 @@
             "offset·press 미측정(API)"
           ],
           "eyeOffset": null,
-          "newsWall": 25,
+          "newsWall": 23,
           "newsWallCapped": false,
           "newsSameTitle": 2,
           "measuredBy": "webkr-api"
@@ -480,22 +500,22 @@
     },
     "counts": {
       "T1": 1,
-      "T2": 5,
+      "T2": 6,
       "T3": 1,
       "갱신": 14,
-      "제외": 105,
+      "제외": 103,
       "감시": 29
     },
     "sources": {
       "clusterIntents": {
-        "entries": 98,
-        "regions": 58
+        "entries": 100,
+        "regions": 60
       },
       "naverRanks": {
         "queries": 58,
-        "updatedAt": "2026-10-09T06:43:30.660Z"
+        "updatedAt": "2026-10-10T06:24:08.581Z"
       },
-      "radarCandidates": 45,
+      "radarCandidates": 44,
       "regionCandidateSource": "radar.candidates",
       "analyticsFile": "naver-analytics-search-2026-09-02_08.json",
       "volumeScale": {
@@ -505,7 +525,7 @@
       },
       "bigKeywords": 12,
       "landgrab": 23,
-      "posts": 345
+      "posts": 346
     },
     "scoutPlan": {
       "T1": [
@@ -527,6 +547,7 @@
         "알바 주휴수당 계산기",
         "9월14일 민생지원금",
         "2026 재난지원금",
+        "신업급여",
         "질병수술퇴사때실업급여",
         "년겨울에너지바우처"
       ],
@@ -627,9 +648,9 @@
       "born": false,
       "inbound7d": null,
       "evidence": [
-        "기회도 35(수요 40% · 공급희소 88%)",
-        "블로그 문서 29959건",
-        "scout 2026-10-10: r16 · 본청 0 · 뉴스7일 0·같은제목 0 · 자매 0 · openSlots 3 · 눈 확인 전 · T1 open · T2 open"
+        "기회도 44(수요 48% · 공급희소 90%)",
+        "블로그 문서 29999건",
+        "scout 2026-10-10: r17 · 본청 0 · 뉴스7일 0·같은제목 0 · 자매 0 · openSlots 4 · 눈 확인 전 · T1 open · T2 open"
       ],
       "expectedInbound": "0~0",
       "condition": "검색 결과 실측 필요",
@@ -637,11 +658,11 @@
       "recent7Source": "radar",
       "serp": {
         "query": "년겨울에너지바우처",
-        "rank": 16,
+        "rank": 17,
         "url": "https://awoo.or.kr/issues/summer-energy-voucher-cooling/",
-        "webDocCount": 20,
+        "webDocCount": 19,
         "aboveIsWholeBlock": true,
-        "openSlots": 3,
+        "openSlots": 4,
         "mainGovAbove": 0,
         "pressAbove": null,
         "sisterAbove": 0,
@@ -654,9 +675,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-09T23:11:22.246Z",
+        "measuredAt": "2026-10-10T06:37:30.561Z",
         "webDocRaw": 30,
-        "webDocTotal": 477695,
+        "webDocTotal": 479358,
         "eyeOffset": null,
         "newsWall": 0,
         "newsWallCapped": false,
@@ -712,8 +733,11 @@
           },
           {
             "host": "bokjiro.go.kr",
-            "kind": "institutional",
-            "title": "에너지바우처 - 복지로"
+            "kind": "institutional-open",
+            "title": "공지사항 - 2026년 에너지바우처 신청 안내",
+            "openBy": [
+              "board"
+            ]
           },
           {
             "host": "info.daegu.go.kr",
@@ -730,12 +754,13 @@
         "approx": false
       },
       "score": 0,
-      "scoreNote": "0 × min(3,4) × 36.8",
+      "scoreNote": "0 × min(4,4) × 36.8",
       "exposure": {
-        "score": 60,
+        "score": 65,
         "label": "중간",
         "reasons": [
           "자리 열림",
+          "빈자리 4",
           "위에 관공서 없음"
         ]
       },
@@ -763,13 +788,13 @@
         "실유입 \"창원 지원금\" 60/주 순위 미측정",
         "--check 창원×A PASS(기존 V 08-28 — 같은 지역 다른 패밀리, 잠식 여부 확인)",
         "지역 헤드 \"창원 민생지원금\" r1",
-        "recent7 0.51(radar)",
+        "recent7 0.48(radar)",
         "계수 si/null 45.7(n=13)",
-        "scout 2026-10-10: 자사 미노출 · 본청 0 · 뉴스7일 56·같은제목 2 · 자매 0 · openSlots 3 · 눈 확인 전 · T1 open · T2 open"
+        "scout 2026-10-10: 자사 미노출 · 본청 0 · 뉴스7일 55·같은제목 2 · 자매 0 · openSlots 3 · 눈 확인 전 · T1 open · T2 open"
       ],
       "expectedInbound": "현재 60/주(자사 미노출·미측정분 회수)",
       "condition": "공고 go.kr URL 확보 + 접미형·변형 SERP 실측",
-      "recent7": 0.51,
+      "recent7": 0.48,
       "recent7Source": "radar",
       "existingPosts": [
         {
@@ -798,11 +823,11 @@
         "region": "창원",
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-09T23:10:47.487Z",
+        "measuredAt": "2026-10-10T06:36:55.757Z",
         "webDocRaw": 30,
-        "webDocTotal": 9693048,
+        "webDocTotal": 9730759,
         "eyeOffset": null,
-        "newsWall": 56,
+        "newsWall": 55,
         "newsWallCapped": false,
         "newsSameTitle": 2,
         "measuredBy": "webkr-api",
@@ -846,8 +871,8 @@
         "source": "scout 2026-10-10",
         "approx": false
       },
-      "score": 69.9,
-      "scoreNote": "0.51 × min(3,4) × 45.7",
+      "score": 65.8,
+      "scoreNote": "0.48 × min(3,4) × 45.7",
       "exposure": {
         "score": 55,
         "label": "중간",
@@ -867,6 +892,147 @@
       "createdAt": "2026-10-08T06:56:29.882Z"
     },
     {
+      "id": "새키워드:신업급여",
+      "track": "T2",
+      "query": "신업급여",
+      "family": null,
+      "region": null,
+      "source": "레이더",
+      "born": false,
+      "inbound7d": null,
+      "evidence": [
+        "기회도 72(수요 73% · 공급희소 98%)",
+        "블로그 문서 213건",
+        "scout 2026-10-10: 자사 미노출 · 본청 0 · 뉴스7일 0·같은제목 0 · 자매 0 · openSlots 9 · 눈 확인 전 · T1 open · T2 open"
+      ],
+      "expectedInbound": "0~0",
+      "condition": "검색 결과 실측 필요",
+      "recent7": 0,
+      "recent7Source": "radar",
+      "serp": {
+        "query": "신업급여",
+        "rank": null,
+        "url": null,
+        "webDocCount": 24,
+        "aboveIsWholeBlock": true,
+        "openSlots": 9,
+        "mainGovAbove": 0,
+        "pressAbove": null,
+        "sisterAbove": 0,
+        "webDocOffset": null,
+        "verdictT1": "open",
+        "verdictT2": "open",
+        "reason": [
+          "offset·press 미측정(API)"
+        ],
+        "region": null,
+        "onPage": null,
+        "parseOk": true,
+        "measuredAt": "2026-10-10T06:37:26.363Z",
+        "webDocRaw": 30,
+        "webDocTotal": 2669,
+        "eyeOffset": null,
+        "newsWall": 0,
+        "newsWallCapped": false,
+        "newsSameTitle": 0,
+        "measuredBy": "webkr-api",
+        "unmeasured": [
+          "webDocOffset",
+          "pressAbove",
+          "ugc",
+          "onPage"
+        ],
+        "above": [
+          {
+            "host": "findsemusa.com",
+            "kind": "commercial",
+            "title": "정녕퇴직 만61세. 실업 급여 받을수있나요"
+          },
+          {
+            "host": "tmdwls2468.com",
+            "kind": "commercial",
+            "title": "실업 급여 교육시간 1차 온라인 인터넷 수강"
+          },
+          {
+            "host": "nodong.kr",
+            "kind": "commercial",
+            "title": "실업 급여 부탁 드립니다..(라식수술) - 온라인상담실 - 노동OK",
+            "stale": true
+          },
+          {
+            "host": "onejob.co.kr",
+            "kind": "commercial",
+            "title": "[실업 급여 대상] 2023년 실업 급여 모음집 (실업 급여 조건부터 신업급여 신청방법까....",
+            "stale": true
+          },
+          {
+            "host": "keis.or.kr",
+            "kind": "institutional-open",
+            "title": "고용보험 동향 - 한국고용정보원",
+            "stale": true,
+            "openBy": [
+              "stale"
+            ]
+          },
+          {
+            "host": "seohae.go.kr",
+            "kind": "institutional-open",
+            "title": "인천서부 고용복지+센터",
+            "openBy": [
+              "board"
+            ]
+          },
+          {
+            "host": "busanjin.go.kr",
+            "kind": "institutional-open",
+            "title": "최저임금 해결사 일자리 안정자금",
+            "openBy": [
+              "board"
+            ]
+          },
+          {
+            "host": "eiec.kdi.re.kr",
+            "kind": "institutional",
+            "title": "실업 급여 지급실적 및 증가원인"
+          },
+          {
+            "host": "mpva.go.kr",
+            "kind": "institutional-open",
+            "title": "의료 급여 추천 신청서 작성 안내",
+            "openBy": [
+              "board"
+            ]
+          },
+          {
+            "host": "gamejob.co.kr",
+            "kind": "commercial",
+            "title": "[파더메이드] 캐릭터 모델러 모집 ( 신업 /경력)"
+          }
+        ],
+        "source": "scout 2026-10-10",
+        "approx": false
+      },
+      "score": 0,
+      "scoreNote": "0 × min(9,4) × 36.8",
+      "exposure": {
+        "score": 65,
+        "label": "중간",
+        "reasons": [
+          "자리 열림",
+          "빈자리 9",
+          "위에 관공서 없음"
+        ]
+      },
+      "revenue": {
+        "key": "other",
+        "label": "기타",
+        "weight": 1,
+        "tag": ""
+      },
+      "status": "proposed",
+      "createdAt": "2026-10-10T06:36:49.949Z"
+    },
+    {
       "id": "새키워드:알바주휴수당계산기",
       "track": "T2",
       "query": "알바 주휴수당 계산기",
@@ -881,7 +1047,7 @@
       ],
       "expectedInbound": "현재 81/주",
       "condition": "검색 결과 실측 필요",
-      "recent7": 3.11,
+      "recent7": 2.94,
       "recent7Source": "radar",
       "serp": {
         "query": "알바 주휴수당 계산기",
@@ -902,9 +1068,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-09T23:11:12.654Z",
+        "measuredAt": "2026-10-10T06:37:19.332Z",
         "webDocRaw": 30,
-        "webDocTotal": 922282,
+        "webDocTotal": 929760,
         "eyeOffset": null,
         "newsWall": 0,
         "newsWallCapped": false,
@@ -971,10 +1137,10 @@
         "source": "scout 2026-10-10",
         "approx": false
       },
-      "score": 457.8,
-      "scoreNote": "3.11 × min(10,4) × 36.8",
+      "score": 432.8,
+      "scoreNote": "2.94 × min(10,4) × 36.8",
       "exposure": {
-        "score": 75,
+        "score": 70,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -1005,7 +1171,7 @@
         "recent7 2.66(big-keywords datalab rel30(proxy))",
         "클러스터 실유입 340/주",
         "계수 national/null 36.8(n=1)",
-        "scout 2026-10-10: 자사 미노출 · 본청 0 · 뉴스7일 3·같은제목 1 · 자매 0 · openSlots 4 · 눈 확인 전 · T1 open · T2 open"
+        "scout 2026-10-10: 자사 미노출 · 본청 0 · 뉴스7일 2·같은제목 1 · 자매 0 · openSlots 4 · 눈 확인 전 · T1 open · T2 open"
       ],
       "expectedInbound": "59~137",
       "condition": "자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia",
@@ -1015,7 +1181,7 @@
         "query": "실업급여 상실신고",
         "rank": null,
         "url": null,
-        "webDocCount": 16,
+        "webDocCount": 15,
         "aboveIsWholeBlock": true,
         "openSlots": 4,
         "mainGovAbove": 0,
@@ -1030,11 +1196,11 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-09T23:11:00.087Z",
+        "measuredAt": "2026-10-10T06:37:07.565Z",
         "webDocRaw": 30,
-        "webDocTotal": 315097,
+        "webDocTotal": 316105,
         "eyeOffset": null,
-        "newsWall": 3,
+        "newsWall": 2,
         "newsWallCapped": false,
         "newsSameTitle": 1,
         "measuredBy": "webkr-api",
@@ -1131,7 +1297,7 @@
       "inbound7d": null,
       "evidence": [
         "기회도 57(수요 62% · 공급희소 92%)",
-        "블로그 문서 16935건",
+        "블로그 문서 16944건",
         "scout 2026-10-10: 자사 미노출 · 본청 0 · 뉴스7일 0·같은제목 0 · 자매 0 · openSlots 7 · 눈 확인 전 · T1 open · T2 open"
       ],
       "expectedInbound": "0~0",
@@ -1157,9 +1323,9 @@
         "region": null,
         "onPage": null,
         "parseOk": true,
-        "measuredAt": "2026-10-09T23:11:20.091Z",
+        "measuredAt": "2026-10-10T06:37:28.458Z",
         "webDocRaw": 30,
-        "webDocTotal": 390149,
+        "webDocTotal": 390552,
         "eyeOffset": null,
         "newsWall": 0,
         "newsWallCapped": false,
@@ -1642,8 +1808,8 @@
       "daysLeft": 2,
       "evidence": [
         "coreFacts.deadline \"2차 신청 2026.10.7~10.16(10.7~8 출생연도 홀짝제 · 10.12~16 자유) · 가입심사 10.19~11.13 · 계좌 개설 \"",
-        "날짜 2026-10-12 D-2 (+ 2026-10-08 D+2)",
-        "dateModified 2026-10-07T00:46:49.000Z"
+        "날짜 2026-10-12 D-2",
+        "dateModified 2026-10-10T02:10:49.000Z"
       ],
       "condition": "결정 #2: 사실·날짜 정정·updates[]·dateModified만. 제목·slug·구조 불변. 본문 변경 없이 dateModified만 올리기 금지",
       "score": 8,
@@ -9807,7 +9973,8 @@
       },
       "statusAt": "2026-10-10",
       "publishedSlug": "youth-future-savings-2nd-round-result-2026-10-10",
-      "note": "문지기: 2차 신청방법·조건 각도는 기존 5편 잠식(VETO) → 기존 4편 정정(5fd56f5) + 신청 뒤 결과·이의신청·계좌 개설 각도로 새 글"
+      "note": "문지기: 2차 신청방법·조건 각도는 기존 5편 잠식(VETO) → 기존 4편 정정(5fd56f5) + 신청 뒤 결과·이의신청·계좌 개설 각도로 새 글",
+      "lastSeenAt": "2026-10-09T23:13:31.844Z"
     }
   ],
   "excluded": [
@@ -10265,18 +10432,8 @@
     },
     {
       "track": "T2",
-      "query": "조기재취업수당",
-      "reason": "기존 글 있음 — early-reemployment-allowance-2026-06-16(제목에 이 표현 포함). 새 글 아님"
-    },
-    {
-      "track": "T2",
       "query": "청년미래적금",
       "reason": "기존 글 있음 — youth-future-savings-apply-2026-06-03(제목에 이 표현 포함). 새 글 아님"
-    },
-    {
-      "track": "T2",
-      "query": "에너지바우처",
-      "reason": "기존 글 있음 — energy-voucher-summer-2026-06-08(제목에 이 표현 포함). 새 글 아님"
     },
     {
       "track": "T2",
@@ -10519,7 +10676,7 @@
     },
     {
       "kind": "remeasure",
-      "text": "재측정 \"문경시 지원금\": r1 · 본청 0 · 뉴스7일 25·같은제목 2 · openSlots 0 · 눈 확인 전"
+      "text": "재측정 \"문경시 지원금\": r1 · 본청 0 · 뉴스7일 23·같은제목 2 · openSlots 0 · 눈 확인 전"
     },
     {
       "kind": "remeasure",

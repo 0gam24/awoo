@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 345,
-    "entryCount": 99,
-    "regionCount": 59,
+    "scannedPosts": 346,
+    "entryCount": 100,
+    "regionCount": 60,
     "regions": [
       "강릉",
       "강북구",
@@ -41,6 +41,7 @@
       "양산",
       "양양",
       "연수구",
+      "연천",
       "영덕",
       "영동",
       "영암",
@@ -68,12 +69,12 @@
       "횡성"
     ],
     "families": {
-      "A": 66,
+      "A": 67,
       "B": 19,
       "V": 14
     },
     "clusters": {
-      "minsaeng": 61,
+      "minsaeng": 62,
       "other": 38
     },
     "rollups": 9,
@@ -2456,6 +2457,27 @@
       "regionOverride": true,
       "familyOverride": true,
       "clusterOverride": true
+    },
+    {
+      "region": [
+        "연천"
+      ],
+      "family": "A",
+      "slug": "yeoncheon-rural-basic-income-eligibility-2026-10-10",
+      "path": "src/data/issues/2026-10-10/yeoncheon-rural-basic-income-eligibility-2026-10-10.json",
+      "date": "2026-10-10",
+      "targetQuery": "연천사랑상품권",
+      "coreFacts": {
+        "who": "연천군 등 7개 군 거주 주민 전체, 2025-10-20 선정",
+        "amount": "1인당 월 15만원 상당 지역사랑상품권",
+        "deadline": "2026년부터 2027년까지 2년간 지급"
+      },
+      "coreFactsKeys": [
+        "who=2025-10-20",
+        "amount=15만원"
+      ],
+      "cluster": "minsaeng",
+      "rollup": false
     },
     {
       "region": [
