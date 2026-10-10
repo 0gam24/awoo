@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 344,
-    "entryCount": 98,
-    "regionCount": 58,
+    "scannedPosts": 345,
+    "entryCount": 99,
+    "regionCount": 59,
     "regions": [
       "강릉",
       "강북구",
@@ -57,6 +57,7 @@
       "정선",
       "정읍",
       "창원",
+      "청년미래적금",
       "청양",
       "태안",
       "통영",
@@ -68,12 +69,12 @@
     ],
     "families": {
       "A": 66,
-      "B": 18,
+      "B": 19,
       "V": 14
     },
     "clusters": {
       "minsaeng": 61,
-      "other": 37
+      "other": 38
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -214,6 +215,14 @@
           "전국"
         ],
         "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "youth-future-savings-2nd-round-result-2026-10-10",
+        "region": [
+          "청년미래적금"
+        ],
+        "family": "B",
         "cluster": "other"
       }
     ],
@@ -2441,6 +2450,30 @@
       },
       "coreFactsKeys": [
         "deadline=2026-10-06"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "청년미래적금"
+      ],
+      "family": "B",
+      "slug": "youth-future-savings-2nd-round-result-2026-10-10",
+      "path": "src/data/issues/2026-10-10/youth-future-savings-2nd-round-result-2026-10-10.json",
+      "date": "2026-10-10",
+      "targetQuery": "청년미래적금 2차",
+      "coreFacts": {
+        "who": "2차 가입신청을 마친 청년, 도약계좌 보유자 포함",
+        "amount": "월 최대 50만원 납입, 기여금 6% 또는 12%",
+        "deadline": "이의신청 11월 5일 잠정 마감, 개설 11월 27일까지"
+      },
+      "coreFactsKeys": [
+        "amount=50만원",
+        "deadline=2026-11-05"
       ],
       "cluster": "other",
       "rollup": false,
