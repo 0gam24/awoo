@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 350,
-    "entryCount": 102,
+    "scannedPosts": 351,
+    "entryCount": 103,
     "regionCount": 62,
     "regions": [
       "강릉",
@@ -71,13 +71,13 @@
       "횡성"
     ],
     "families": {
-      "A": 69,
+      "A": 70,
       "B": 19,
       "V": 14
     },
     "clusters": {
       "minsaeng": 62,
-      "other": 40
+      "other": 41
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -2520,6 +2520,30 @@
       "regionOverride": true,
       "familyOverride": true,
       "clusterOverride": true
+    },
+    {
+      "region": [
+        "경기"
+      ],
+      "family": "A",
+      "slug": "gyeonggi-birth-support-postpartum-2026-10-14",
+      "path": "src/data/issues/2026-10-14/gyeonggi-birth-support-postpartum-2026-10-14.json",
+      "date": "2026-10-14",
+      "targetQuery": "경기도 출산지원금",
+      "coreFacts": {
+        "who": "부 또는 모가 출생일·신청일에 경기도 주민등록, 신청일에 실거주",
+        "amount": "출생아 1명당 50만원 지역화폐, 쌍둥이 100만원",
+        "deadline": "출생일 포함 12개월 이내 신청, 상시 접수"
+      },
+      "coreFactsKeys": [
+        "amount=50만원"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionContext": [
+        "하남",
+        "안산"
+      ]
     },
     {
       "region": [
