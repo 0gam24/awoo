@@ -487,7 +487,7 @@ export const GET: APIRoute = async () => {
   lines.push('## 사이트 정보');
   lines.push('');
   lines.push('- [사이트 소개](https://awoo.or.kr/about/): 운영 주체·콘텐츠 정책·신뢰성');
-  lines.push('- [편집 정책](https://awoo.or.kr/editorial-policy/): AI 보조·사람 검수·정정 절차');
+  lines.push('- [편집 정책](https://awoo.or.kr/editorial-policy/): 1차 자료 검증·정정 절차');
   lines.push('- [신청 가이드](https://awoo.or.kr/guide/): 정부 지원금 신청 흐름·공식 사이트·FAQ');
   lines.push(
     '- [개인정보처리방침](https://awoo.or.kr/privacy/): 회원가입·로그인 X, 개인정보 수집 X',
@@ -558,7 +558,6 @@ export const GET: APIRoute = async () => {
   lines.push('- 이메일: smartdatashop@gmail.com');
   lines.push('- 본 사이트는 정보 안내 사이트로 신청 대행은 하지 않습니다.');
   lines.push('- 정부 부처 공식 발표를 1차 자료로 작성하며 분기마다 전체 재검토합니다.');
-  lines.push('- AI 단독 생성 후 무편집 발행은 금지합니다 (AI 보조는 사람의 사실 확인 후 사용).');
   lines.push('- 편집 정책: https://awoo.or.kr/editorial-policy/');
   lines.push('- 개인정보처리방침: https://awoo.or.kr/privacy/');
   lines.push('');

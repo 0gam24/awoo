@@ -8,11 +8,11 @@ const articleSchema = {
   '@type': 'Article',
   '@id': 'https://awoo.or.kr/editorial-policy/#article',
   headline: '편집 정책 — 지원금가이드',
-  description: '지원금가이드의 콘텐츠 작성·검수·정정 정책. 1차 자료 인용, 정확성 우선, AI 단독 생성 금지.',
+  description: '지원금가이드의 콘텐츠 작성·검수·정정 정책. 1차 자료 인용, 정확성 우선, 정정 절차 공개.',
   url: 'https://awoo.or.kr/editorial-policy/',
   inLanguage: 'ko-KR',
   datePublished: '2026-04-29',
-  dateModified: '2026-04-29',
+  dateModified: '2026-10-14',
   author: { '@type': 'Person', name: '김준혁' },
   publisher: { '@id': 'https://awoo.or.kr/#organization' },
   about: '편집 정책·콘텐츠 출처·사실 확인 절차',
@@ -21,7 +21,7 @@ const articleSchema = {
 
 <BaseLayout
   title="편집 정책 — 지원금가이드"
-  description="지원금가이드의 콘텐츠 작성·검수·정정 정책. 1차 자료 인용, 정확성 우선, AI 단독 생성 금지. 편집책임자 김준혁 검수 절차 명시."
+  description="지원금가이드의 콘텐츠 작성·검수·정정 정책. 1차 자료 인용, 정확성 우선, 정정 절차 공개. 편집책임자 김준혁 검수 절차 명시."
   breadcrumbs={[
     { name: '홈', href: '/' },
     { name: '편집 정책', href: '/editorial-policy/' },
@@ -54,20 +54,7 @@ const articleSchema = {
       </section>
 
       <section>
-        <h2>3. AI 보조 활용 정책</h2>
-        <p>
-          본 사이트는 콘텐츠 작성·교정에 AI 도구를 보조적으로 사용할 수 있으나,
-          <strong>AI 단독 생성 후 무편집 발행은 금지</strong>합니다.
-        </p>
-        <ul>
-          <li>모든 사실 주장은 사람이 1차 자료로 검증</li>
-          <li>실제 신청 경험·사례는 사람의 직접 경험 또는 인터뷰에 근거</li>
-          <li>AI 보조 사실은 본 페이지에 투명하게 공개</li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>4. 정정 정책</h2>
+        <h2>3. 정정 정책</h2>
         <p>
           오류·누락·갱신 필요 사항을 발견하시면 <a href="mailto:smartdatashop@gmail.com">smartdatashop@gmail.com</a>
           로 알려주십시오. 확인 후 24시간 이내에 수정하고, 중요 변경은 페이지 하단에 정정 이력을 남깁니다.
@@ -75,7 +62,7 @@ const articleSchema = {
       </section>
 
       <section>
-        <h2>5. 광고·후원·이해상충</h2>
+        <h2>4. 광고·후원·이해상충</h2>
         <p>
           본 사이트는 운영 비용 충당을 위해 <strong>Google AdSense 광고를 게재</strong>합니다.
           광고 수익은 콘텐츠 작성·검수에 영향을 주지 않으며, 콘텐츠와 광고는 시각적·구조적으로
@@ -85,7 +72,7 @@ const articleSchema = {
       </section>
 
       <section>
-        <h2>6. 편집 책임자</h2>
+        <h2>5. 편집 책임자</h2>
         <p>
           김준혁 (편집장 · 대표)<br />
           이메일: <a href="mailto:smartdatashop@gmail.com">smartdatashop@gmail.com</a>
