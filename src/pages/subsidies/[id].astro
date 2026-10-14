@@ -164,9 +164,12 @@ const breadcrumbs = [
 // meta description — gov24 원본 summary가 한 줄(20자 안팎)로 짧은 항목이 많아
 // 금액·대상·기관 팩트를 이어붙여 검색 스니펫 정보량을 확보한다 (150자 안에서 순차 누적)
 const descParts = [s.summary.trim().replace(/\.$/, '') + '.'];
-if (s.amount > 0) descParts.push(`${(s.amountLabel ?? '지원 금액').trim()} ${formatWon(s.amount)}.`);
+// 요약 문장에 같은 금액이 이미 있으면("월 최대 20만원 임차료 지원") 되풀이하지 않는다
+const summaryHasAmount = s.amount > 0 && Boolean(descParts[0]?.includes(formatWon(s.amount)));
+if (s.amount > 0 && !summaryHasAmount)
+  descParts.push(`${(s.amountLabel ?? '지원 금액').trim()} ${formatWon(s.amount)}.`);
 else if (s.monthly) descParts.push(`${s.monthly.trim()}.`);
-else descParts.push(`혜택: ${amountLine}.`);
+else if (!summaryHasAmount) descParts.push(`혜택: ${amountLine}.`);
 const firstEligibility = (s.eligibility?.[0] ?? '').trim();
 if (firstEligibility) {
   descParts.push(`대상: ${firstEligibility.length > 45 ? `${firstEligibility.slice(0, 44)}…` : firstEligibility}.`);

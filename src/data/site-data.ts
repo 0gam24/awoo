@@ -334,8 +334,12 @@ export const formatWon = (n: number): string => {
     return `${eok % 1 === 0 ? eok : eok.toFixed(1)}억원`;
   }
   if (n >= 10_000) {
-    const man = Math.round(n / 10_000);
-    return `${man.toLocaleString('ko-KR')}만원`;
+    // 만원 아래를 반올림하면 생계급여 82만 556원이 '82만원'으로 뭉개진다 — 끝자리까지 보여 준다
+    const man = Math.floor(n / 10_000);
+    const rest = n % 10_000;
+    return rest
+      ? `${man.toLocaleString('ko-KR')}만 ${rest.toLocaleString('ko-KR')}원`
+      : `${man.toLocaleString('ko-KR')}만원`;
   }
   return `${n.toLocaleString('ko-KR')}원`;
 };

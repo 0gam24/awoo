@@ -75,16 +75,22 @@ export function amountDisplay(s: AmountSource): AmountDisplay {
   const text = [s.monthly, s.summary, ...(s.benefits ?? []), s.title].filter(Boolean).join(' ');
   const pct = text.match(/(\d{1,3})\s*%\s*(감면|할인|면제|환급|캐시백|지원)/);
   if (pct) return { value: `${pct[1]}%`, unit: pct[2] ?? '', isMoney: false };
-  if (/전액\s*(감면|면제)|면제/.test(text))
-    return { value: '이용료 면제', unit: '', isMoney: false };
-  if (/감면|할인/.test(text)) return { value: '이용료 감면', unit: '', isMoney: false };
-  if (/바우처|이용권|쿠폰/.test(text)) return { value: '바우처 지원', unit: '', isMoney: false };
-  if (/약제비|의료비|시술비|진료비|실비|검사비/.test(text))
-    return { value: '실비 지원', unit: '', isMoney: false };
-  if (/융자|대출|대부/.test(text)) return { value: '융자 지원', unit: '', isMoney: false };
-  if (/현물|물품|용품|기저귀|식품|꾸러미/.test(text))
-    return { value: '현물 지원', unit: '', isMoney: false };
-  return { value: '서비스 지원', unit: '', isMoney: false };
+  const kind = (value: string): AmountDisplay => ({ value, unit: '', isMoney: false });
+  // 세금 감면을 '이용료 감면'이라 부르지 않게 세금부터 본다
+  if (/취득세|재산세|자동차세|등록면허세|지방세|세\s*(감면|면제)/.test(text))
+    return kind('세금 감면');
+  if (/우대\s*금리|금리\s*우대/.test(text)) return kind('우대금리');
+  if (/캐시백/.test(text)) return kind('캐시백');
+  const fee = /이용료|이용요금|사용료|요금|수수료|입장료|수강료/.test(text);
+  if (/면제/.test(text)) return kind(fee ? '이용료 면제' : '면제 혜택');
+  if (/감면|할인/.test(text)) return kind(fee ? '이용료 감면' : '감면 혜택');
+  if (/바우처|이용권|쿠폰/.test(text)) return kind('바우처 지원');
+  if (/약제비|의료비|시술비|진료비|실비|검사비/.test(text)) return kind('실비 지원');
+  if (/융자|대출|대부/.test(text)) return kind('융자 지원');
+  if (/현물|물품|용품|기저귀|식품|꾸러미/.test(text)) return kind('현물 지원');
+  if (/비과세|세액공제|소득공제/.test(text)) return kind('세제 혜택');
+  if (/보험료/.test(text)) return kind('보험료 지원');
+  return kind('서비스 지원');
 }
 
 /** 한 줄 문자열: "35만원 지원금", "50% 감면", "이용료 감면" */
