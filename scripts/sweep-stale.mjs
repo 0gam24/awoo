@@ -102,6 +102,11 @@ async function main() {
       continue;
     }
     // status === '마감'
+    // closedNote가 있으면 운영자가 "끝났다는 안내와 함께 페이지 유지"를 고른 사업 — 옮기지 않는다
+    if (data.closedNote) {
+      active++;
+      continue;
+    }
     const dl = parseDeadline(data.deadline, data.period);
     if (dl === null) {
       unparseable++;

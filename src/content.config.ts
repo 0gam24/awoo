@@ -53,6 +53,9 @@ const subsidies = defineCollection({
     targetPersonas: z.array(z.string()),
     fitNotes: z.record(z.string(), z.string()).optional(),
     isHot: z.boolean().optional(),
+    // 신청이 끝났지만 검색 수요가 남아 페이지를 유지하는 사업의 안내(2026-10-14).
+    // 이 값이 있으면 sweep-stale이 status '마감'이어도 _archived로 옮기지 않는다.
+    closedNote: z.string().optional(),
   }),
 });
 

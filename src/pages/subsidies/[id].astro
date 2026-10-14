@@ -94,9 +94,10 @@ const personaLabels = matchedPersonas
 const personaSummary = personaLabels.length > 0
   ? `${personaLabels.slice(0, 2).join('·')}${personaLabels.length > 2 ? ' 외' : ''}`
   : '대상 확인 필요';
+const isClosed = s.status === '마감';
 const blufSummarySubsidy = `${withJosa(s.title, '은/는')} ${withJosa(s.agency, '이/가')} 제공하는 ${s.category} 분야 지원입니다. 지원 규모는 ${withJosa(amountPhrase(s), '이고/고')}, ${
   personaLabels.length > 0 ? `${withJosa(personaSummary, '이/가')} 받을 수 있습니다.` : '지원 대상은 아래 조건으로 확인하세요.'
-}`;
+}${s.closedNote ? ` 다만 ${s.closedNote}` : ''}`;
 const blufStatsSubsidy = [
   { value: amount.value, label: amount.isMoney ? s.amountLabel || '지원 금액' : amount.unit || '혜택' },
   { value: s.deadline, label: '신청 마감' },
@@ -142,15 +143,20 @@ const govSchema = {
     ? { '@type': 'AdministrativeArea', name: area }
     : { '@type': 'Country', name: '대한민국', identifier: 'KR' },
   // Cycle #28: potentialAction — 검색 결과 'Apply/신청' 버튼 자격 + AI 답변 엔진 actionable
-  potentialAction: {
-    '@type': 'ApplyAction',
-    target: {
-      '@type': 'EntryPoint',
-      urlTemplate: s.applyUrl,
-      actionPlatform: ['https://schema.org/DesktopWebPlatform', 'https://schema.org/MobileWebPlatform'],
-    },
-    name: `${s.title} 신청하기`,
-  },
+  // 신청이 끝난 사업에는 '신청하기' 행동을 달지 않는다 (2026-10-14)
+  ...(isClosed
+    ? {}
+    : {
+        potentialAction: {
+          '@type': 'ApplyAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: s.applyUrl,
+            actionPlatform: ['https://schema.org/DesktopWebPlatform', 'https://schema.org/MobileWebPlatform'],
+          },
+          name: `${s.title} 신청하기`,
+        },
+      }),
   // 2026-10-14: Offer(price=지원 금액)는 뺐다 — Offer.price는 '이용자가 내는 값'이라 지원액·대출 한도를 넣으면 뜻이 뒤집힌다
 };
 
@@ -202,6 +208,11 @@ for (const part of descParts.slice(1)) {
           </div>
           {s.monthly && <div class="monthly">{s.monthly}</div>}
           <p class="summary">{s.summary}</p>
+          {s.closedNote && (
+            <p class="closed-note" role="note">
+              <strong>신청 종료</strong> {s.closedNote}
+            </p>
+          )}
           <div class="tags">
             {s.tags.map((t) => <span class="tag">#{t}</span>)}
           </div>
@@ -229,10 +240,10 @@ for (const part of descParts.slice(1)) {
           </div>
           <div class="rail-row dl-row">
             <span>상태</span>
-            <strong class={s.status === '곧 마감' ? 'st-warn' : 'st-ok'}>{s.status}</strong>
+            <strong class={s.status === '신청 가능' ? 'st-ok' : 'st-warn'}>{s.status}</strong>
           </div>
           <a class="btn-primary" href={s.applyUrl} target="_blank" rel="noopener noreferrer">
-            공식 신청처로 이동
+            {isClosed ? '공식 안내 보기' : '공식 신청처로 이동'}
             <Icon name="arrow-up-right" size={16} />
           </a>
           {alsoSeen.length > 0 && (
@@ -501,7 +512,7 @@ for (const part of descParts.slice(1)) {
   <div class="mobile-sticky-cta" aria-label="신청 행동">
     <a class="msc-primary" href={s.applyUrl} target="_blank" rel="noopener noreferrer">
       <span class="msc-icon" aria-hidden="true">✓</span>
-      <span class="msc-text">{s.agency}에서 신청하기</span>
+      <span class="msc-text">{isClosed ? `${s.agency} 공식 안내 보기` : `${s.agency}에서 신청하기`}</span>
     </a>
     <a class="msc-secondary" href="/quick/" aria-label="5분 진단으로 자격 확인">
       ⚡
@@ -1187,6 +1198,22 @@ for (const part of descParts.slice(1)) {
     letter-spacing: -0.01em;
     margin: 0 0 24px;
     line-height: 1.4;
+  }
+
+  /* 2026-10-14: 신청 종료 안내 — 페이지는 남기고 끝났다는 사실을 첫 화면에 */
+  .closed-note {
+    margin: 14px 0 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--color-warning, #d97706);
+    border-radius: 0;
+    background: var(--surface);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .closed-note strong {
+    margin-right: 6px;
   }
 
   /* 2026-10-14: 판정 없는 확인 목록 · 소득 기준선 표 · 서류 발급처 */
