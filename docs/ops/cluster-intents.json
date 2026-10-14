@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 348,
-    "entryCount": 100,
-    "regionCount": 60,
+    "scannedPosts": 349,
+    "entryCount": 101,
+    "regionCount": 61,
     "regions": [
       "강릉",
       "강북구",
@@ -40,6 +40,7 @@
       "안산",
       "양산",
       "양양",
+      "연말정산",
       "연수구",
       "연천",
       "영덕",
@@ -69,13 +70,13 @@
       "횡성"
     ],
     "families": {
-      "A": 67,
+      "A": 68,
       "B": 19,
       "V": 14
     },
     "clusters": {
       "minsaeng": 62,
-      "other": 38
+      "other": 39
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -224,6 +225,14 @@
           "청년미래적금"
         ],
         "family": "B",
+        "cluster": "other"
+      },
+      {
+        "slug": "yearend-tax-refund-date-2026-10-14",
+        "region": [
+          "연말정산"
+        ],
+        "family": "A",
         "cluster": "other"
       }
     ],
@@ -2496,6 +2505,29 @@
       "coreFactsKeys": [
         "amount=50만원",
         "deadline=2026-11-05"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "연말정산"
+      ],
+      "family": "A",
+      "slug": "yearend-tax-refund-date-2026-10-14",
+      "path": "src/data/issues/2026-10-14/yearend-tax-refund-date-2026-10-14.json",
+      "date": "2026-10-14",
+      "targetQuery": "연말정산 환급일",
+      "coreFacts": {
+        "who": "전체 근로소득자, 계속근로자·중도퇴사자·이직자 모두 포함",
+        "amount": "환급액은 결정세액과 기납부세액의 차액으로 개인별 상이",
+        "deadline": "지급명세서 매년 3월 10일, 경정청구 5년 이내"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-03-10"
       ],
       "cluster": "other",
       "rollup": false,
