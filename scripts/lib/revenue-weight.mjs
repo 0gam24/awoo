@@ -45,7 +45,7 @@ export const REVENUE_GROUPS = [
     // 희망리턴·폐업(2026-10-08 추가): 문 닫는 소상공인 지원 — 같은 독자층으로 보고 넣음(실측 전)
     label: '소상공인·바우처',
     weight: 2.0,
-    re: /소상공인|자영업|노란우산|경영안정|정책자금|바우처|난방비|희망리턴|폐업/,
+    re: /소상공인|자영업|노란우산|경영안정|정책자금|고용연계자금|바우처|난방비|희망리턴|폐업/,
   },
   {
     key: 'housing',
@@ -69,6 +69,12 @@ export const REVENUE_GROUPS = [
 
 const NEUTRAL = { key: 'other', label: '기타', weight: 1.0 };
 
+// 소상공인 지원 글감은 제목에 '실업급여'·'대출' 같은 다른 묶음 낱말이 같이 들어가도 소상공인으로 본다.
+// 2026-10-14: '폐업지원금 …노란우산 공제금부터 실업급여까지'가 일자리로, '청년고용연계자금 …대리대출'이 주거로 잡혀
+// 주간 배분 비율이 실제보다 낮게 나왔다(애드센스 실측 소상공인 1000뷰당 26달러 vs 일자리 2.5달러).
+const STRONG_SMALL_BIZ =
+  /소상공인|폐업지원금|희망리턴|노란우산|고용연계자금|경영안정바우처|정책자금/;
+
 /**
  * @param {{query?: string, variant?: string, region?: string|null}} item
  * @returns {{key: string, label: string, weight: number, tag: string}}
@@ -76,7 +82,9 @@ const NEUTRAL = { key: 'other', label: '기타', weight: 1.0 };
  */
 export function revenueOf(item) {
   const text = `${item?.query ?? ''} ${item?.variant ?? ''}`;
-  let g = REVENUE_GROUPS.find((x) => x.re.test(text));
+  let g = STRONG_SMALL_BIZ.test(text)
+    ? REVENUE_GROUPS.find((x) => x.key === 'small-biz')
+    : REVENUE_GROUPS.find((x) => x.re.test(text));
   // 지역 이름이 붙은 지원금 글감은 지역 지원금 — 김해 민생 1000회당이 사이트 평균의 2~4배였다
   if (!g && item?.region) g = REVENUE_GROUPS.find((x) => x.key === 'local-grant');
   if (!g) g = NEUTRAL;

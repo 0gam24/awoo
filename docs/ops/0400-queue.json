@@ -2,12 +2,28 @@
   "_readme": "awoo 0400 자동 발행 루틴의 운영자 지정 큐. 키 = 발행일(KST, YYYY-MM-DD). 루틴은 실행 시 오늘 키가 있으면 최우선 적용. mode 없음/\"new\" = 신규 1건(keyword·angle·gate_a·sources_hint·must·profile_hint), mode \"update\" = 신규 대신 target 글 갱신(facts를 1차 출처로 재검증 후 updates[] append·사실 정정·dateModified, 제목·slug·구조 불변). 지정 항목도 GATE-A·확정 팩트·factCheckScore 0.8 게이트는 그대로(미충족 시 평소 선정으로 대체하고 종료 보고에 사유). _watch = 공식 공고가 뜨면 그날 최우선으로 검토할 주제. 지난 항목은 기록으로 남겨 둔다.",
   "_policy": {
     "since": "2026-09-17",
-    "rule": "운영자 지시(2026-09-17): 오늘 키가 없는 날의 평소 선정은 docs/ops/pipeline-queue.json 에서 고른다. status가 proposed이고 track이 갱신이 아닌 항목 중 목록과 같은 순서로 맨 위의 것(2026-10-06 운영자 결정: 노출 가능성 45 이상을 먼저, 그 안에서 exposure.score × 주제 수익 배수가 큰 것 — 배수는 `node --input-type=module -e \"import {revenueOf} from './scripts/lib/revenue-weight.mjs'; console.log(revenueOf({query:'검색어'}))\"`의 weight, 지원금·소상공인·바우처 2 / 연금·복지 1 / 공휴일·일·출산·혼인·청년 0.4. 같으면 expectedInbound 큰 것)을 신규 1건으로 발행한다. 제외: status가 approved·published·hold·rejected인 항목(운영자가 수동으로 지시했거나 보류한 글감), condition에 \"확보\"·\"확인 후\"·\"go.kr URL\"이 있는데 1차 출처를 직접 확보하지 못한 항목, 자사 글이 이미 그 쿼리를 소유한 항목. 발행하면 그 큐 항목을 status published·statusAt·publishedSlug·source \"0400\"으로 갱신한다(이 파일과 pipeline-queue.json은 콘텐츠 외 파일이라 자동 병합 조건에 걸리면 PR에 넣지 말고 종료 보고에만 적는다). 큐에 쓸 만한 항목이 없으면 기존 방식으로 선정한다. ▶ 2026-09-27 보강(운영자 지시): 0400은 매일 신규 1건이 원칙이다. mode \"update\" 대체는 (1) 오늘 키에 update가 명시됐거나 (2) 큐·레이더·keyword-scout 추가 발굴 5건 이상을 공식 API scout로 잰 뒤에도 게이트를 넘는 신규가 없을 때만 허용하고, 이틀 연속 update 대체는 금지한다(전날이 update였으면 오늘은 반드시 신규). 갱신은 신규에 더해 하는 것이지 신규를 대신하는 것이 아니다. 9/26·9/27 이틀 연속 갱신으로 신규 0건이 된 것이 이 규칙을 만든 이유. | 배정 키워드의 1차 출처는 게시일(연도)까지 확인할 것 — 연도 없는 카드뉴스가 상위에 뜨는 반복 제도(청년도약계좌 등)는 함정. ▶ 2026-10-08 보강: 공고 금액·기한이 HWP 첨부에만 있으면 포기하지 말고 Bash로 첨부를 내려받아(curl -sL -o 공고.hwp \"<내려받기 주소>\") node scripts/hwp-text.mjs 공고.hwp 로 본문을 읽는다(의존성 없음). 10/8 희망리턴패키지가 이 이유로 발행 0건이 됐다. HWPX는 unzip 후 Contents/section*.xml."
+    "rule": "운영자 지시(2026-09-17): 오늘 키가 없는 날의 평소 선정은 docs/ops/pipeline-queue.json 에서 고른다. status가 proposed이고 track이 갱신이 아닌 항목 중 목록과 같은 순서로 맨 위의 것(2026-10-06 운영자 결정: 노출 가능성 45 이상을 먼저, 그 안에서 exposure.score × 주제 수익 배수가 큰 것 — 배수는 `node --input-type=module -e \"import {revenueOf} from './scripts/lib/revenue-weight.mjs'; console.log(revenueOf({query:'검색어'}))\"`의 weight, 지원금·소상공인·바우처 2 / 연금·복지 1 / 공휴일·일·출산·혼인·청년 0.4. 같으면 expectedInbound 큰 것)을 신규 1건으로 발행한다. 제외: status가 approved·published·hold·rejected인 항목(운영자가 수동으로 지시했거나 보류한 글감), condition에 \"확보\"·\"확인 후\"·\"go.kr URL\"이 있는데 1차 출처를 직접 확보하지 못한 항목, 자사 글이 이미 그 쿼리를 소유한 항목. 발행하면 그 큐 항목을 status published·statusAt·publishedSlug·source \"0400\"으로 갱신한다(이 파일과 pipeline-queue.json은 콘텐츠 외 파일이라 자동 병합 조건에 걸리면 PR에 넣지 말고 종료 보고에만 적는다). 큐에 쓸 만한 항목이 없으면 기존 방식으로 선정한다. ▶ 2026-09-27 보강(운영자 지시): 0400은 매일 신규 1건이 원칙이다. mode \"update\" 대체는 (1) 오늘 키에 update가 명시됐거나 (2) 큐·레이더·keyword-scout 추가 발굴 5건 이상을 공식 API scout로 잰 뒤에도 게이트를 넘는 신규가 없을 때만 허용하고, 이틀 연속 update 대체는 금지한다(전날이 update였으면 오늘은 반드시 신규). 갱신은 신규에 더해 하는 것이지 신규를 대신하는 것이 아니다. 9/26·9/27 이틀 연속 갱신으로 신규 0건이 된 것이 이 규칙을 만든 이유. | 배정 키워드의 1차 출처는 게시일(연도)까지 확인할 것 — 연도 없는 카드뉴스가 상위에 뜨는 반복 제도(청년도약계좌 등)는 함정. ▶ 2026-10-08 보강: 공고 금액·기한이 HWP 첨부에만 있으면 포기하지 말고 Bash로 첨부를 내려받아(curl -sL -o 공고.hwp \"<내려받기 주소>\") node scripts/hwp-text.mjs 공고.hwp 로 본문을 읽는다(의존성 없음). 10/8 희망리턴패키지가 이 이유로 발행 0건이 됐다. HWPX는 unzip 후 Contents/section*.xml. ▶ 2026-10-14 운영자 결정(글감 배분): 새 글의 절반 이상은 단가 높은 주제(지역 지원금·소상공인·바우처 = revenueOf weight 2)로 채운다. 근거: 애드센스 실측 1000뷰당 소상공인 26달러·지역 지원금 19달러 vs 일자리 2.5·청년가족 2.1·공휴일 1.9·세금 1.5달러, 피크 주(9/13~19) 16.55달러 → 최근 주(9/27~10/3) 7.95달러로 떨어진 감소분의 56%가 주제 구성 변화. 오늘 키가 없는 날은 weight 2 후보가 게이트를 넘으면 그것을 고르고, weight 0.4(공휴일·일·청년·가족·세금) 후보는 recent7 20 이상이거나 weight 2 후보가 모두 탈락했을 때만 쓴다. 같은 묶음 시리즈(예: 반값여행)를 하루 2편 이상 내지 않는다. 목록 위젯의 \"최근 7일 단가 높은 주제 비율\"이 50% 미만이면 weight 2 후보를 최우선으로 찾는다(`node scripts/ops-widget.mjs --limit=1 | grep \"최근 7일\"`)."
   },
   "_watch": [
     {
-      "topic": "청년미래적금 9월 추가 모집",
-      "note": "1차 마감 후 재모집이 거론되나 날짜·조건 미확정. 서민금융진흥원·금융위원회 공식 공고가 확인되는 날 최우선 후보. 기존 청년미래적금 글 10건과 GATE-A 대조 필수"
+      "topic": "2027 소상공인 정책자금 융자계획 공고(중소벤처기업부, 보통 12월 말~1월 초)",
+      "note": "공고 확인 날 신규 1건(2027 달라진 점·1분기 접수 일정·금리) + 6/18 정책자금 글과 /subsidies/small-biz-loan/ 사실 갱신. 지난해 검색 1월 430·2월 364(실업급여=100), 애드센스 1000뷰당 26달러 묶음. 1차 출처 mss.go.kr·ols.semas.or.kr"
+    },
+    {
+      "topic": "2027 소상공인 지원사업 통합공고(중소벤처기업부)",
+      "note": "공고 날 신규 1건(사업 목록·신청 시기 달력). 지난해 \"소상공인 지원금\" 검색 2월 293. 1차 출처 mss.go.kr·bizinfo.go.kr"
+    },
+    {
+      "topic": "설 2027 지자체 민생·생활안정지원금 — 11~12월 지방의회 본예산·추경 의결",
+      "note": "의결이 원문(의회 회의록·시군 보도자료)으로 확인되는 지자체마다 신청 글(A), 3곳 이상 확정되면 지역 조회 묶음 글. 추석 때 묶음 1편이 한 주 184달러, 지역 지원금 묶음이 한 주 540달러를 벌었다. 지역 언론 단독은 버림"
+    },
+    {
+      "topic": "고향사랑기부제 연말(12월 31일) 세액공제·답례품",
+      "note": "11월 초 1~2편(10만원까지 전액 세액공제·초과분 계산, 연말정산 반영 시점). 지난해 검색 12월 760. 1000뷰당 단가 미측정 — 첫 글 발행 2주 뒤 애드센스 페이지 자료로 재고 추가 여부 결정"
+    },
+    {
+      "topic": "2027 문화누리카드 1인 지원금·발급 시작 공고(보통 1~2월)",
+      "note": "기존 6/26·10/8 글 갱신만(세 번째 글은 잠식). 지난해 검색 12월 235·1월 217·2월 304"
     },
     {
       "topic": "인천 청년월세 월 30만원 증액(10월 1일 시행 보도)",
@@ -18,10 +34,6 @@
       "note": "2027년 최저임금 10,700원·주휴 포함 시급 12,840원 적용 개시일에 weekly-holiday-pay-calculation updates[] 한 줄 + 표·본문 연도 정정. 신규 글이 아니라 갱신 트랙"
     },
     {
-      "topic": "국군의날 10/1 임시공휴일 — 9/29(화) 국무회의 결과",
-      "note": "지정되면 armed-forces-day-temporary-holiday 글을 update(answer·tldr[0]·표 1행). 미지정이면 손대지 않음. 신규 금지"
-    },
-    {
       "topic": "기초연금·국민연금·아동수당 10월 지급일(10/25 일요일)",
       "note": "국민연금공단 앞당김 공지가 뜨는 날 신규 1건으로 셋을 한 글에. 9월 지급일 글 클릭률 40%가 근거. 아동수당 10월 지급일은 mohw 옛 글이 r9라 targetQuery로 흡수"
     },
@@ -29,10 +41,8 @@
       "topic": "강릉 민생안정지원금 지급계획 공고(10월)",
       "note": "공고 뜨는 날 A(정규본) 신규 — V글 보유라 A 허용. 신청기간·강릉페이·대상 기준일"
     },
-    "9/29 경기도의회 2차 추경(청년기본소득 163억) 의결 시 → /issues/gyeonggi-youth-basic-income-q3-payment-q4-apply/ 제목·메타·answer·표 갱신(update only)",
     "주금공 hf.go.kr 보금자리론 신혼 소득요건 개정 공고 시 → /issues/bogeumjari-loan-newlywed-income-rule-october/ 시행일 updates[] (update only)",
-    "복지부·자산형성포털 희망저축계좌 재개 공고 시 → hope-savings 2건 갱신 (update only)",
-    "10/1 국군의날 임시공휴일 국무회의(9/29) 결과 → 함평 미신청 글 남은 평일 8→7일 갱신(update only)"
+    "복지부·자산형성포털 희망저축계좌 재개 공고 시 → hope-savings 2건 갱신 (update only)"
   ],
   "2026-09-04": {
     "keyword": "혼인 지원금",

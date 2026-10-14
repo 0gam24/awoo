@@ -245,6 +245,23 @@ function goalHtml() {
   <div style="font-size:12px;color:var(--text-muted)">아래 글감이 모두 1~3위에 들어도 하루 약 +${fmtUsd(sum + tiny.reduce((s, i) => s + (usdPerDay(i) ?? 0), 0))}달러${unknown ? ` (${unknown}건은 검색량을 몰라 뺌)` : ''} · 글감 옆 금액 = 1~3위일 때 하루 예상</div>
 </div>`;
 }
+// 최근 7일 새 글의 주제 배분 — 운영자 결정(2026-10-14 "진행"): 새 글의 절반 이상은 단가 높은 주제
+// (지역 지원금·소상공인·바우처 = revenueOf weight 2). 10/14 분석에서 8월 64%였던 비율이 9월 말~10월 31~34%로
+// 떨어진 것이 수입 하락과 같이 움직였다(피크 주 1000뷰당 16.55달러 → 7.95달러).
+function weekMixHtml() {
+  const posts = [];
+  for (let k = 0; k < 7; k++) {
+    const day = new Date(Date.now() + 9 * 3600 * 1000 - k * 86400000).toISOString().slice(0, 10);
+    posts.push(...publishedOn(day));
+  }
+  if (!posts.length) return '';
+  const high = posts.filter(
+    (p) => revenueOf({ query: `${p.title} ${p.targetQuery ?? ''}` }).weight >= 1.5,
+  ).length;
+  const pct = Math.round((high / posts.length) * 100);
+  const ok = pct >= 50;
+  return `<div style="font-size:12px;margin:-2px 0 8px;color:var(${ok ? '--text-success' : '--text-warning'})">최근 7일 새 글 ${posts.length}편 중 단가 높은 주제(지역 지원금·소상공인·바우처) ${high}편 · ${pct}% — 목표 50% 이상${ok ? '' : ' (모자람)'}</div>`;
+}
 // 하루 1달러도 안 되는 글감은 접는다(운영자 2026-10-06 "진행해" — 목표 하루 200달러). 검색량을 몰라 계산 못 한 글감은 남긴다.
 // 금액 자료가 없는 곳(봇·다른 PC)에서는 아무것도 접지 않는다.
 const MIN_USD = money?.minUsdPerDay ?? 1;
@@ -423,6 +440,7 @@ console.log(`<h2 class="sr-only" style="position:absolute;left:-9999px">오늘 �
     <span style="font-size:12px;color:var(--text-muted)">${esc(countLine())}</span>
   </div>
 ${goalHtml()}
+${weekMixHtml()}
 ${rows || '<p style="color:var(--text-secondary)">지시 대기 글감이 없습니다.</p>'}
 ${tinyHtml}
 ${pendingRows}
