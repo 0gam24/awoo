@@ -1,6 +1,6 @@
 # 키워드 후보 보고 — 2026-10-14 (KST)
 
-생성 2026-10-14 05:35Z · scripts/keyword-pipeline.mjs
+생성 2026-10-14 05:43Z · scripts/keyword-pipeline.mjs
 SERP 실측: scout 21/35건(T1 15·T2 5·재측정 5)
 입력: cluster-intents 100건 · naver-ranks 58쿼리 · 레이더 candidates 47건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 23 · 글 348건
 후보: T1 1 · T2 5 · T3 1 · 갱신 29 · 제외 107
@@ -280,7 +280,7 @@ SERP 실측: scout 21/35건(T1 15·T2 5·재측정 5)
 - 영암 신청 마감 10/30 — 2026-10-30(D-16) 갱신 예정 · yeongam-rural-basic-allowance-100k, yeongam-wolchulpay-balance-expiry-use
 - 재측정 "2026 김해 민생지원금": r1 · 본청 0 · 뉴스7일 1·같은제목 1 · openSlots 0 · 눈 확인 전
 - 재측정 "김해시 지원금": r3 · 본청 0 · 뉴스7일 22·같은제목 1 · openSlots 1 · 눈 확인 전
-- 재측정 "통영 지원금 신청": r5 · 본청 0 · 뉴스7일 5·같은제목 1 · openSlots 0 · 눈 확인 전
+- 재측정 "통영 지원금 신청": r5 · 본청 0 · 뉴스7일 4·같은제목 1 · openSlots 0 · 눈 확인 전
 - 재측정 "문경시 지원금": r1 · 본청 0 · 뉴스7일 16·같은제목 2 · openSlots 0 · 눈 확인 전
 - 재측정 "김해 지원금": r2 · 본청 0 · 뉴스7일 31·같은제목 1 · openSlots 0 · 눈 확인 전
 
