@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { INCOME_THRESHOLDS, MEDIAN_INCOME } from '@/data/site-data';
+import { formatMedianWon, INCOME_THRESHOLDS, MEDIAN_INCOME } from '@/data/site-data';
 
 const SIZES = [1, 2, 3, 4, 5, 6] as const;
 
@@ -7,7 +7,7 @@ export const IncomeChecker = () => {
   const [size, setSize] = useState<number>(1);
   const [income, setIncome] = useState<number>(250); // 만원/월
 
-  const median = MEDIAN_INCOME[size] ?? 239;
+  const median = MEDIAN_INCOME[size] ?? Number(MEDIAN_INCOME[1]);
   const pct = Math.round((income / median) * 100);
 
   const eligible = INCOME_THRESHOLDS.filter((t) => pct <= t.pct);
@@ -72,7 +72,7 @@ export const IncomeChecker = () => {
             </div>
           </div>
           <div className="ic-hint">
-            {size}인 가구 중위소득 = 월 {median}만원
+            {size}인 가구 중위소득 = 월 {formatMedianWon(median)} (2026년)
           </div>
         </div>
       </div>

@@ -4,14 +4,26 @@
  * 카테고리·중위소득·오늘의 이슈처럼 단일 객체는 여기에.
  */
 
-// 2026년 기준 중위소득 (만원/월) — 보건복지부 고시
+// 2026년 기준 중위소득 (만원/월, 원 단위까지 소수로) — 보건복지부 2025-07-31 고시
+// (제77차 중앙생활보장위원회, https://www.mohw.go.kr/board.es?mid=a10503000000&bid=0027&act=view&list_no=1487098)
+// 2026-10-14 전까지 2025년 값(1인 239·4인 609)이 2026년으로 잘못 붙어 있었다.
 export const MEDIAN_INCOME: Record<number, number> = {
-  1: 239,
-  2: 393,
-  3: 502,
-  4: 609,
-  5: 711,
-  6: 808,
+  1: 256.4238,
+  2: 419.9292,
+  3: 535.9036,
+  4: 649.4738,
+  5: 755.6719,
+  6: 855.5952,
+};
+
+/** 기준 중위소득(만원 소수)을 '256만 4,238원'처럼 원 단위까지 보여 준다 */
+export const formatMedianWon = (man: number, pct = 100): string => {
+  const won = Math.round(man * 10_000 * (pct / 100));
+  const m = Math.floor(won / 10_000);
+  const rest = won % 10_000;
+  return rest
+    ? `${m.toLocaleString('ko-KR')}만 ${rest.toLocaleString('ko-KR')}원`
+    : `${m.toLocaleString('ko-KR')}만원`;
 };
 
 export interface IncomeThreshold {
@@ -26,7 +38,7 @@ export interface IncomeThreshold {
 
 export const INCOME_THRESHOLDS: IncomeThreshold[] = [
   {
-    pct: 30,
+    pct: 32,
     name: '생계급여',
     color: '#dc2626',
     desc: '기초생활보장 생계급여 수급권',
@@ -42,7 +54,7 @@ export const INCOME_THRESHOLDS: IncomeThreshold[] = [
     linkLabel: '복지 지원금 보기',
   },
   {
-    pct: 47,
+    pct: 48,
     name: '주거급여',
     color: '#d97706',
     desc: '기초생활보장 주거급여 수급권',

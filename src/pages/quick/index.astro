@@ -362,12 +362,12 @@ const webAppSchema = buildWebApplication({
     const income = getIncome();
     if (slider) slider.value = String(Math.min(income, 1000));
     const size = getSize();
-    const median = MEDIAN_INCOME[size] || 239;
+    const median = MEDIAN_INCOME[size] || MEDIAN_INCOME[1];
     const pct = Math.round((income / median) * 100);
     if (pctEl) pctEl.textContent = `중위 ${pct}%`;
     if (tierEl) {
       let tier = '중간 소득 구간';
-      if (pct <= 30) tier = '기초생활 수급권 구간';
+      if (pct <= 32) tier = '기초생활 수급권 구간';
       else if (pct <= 50) tier = '차상위 구간';
       else if (pct <= 70) tier = '청년 월세·EITC 등 구간';
       else if (pct <= 100) tier = '중위소득 100% 이내';
@@ -605,7 +605,7 @@ const webAppSchema = buildWebApplication({
       if (tags) tags.split(',').forEach((t) => eventTags.add(t.trim()));
     }
 
-    const median = MEDIAN_INCOME[size] || 239;
+    const median = MEDIAN_INCOME[size] || MEDIAN_INCOME[1];
     const pct = (income / median) * 100;
 
     // 스코어링 — 항목별 매칭 이유도 같이 기록
@@ -705,7 +705,7 @@ const webAppSchema = buildWebApplication({
       ? compactPersonas.find((p) => p.id === ctx.persona)?.label
       : '미선택';
     const incomeTier = (() => {
-      if (ctx.pct <= 30) return '기초생활';
+      if (ctx.pct <= 32) return '기초생활';
       if (ctx.pct <= 50) return '차상위';
       if (ctx.pct <= 70) return '청년 월세 구간';
       if (ctx.pct <= 100) return '중위 100% 이내';

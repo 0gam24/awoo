@@ -271,37 +271,54 @@ function splitLines(text) {
     .filter((l) => l.length > 0 && l.length < 240);
 }
 
+// 지원내용 문구에서 "한 사람(가구)이 받는 금액"을 고른다.
+// 2026-10-14 수정: 예전에는 문구 속 가장 큰 숫자를 골라 사업 총예산(청년월세 2,997억)·주택가격 상한(6억)이
+// 개인 지원액으로 들어갔다. 예산·사업비 문맥의 숫자와 10억 이상은 버리고, 1인·월·최대·한도 같은
+// 개인 단위 표지가 붙은 숫자를 먼저 본다. 고를 숫자가 없으면 0(화면에서는 혜택 종류로 표시).
+const BUDGET_CONTEXT = /예산|사업비|총사업|사업\s*규모|재원|편성|투입|국비|도비|시비|기금\s*규모/;
+const PER_PERSON_CONTEXT = /1인|인당|가구당|1가구|세대당|1명|1회|월|연|최대|한도|까지/;
+
 function extractAmount(text) {
   if (!text) return { amount: 0, label: '지원금' };
-  const candidates = [];
+  const found = [];
+  const add = (m, value) => {
+    if (!Number.isFinite(value) || value <= 0) return;
+    const before = text.slice(Math.max(0, m.index - 16), m.index);
+    found.push({ value, before });
+  };
   for (const m of text.matchAll(/([0-9,]+(?:\.[0-9]+)?)\s*억\s*원?/g)) {
     const n = parseFloat(m[1].replace(/,/g, ''));
-    if (!Number.isNaN(n) && n > 0 && n < 10000) candidates.push(Math.round(n * 100_000_000));
+    if (n > 0 && n < 10000) add(m, Math.round(n * 100_000_000));
   }
   for (const m of text.matchAll(/([0-9,]+)\s*백\s*만\s*원/g)) {
     const n = parseInt(m[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n) && n > 0 && n < 10000) candidates.push(n * 1_000_000);
+    if (n > 0 && n < 10000) add(m, n * 1_000_000);
   }
   for (const m of text.matchAll(/([0-9,]+)\s*천\s*만\s*원/g)) {
     const n = parseInt(m[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n) && n > 0 && n < 1000) candidates.push(n * 10_000_000);
+    if (n > 0 && n < 1000) add(m, n * 10_000_000);
   }
   for (const m of text.matchAll(/(?<![백천])\s*([0-9,]+)\s*만\s*원/g)) {
     const n = parseInt(m[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n) && n >= 1 && n < 100_000) candidates.push(n * 10_000);
+    if (n >= 1 && n < 100_000) add(m, n * 10_000);
   }
   for (const m of text.matchAll(/(?<![만억백천])\s*([0-9]{1,3}(?:,[0-9]{3})+)\s*원/g)) {
     const n = parseInt(m[1].replace(/,/g, ''), 10);
-    if (!Number.isNaN(n) && n >= 10_000) candidates.push(n);
+    if (n >= 10_000) add(m, n);
   }
-  if (candidates.length === 0) return { amount: 0, label: '지원금' };
-  const max = Math.max(...candidates);
+  // 예산 문맥이거나 10억 이상(개인 지원액이 아닌 총액·가격 상한)은 버린다
+  const usable = found.filter((c) => c.value < 1_000_000_000 && !BUDGET_CONTEXT.test(c.before));
+  if (usable.length === 0) return { amount: 0, label: '지원금' };
+  const perPerson = usable.filter((c) => PER_PERSON_CONTEXT.test(c.before));
+  const pool = perPerson.length > 0 ? perPerson : usable;
+  const best = pool.reduce((a, b) => (b.value > a.value ? b : a));
+  const ctx = best.before;
   let label = '지원금';
-  if (/월\s*[0-9]/.test(text) || /월\s*최대/.test(text)) label = '월 지원';
-  else if (/연\s*[0-9]/.test(text) || /연\s*최대/.test(text)) label = '연 지원';
-  else if (/최대/.test(text)) label = '최대';
-  else if (/한도/.test(text)) label = '한도';
-  return { amount: max, label };
+  if (/월/.test(ctx)) label = '월 지원';
+  else if (/연/.test(ctx)) label = '연 지원';
+  else if (/한도/.test(ctx) || /대출|융자/.test(text)) label = '한도';
+  else if (/최대|까지/.test(ctx)) label = '최대';
+  return { amount: best.value, label };
 }
 
 function deriveStatus(deadline) {

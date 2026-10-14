@@ -214,7 +214,7 @@ const crossIndex: CrossEntry[] = [
                   </div>
                   <div class="agency">{s.data.agency}</div>
                   <div class="t">{s.data.title}</div>
-                  <div class="sum">{s.data.summary.slice(0, 64)}{s.data.summary.length > 64 ? '…' : ''}</div>
+                  <div class="sum">{s.data.summary.slice(0, 35)}{s.data.summary.length > 35 ? '…' : ''}</div>
                   {s.data.tags && s.data.tags.length > 0 && (
                     <div class="tag-row">
                       {s.data.tags.slice(0, 3).map((t) => (

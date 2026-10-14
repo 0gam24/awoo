@@ -1,8 +1,9 @@
 import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
-import { CATEGORIES, formatWon, INCOME_THRESHOLDS, MEDIAN_INCOME } from '@/data/site-data';
+import { CATEGORIES, formatMedianWon, INCOME_THRESHOLDS, MEDIAN_INCOME } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
+import { amountText } from '@/lib/subsidy-display';
 
 interface IssuePostSection {
   heading: string;
@@ -151,10 +152,10 @@ export const GET: APIRoute = async () => {
   // 중위소득 기준
   lines.push('## 2026년 기준 중위소득 (보건복지부 고시)');
   lines.push('');
-  lines.push('| 가구원 수 | 월 (만원) |');
+  lines.push('| 가구원 수 | 월 |');
   lines.push('|---|---|');
   for (const [size, value] of Object.entries(MEDIAN_INCOME)) {
-    lines.push(`| ${size}인 | ${value}만원 |`);
+    lines.push(`| ${size}인 | ${formatMedianWon(value)} |`);
   }
   lines.push('');
   lines.push('### 자격 기준선 (% of 중위소득)');
@@ -173,10 +174,7 @@ export const GET: APIRoute = async () => {
     lines.push(`### ${s.data.title} (${s.data.agency})`);
     lines.push('');
     lines.push(`- 분야: ${s.data.category}`);
-    lines.push(
-      `- 지원 금액: ${formatWon(s.data.amount)} ${s.data.amountLabel}` +
-        (s.data.monthly ? ` / ${s.data.monthly}` : ''),
-    );
+    lines.push(`- 지원 금액: ${amountText(s.data)}${s.data.monthly ? ` / ${s.data.monthly}` : ''}`);
     lines.push(`- 지원 기간: ${s.data.period}`);
     lines.push(`- 마감: ${s.data.deadline} · 상태: ${s.data.status}`);
     lines.push(`- 요약: ${s.data.summary}`);
@@ -184,7 +182,7 @@ export const GET: APIRoute = async () => {
     // Cycle #4 P0-3: coreFacts 키-값 블록 — issuePosts와 일치 포맷, AI 인용 일관성
     lines.push('**핵심 사실 (Core Facts)**');
     lines.push(`- 대상: ${s.data.eligibility[0] ?? '확인 필요'}`);
-    lines.push(`- 금액: ${formatWon(s.data.amount)} ${s.data.amountLabel}`);
+    lines.push(`- 금액: ${amountText(s.data)}`);
     lines.push(`- 마감: ${s.data.deadline}`);
     lines.push(`- 신청처: ${s.data.applyUrl}`);
     lines.push('');

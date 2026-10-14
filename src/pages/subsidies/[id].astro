@@ -4,7 +4,8 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import MainBackrefBox from '@/components/MainBackrefBox.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { formatWon, CATEGORY_FAQS } from '@/data/site-data';
+import { formatMedianWon, formatWon, MEDIAN_INCOME } from '@/data/site-data';
+import { amountDisplay, amountPhrase, amountText, docSourceOf, localAreaOf, withJosa } from '@/lib/subsidy-display';
 import { isNew, isStale, getRegDateISO, getLastVerifiedISO, getLastVerifiedKR, STALE_THRESHOLD_DAYS } from '@/lib/subsidies-meta';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -59,17 +60,32 @@ const isStaleItem = isStale(s.id);
 const lastVerifiedKR = getLastVerifiedKR(s.id);
 const lastVerifiedISO = getLastVerifiedISO(s.id);
 
-// FAQ + rejectionReasons 매칭 — topics.json에서 (category 일치 + persona 교집합) 토픽 우선
-const allTopics = await getCollection('topics');
-const matchedTopic = allTopics.find((t) => {
-  const sameCategory = t.data.category === s.category;
-  const personaOverlap = (t.data.mainPersonas ?? []).some((p) => s.targetPersonas.includes(p));
-  return sameCategory && personaOverlap;
-})?.data ?? allTopics.find((t) => t.data.category === s.category)?.data;
+// 2026-10-14: 분야 공통 토픽의 FAQ·거절 사유를 끌어오던 블록을 걷어냈다.
+// 옹암체육센터 감면 페이지에 학자금대출 FAQ가, 난임 약제비 페이지에 부모급여 FAQ가 뜨고
+// 그 엉뚱한 문답이 FAQPage 구조화 데이터로까지 나가고 있었다. 사업마다 다른 문답 자료가 생기기 전까지는 비워 둔다.
 
-// matchedTopic 0건일 때 카테고리 공통 FAQ로 fallback (Cycle #3 P0-3)
-const subsidyFaqs = matchedTopic?.faq ?? CATEGORY_FAQS[s.category] ?? [];
-const subsidyRejections = matchedTopic?.rejectionReasons ?? [];
+// 금액 칸이 0인 사업(감면·실비·서비스)은 "0원" 대신 혜택 종류로 부른다
+const amount = amountDisplay(s);
+const amountLine = amountText(s);
+const area = localAreaOf(s.agency);
+
+// 소득 기준선 — 지원 대상·혜택 문구에 '중위소득 N%'나 수급자·차상위가 나오면 2026년 금액표를 붙인다
+const incomeText = [s.summary, ...s.eligibility, ...s.benefits].join(' ');
+const incomePcts = [...new Set([...incomeText.matchAll(/중위\s*소득\s*(\d{2,3})\s*%/g)].map((m) => Number(m[1])))]
+  .filter((n) => n >= 20 && n <= 300)
+  .sort((a, b) => a - b)
+  .slice(0, 3);
+const incomeCols = incomePcts.length > 0
+  ? incomePcts.map((pct) => ({ pct, label: `${pct}%` }))
+  : /수급자|차상위/.test(incomeText)
+    ? [
+        { pct: 32, label: '생계급여 32%' },
+        { pct: 50, label: '차상위 50%' },
+      ]
+    : [];
+const incomeLead = incomePcts.length > 0
+  ? `이 사업 문구에 나온 기준 중위소득 ${incomePcts.map((p) => `${p}%`).join('·')}를 2026년 금액으로 옮겼어요.`
+  : '수급자·차상위 여부를 따지는 사업이라 2026년 생계급여(중위 32%)와 차상위(중위 50%) 선을 함께 보여 드려요.';
 
 // BLUF 자동 통계 (Cycle #3 P0-4) — schema와 본문 인용 단위 동시 확보
 const personaLabels = matchedPersonas
@@ -78,28 +94,15 @@ const personaLabels = matchedPersonas
 const personaSummary = personaLabels.length > 0
   ? `${personaLabels.slice(0, 2).join('·')}${personaLabels.length > 2 ? ' 외' : ''}`
   : '대상 확인 필요';
-const blufSummarySubsidy = `${s.title}은 ${s.agency}이 제공하는 ${s.category} 분야 지원금입니다. ${formatWon(s.amount)} ${s.amountLabel}, ${personaSummary}이 받을 수 있습니다.`;
+const blufSummarySubsidy = `${withJosa(s.title, '은/는')} ${withJosa(s.agency, '이/가')} 제공하는 ${s.category} 분야 지원입니다. 지원 규모는 ${withJosa(amountPhrase(s), '이고/고')}, ${
+  personaLabels.length > 0 ? `${withJosa(personaSummary, '이/가')} 받을 수 있습니다.` : '지원 대상은 아래 조건으로 확인하세요.'
+}`;
 const blufStatsSubsidy = [
-  { value: `${formatWon(s.amount)}`, label: s.amountLabel || '지원 금액' },
+  { value: amount.value, label: amount.isMoney ? s.amountLabel || '지원 금액' : amount.unit || '혜택' },
   { value: s.deadline, label: '신청 마감' },
   { value: personaSummary, label: '매칭 페르소나' },
   { value: s.status, label: '신청 상태' },
 ];
-
-const faqSchema = subsidyFaqs.length > 0 ? {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  '@id': `https://awoo.or.kr/subsidies/${s.id}/#faq`,
-  mainEntity: subsidyFaqs.map((f) => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: f.a },
-  })),
-  speakable: {
-    '@type': 'SpeakableSpecification',
-    cssSelector: ['.summary', '.faq-section'],
-  },
-} : null;
 
 const govSchema = {
   '@context': 'https://schema.org',
@@ -134,12 +137,10 @@ const govSchema = {
   ...(regDateISO ? { dateCreated: regDateISO } : {}),
   // 최신성 신호 — Cycle #4 P0-2 (E-E-A-T freshness)
   ...(lastVerifiedISO ? { dateModified: lastVerifiedISO } : {}),
-  // Cycle #19: areaServed — 한국 전국 (지자체 한정 시 주소 추출 향후 보강)
-  areaServed: {
-    '@type': 'Country',
-    name: '대한민국',
-    identifier: 'KR',
-  },
+  // 지자체 사업은 그 지역, 중앙부처 사업은 대한민국 (2026-10-14)
+  areaServed: area
+    ? { '@type': 'AdministrativeArea', name: area }
+    : { '@type': 'Country', name: '대한민국', identifier: 'KR' },
   // Cycle #28: potentialAction — 검색 결과 'Apply/신청' 버튼 자격 + AI 답변 엔진 actionable
   potentialAction: {
     '@type': 'ApplyAction',
@@ -150,19 +151,7 @@ const govSchema = {
     },
     name: `${s.title} 신청하기`,
   },
-  // Cycle #19: 정부 지원금은 무료 서비스 — Offer 명시로 검색 결과 가격 표시
-  ...(s.amount > 0
-    ? {
-        offers: {
-          '@type': 'Offer',
-          name: s.amountLabel || '지원 금액',
-          price: s.amount,
-          priceCurrency: 'KRW',
-          availability: s.status === '신청 가능' ? 'https://schema.org/InStock' : 'https://schema.org/LimitedAvailability',
-          url: s.applyUrl,
-        },
-      }
-    : {}),
+  // 2026-10-14: Offer(price=지원 금액)는 뺐다 — Offer.price는 '이용자가 내는 값'이라 지원액·대출 한도를 넣으면 뜻이 뒤집힌다
 };
 
 const breadcrumbs = [
@@ -177,6 +166,7 @@ const breadcrumbs = [
 const descParts = [s.summary.trim().replace(/\.$/, '') + '.'];
 if (s.amount > 0) descParts.push(`${(s.amountLabel ?? '지원 금액').trim()} ${formatWon(s.amount)}.`);
 else if (s.monthly) descParts.push(`${s.monthly.trim()}.`);
+else descParts.push(`혜택: ${amountLine}.`);
 const firstEligibility = (s.eligibility?.[0] ?? '').trim();
 if (firstEligibility) {
   descParts.push(`대상: ${firstEligibility.length > 45 ? `${firstEligibility.slice(0, 44)}…` : firstEligibility}.`);
@@ -204,8 +194,8 @@ for (const part of descParts.slice(1)) {
           <div class="agency">{s.agency} · {s.category}{isNewItem && <span class="new-pill"><span class="new-dot" aria-hidden="true" />NEW</span>}</div>
           <h1 class="title">{s.title}</h1>
           <div class="amount-row">
-            <span class="amount">{formatWon(s.amount)}</span>
-            <span class="unit">{s.amountLabel}</span>
+            <span class="amount">{amount.value}</span>
+            {amount.unit && <span class="unit">{amount.unit}</span>}
           </div>
           {s.monthly && <div class="monthly">{s.monthly}</div>}
           <p class="summary">{s.summary}</p>
@@ -306,22 +296,36 @@ for (const part of descParts.slice(1)) {
       )}
 
       {personaLabels.length > 0 && (
-        <h2 class="cat-headline">{personaLabels[0]}이 자주 받는 {s.category} 지원금</h2>
+        <h2 class="cat-headline">{withJosa(personaLabels[0] ?? '', '이/가')} 자주 받는 {s.category} 지원금</h2>
       )}
 
       <div class="two-col">
         <div>
           <h2 class="utility">지원 대상</h2>
-          <ul class="checklist">
+          <p class="pc-hint">내게 해당하는 줄에 체크해 보세요. 신청 가능 여부를 판정하지는 않고, 최종 판단은 {s.agency}에서 합니다.</p>
+          <ul class="checklist precheck" data-precheck>
+            {area && (
+              <li>
+                <label class="pc-row">
+                  <input type="checkbox" class="pc-box" />
+                  <span>주관 기관이 {area} 소속이에요. 거주지·사업장 위치 조건이 있는지 공고에서 확인했어요.</span>
+                </label>
+              </li>
+            )}
             {
               s.eligibility.map((e) => (
                 <li>
-                  <span class="check"><Icon name="check" size={14} strokeWidth={2.4} /></span>
-                  <span>{e}</span>
+                  <label class="pc-row">
+                    <input type="checkbox" class="pc-box" />
+                    <span>{e}</span>
+                  </label>
                 </li>
               ))
             }
           </ul>
+          <p class="pc-count" aria-live="polite">
+            체크한 항목 <strong data-precheck-n>0</strong> / {s.eligibility.length + (area ? 1 : 0)} · 마감 {s.deadline}
+          </p>
         </div>
         <div>
           <h2 class="utility">혜택 내용</h2>
@@ -337,6 +341,39 @@ for (const part of descParts.slice(1)) {
           </ul>
         </div>
       </div>
+
+      {incomeCols.length > 0 && (
+        <div class="income-box">
+          <h2 class="utility">소득 기준을 금액으로 보면</h2>
+          <p class="income-lead">
+            {incomeLead} 소득인정액을 어떻게 셈하는지는 사업마다 다르니 공고를 함께 보세요.
+          </p>
+          <div class="income-scroll">
+            <table class="income-table">
+              <caption class="sr-only">2026년 기준 중위소득과 소득 기준선 (월, 원)</caption>
+              <thead>
+                <tr>
+                  <th scope="col">가구원 수</th>
+                  <th scope="col">기준 중위소득</th>
+                  {incomeCols.map((c) => <th scope="col">{c.label}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <tr>
+                    <th scope="row">{n}인</th>
+                    <td>{formatMedianWon(MEDIAN_INCOME[n] ?? 0)}</td>
+                    {incomeCols.map((c) => <td>{formatMedianWon(MEDIAN_INCOME[n] ?? 0, c.pct)}</td>)}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p class="income-src">
+            출처: <a href="https://www.mohw.go.kr/board.es?mid=a10503000000&bid=0027&act=view&list_no=1487098" target="_blank" rel="noopener noreferrer">보건복지부 2026년도 기준 중위소득 고시</a>. 우리 집이 몇 %인지는 <a href="/calculators/median-income/">중위소득 계산기</a>에서 볼 수 있어요.
+          </p>
+        </div>
+      )}
     </Container>
   </section>
 
@@ -349,59 +386,32 @@ for (const part of descParts.slice(1)) {
             <dt>주관 기관</dt><dd>{s.agency}</dd>
             <dt>지원 기간</dt><dd>{s.period}</dd>
             <dt>마감일</dt><dd>{s.deadline}</dd>
-            <dt>처리 기간</dt><dd>평균 14일</dd>
-            <dt>신청 방법</dt><dd>온라인 / 방문 접수</dd>
+            <dt>신청처</dt><dd><a href={s.applyUrl} target="_blank" rel="noopener noreferrer">공식 신청 안내</a></dd>
           </dl>
         </div>
         <div>
           <h2 class="utility">필요 서류</h2>
-          <ul class="doc-list">
-            {
-              s.documents.map((d) => (
-                <li>
-                  <Icon name="doc" size={18} />
-                  <span>{d}</span>
-                </li>
-              ))
-            }
-          </ul>
+          {s.documents.length > 0 ? (
+            <ul class="doc-list">
+              {
+                s.documents.map((d) => (
+                  <li>
+                    <Icon name="doc" size={18} />
+                    <span>{d}</span>
+                    {docSourceOf(d) && <span class="doc-src">{docSourceOf(d)}</span>}
+                  </li>
+                ))
+              }
+            </ul>
+          ) : (
+            <p class="doc-empty">
+              제출 서류는 공고마다 달라 이 페이지에 따로 적지 않았어요. <a href={s.applyUrl} target="_blank" rel="noopener noreferrer">공식 신청 안내</a>의 공고문에서 확인하세요.
+            </p>
+          )}
         </div>
       </div>
     </Container>
   </section>
-
-  {subsidyRejections.length > 0 && (
-    <section class="band alt">
-      <Container size="wide">
-        <h2 class="display">자주 거절되는 사유와 해결</h2>
-        <p class="section-lead">{s.category} 분야 지원금에서 자주 발생하는 거절 사례입니다. 신청 전 미리 확인하면 거절 가능성을 낮출 수 있습니다.</p>
-        <ul class="rj-list">
-          {subsidyRejections.map((r) => (
-            <li class="rj-card">
-              <div class="rj-cause"><span class="rj-tag">사유</span> {r.cause}</div>
-              <div class="rj-fix"><span class="rj-tag fix">해결</span> {r.fix}</div>
-            </li>
-          ))}
-        </ul>
-      </Container>
-    </section>
-  )}
-
-  {subsidyFaqs.length > 0 && (
-    <section class="band">
-      <Container size="wide">
-        <h2 class="display">자주 묻는 질문</h2>
-        <div class="faq-list">
-          {subsidyFaqs.map((f) => (
-            <details class="faq-item">
-              <summary>{f.q}</summary>
-              <p>{f.a}</p>
-            </details>
-          ))}
-        </div>
-      </Container>
-    </section>
-  )}
 
   {
     related.length > 0 && (
@@ -416,7 +426,7 @@ for (const part of descParts.slice(1)) {
                   <div>
                     <div class="r-agency">{r.data.agency}</div>
                     <div class="r-title">{r.data.title}</div>
-                    <div class="r-amount">{formatWon(r.data.amount)} {r.data.amountLabel}</div>
+                    <div class="r-amount">{amountText(r.data)}</div>
                   </div>
                 </a>
               </li>
@@ -448,11 +458,7 @@ for (const part of descParts.slice(1)) {
                       <span class="also-agency">{r.data.agency}</span>
                     </div>
                     <div class="also-title">{r.data.title}</div>
-                    {r.data.amount > 0 && (
-                      <div class="also-amount">
-                        {formatWon(r.data.amount)} <span class="also-unit">{r.data.amountLabel}</span>
-                      </div>
-                    )}
+                    <div class="also-amount">{amountText(r.data)}</div>
                   </div>
                   <span class="also-arrow" aria-hidden="true">→</span>
                 </a>
@@ -470,13 +476,6 @@ for (const part of descParts.slice(1)) {
     set:html={JSON.stringify(govSchema)}
   />
 
-  {faqSchema && (
-    <script
-      is:inline
-      type="application/ld+json"
-      set:html={JSON.stringify(faqSchema)}
-    />
-  )}
 
   {/* smartdatashop network — 메인 데이터 저널 backref. 페르소나 자동 매핑. */}
   <section class="band">
@@ -505,6 +504,13 @@ for (const part of descParts.slice(1)) {
       ⚡
     </a>
   </div>
+  <script>
+    const box = document.querySelector('[data-precheck]');
+    const out = document.querySelector('[data-precheck-n]');
+    box?.addEventListener('change', () => {
+      if (out) out.textContent = String(box.querySelectorAll('input:checked').length);
+    });
+  </script>
 </BaseLayout>
 
 <style>
@@ -1180,89 +1186,104 @@ for (const part of descParts.slice(1)) {
     line-height: 1.4;
   }
 
-  /* P0-7: FAQ + rejectionReasons */
-  .section-lead {
-    font-size: 15px;
+  /* 2026-10-14: 판정 없는 확인 목록 · 소득 기준선 표 · 서류 발급처 */
+  .pc-hint {
+    font-size: 13px;
     color: var(--text-2);
-    line-height: 1.65;
-    margin: 0 0 20px;
-    max-width: 720px;
-  }
-  .rj-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 12px;
-  }
-  .rj-card {
-    padding: 16px 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
     line-height: 1.6;
+    margin: -6px 0 12px;
   }
-  .rj-cause, .rj-fix {
-    font-size: 14px;
+  .precheck li {
+    padding: 0;
+  }
+  .pc-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 16px;
+    cursor: pointer;
+  }
+  .pc-box {
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+    flex-shrink: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .pc-row:has(.pc-box:checked) {
+    background: color-mix(in oklch, var(--accent), transparent 92%);
+    border-radius: var(--radius-md);
+  }
+  .pc-count {
+    font-size: 13px;
+    color: var(--text-2);
+    margin: 10px 0 0;
+  }
+  .pc-count strong {
     color: var(--text);
-  }
-  .rj-cause { margin-bottom: 8px; }
-  .rj-tag {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: rgb(220 38 38 / 0.1);
-    color: #dc2626;
-    margin-right: 8px;
-  }
-  .rj-tag.fix {
-    background: rgb(16 185 129 / 0.1);
-    color: #047857;
   }
 
-  .faq-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-width: 820px;
+  .income-box {
+    margin-top: 32px;
   }
-  .faq-item {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 14px 18px;
-  }
-  .faq-item summary {
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.5;
-    list-style: none;
-  }
-  .faq-item summary::-webkit-details-marker {
-    display: none;
-  }
-  .faq-item summary::before {
-    content: 'Q. ';
-    color: var(--accent);
-    font-weight: 700;
-  }
-  .faq-item[open] summary {
-    margin-bottom: 10px;
-  }
-  .faq-item p {
-    font-size: 14.5px;
-    line-height: 1.7;
-    color: var(--text);
-    margin: 0;
-  }
-  .faq-item p::before {
-    content: 'A. ';
+  .income-lead,
+  .income-src {
+    font-size: 14px;
     color: var(--text-2);
-    font-weight: 700;
+    line-height: 1.65;
+    margin: 0 0 12px;
+    max-width: 760px;
+  }
+  .income-src {
+    font-size: 13px;
+    margin: 10px 0 0;
+  }
+  .income-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .income-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .income-table th,
+  .income-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    white-space: nowrap;
+  }
+  .income-table th:first-child {
+    text-align: left;
+  }
+  .income-table thead th {
+    font-size: 13px;
+    color: var(--text-2);
+    font-weight: 600;
+  }
+  @media (max-width: 480px) {
+    .income-table th,
+    .income-table td {
+      padding: 9px 6px;
+      font-size: 13px;
+    }
+  }
+
+  .doc-src {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--text-2);
+    text-align: right;
+  }
+  .doc-empty {
+    font-size: 14px;
+    color: var(--text-2);
+    line-height: 1.65;
+    margin: 0;
   }
 </style>

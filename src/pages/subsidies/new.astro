@@ -3,6 +3,7 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
+import { amountText } from '@/lib/subsidy-display';
 import {
   isNew,
   recentlyAddedSlugs,
@@ -91,7 +92,7 @@ const collectionSchema = buildCollectionPage({
                   </div>
                   <div class="agency">{s.agency}</div>
                   <div class="t">{s.title}</div>
-                  <div class="sum">{s.summary.slice(0, 80)}{s.summary.length > 80 ? '…' : ''}</div>
+                  <div class="sum">{s.summary.slice(0, 35)}{s.summary.length > 35 ? '…' : ''}</div>
                   <div class="amt-row">
                     {s.amount > 0 ? (
                       <div class="amt">
@@ -99,7 +100,7 @@ const collectionSchema = buildCollectionPage({
                         <span class="unit">{s.amountLabel}</span>
                       </div>
                     ) : (
-                      <span class="amt-na">내용 확인</span>
+                      <span class="amt-na">{amountText(s)}</span>
                     )}
                     <span class="arrow" aria-hidden="true">→</span>
                   </div>

@@ -3,6 +3,7 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CATEGORIES, formatWon } from '@/data/site-data';
+import { amountText } from '@/lib/subsidy-display';
 import { isNew } from '@/lib/subsidies-meta';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -135,7 +136,7 @@ const breadcrumbs = [
                     {formatWon(s.data.amount)} <span class="unit">{s.data.amountLabel}</span>
                   </div>
                 ) : (
-                  <div class="amt-na">내용 확인</div>
+                  <div class="amt-na">{amountText(s.data)}</div>
                 )}
               </div>
             </a>

@@ -4,6 +4,7 @@ import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { CATEGORIES, formatWon } from '@/data/site-data';
+import { amountText } from '@/lib/subsidy-display';
 import { getDeadlineBadge } from '@/lib/deadline-format';
 import { buildCollectionPage } from '@/lib/schema';
 import { type GetStaticPaths } from 'astro';
@@ -182,7 +183,7 @@ const collectionSchema = buildCollectionPage({
                                 <span class="ru">{s.data.amountLabel}</span>
                               </>
                             ) : (
-                              <span class="amt-na">내용 확인</span>
+                              <span class="amt-na">{amountText(s.data)}</span>
                             )}
                           </div>
                         </div>

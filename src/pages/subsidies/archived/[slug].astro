@@ -8,6 +8,7 @@
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import { withJosa } from '@/lib/subsidy-display';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -49,7 +50,7 @@ const similar = allActive
 
 <BaseLayout
   title={`${subsidy.title} (마감) — 지원금가이드`}
-  description={`${subsidy.title}은 신청이 종료되었습니다. ${subsidy.category} 분야 활성 지원금을 확인하세요.`}
+  description={`${withJosa(subsidy.title, '은/는')} 신청이 종료되었습니다. ${subsidy.category} 분야 활성 지원금을 확인하세요.`}
   activeNav="/subsidies/"
   noindex={true}
 >
