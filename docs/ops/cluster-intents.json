@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 349,
-    "entryCount": 101,
-    "regionCount": 61,
+    "scannedPosts": 350,
+    "entryCount": 102,
+    "regionCount": 62,
     "regions": [
       "강릉",
       "강북구",
@@ -50,6 +50,7 @@
       "완도",
       "완주",
       "울진",
+      "유족연금",
       "의령",
       "의성",
       "장성",
@@ -70,13 +71,13 @@
       "횡성"
     ],
     "families": {
-      "A": 68,
+      "A": 69,
       "B": 19,
       "V": 14
     },
     "clusters": {
       "minsaeng": 62,
-      "other": 39
+      "other": 40
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -225,6 +226,14 @@
           "청년미래적금"
         ],
         "family": "B",
+        "cluster": "other"
+      },
+      {
+        "slug": "survivor-pension-2026-10-14",
+        "region": [
+          "유족연금"
+        ],
+        "family": "A",
         "cluster": "other"
       },
       {
@@ -2506,6 +2515,27 @@
         "amount=50만원",
         "deadline=2026-11-05"
       ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "유족연금"
+      ],
+      "family": "A",
+      "slug": "survivor-pension-2026-10-14",
+      "path": "src/data/issues/2026-10-14/survivor-pension-2026-10-14.json",
+      "date": "2026-10-14",
+      "targetQuery": "유족연금",
+      "coreFacts": {
+        "who": "고인이 부양하던 가족, 배우자 1순위·자녀·부모 순",
+        "amount": "가입기간별 기본연금액 40~60%, 부양가족연금 별도",
+        "deadline": "수급권이 생긴 날부터 5년 안에 청구"
+      },
+      "coreFactsKeys": [],
       "cluster": "other",
       "rollup": false,
       "regionOverride": true,
