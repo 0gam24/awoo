@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 354,
-    "entryCount": 105,
+    "scannedPosts": 356,
+    "entryCount": 107,
     "regionCount": 62,
     "regions": [
       "강릉",
@@ -71,13 +71,13 @@
       "횡성"
     ],
     "families": {
-      "A": 72,
+      "A": 74,
       "B": 19,
       "V": 14
     },
     "clusters": {
       "minsaeng": 62,
-      "other": 43
+      "other": 45
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -245,6 +245,14 @@
         "cluster": "other"
       },
       {
+        "slug": "kindergarten-priority-enrollment-2026-10-15",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
         "slug": "modu-startup-2nd-round-result-2026-10-15",
         "region": [
           "전국"
@@ -254,6 +262,14 @@
       },
       {
         "slug": "small-business-grants-open-now-2026-10-15",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "yubo-portal-daycare-kindergarten-application-2026-10-15",
         "region": [
           "전국"
         ],
@@ -2610,6 +2626,27 @@
         "전국"
       ],
       "family": "A",
+      "slug": "kindergarten-priority-enrollment-2026-10-15",
+      "path": "src/data/issues/2026-10-15/kindergarten-priority-enrollment-2026-10-15.json",
+      "date": "2026-10-15",
+      "targetQuery": "유치원 우선모집",
+      "coreFacts": {
+        "who": "법정저소득층·보훈·북한이탈주민 가정이 앞 순위",
+        "amount": "제주 공립은 법정저소득층 100% 선발, 인천은 1~3순위 의무",
+        "deadline": "서울·대전·제주 우선모집 11월 2~4일, 서울·대전 등록 10~11일"
+      },
+      "coreFactsKeys": [],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
       "slug": "modu-startup-2nd-round-result-2026-10-15",
       "path": "src/data/issues/2026-10-15/modu-startup-2nd-round-result-2026-10-15.json",
       "date": "2026-10-15",
@@ -2646,6 +2683,29 @@
       "coreFactsKeys": [
         "amount=25만원",
         "deadline=2026-12-18"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "yubo-portal-daycare-kindergarten-application-2026-10-15",
+      "path": "src/data/issues/2026-10-15/yubo-portal-daycare-kindergarten-application-2026-10-15.json",
+      "date": "2026-10-15",
+      "targetQuery": "유보통합포털",
+      "coreFacts": {
+        "who": "0~5세 자녀 보호자, 유치원은 2021~2023년생",
+        "amount": "서류 최대 20종 연계, 유치원 최대 3곳 지원",
+        "deadline": "자녀 등록·찜하기 10월 28일부터, 신청 11월 2일부터"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-10-28"
       ],
       "cluster": "other",
       "rollup": false,
