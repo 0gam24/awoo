@@ -8,7 +8,7 @@
     "score = recent7(없으면 proxy) × min(openSlots,4) × volume-scale 계수. T1은 개시일 임박순이 점수보다 우선. serp.approx=true는 naver-ranks 옛 항목에서 근사한 verdict — --serp 실측이 아니다."
   ],
   "meta": {
-    "generatedAt": "2026-10-15T06:47:52.416Z",
+    "generatedAt": "2026-10-15T06:57:39.073Z",
     "today": "2026-10-15",
     "dryRun": false,
     "serp": {
@@ -5094,8 +5094,8 @@
         "approx": false
       },
       "exposure": {
-        "score": 55,
-        "label": "중간",
+        "score": 70,
+        "label": "높음",
         "reasons": [
           "자리 열림",
           "빈자리 6",
@@ -5351,8 +5351,8 @@
         "approx": false
       },
       "exposure": {
-        "score": 65,
-        "label": "중간",
+        "score": 70,
+        "label": "높음",
         "reasons": [
           "자리 열림",
           "빈자리 7",
@@ -5726,7 +5726,8 @@
         "verdictT2": "open",
         "reason": [],
         "source": "naver-ranks 2026-09-12",
-        "approx": false
+        "approx": false,
+        "eyeOffset": null
       },
       "score": 1485.2,
       "scoreNote": "10.09 × min(6,4) × 36.8",
@@ -5820,7 +5821,8 @@
           }
         ],
         "source": "scout 2026-09-13",
-        "approx": false
+        "approx": false,
+        "eyeOffset": null
       },
       "score": 902,
       "scoreNote": "8.17 × min(3,4) × 36.8",
@@ -5910,7 +5912,8 @@
           }
         ],
         "source": "scout 2026-09-13",
-        "approx": false
+        "approx": false,
+        "eyeOffset": null
       },
       "score": 3407.7,
       "scoreNote": "23.15 × min(4,4) × 36.8",
@@ -5963,7 +5966,8 @@
           "offset-warn 21.3%"
         ],
         "source": "naver-ranks 2026-09-12",
-        "approx": false
+        "approx": false,
+        "eyeOffset": null
       },
       "score": 412.9,
       "scoreNote": "3.74 × min(3,4) × 36.8",
@@ -6010,10 +6014,11 @@
         "webDocOffset": 7.9,
         "verdictT1": "open",
         "verdictT2": "open",
-        "source": "scout 2026-09-14"
+        "source": "scout 2026-09-14",
+        "eyeOffset": null
       },
       "exposure": {
-        "score": 85,
+        "score": 95,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -6051,11 +6056,12 @@
         "webDocOffset": 7,
         "verdictT1": "open",
         "verdictT2": "open",
-        "source": "scout 2026-09-14"
+        "source": "scout 2026-09-14",
+        "eyeOffset": null
       },
       "recent7": 1.39,
       "exposure": {
-        "score": 85,
+        "score": 90,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -6094,11 +6100,12 @@
         "webDocOffset": 11.7,
         "verdictT1": "open",
         "verdictT2": "open",
-        "source": "scout 2026-09-14"
+        "source": "scout 2026-09-14",
+        "eyeOffset": null
       },
       "recent7": 2.38,
       "exposure": {
-        "score": 80,
+        "score": 85,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -6137,11 +6144,12 @@
         "webDocOffset": 10.1,
         "verdictT1": "open",
         "verdictT2": "open",
-        "source": "scout 2026-09-14"
+        "source": "scout 2026-09-14",
+        "eyeOffset": null
       },
       "recent7": 5.14,
       "exposure": {
-        "score": 80,
+        "score": 95,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -6182,7 +6190,8 @@
         "openSlots": 6,
         "mainGovAbove": 1,
         "pressAbove": 0,
-        "webDocOffset": 15.3
+        "webDocOffset": 15.3,
+        "eyeOffset": null
       },
       "exposure": {
         "score": 80,
@@ -6223,7 +6232,8 @@
         "webDocOffset": 24.1,
         "verdictT1": "open",
         "verdictT2": "open",
-        "source": "scout 2026-09-14"
+        "source": "scout 2026-09-14",
+        "eyeOffset": null
       },
       "recent7": 0.71,
       "exposure": {
@@ -6266,10 +6276,11 @@
         "openSlots": 4,
         "mainGovAbove": 1,
         "pressAbove": 0,
-        "webDocOffset": 17
+        "webDocOffset": 17,
+        "eyeOffset": null
       },
       "exposure": {
-        "score": 75,
+        "score": 85,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -6308,10 +6319,11 @@
         "openSlots": 5,
         "mainGovAbove": 0,
         "pressAbove": 0,
-        "webDocOffset": 10.4
+        "webDocOffset": 10.4,
+        "eyeOffset": null
       },
       "exposure": {
-        "score": 75,
+        "score": 95,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -6354,10 +6366,11 @@
         "openSlots": 4,
         "mainGovAbove": 1,
         "pressAbove": 1,
-        "webDocOffset": 10.8
+        "webDocOffset": 10.8,
+        "eyeOffset": null
       },
       "exposure": {
-        "score": 70,
+        "score": 75,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -6395,10 +6408,11 @@
         "openSlots": 4,
         "mainGovAbove": 0,
         "pressAbove": 1,
-        "webDocOffset": 9.5
+        "webDocOffset": 9.5,
+        "eyeOffset": null
       },
       "exposure": {
-        "score": 70,
+        "score": 85,
         "label": "높음",
         "reasons": [
           "자리 열림",
@@ -6436,12 +6450,13 @@
         "webDocOffset": 20,
         "verdictT1": "open",
         "verdictT2": "open",
-        "source": "scout 2026-09-14"
+        "source": "scout 2026-09-14",
+        "eyeOffset": null
       },
       "recent7": 1.03,
       "exposure": {
-        "score": 65,
-        "label": "중간",
+        "score": 80,
+        "label": "높음",
         "reasons": [
           "자리 열림",
           "빈자리 4",
@@ -6480,15 +6495,16 @@
         "openSlots": 10,
         "mainGovAbove": 1,
         "pressAbove": 3,
-        "webDocOffset": 23.5
+        "webDocOffset": 23.5,
+        "eyeOffset": null
       },
       "exposure": {
-        "score": 65,
-        "label": "중간",
+        "score": 75,
+        "label": "높음",
         "reasons": [
           "자리 열림",
           "빈자리 10",
-          "개시 창 안"
+          "예상 주 100명"
         ]
       },
       "lastSeenAt": "2026-09-14T23:45:41.890Z",
@@ -6521,11 +6537,12 @@
         "openSlots": 4,
         "mainGovAbove": 1,
         "pressAbove": 3,
-        "webDocOffset": 12.9
+        "webDocOffset": 12.9,
+        "eyeOffset": null
       },
       "exposure": {
-        "score": 65,
-        "label": "중간",
+        "score": 70,
+        "label": "높음",
         "reasons": [
           "자리 열림",
           "빈자리 4",
@@ -6564,11 +6581,12 @@
         "openSlots": 8,
         "mainGovAbove": 1,
         "pressAbove": 2,
-        "webDocOffset": 17.5
+        "webDocOffset": 17.5,
+        "eyeOffset": null
       },
       "exposure": {
-        "score": 65,
-        "label": "중간",
+        "score": 75,
+        "label": "높음",
         "reasons": [
           "자리 열림",
           "빈자리 8",
@@ -6605,16 +6623,16 @@
         "webDocOffset": 23.9,
         "verdictT1": "open",
         "verdictT2": "open",
-        "source": "scout 2026-09-14"
+        "source": "scout 2026-09-14",
+        "eyeOffset": null
       },
       "recent7": 2.52,
       "exposure": {
-        "score": 60,
-        "label": "중간",
+        "score": 75,
+        "label": "높음",
         "reasons": [
           "자리 열림",
-          "위에 언론 없음",
-          "제도 확인 필요"
+          "위에 언론 없음"
         ]
       },
       "lastSeenAt": "2026-09-14T05:16:41.759Z",
@@ -6674,16 +6692,16 @@
       "recent7Source": "datalab",
       "serp": {
         "measuredAt": "2026-09-27T11:50:04.269Z",
-        "measuredBy": "webkr-api"
+        "measuredBy": "webkr-api",
+        "query": "희망저축계좌2 10월 모집",
+        "eyeOffset": null
       },
       "score": 0,
       "scoreNote": "수동 산정",
       "exposure": {
-        "score": 55,
-        "label": "중간",
-        "reasons": [
-          "10월 1일~26일 3차 모집(관악구 go.kr 확인). 보유 글은 Ⅰ만. 관공서 4·오래된 0·뉴스벽 3"
-        ]
+        "score": 0,
+        "label": "낮음",
+        "reasons": []
       },
       "status": "published",
       "createdAt": "2026-09-27T11:50:04.269Z",
@@ -6710,16 +6728,16 @@
       "recent7Source": "datalab",
       "serp": {
         "measuredAt": "2026-09-27T11:50:04.269Z",
-        "measuredBy": "webkr-api"
+        "measuredBy": "webkr-api",
+        "query": "경기도 청년기본소득 3분기 지급일",
+        "eyeOffset": null
       },
       "score": 0,
       "scoreNote": "수동 산정",
       "exposure": {
-        "score": 50,
-        "label": "중간",
-        "reasons": [
-          "3분기 10/2 마감·10/20 지급, 4분기 11/2 신청·예산 미확정. 검색량 후보 중 최대. 관공서 7"
-        ]
+        "score": 0,
+        "label": "낮음",
+        "reasons": []
       },
       "status": "published",
       "createdAt": "2026-09-27T11:50:04.269Z",
@@ -6746,16 +6764,16 @@
       "recent7Source": "datalab",
       "serp": {
         "measuredAt": "2026-09-27T11:50:04.269Z",
-        "measuredBy": "webkr-api"
+        "measuredBy": "webkr-api",
+        "query": "보금자리론 신혼부부 소득요건",
+        "eyeOffset": null
       },
       "score": 0,
       "scoreNote": "수동 산정",
       "exposure": {
-        "score": 40,
+        "score": 0,
         "label": "낮음",
-        "reasons": [
-          "10월 시행(8·13 대책) 부부 중 1인 7천만. 시행일 공고 미확인→본문 \"10월 중\". 뉴스벽 8"
-        ]
+        "reasons": []
       },
       "status": "published",
       "createdAt": "2026-09-27T11:50:04.269Z",
@@ -6781,16 +6799,16 @@
       "recent7Source": "datalab",
       "serp": {
         "measuredAt": "2026-09-28T00:27:29.648Z",
-        "measuredBy": "webkr-api"
+        "measuredBy": "webkr-api",
+        "query": "코로나 백신 65세 이상 무료 접종 언제부터",
+        "eyeOffset": null
       },
       "score": 0,
       "scoreNote": "수동 산정",
       "exposure": {
-        "score": 60,
-        "label": "중간",
-        "reasons": [
-          "질병청 9/17 원문, 관공서 5·뉴스벽 1"
-        ]
+        "score": 0,
+        "label": "낮음",
+        "reasons": []
       },
       "status": "published",
       "createdAt": "2026-09-28T00:27:29.648Z",
@@ -6816,16 +6834,16 @@
       "recent7Source": "datalab",
       "serp": {
         "measuredAt": "2026-09-28T00:27:29.648Z",
-        "measuredBy": "webkr-api"
+        "measuredBy": "webkr-api",
+        "query": "함평 민생회복지원금 미신청",
+        "eyeOffset": null
       },
       "score": 0,
       "scoreNote": "수동 산정",
       "exposure": {
-        "score": 60,
-        "label": "중간",
-        "reasons": [
-          "B글, 함평군 고시공고 SEQ=32566, 10/8 마감"
-        ]
+        "score": 0,
+        "label": "낮음",
+        "reasons": []
       },
       "status": "published",
       "createdAt": "2026-09-28T00:27:29.648Z",
@@ -6851,16 +6869,16 @@
       "recent7Source": "datalab",
       "serp": {
         "measuredAt": "2026-09-28T00:27:29.648Z",
-        "measuredBy": "webkr-api"
+        "measuredBy": "webkr-api",
+        "query": "사회보장급여 확인조사 소명",
+        "eyeOffset": null
       },
       "score": 0,
       "scoreNote": "수동 산정",
       "exposure": {
-        "score": 40,
+        "score": 0,
         "label": "낮음",
-        "reasons": [
-          "10/1 하반기 확인조사, 뉴스벽 57·관공서 7, 정리글 없음 — 운영자 선택 대기"
-        ]
+        "reasons": []
       },
       "status": "published",
       "createdAt": "2026-09-28T00:27:29.648Z",
@@ -10081,22 +10099,22 @@
         "sisterAbove": 0,
         "pressAbove": null,
         "webDocOffset": null,
-        "eyeOffset": null,
-        "verdictT1": "open",
-        "verdictT2": "open",
+        "eyeOffset": 3,
+        "verdictT1": "closed",
+        "verdictT2": "closed",
         "newsWall": 100,
         "measuredBy": "webkr-api",
         "measuredAt": "2026-10-15T04:35:39.307Z",
         "reason": [
-          "offset·press 미측정(API)"
+          "offset·press 미측정(API)",
+          "eye 그 아래"
         ]
       },
       "lastSeenAt": "2026-10-15T04:35:39.307Z",
       "exposure": {
-        "score": 75,
-        "label": "높음",
+        "score": 35,
+        "label": "낮음",
         "reasons": [
-          "자리 열림",
           "빈자리 4",
           "예상 주 168명"
         ]
@@ -10181,22 +10199,22 @@
         "sisterAbove": 0,
         "pressAbove": null,
         "webDocOffset": null,
-        "eyeOffset": null,
-        "verdictT1": "open",
-        "verdictT2": "open",
+        "eyeOffset": 3,
+        "verdictT1": "closed",
+        "verdictT2": "closed",
         "newsWall": 100,
         "measuredBy": "webkr-api",
         "measuredAt": "2026-10-15T04:55:35.018Z",
         "reason": [
-          "offset·press 미측정(API)"
+          "offset·press 미측정(API)",
+          "eye 그 아래"
         ]
       },
       "lastSeenAt": "2026-10-15T04:55:35.018Z",
       "exposure": {
-        "score": 70,
-        "label": "높음",
+        "score": 30,
+        "label": "낮음",
         "reasons": [
-          "자리 열림",
           "예상 주 512명"
         ]
       }

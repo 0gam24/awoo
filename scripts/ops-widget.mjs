@@ -195,6 +195,8 @@ if (!q || !Array.isArray(q.items)) {
 const published = publishedQueries();
 const items = q.items
   .filter((i) => i.status === 'proposed' && i.track !== '갱신')
+  // 운영자 눈 확인 '그 아래'(3)는 닫힘 — 목록에서 뺀다(/목록 "그 아래면 그 후보는 닫힘으로 빠진다")
+  .filter((i) => i.serp?.eyeOffset !== 3)
   .filter((i) => {
     const keys = [i.query, ...String(i.variant ?? '').split(' / ')].map(norm).filter(Boolean);
     return !keys.some((k) => published.has(k));

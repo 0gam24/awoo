@@ -799,7 +799,7 @@ async function scanIssues(dir) {
 const KEEP_STATUS = new Set(['approved', 'rejected', 'published', 'hold']);
 const idOf = (track, key) => `${track}:${norm(key).replace(/[^가-힣a-zA-Z0-9-]/g, '')}`;
 
-function mergeQueue(prevItems, items) {
+function mergeQueue(prevItems, items, eyeStore) {
   const prev = new Map((prevItems ?? []).map((p) => [p.id, p]));
   const merged = items.map((it) => {
     const old = prev.get(it.id);
@@ -819,8 +819,17 @@ function mergeQueue(prevItems, items) {
     // 손으로 넣은 빈틈 후보는 자동 후보에 안 잡혀도 21일간 남긴다(09-14 자동 실행이 지운 사고)
     const manualAlive =
       old.id?.startsWith('빈틈:') && Date.now() - Date.parse(old.createdAt ?? 0) < 21 * 864e5;
-    if (KEEP_STATUS.has(old.status) || manualAlive)
-      merged.push({ ...old, lastSeenAt: old.lastSeenAt ?? old.createdAt });
+    if (!(KEEP_STATUS.has(old.status) || manualAlive)) continue;
+    const carried = { ...old, lastSeenAt: old.lastSeenAt ?? old.createdAt };
+    // 손으로 넣은 빈틈 후보에도 운영자 눈 확인을 얹는다 — 안 그러면 '그 아래'를 눌러도 목록에 남는다(10/15 고향사랑기부제)
+    if (carried.serp && eyeStore) {
+      carried.serp = applyEye(
+        { ...carried.serp, query: carried.serp.query ?? carried.query },
+        eyeStore,
+      );
+      carried.exposure = exposureOf(carried);
+    }
+    merged.push(carried);
   }
   return merged;
 }
@@ -2005,7 +2014,7 @@ async function main() {
     return (b.score ?? 0) - (a.score ?? 0);
   });
 
-  const merged = mergeQueue(prevQueue.items, [...items, ...updateItems]);
+  const merged = mergeQueue(prevQueue.items, [...items, ...updateItems], eyeStore);
   const statusOf = new Map(merged.map((m) => [m.id, m]));
   const todayItems = items.map((it) => statusOf.get(it.id) ?? it);
   const todayUpdates = updateItems.map((it) => statusOf.get(it.id) ?? it);
