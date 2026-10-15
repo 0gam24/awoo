@@ -8,6 +8,7 @@ import { buildImageObject } from '@/lib/schema';
 import { paragraphsAndLists } from '@/lib/inline-markdown';
 import { issuePathParam, issueUrlPath } from '@/lib/issue-url.mjs';
 import { issueGateReason } from '@/lib/issue-gate.mjs';
+import { buildRelatedMap } from '@/lib/related-posts.mjs';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
 
@@ -95,6 +96,8 @@ export const getStaticPaths = (() => {
   all.sort((a, b) =>
     a.date < b.date ? 1 : a.date > b.date ? -1 : a.slug.localeCompare(b.slug),
   );
+  // 같은 주제 다른 글(2026-10-15) — 손님 1명당 1.05쪽을 올리려는 글 아래 칸. 고르는 법은 related-posts.mjs
+  const relatedMap = buildRelatedMap(all);
 
   return all.map((entry, i) => {
     const prev = all[i + 1]; // desc 정렬: 다음 인덱스는 더 옛날 (prev = older)
@@ -112,18 +115,22 @@ export const getStaticPaths = (() => {
         nextPost: next
           ? { date: next.date, slug: next.slug, title: next.data.title }
           : null,
+        relatedPosts: relatedMap.get(`${entry.date}/${entry.slug}`) ?? [],
       },
     };
   });
 }) satisfies GetStaticPaths;
 
-const { post, date, slug, prevPost, nextPost } = Astro.props as {
+const { post, date, slug, prevPost, nextPost, relatedPosts } = Astro.props as {
   post: PostData;
   date: string;
   slug: string;
   prevPost: { date: string; slug: string; title: string } | null;
   nextPost: { date: string; slug: string; title: string } | null;
+  relatedPosts: { date: string; slug: string; title: string }[];
 };
+// 오른쪽 칸 "이어서 볼 글"은 날짜순 다음 글 대신 같은 주제 첫 글(없으면 다음 글)
+const continuePost = relatedPosts[0] ?? nextPost;
 
 const subsidies = await getCollection('subsidies');
 const subsidyById = new Map(subsidies.map((s) => [s.data.id, s.data]));
@@ -841,6 +848,22 @@ const reportTypeBadge = rt && rt in RT_LABELS
             </section>
           )}
 
+          {relatedPosts.length > 0 && (
+            <section class="post-section">
+              <h2>같은 주제 다른 글</h2>
+              <ul class="rp-list">
+                {relatedPosts.map((p) => (
+                  <li>
+                    <a class="rp-link" href={issueUrlPath(p.date, p.slug)}>
+                      <span class="rp-title">{p.title}</span>
+                      <span class="rc-arrow" aria-hidden="true">→</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {relatedSubsidies.length > 0 && (
             <section class="post-section">
               <h2>이 이슈와 함께 보면 좋은 지원금</h2>
@@ -994,8 +1017,8 @@ const reportTypeBadge = rt && rt in RT_LABELS
             {relatedSubsidies.slice(0, 2).map((s) => (
               <a class="rail-cta" href={`/subsidies/${s.id}/`}>💸 {s.title}</a>
             ))}
-            {nextPost && (
-              <a class="rail-cta" href={issueUrlPath(nextPost.date, nextPost.slug)}>📄 다음 글 보기</a>
+            {continuePost && (
+              <a class="rail-cta" href={issueUrlPath(continuePost.date, continuePost.slug)}>📄 이어서 볼 글</a>
             )}
             <a class="rail-cta" href="/guide/">📋 신청 가이드</a>
           </div>
@@ -1755,6 +1778,29 @@ const reportTypeBadge = rt && rt in RT_LABELS
     border-color: var(--border-2);
     text-decoration: none;
   }
+  .rp-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .rp-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.18s var(--ease-standard);
+  }
+  .rp-link:hover { border-color: var(--border-2); text-decoration: none; }
+  .rp-title { font-size: 15px; font-weight: 600; line-height: 1.4; }
+  .rp-link:hover .rc-arrow { color: var(--accent); }
   .media {
     width: 40px; height: 40px; border-radius: var(--radius-sm);
     display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
