@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 353,
-    "entryCount": 104,
+    "scannedPosts": 354,
+    "entryCount": 105,
     "regionCount": 62,
     "regions": [
       "강릉",
@@ -71,13 +71,13 @@
       "횡성"
     ],
     "families": {
-      "A": 71,
+      "A": 72,
       "B": 19,
       "V": 14
     },
     "clusters": {
       "minsaeng": 62,
-      "other": 42
+      "other": 43
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -240,6 +240,14 @@
         "slug": "yearend-tax-refund-date-2026-10-14",
         "region": [
           "연말정산"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "modu-startup-2nd-round-result-2026-10-15",
+        "region": [
+          "전국"
         ],
         "family": "A",
         "cluster": "other"
@@ -2590,6 +2598,30 @@
       },
       "coreFactsKeys": [
         "deadline=2026-03-10"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "modu-startup-2nd-round-result-2026-10-15",
+      "path": "src/data/issues/2026-10-15/modu-startup-2nd-round-result-2026-10-15.json",
+      "date": "2026-10-15",
+      "targetQuery": "모두의 창업 2차 결과",
+      "coreFacts": {
+        "who": "2차 지원자 9만 3천여 명, 진출자 1만 명",
+        "amount": "진출자 활동자금 1인 200만 원, AI 솔루션 100만 원 범위",
+        "deadline": "재도전 멘토링 10월 16일 신청 시작, 12월 14일 종료"
+      },
+      "coreFactsKeys": [
+        "amount=200만원",
+        "deadline=2026-10-16"
       ],
       "cluster": "other",
       "rollup": false,
