@@ -3,7 +3,7 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 356,
+    "scannedPosts": 357,
     "entryCount": 107,
     "regionCount": 62,
     "regions": [
@@ -778,7 +778,7 @@
       "coreFactsKeys": [
         "who=2026-07-01",
         "amount=30만원",
-        "deadline=2026-08-31"
+        "deadline=2026-08-17"
       ],
       "cluster": "minsaeng",
       "rollup": false,
@@ -2635,7 +2635,9 @@
         "amount": "제주 공립은 법정저소득층 100% 선발, 인천은 1~3순위 의무",
         "deadline": "서울·대전·제주 우선모집 11월 2~4일, 서울·대전 등록 10~11일"
       },
-      "coreFactsKeys": [],
+      "coreFactsKeys": [
+        "deadline=2026-11-02"
+      ],
       "cluster": "other",
       "rollup": false,
       "regionOverride": true,

@@ -21,7 +21,8 @@
  *
  * --check 출력: {verdict:"PASS"|"VETO"|"FIX", reason, existing:[{slug,family,date,...}]}
  *   FIX   who·amount·deadline 중 2개 이상이 기존 글과 같다 — 새 글이 아니라 기존 글 갱신으로 처리.
- *         후보의 coreFacts를 --who/--amount/--deadline 또는 --facts로 줘야 검사된다. 없으면 생략.
+ *         후보의 coreFacts를 --who/--amount/--deadline 또는 --facts로 줘야 검사된다. 없으면 생략("미제공"),
+ *         줬는데 날짜·금액이 하나도 안 읽혀도 생략("키를 못 뽑음").
  *         비교 대상은 그 지역의 rollup=false 항목 **전부**(클러스터 무관 — 서울 기후동행카드와
  *         커리어업처럼 제도가 다르면 키가 안 겹쳐 오탐이 없다). 같은 지자체×같은 패밀리 잠금이 있어도
  *         사실이 2/3 겹치면 FIX가 먼저다 — "새 글 금지"에 "어느 글을 고칠지"까지 얹은 판정이라 더 구체적이다.
@@ -58,7 +59,8 @@
  *   amount=N만원         "1인당 N만원"이 있으면 그것, 없으면 첫 "N만원"
  *   deadline=YYYY-MM-DD  deadline 문장의 첫 날짜(신청·지급 개시일)
  * 날짜는 '2026년 7월 31일'·'2026.7.31'·'2026-07-31'(post-writer 지시 형식)·'2026/7/31'·'7월 31일'·'7/31'·
- * '9.16'(기존 글 deadline의 '9.16~18' 표기) 전부 읽는다. 연도가 없는 형식은 글의 date 연도(CLI는 올해)를 붙인다.
+ * '9.16'(기존 글 deadline의 '9.16~18' 표기) 전부 읽는다. 범위('11월 2~4일'·'10월 26~12월 14일')는 시작일만
+ * 읽는다. 연도가 없는 형식은 글의 date 연도(CLI는 올해)를 붙인다.
  * FIX 판정은 이 키의 일치 개수로 센다. 산문을 통째로 비교하면 표현 차이로 한 번도 안 걸린다
  * (계획 §1 표 15: 제목 토큰 겹침 관문은 16쌍 전부 0%였다).
  *
@@ -493,6 +495,7 @@ const pad = (n) => String(n).padStart(2, '0');
 /**
  * 문장에서 가장 앞에 나오는 날짜 하나를 YYYY-MM-DD(또는 YYYY-MM)로.
  * 받는 형식: 2026년 7월 31일 · 2026.7.31 · 2026-07-31 · 2026/7/31 · 7월 31일 · 7/31.
+ * 범위(11월 2~4일 · 10월 26~12월 14일 · 2026년 11월 2~4일)는 시작일.
  * 연도 없는 형식은 fallbackYear. '2026-08-12'가 '2026-08'로 잘리지 않게 일 단위를 먼저 모은다.
  */
 function firstDate(text, fallbackYear) {
@@ -508,7 +511,12 @@ function firstDate(text, fallbackYear) {
   for (const m of s.matchAll(/(\d{4})\/(\d{1,2})\/(\d{1,2})/g)) {
     cands.push({ idx: m.index, v: `${m[1]}-${pad(m[2])}-${pad(m[3])}` });
   }
-  for (const m of s.matchAll(/(?<!\d)(\d{1,2})\s*월\s*(\d{1,2})\s*일/g)) {
+  // 시작일에 '일'이 없는 범위('11월 2~4일'·'10월 26~12월 14일'·'12월 18~2027년 1월 8일')도 여기서
+  // 시작일로 잡는다. 끝일은 키로 쓰지 않는다 — 키가 하나 늘면 FIX의 '3개 중 2개 일치'가 같은 기간
+  // 하나만으로 성립한다. 물결은 ~·∼·～·〜, 하이픈은 -·–.
+  for (const m of s.matchAll(
+    /(?<!\d)(\d{1,2})\s*월\s*(\d{1,2})\s*(?:일|[~∼～〜–-]\s*(?:(?:\d{4}\s*년\s*)?\d{1,2}\s*월\s*)?\d{1,2}\s*일)/g,
+  )) {
     cands.push({ idx: m.index, v: `${fallbackYear}-${pad(m[1])}-${pad(m[2])}` });
   }
   for (const m of s.matchAll(/(?<![\d/])(\d{1,2})\/(\d{1,2})(?![\d/])/g)) {
@@ -859,6 +867,11 @@ function checkVerdict(registry, regionName, family, candidateKeys, opts = {}) {
       }
     }
     notes.push(`coreFacts 비교 ${fixPool.length}건 모두 2개 미만 일치`);
+  } else if (candidateKeys) {
+    // 초안은 받았는데 날짜·금액이 하나도 안 읽혔다. "미제공"으로 찍으면 --facts를 다시 넘기는 헛걸음이 된다.
+    notes.push(
+      'coreFacts에서 날짜·금액 키를 못 뽑음 → FIX 검사 생략(기존 글 coreFacts와 직접 대조)',
+    );
   } else {
     notes.push('coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)');
   }
