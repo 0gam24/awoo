@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 352,
-    "entryCount": 103,
+    "scannedPosts": 353,
+    "entryCount": 104,
     "regionCount": 62,
     "regions": [
       "강릉",
@@ -71,13 +71,13 @@
       "횡성"
     ],
     "families": {
-      "A": 70,
+      "A": 71,
       "B": 19,
       "V": 14
     },
     "clusters": {
       "minsaeng": 62,
-      "other": 41
+      "other": 42
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -240,6 +240,14 @@
         "slug": "yearend-tax-refund-date-2026-10-14",
         "region": [
           "연말정산"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "small-business-grants-open-now-2026-10-15",
+        "region": [
+          "전국"
         ],
         "family": "A",
         "cluster": "other"
@@ -2582,6 +2590,30 @@
       },
       "coreFactsKeys": [
         "deadline=2026-03-10"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "small-business-grants-open-now-2026-10-15",
+      "path": "src/data/issues/2026-10-15/small-business-grants-open-now-2026-10-15.json",
+      "date": "2026-10-15",
+      "targetQuery": "소상공인 지원금",
+      "coreFacts": {
+        "who": "영업 중이거나 폐업을 앞둔 소상공인, 사업별 기준 다름",
+        "amount": "바우처 20만~25만원, 두루누리 보험료 80%, 철거비 최대 600만원",
+        "deadline": "사업마다 다름, 전국 바우처 12월 18일 18시까지"
+      },
+      "coreFactsKeys": [
+        "amount=25만원",
+        "deadline=2026-12-18"
       ],
       "cluster": "other",
       "rollup": false,
