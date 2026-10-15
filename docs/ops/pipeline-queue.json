@@ -1286,8 +1286,10 @@
         "weight": 1,
         "tag": ""
       },
-      "status": "proposed",
-      "createdAt": "2026-10-14T13:59:47.463Z"
+      "status": "migrated",
+      "createdAt": "2026-10-14T13:59:47.463Z",
+      "statusAt": "2026-10-15",
+      "statusReason": "빈틈:고향사랑기부제세액공제와 같은 검색어 — 10/15 실측으로 통합(선점 일정 11/3·단가 2주 뒤 판정은 그대로)"
     },
     {
       "id": "T3:난방비지원",
@@ -9547,38 +9549,39 @@
       "query": "고향사랑기부제 세액공제",
       "variant": null,
       "evidence": [
-        "다음 물결 곧 뜸: 묶음 검색 84 (3주 전보다 0.8배) · 작년엔 12월에 10배",
-        "데이터랩 최근7일 1.46 (실업급여=100)",
-        "scout 2026-10-08: 자사 미노출 · 본청 1 · 빈자리 2 · 뉴스7일 100 · 자매 0"
+        "다음 물결 곧 뜸: 묶음 검색 104 · 작년엔 12월에 10배 · 계절 판정 ★ 선점 적기(12월 피크 16.82, 지금 1.39)",
+        "데이터랩 최근7일 1.39 (실업급여=100)",
+        "scout 2026-10-15: 자사 미노출 · 본청 0 · 빈자리 3 · 뉴스7일 85 · 자매 0"
       ],
       "condition": "정부·지자체 1차 출처(공고·공식 페이지) 확인 · 같은 묶음 글끼리 각도·고유 사실을 다르게(같은 틀 반복 금지)",
-      "expectedInbound": "주 7~44 (추정: 검색량×5~30, 3위 안 가정)",
-      "recent7": 1.46,
+      "expectedInbound": "주 7~42 (추정: 검색량×5~30, 3위 안 가정)",
+      "recent7": 1.39,
       "serp": {
         "query": "고향사랑기부제 세액공제",
         "rank": null,
         "url": null,
-        "openSlots": 2,
-        "mainGovAbove": 1,
+        "openSlots": 3,
+        "mainGovAbove": 0,
         "sisterAbove": 0,
         "pressAbove": null,
         "webDocOffset": null,
         "eyeOffset": null,
         "verdictT1": "open",
         "verdictT2": "open",
-        "newsWall": 100,
+        "newsWall": 85,
         "measuredBy": "webkr-api",
-        "measuredAt": "2026-10-08T00:59:58.354Z",
+        "measuredAt": "2026-10-15T04:55:35.018Z",
         "reason": [
           "offset·press 미측정(API)"
         ]
       },
-      "lastSeenAt": "2026-10-08T00:59:58.354Z",
+      "lastSeenAt": "2026-10-15T04:55:35.018Z",
       "exposure": {
-        "score": 55,
+        "score": 60,
         "label": "중간",
         "reasons": [
-          "자리 열림"
+          "자리 열림",
+          "위에 관공서 없음"
         ]
       }
     },
@@ -10473,6 +10476,54 @@
           "자리 열림",
           "빈자리 4",
           "위에 관공서 없음"
+        ]
+      }
+    },
+    {
+      "id": "빈틈:고향사랑기부제",
+      "status": "proposed",
+      "createdAt": "2026-10-15T04:55:35.018Z",
+      "source": "다음 물결 선점 2026-10-15",
+      "cluster": "고향사랑기부제",
+      "track": "T2",
+      "family": null,
+      "region": null,
+      "query": "고향사랑기부제",
+      "variant": null,
+      "evidence": [
+        "다음 물결 곧 뜸: 묶음 검색 104 · 작년엔 12월에 10배 · 우리 글 0편",
+        "데이터랩 최근7일 102.36 (실업급여=100) — 세부 검색어(답례품 1.69·세액공제 1.39·연말정산 0.09)보다 머리 검색어가 압도적",
+        "scout 2026-10-15: 자사 미노출 · 본청 1 · 빈자리 3 · 뉴스7일 100 · 자매 0"
+      ],
+      "condition": "고향사랑e음·행정안전부 1차 출처 확인 · 세액공제 빈틈 항목과 한 글로 합칠지 나눌지는 발행 지시 때 문지기 판정 · 1000뷰당 단가 미측정 — 첫 글 2주 뒤 애드센스 페이지 자료로 추가 여부 결정",
+      "expectedInbound": "주 512~3071 (추정: 검색량×5~30, 3위 안 가정)",
+      "recent7": 102.36,
+      "serp": {
+        "query": "고향사랑기부제",
+        "rank": null,
+        "url": null,
+        "openSlots": 3,
+        "mainGovAbove": 1,
+        "sisterAbove": 0,
+        "pressAbove": null,
+        "webDocOffset": null,
+        "eyeOffset": null,
+        "verdictT1": "open",
+        "verdictT2": "open",
+        "newsWall": 100,
+        "measuredBy": "webkr-api",
+        "measuredAt": "2026-10-15T04:55:35.018Z",
+        "reason": [
+          "offset·press 미측정(API)"
+        ]
+      },
+      "lastSeenAt": "2026-10-15T04:55:35.018Z",
+      "exposure": {
+        "score": 70,
+        "label": "높음",
+        "reasons": [
+          "자리 열림",
+          "예상 주 512명"
         ]
       }
     }
