@@ -48,14 +48,22 @@
  * 주 512 유입(애널리틱스 9/2~9/8)이었다 — 스마트블록·통합검색 다른 영역에서 들어온다.
  * null은 aboveIsWholeBlock:true로 구분만 하고, 발행을 막는 근거로 쓰지 않는다.
  *
- * 1회 실행 상한(track 40·scout 35)은 정찰 예산(계획 §7-7)이라 그대로 둔다. 쿼리당 호출 2회(webkr·news).
- * 인증: NCP_API_KEY_ID·NCP_API_KEY(HUB) 또는 NAVER_CLIENT_ID·NAVER_CLIENT_SECRET(레거시). 값은 출력하지 않는다.
+ * 2026-10-16 추가 — 웹문서 앞 벽 추정(scripts/lib/serp-wall.mjs): 검색광고 API 광고 평균 노출 수·월간 검색 수,
+ *   블로그 최신 100건 중 제목 일치 글 수, 지식백과 같은 이름 항목, 뉴스 7일 기사 수로 wallEstimate(1 첫 화면 · 2 한 번 스크롤 · 3 그 아래)를
+ *   짐작한다. 눈 확인(eyeOffset)이 있으면 그게 우선이고, 이 값은 누구를 눈으로 볼지 고르는 데 쓴다.
+ *
+ * 1회 실행 상한(track 40·scout 35)은 정찰 예산(계획 §7-7)이라 그대로 둔다. 쿼리당 호출 4회(webkr·news·blog·encyc)
+ * + 검색광고 API 5개 묶음 1회(키가 있을 때만).
+ * 인증: NCP_API_KEY_ID·NCP_API_KEY(HUB) 또는 NAVER_CLIENT_ID·NAVER_CLIENT_SECRET(레거시),
+ *   검색광고는 NAVER_SEARCHAD_CUSTOMER_ID·ACCESS_LICENSE·SECRET_KEY(없으면 광고·월간 검색 수 없이 잰다). 값은 출력하지 않는다.
  */
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { countCall } from './lib/api-quota.mjs';
 import { EYE_CLOSED, EYE_LABEL, eyeFor, loadEyeStore } from './lib/eye-offset.mjs';
+import { keywordStats, loadSearchAdKeys } from './lib/naver-searchad.mjs';
+import { fetchWallSignals, WALL_LABEL, wallOf } from './lib/serp-wall.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const TARGETS_FILE = join(ROOT, 'docs', 'ops', 'rank-targets.json');
@@ -79,12 +87,31 @@ const API = {
   hub: {
     webkr: 'https://naverapihub.apigw.ntruss.com/search/v1/webkr',
     news: 'https://naverapihub.apigw.ntruss.com/search/v1/news',
+    blog: 'https://naverapihub.apigw.ntruss.com/search/v1/blog',
+    encyc: 'https://naverapihub.apigw.ntruss.com/search/v1/encyc',
   },
   legacy: {
     webkr: 'https://openapi.naver.com/v1/search/webkr.json',
     news: 'https://openapi.naver.com/v1/search/news.json',
+    blog: 'https://openapi.naver.com/v1/search/blog.json',
+    encyc: 'https://openapi.naver.com/v1/search/encyc.json',
   },
 };
+// 검색광고 API 지표(광고 평균 노출 수·월간 검색 수) — 쿼리별로 부르지 않고 실행 앞에 5개씩 묶어 받아 둔다
+let AD_STATS = new Map();
+async function prefetchAds(queries) {
+  const keys = await loadSearchAdKeys();
+  if (keys.missing.length) {
+    console.error('[rank] 검색광고 API 키 없음 — 광고·월간 검색 수 없이 벽을 짐작한다(partial)');
+    return;
+  }
+  try {
+    AD_STATS = await keywordStats(queries, keys);
+    console.error(`[rank] 검색광고 API ${AD_STATS.size}건 받음`);
+  } catch (e) {
+    console.error(`[rank] ⚠ 검색광고 API 실패 — 광고 신호 없이 잰다: ${e.message}`);
+  }
+}
 const WEBKR_DISPLAY = 30; // HUB webkr display 상한
 const ABOVE_WINDOW = 10; // above·openSlots를 세는 창. 종전 통합검색 웹문서 블록(≈10건)과 맞춰 판정 기준이 부풀지 않게 한다
 const NEWS_DISPLAY = 100;
@@ -545,6 +572,16 @@ async function measure(query, eyeStore) {
 
   const eyeOffset = eyeFor(eyeStore, query);
   const v = verdicts({ rank, above, eyeOffset, news });
+  // 웹문서 앞 벽 추정 — 눈 확인이 없을 때 누구를 볼지 고르는 데 쓴다(판정 verdict에는 넣지 않는다)
+  const wallSig = await fetchWallSignals(apiGet, query);
+  const ad = AD_STATS.get(query) ?? null;
+  const wall = wallOf({
+    adDepth: ad?.adDepth ?? null,
+    monthlySearch: ad?.total ?? null,
+    newsWall: news.newsWall,
+    newsWallCapped: news.newsWallCapped,
+    ...wallSig,
+  });
 
   return {
     query,
@@ -572,6 +609,12 @@ async function measure(query, eyeStore) {
     parseOk: true, // API가 답했다 = 읽었다. 실패는 예외로 올라간다
     measuredBy: MEASURED_BY,
     unmeasured: ['webDocOffset', 'pressAbove', 'ugc', 'onPage'],
+    // 2026-10-16 추가 — 벽 추정(scripts/lib/serp-wall.mjs)
+    adDepth: ad?.adDepth ?? null,
+    adCompetition: ad?.competition ?? null,
+    monthlySearch: ad?.total ?? null,
+    ...wallSig,
+    ...wall,
   };
 }
 
@@ -605,6 +648,18 @@ function scoutView(m) {
     measuredBy: m.measuredBy,
     unmeasured: m.unmeasured,
     above: m.above,
+    // 2026-10-16 추가(벽 추정)
+    adDepth: m.adDepth,
+    adCompetition: m.adCompetition,
+    monthlySearch: m.monthlySearch,
+    blog7: m.blog7,
+    blog7Capped: m.blog7Capped,
+    blogTitleHits: m.blogTitleHits,
+    encycHit: m.encycHit,
+    wallScore: m.wallScore,
+    wallEstimate: m.wallEstimate,
+    wallReasons: m.wallReasons,
+    wallPartial: m.wallPartial,
   };
 }
 
@@ -693,6 +748,11 @@ function record(store, date, m) {
     measuredBy: m.measuredBy,
     newsWall: m.newsWall,
     newsSameTitle: m.newsSameTitle,
+    // 2026-10-16 추가(벽 추정)
+    adDepth: m.adDepth,
+    monthlySearch: m.monthlySearch,
+    wallEstimate: m.wallEstimate,
+    wallScore: m.wallScore,
   });
   const cutoff = new Date(Date.now() - KEEP_DAYS * 86400_000).toISOString().slice(0, 10);
   rec.history = rec.history
@@ -737,7 +797,7 @@ async function runScout(queries, eyeStore) {
       console.error(
         `[scout] ${String(i + 1).padStart(2)}. ${q} — ${m.rank ? `r${m.rank}` : 'null'}/${m.webDocCount} ` +
           `open ${m.openSlots} gov ${m.mainGovAbove} news ${m.newsWall}/${m.newsSameTitle} eye ${m.eyeOffset ?? '-'} ` +
-          `T1 ${m.verdictT1} T2 ${m.verdictT2}`,
+          `T1 ${m.verdictT1} T2 ${m.verdictT2} · 벽 ${WALL_LABEL[m.wallEstimate]}${m.wallPartial ? '(광고 미측정)' : ''}`,
       );
     } catch (e) {
       out.push({ query: q, error: e.message });
@@ -803,12 +863,14 @@ async function main() {
     const queries = one ? [one] : file ? await loadQueryFile(file) : [];
     if (queries.length === 0)
       throw new Error('scout 모드는 --query="..." 또는 --file=<경로>가 필요하다');
+    await prefetchAds(queries.slice(0, MAX_SCOUT_PER_RUN));
     const out = await runScout(queries, eyeStore);
     console.log(JSON.stringify(one ? out[0] : out, null, 2));
     return;
   }
 
   if (one) {
+    await prefetchAds([one]);
     console.log(JSON.stringify(await measure(one, eyeStore), null, 2));
     return;
   }
@@ -822,6 +884,7 @@ async function main() {
 
   const batch = targets.slice(0, Math.min(limit, MAX_PER_RUN));
   console.log(`[rank] ${batch.length}건 측정 (전체 ${targets.length}건, 요청 간 ${DELAY_MS}ms)`);
+  await prefetchAds(batch.map((t) => t.query));
 
   const date = kstDate();
   const store = await loadStore();

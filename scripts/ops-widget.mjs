@@ -23,6 +23,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { EYE_LABEL, eyeFor, loadEyeStore } from './lib/eye-offset.mjs';
 import { revenueOf, valueOrder } from './lib/revenue-weight.mjs';
+import { WALL_LABEL } from './lib/serp-wall.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const argv = process.argv.slice(2);
@@ -249,7 +250,7 @@ function goalHtml() {
 }
 // 최근 7일 새 글의 주제 배분 — 운영자 결정(2026-10-14 "진행"): 새 글의 절반 이상은 단가 높은 주제
 // (지역 지원금·소상공인·바우처 = revenueOf weight 2). 10/14 분석에서 8월 64%였던 비율이 9월 말~10월 31~34%로
-// 떨어진 것이 수입 하락과 같이 움직였다(피크 주 1000뷰당 16.55달러 → 7.95달러).
+// 떨어진 것이 수입 하락과 같이 움직였다(피크 주보다 1000뷰당 단가가 절반 아래로).
 function weekMixHtml() {
   const posts = [];
   for (let k = 0; k < 7; k++) {
@@ -291,19 +292,29 @@ const generated = genIso
 
 // 눈 확인(웹문서 블록 위치) — API로 못 재는 값이라 운영자가 직접 본다(결정 2026-09-15).
 // 상위 EYE_ROWS건에만 버튼을 단다. 하루 1분, 안 눌러도 감점 없음.
+// 2026-10-16: 눈 확인 전이면 공식 API로 짐작한 위치(serp.wallEstimate)를 같이 보여 준다. '그 아래' 추정은
+// 점수가 깎여 아래로 내려가도 버튼을 단다 — 눈으로 보고 풀어 줄 수 있는 자리다.
 const EYE_ROWS = 5;
 const eyeStore = await loadEyeStore();
-function eyeHtml(query, idx) {
-  if (idx >= EYE_ROWS) return '';
+function eyeHtml(item, idx) {
+  const query = item.query;
   const cur = eyeFor(eyeStore, query);
+  const est = item.serp?.wallEstimate ?? null;
+  if (idx >= EYE_ROWS && !(cur == null && est === 3)) return '';
   const btn = (v, label) => {
     const cmd = `눈확인: "${query}" = ${label} — eye-offset에 기록하고 목록을 다시 보여줘`;
     const on = cur === v;
     return `<button onclick="sendPrompt(${esc(jsStr(cmd))})" style="font-size:11px;padding:1px 6px;${on ? 'font-weight:600' : 'color:var(--text-secondary)'}">${on ? '✓ ' : ''}${label}</button>`;
   };
+  const why = [
+    ...(item.serp?.wallReasons ?? []).slice(0, 2),
+    ...(item.serp?.wallPartial ? ['광고 미측정'] : []),
+  ].join('·');
   const state = cur
     ? `<span style="font-size:11px;color:var(--text-muted)">검색 결과에서 ${esc(EYE_LABEL[cur])}</span>`
-    : `<span style="font-size:11px;color:var(--text-muted)">네이버에서 이 검색어를 직접 보고 눌러 주세요 — 웹문서 묶음이 어디쯤?</span>`;
+    : est
+      ? `<span style="font-size:11px;color:var(${est === 3 ? '--text-warning' : '--text-muted'})">추정 ${esc(WALL_LABEL[est])}${why ? `(${esc(why)})` : ''} — 직접 보고 눌러 주세요</span>`
+      : `<span style="font-size:11px;color:var(--text-muted)">네이버에서 이 검색어를 직접 보고 눌러 주세요 — 웹문서 묶음이 어디쯤?</span>`;
   return `<div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-top:3px">${state} ${btn(1, '첫 화면')}${btn(2, '한 번 스크롤')}${btn(3, '그 아래')}</div>`;
 }
 
@@ -340,7 +351,7 @@ const rows = shown
     return `<div style="display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-top:0.5px solid var(--border)">
   <div style="flex:1;min-width:0">
     <div style="display:flex;gap:8px;align-items:baseline"><span style="font-size:15px;font-weight:500">${esc(i.query)}</span>${badge}${rvChip}${usdChip}</div>
-    <div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${esc(reason)} · ${esc(how(i))}</div>${condHtml}${eyeHtml(i.query, idx)}
+    <div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${esc(reason)} · ${esc(how(i))}</div>${condHtml}${eyeHtml(i, idx)}
   </div>
   <div style="display:flex;gap:6px;flex-shrink:0">
     <button onclick="sendPrompt(${esc(jsStr(cmd))})" style="font-size:13px">발행 지시 ↗</button>

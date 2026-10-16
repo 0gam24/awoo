@@ -30,6 +30,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { exposureOf } from './lib/exposure.mjs';
+import { wallPick } from './lib/serp-wall.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const QUEUE_REL = 'docs/ops/pipeline-queue.json';
@@ -316,6 +317,7 @@ async function main() {
         measuredBy: s.measuredBy ?? 'webkr-api',
         measuredAt: NOW_ISO,
         reason: s.reason ?? [],
+        ...wallPick(s), // 2026-10-16 벽 추정 — 눈 확인 전 점수에 쓴다(exposureOf)
       },
       lastSeenAt: NOW_ISO,
     };

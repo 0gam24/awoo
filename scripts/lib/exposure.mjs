@@ -5,6 +5,7 @@
  * 운영자 지시(2026-09-11): "빈틈 네이버 상위노출 가능성 높은 순서대로 정리해서 보여줘".
  *
  * 자리(최대 70) + 수요(최대 25) + 시기(5) − 조건 미충족(10).
+ * 눈 확인이 없을 때만 벽 추정(wallEstimate): 첫 화면 +5 · 그 아래 −20(닫지 않음).
  * 실측(serp)이 없으면 null — 점수를 지어내지 않고 '실측 대기'로 따로 모은다.
  */
 export function exposureOf(item) {
@@ -16,6 +17,7 @@ export function exposureOf(item) {
     return { score: 0, label: '이미 노출', reasons: [`자사 ${s.rank}위`] };
   }
   let v = 0;
+  let wallFirst = null;
   if (item.phaseB) {
     // 지급 후 단계: 신청 글과 찾는 말이 다르다. 관공서가 둘 이상 막고 있지 않으면 자리로 본다.
     v += 10;
@@ -63,6 +65,17 @@ export function exposureOf(item) {
       v += 10;
       reasons.push('웹문서 블록 상단');
     } else if (s.webDocOffset < 30) v += 5;
+  } else if (s.eyeOffset == null && s.wallEstimate != null) {
+    // 둘 다 없으면 공식 API 신호로 짐작한 벽(scripts/lib/serp-wall.mjs, 2026-10-16). 눈 확인이 최종이라
+    // 닫지는 않는다 — '그 아래' 추정은 깎아서 순서를 내리고, 왜 깎였는지를 맨 앞에 보여 눈으로 보게 한다.
+    // 광고 값을 못 잰 추정(wallPartial — 검색광고 키 없는 봇 실행)은 가장 큰 신호가 빠져 '첫 화면'으로 쏠린다. 가점은 주지 않는다
+    if (s.wallEstimate === 1 && !s.wallPartial) {
+      v += 5;
+      reasons.push('첫 화면 추정');
+    } else if (s.wallEstimate === 3) {
+      v -= 20;
+      wallFirst = `웹문서 그 아래 추정(${(s.wallReasons ?? []).slice(0, 2).join('·') || '벽 신호'})`;
+    }
   }
   if (s.rank != null && s.rank >= 4 && s.rank <= 10) {
     v += 5;
@@ -94,5 +107,6 @@ export function exposureOf(item) {
   }
   const scoreV = Math.max(0, Math.min(100, v));
   const label = scoreV >= 70 ? '높음' : scoreV >= 45 ? '중간' : '낮음';
+  if (wallFirst) reasons.unshift(wallFirst);
   return { score: scoreV, label, reasons: reasons.slice(0, 3) };
 }

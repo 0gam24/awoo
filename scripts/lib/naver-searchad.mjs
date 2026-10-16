@@ -63,12 +63,25 @@ function count(v) {
   return Number(s.replace(/,/g, '')) || 0;
 }
 
-const norm = (s) => String(s).replace(/\s+/g, '').toLowerCase();
+// 검색광고 API는 hintKeywords에 공백·기호가 있으면 묶음 전체를 400(11001)으로 돌려보낸다
+// (2026-10-16 "근로·자녀장려금 …"의 가운뎃점 하나로 35건이 다 빠졌다). 한글·영문·숫자만 남겨 묻고 같은 꼴로 맞춘다.
+const norm = (s) =>
+  String(s)
+    .replace(/[^0-9a-zA-Z가-힣]/g, '')
+    .toLowerCase();
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+class SearchAdError extends Error {
+  constructor(status, body) {
+    super(`검색광고 API ${status}: ${body}`);
+    this.status = status;
+  }
+}
+
 /**
- * 검색어별 월간 검색 수·광고 지표. 검색광고 API는 검색어 안 공백을 받지 않아 공백을 뺀 꼴로 묻고,
- * 돌려받은 연관 검색어 목록에서 같은 검색어(공백 무시) 줄만 고른다. 5개씩 묶어 부른다.
+ * 검색어별 월간 검색 수·광고 지표. 검색광고 API는 검색어 안 공백·기호를 받지 않아 한글·영문·숫자만 남긴 꼴로
+ * 묻고, 돌려받은 연관 검색어 목록에서 같은 꼴 줄만 고른다. 5개씩 묶어 부르고, 묶음이 400이면 하나씩 다시 묻는다
+ * (그래도 안 되는 검색어는 null).
  * @param {string[]} queries
  * @param {{ customerId?: string, accessLicense?: string, secretKey?: string }} keys
  * @returns {Promise<Map<string, { query: string, pc: number, mobile: number, total: number, pcRaw: string, mobileRaw: string, adDepth: number | null, competition: string | null } | null>>}
@@ -80,16 +93,10 @@ export async function keywordStats(queries, keys) {
     );
   }
   const uri = '/keywordstool';
-  /** @type {Map<string, any>} */
-  const out = new Map();
-  const uniq = [...new Set(queries.map((q) => q.trim()).filter(Boolean))];
-  for (let i = 0; i < uniq.length; i += 5) {
-    const batch = uniq.slice(i, i + 5);
+  /** @param {string[]} hints */
+  const call = async (hints) => {
     const timestamp = String(Date.now());
-    const params = new URLSearchParams({
-      hintKeywords: batch.map(norm).join(','),
-      showDetail: '1',
-    });
+    const params = new URLSearchParams({ hintKeywords: hints.join(','), showDetail: '1' });
     const res = await fetch(`${BASE}${uri}?${params}`, {
       headers: {
         'X-Timestamp': timestamp,
@@ -98,12 +105,33 @@ export async function keywordStats(queries, keys) {
         'X-Signature': sign(keys.secretKey, timestamp, 'GET', uri),
       },
     });
-    if (!res.ok) {
-      const body = (await res.text()).slice(0, 300);
-      throw new Error(`검색광고 API ${res.status}: ${body}`);
-    }
+    if (!res.ok) throw new SearchAdError(res.status, (await res.text()).slice(0, 300));
     const data = await res.json();
-    const list = Array.isArray(data?.keywordList) ? data.keywordList : [];
+    return Array.isArray(data?.keywordList) ? data.keywordList : [];
+  };
+  /** @type {Map<string, any>} */
+  const out = new Map();
+  const uniq = [...new Set(queries.map((q) => q.trim()).filter(Boolean))];
+  for (let i = 0; i < uniq.length; i += 5) {
+    const batch = uniq.slice(i, i + 5);
+    const hints = [...new Set(batch.map(norm).filter(Boolean))];
+    let list = [];
+    if (hints.length) {
+      try {
+        list = await call(hints);
+      } catch (e) {
+        // 키·서명 문제(401·403)나 서버 오류는 그대로 올린다. 400은 검색어 탓 — 하나씩 다시 물어 나머지를 살린다
+        if (!(e instanceof SearchAdError) || e.status !== 400 || hints.length === 1) throw e;
+        for (const h of hints) {
+          await sleep(300);
+          try {
+            list.push(...(await call([h])));
+          } catch (e1) {
+            if (!(e1 instanceof SearchAdError) || e1.status !== 400) throw e1;
+          }
+        }
+      }
+    }
     const byKey = new Map(list.map((k) => [norm(k.relKeyword), k]));
     for (const q of batch) {
       const k = byKey.get(norm(q));

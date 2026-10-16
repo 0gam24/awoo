@@ -63,6 +63,7 @@ import { fileURLToPath } from 'node:url';
 import { exposureOf } from './lib/exposure.mjs';
 import { EYE_CLOSED, EYE_LABEL, eyeFor, loadEyeStore } from './lib/eye-offset.mjs';
 import { revenueOf, valueOrder } from './lib/revenue-weight.mjs';
+import { WALL_LABEL, wallPick } from './lib/serp-wall.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const P = {
@@ -147,7 +148,9 @@ const positionText = (x) =>
     ? `offset ${x.webDocOffset}%`
     : x?.eyeOffset != null
       ? `눈 확인 ${EYE_LABEL[x.eyeOffset]}`
-      : '눈 확인 전';
+      : x?.wallEstimate != null
+        ? `눈 확인 전(추정 ${WALL_LABEL[x.wallEstimate]})`
+        : '눈 확인 전';
 const pressText = (x) =>
   x?.pressAbove != null
     ? `언론 ${x.pressAbove}`
@@ -625,6 +628,7 @@ function approxSerp(latest, sisterHosts, eyeStore) {
     reason: [...(latest.reason ?? reason)],
     source: `naver-ranks ${latest.date ?? '?'}${hasNew ? '' : '(근사)'}`,
     approx: !hasNew,
+    ...wallPick(latest),
   };
   return applyEye(out, eyeStore);
 }
@@ -799,7 +803,7 @@ async function scanIssues(dir) {
 const KEEP_STATUS = new Set(['approved', 'rejected', 'published', 'hold']);
 const idOf = (track, key) => `${track}:${norm(key).replace(/[^가-힣a-zA-Z0-9-]/g, '')}`;
 
-function mergeQueue(prevItems, items, eyeStore) {
+function mergeQueue(prevItems, items, eyeStore, scoutByQ) {
   const prev = new Map((prevItems ?? []).map((p) => [p.id, p]));
   const merged = items.map((it) => {
     const old = prev.get(it.id);
@@ -821,6 +825,15 @@ function mergeQueue(prevItems, items, eyeStore) {
       old.id?.startsWith('빈틈:') && Date.now() - Date.parse(old.createdAt ?? 0) < 21 * 864e5;
     if (!(KEEP_STATUS.has(old.status) || manualAlive)) continue;
     const carried = { ...old, lastSeenAt: old.lastSeenAt ?? old.createdAt };
+    // 오늘 남는 정찰 예산으로 다시 잰 빈틈 후보는 그 측정으로 갈아 끼운다(넣을 때 한 번 잰 값이 최대 21일 버텼다)
+    const fresh = scoutByQ?.get(carried.query);
+    if (fresh) {
+      carried.serp = { ...fresh, source: `scout ${TODAY}(빈틈 재측정)`, approx: false };
+      carried.evidence = [
+        ...(carried.evidence ?? []).filter((e) => !/^scout d{4}-d{2}-d{2}/.test(e)),
+        `scout ${TODAY}(재측정): ${fresh.rank == null ? '자사 미노출' : `자사 ${fresh.rank}위`} · 본청 ${fresh.mainGovAbove ?? '?'} · 빈자리 ${fresh.openSlots ?? '?'} · 뉴스7일 ${fresh.newsWall ?? '?'} · 자매 ${fresh.sisterAbove ?? 0}${fresh.wallEstimate ? ` · 벽 추정 ${WALL_LABEL[fresh.wallEstimate]}` : ''}`,
+      ];
+    }
     // 손으로 넣은 빈틈 후보에도 운영자 눈 확인을 얹는다 — 안 그러면 '그 아래'를 눌러도 목록에 남는다(10/15 고향사랑기부제)
     if (carried.serp && eyeStore) {
       carried.serp = applyEye(
@@ -1789,6 +1802,7 @@ async function main() {
     error: null,
     queries: [],
   };
+  let scoutByQ = null; // 병합(mergeQueue)에서 빈틈 재측정분을 갈아 끼울 때 쓴다
   if (SERP) {
     const pick = (xs, n) => uniq(xs).slice(0, n);
     const t1 = pick(scoutPlan.T1, SERP_BUDGET.T1);
@@ -1814,9 +1828,28 @@ async function main() {
       SERP_BUDGET.remeasure,
     );
     const queries = uniq([...t1, ...t2, ...nk, ...rm]).slice(0, SERP_BUDGET.total);
+    // 손으로·물결로 넣은 빈틈 후보(21일 남는다)는 넣을 때 한 번 잰 값으로 버텨 왔다. 남는 예산으로
+    // 벽 추정이 없거나 3일 넘은 것을 점수 높은 순으로 다시 잰다(2026-10-16 벽 추정 도입 — 그 전 측정분엔 없다).
+    const itemIds = new Set(items.map((it) => it.id));
+    const staleSerp = (x) =>
+      x?.wallEstimate == null || Date.now() - (Date.parse(x?.measuredAt ?? '') || 0) > 3 * 864e5;
+    const rf = (prevQueue.items ?? [])
+      .filter(
+        (p) =>
+          p.id?.startsWith('빈틈:') &&
+          p.status === 'proposed' &&
+          !itemIds.has(p.id) &&
+          Date.now() - Date.parse(p.createdAt ?? 0) < 21 * 864e5 &&
+          staleSerp(p.serp),
+      )
+      .sort((a, b) => (b.exposure?.score ?? -1) - (a.exposure?.score ?? -1))
+      .map((p) => p.query)
+      .filter((q) => q && !queries.includes(q))
+      .slice(0, Math.max(0, SERP_BUDGET.total - queries.length));
+    queries.push(...rf);
     serpMeta.queries = queries;
     console.error(
-      `[pipeline] SERP 정찰 ${queries.length}건(T1 ${t1.length} / T2 ${t2.length} / 새 키워드 ${nk.length} / 재측정 ${rm.length})`,
+      `[pipeline] SERP 정찰 ${queries.length}건(T1 ${t1.length} / T2 ${t2.length} / 새 키워드 ${nk.length} / 재측정 ${rm.length} / 빈틈 재측정 ${rf.length})`,
     );
     // --serp-replay: 같은 날 큐에 저장된 scout 결과를 다시 쓴다(재실행·검증 시 정찰 예산을 태우지 않는다)
     const replay = SERP_REPLAY ? (prevQueue.meta?.serp?.results ?? []) : [];
@@ -1832,6 +1865,7 @@ async function main() {
     // 눈 확인은 측정 뒤에 누를 수 있다(--serp-replay로 다시 만들 때) — 저장된 결과에도 지금 값을 얹는다
     for (const r of results) if (r && !r.error) applyEye(r, eyeStore);
     const byQ = new Map(results.filter((r) => r && !r.error).map((r) => [r.query, r]));
+    scoutByQ = byQ;
     serpMeta.results = results.map((r) =>
       r.error
         ? { query: r.query, error: r.error }
@@ -1852,6 +1886,9 @@ async function main() {
             newsWallCapped: r.newsWallCapped ?? false,
             newsSameTitle: r.newsSameTitle ?? null,
             measuredBy: r.measuredBy ?? null,
+            measuredAt: r.measuredAt ?? null,
+            // 2026-10-16 벽 추정(scripts/lib/serp-wall.mjs) — replay에서도 점수에 쓰므로 남긴다
+            ...wallPick(r),
           },
     );
     const postBySlug = new Map(posts.map((p) => [p.slug, p]));
@@ -2014,7 +2051,7 @@ async function main() {
     return (b.score ?? 0) - (a.score ?? 0);
   });
 
-  const merged = mergeQueue(prevQueue.items, [...items, ...updateItems], eyeStore);
+  const merged = mergeQueue(prevQueue.items, [...items, ...updateItems], eyeStore, scoutByQ);
   const statusOf = new Map(merged.map((m) => [m.id, m]));
   const todayItems = items.map((it) => statusOf.get(it.id) ?? it);
   const todayUpdates = updateItems.map((it) => statusOf.get(it.id) ?? it);
@@ -2062,6 +2099,7 @@ async function main() {
       '발행은 이 스크립트가 하지 않는다. 0400 자동 발행은 별도로 매일 1건(결정 #11). 후보는 DAILY-KEYWORDS.md로 보고하고 운영자가 /post·/naver로 수동 지시한다(결정 #12).',
       '노출 가능성 = 자리(최대 70: 열림 40 · 빈자리 ≤15 · 위에 관공서 없음 ≤10 · 위에 언론 없음 ≤10 · 웹문서 블록 상단 ≤10 · 자사 4~10위 5) + 수요(최대 25: 실유입 ≤10 · 검색량 5 · 신생 5) + 개시 창 5 − 공고 URL 필요 10. 실측이 없으면 미측정으로 두고 점수를 매기지 않는다. 자사 1~3위는 이미 노출로 제외.',
       '2026-09-15 측정이 공식 웹문서 검색 API로 바뀌었다. 언론(pressAbove)은 잴 수 없어 null — 그 10점은 비고, 뉴스 벽(newsWall·newsSameTitle)은 2026-09-29까지 기록만 한다. 블록 위치는 운영자 눈 확인 eyeOffset(1 첫 화면 +10 · 2 한 번 스크롤 +5 · 3 그 아래 = 닫힘, docs/ops/eye-offset.json)으로 채운다.',
+      '2026-10-16 눈 확인이 없으면 벽 추정 wallEstimate(검색광고 API 광고 수·월간 검색 수, 뉴스·블로그·지식백과 API — scripts/lib/serp-wall.mjs)를 약하게 쓴다: 1 첫 화면 +5 · 3 그 아래 −20(닫지는 않음). 눈 확인이 들어오면 추정은 버린다.',
       'score = recent7(없으면 proxy) × min(openSlots,4) × volume-scale 계수. T1은 개시일 임박순이 점수보다 우선. serp.approx=true는 naver-ranks 옛 항목에서 근사한 verdict — --serp 실측이 아니다.',
     ],
     meta: {
