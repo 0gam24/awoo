@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 357,
-    "entryCount": 107,
+    "scannedPosts": 362,
+    "entryCount": 112,
     "regionCount": 62,
     "regions": [
       "강릉",
@@ -71,13 +71,13 @@
       "횡성"
     ],
     "families": {
-      "A": 74,
-      "B": 19,
+      "A": 77,
+      "B": 21,
       "V": 14
     },
     "clusters": {
       "minsaeng": 62,
-      "other": 45
+      "other": 50
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -270,6 +270,46 @@
       },
       {
         "slug": "yubo-portal-daycare-kindergarten-application-2026-10-15",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "digital-onnuri-where-to-use-2026-10-16",
+        "region": [
+          "전국"
+        ],
+        "family": "B",
+        "cluster": "other"
+      },
+      {
+        "slug": "onnuri-voucher-where-to-use-2026-10-16",
+        "region": [
+          "전국"
+        ],
+        "family": "B",
+        "cluster": "other"
+      },
+      {
+        "slug": "sangsaeng-spending-lottery-how-to-enter-2026-10-16",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "small-business-confirmation-certificate-2026-10-16",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "sole-proprietor-closure-report-steps-2026-10-16",
         "region": [
           "전국"
         ],
@@ -2709,6 +2749,122 @@
       "coreFactsKeys": [
         "deadline=2026-10-28"
       ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "B",
+      "slug": "digital-onnuri-where-to-use-2026-10-16",
+      "path": "src/data/issues/2026-10-16/digital-onnuri-where-to-use-2026-10-16.json",
+      "date": "2026-10-16",
+      "targetQuery": "디지털온누리 사용처",
+      "coreFacts": {
+        "who": "디지털온누리 앱 이용자, 결제는 온누리 가맹점에서만",
+        "amount": "평시 충전 할인 7%, 월 구매 한도 100만원",
+        "deadline": "상생소비복권 결제 실적 11월 15일 24시까지"
+      },
+      "coreFactsKeys": [
+        "amount=100만원",
+        "deadline=2026-11-15"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "B",
+      "slug": "onnuri-voucher-where-to-use-2026-10-16",
+      "path": "src/data/issues/2026-10-16/onnuri-voucher-where-to-use-2026-10-16.json",
+      "date": "2026-10-16",
+      "targetQuery": "온누리상품권 사용처",
+      "coreFacts": {
+        "who": "모든 국민, 할인 구매는 개인만",
+        "amount": "평시 지류 5%·월 50만원, 디지털 7%·월 100만원",
+        "deadline": "가맹점 14만7천 곳 등록 10월 18일 만료"
+      },
+      "coreFactsKeys": [
+        "amount=50만원",
+        "deadline=2026-10-18"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "sangsaeng-spending-lottery-how-to-enter-2026-10-16",
+      "path": "src/data/issues/2026-10-16/sangsaeng-spending-lottery-how-to-enter-2026-10-16.json",
+      "date": "2026-10-16",
+      "targetQuery": "상생소비복권",
+      "coreFacts": {
+        "who": "앱에서 이벤트에 동의한 디지털온누리 이용자, 거주지 무관",
+        "amount": "1등 3,000만원 등 5,600명 17억원, 상품권 지급",
+        "deadline": "2026-11-15 결제·동의 마감, 12월 초 당첨 통지"
+      },
+      "coreFactsKeys": [
+        "amount=3000만원",
+        "deadline=2026-11-15"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "small-business-confirmation-certificate-2026-10-16",
+      "path": "src/data/issues/2026-10-16/small-business-confirmation-certificate-2026-10-16.json",
+      "date": "2026-10-16",
+      "targetQuery": "소상공인 확인서 발급",
+      "coreFacts": {
+        "who": "소기업 중 상시근로자 5명 미만, 제조·건설·운수·광업 10명 미만",
+        "amount": "업종별 3년 평균 매출 15억~140억원 이하",
+        "deadline": "지금 받으면 2027년 3월 31일까지 유효, 발급 평균 약 7일"
+      },
+      "coreFactsKeys": [
+        "deadline=2027-03-31"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "sole-proprietor-closure-report-steps-2026-10-16",
+      "path": "src/data/issues/2026-10-16/sole-proprietor-closure-report-steps-2026-10-16.json",
+      "date": "2026-10-16",
+      "targetQuery": "개인사업자 폐업신고",
+      "coreFacts": {
+        "who": "폐업하는 개인사업자, 직원·인허가 업종은 신고 추가",
+        "amount": "무신고 가산세 20%, 납부지연 하루 10만분의 22",
+        "deadline": "부가세 확정신고, 폐업한 달의 다음 달 25일까지"
+      },
+      "coreFactsKeys": [],
       "cluster": "other",
       "rollup": false,
       "regionOverride": true,
