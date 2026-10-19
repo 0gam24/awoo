@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 367,
-    "entryCount": 114,
+    "scannedPosts": 368,
+    "entryCount": 115,
     "regionCount": 62,
     "regions": [
       "강릉",
@@ -71,13 +71,13 @@
       "횡성"
     ],
     "families": {
-      "A": 79,
+      "A": 80,
       "B": 21,
       "V": 14
     },
     "clusters": {
       "minsaeng": 62,
-      "other": 52
+      "other": 53
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -310,6 +310,14 @@
       },
       {
         "slug": "sole-proprietor-closure-report-steps-2026-10-16",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "energy-voucher-how-to-apply-2026-10-19",
         "region": [
           "전국"
         ],
@@ -2881,6 +2889,29 @@
         "deadline": "부가세 확정신고, 폐업한 달의 다음 달 25일까지"
       },
       "coreFactsKeys": [],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "energy-voucher-how-to-apply-2026-10-19",
+      "path": "src/data/issues/2026-10-19/energy-voucher-how-to-apply-2026-10-19.json",
+      "date": "2026-10-19",
+      "targetQuery": "에너지바우처 신청",
+      "coreFacts": {
+        "who": "기초수급 세대 중 노인·영유아·장애인 등이 있는 세대",
+        "amount": "1인 29만5,200원부터 4인 이상 70만1,300원, 한 해 총액",
+        "deadline": "2026년 12월 31일 신청 마감, 사용은 2027년 5월 31일까지"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-12-31"
+      ],
       "cluster": "other",
       "rollup": false,
       "regionOverride": true,
