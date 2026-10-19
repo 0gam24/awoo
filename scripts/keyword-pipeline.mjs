@@ -62,6 +62,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { exposureOf } from './lib/exposure.mjs';
 import { EYE_CLOSED, EYE_LABEL, eyeFor, loadEyeStore } from './lib/eye-offset.mjs';
+import { loadSearchAdKeys } from './lib/naver-searchad.mjs';
 import { revenueOf, valueOrder } from './lib/revenue-weight.mjs';
 import { WALL_LABEL, wallPick } from './lib/serp-wall.mjs';
 
@@ -313,13 +314,22 @@ const WAVE_WATCH = [
   {
     region: '강릉',
     kind: '시',
-    system: '가결 전',
-    start: null,
+    // 2026-10-19 보도로 지급 확정 — 가결 전 hold(결정 #6)를 신청 글(A) 후보로 바꾼다
+    system: '민생안정지원금 1인당 10만원 강릉페이 — 11/9 신청 시작·첫 주 요일제(10/19 보도)',
+    start: '2026-11-09',
     end: null,
-    noticeUrl: 'https://gncl.go.kr:8080/assembly/bill.do',
+    noticeUrl: null,
     ourPosts: ['gangneung-livelihood-grant-resubmission'],
-    milestones: [],
-    action: { type: 'hold', note: 'V글 보유. 신규 금지, bill.do 새 uid 감시(결정 #6)' },
+    milestones: [{ date: '2026-11-09', label: '신청 시작 11/9(첫 주 요일제)' }],
+    action: {
+      type: 'new',
+      family: 'A',
+      query: '강릉 민생안정지원금 신청',
+      variant: '강릉 민생지원금 신청 방법 / 강릉 민생지원금 요일제',
+      evidence:
+        '10/19 강릉시 발표 보도: 전 시민 1인당 10만원 강릉페이, 11/9 신청 시작·첫 주 요일제',
+      condition: '강릉시 고시·공고 원문 확보 · V글(재상정)은 updates[]로 확정 사실 함께 갱신',
+    },
   },
   {
     region: '당진',
@@ -1831,8 +1841,12 @@ async function main() {
     // 손으로·물결로 넣은 빈틈 후보(21일 남는다)는 넣을 때 한 번 잰 값으로 버텨 왔다. 남는 예산으로
     // 벽 추정이 없거나 3일 넘은 것을 점수 높은 순으로 다시 잰다(2026-10-16 벽 추정 도입 — 그 전 측정분엔 없다).
     const itemIds = new Set(items.map((it) => it.id));
+    // 검색광고 키가 있는 실행(운영자 PC)이면, 광고 신호 없이 잰 추정(wallPartial — 봇 실행분)도 다시 잰다
+    const adKeys = (await loadSearchAdKeys()).missing.length === 0;
     const staleSerp = (x) =>
-      x?.wallEstimate == null || Date.now() - (Date.parse(x?.measuredAt ?? '') || 0) > 3 * 864e5;
+      x?.wallEstimate == null ||
+      (adKeys && x?.wallPartial) ||
+      Date.now() - (Date.parse(x?.measuredAt ?? '') || 0) > 3 * 864e5;
     const rf = (prevQueue.items ?? [])
       .filter(
         (p) =>
