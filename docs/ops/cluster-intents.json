@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 365,
-    "entryCount": 112,
+    "scannedPosts": 367,
+    "entryCount": 114,
     "regionCount": 62,
     "regions": [
       "강릉",
@@ -71,13 +71,13 @@
       "횡성"
     ],
     "families": {
-      "A": 77,
+      "A": 79,
       "B": 21,
       "V": 14
     },
     "clusters": {
       "minsaeng": 62,
-      "other": 50
+      "other": 52
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -310,6 +310,22 @@
       },
       {
         "slug": "sole-proprietor-closure-report-steps-2026-10-16",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "korea-grand-festival-dates-events-2026-10-19",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "modu-card-refund-payment-date-2026-10-19",
         "region": [
           "전국"
         ],
@@ -2863,6 +2879,51 @@
         "who": "폐업하는 개인사업자, 직원·인허가 업종은 신고 추가",
         "amount": "무신고 가산세 20%, 납부지연 하루 10만분의 22",
         "deadline": "부가세 확정신고, 폐업한 달의 다음 달 25일까지"
+      },
+      "coreFactsKeys": [],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "korea-grand-festival-dates-events-2026-10-19",
+      "path": "src/data/issues/2026-10-19/korea-grand-festival-dates-events-2026-10-19.json",
+      "date": "2026-10-19",
+      "targetQuery": "코리아 그랜드 페스티벌",
+      "coreFacts": {
+        "who": "참여 매장 이용자 누구나, 숙박은 비수도권 숙소 예약자",
+        "amount": "약 4만 개사·10개 부처, 숙박 할인 최대 7만원",
+        "deadline": "2026-11-15 폐막, 지금 숙박 할인은 11월 8일 입실까지"
+      },
+      "coreFactsKeys": [
+        "amount=7만원",
+        "deadline=2026-11-15"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "modu-card-refund-payment-date-2026-10-19",
+      "path": "src/data/issues/2026-10-19/modu-card-refund-payment-date-2026-10-19.json",
+      "date": "2026-10-19",
+      "targetQuery": "모두의카드 환급",
+      "coreFacts": {
+        "who": "카드 등록 뒤 월 15회 이상 탄 회원, 첫 달은 예외",
+        "amount": "기본형·일반형·플러스형 중 큰 금액, 정률 20~53.3%",
+        "deadline": "이용 다음 달 지급, 카드사별 7~10영업일·20일 등"
       },
       "coreFactsKeys": [],
       "cluster": "other",
