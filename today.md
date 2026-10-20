@@ -2,13 +2,15 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-10-20 21:21 KST
+> 마지막 갱신: 2026-10-20 22:16 KST
 
 ## 2026-10-20 (오늘)
 
-### 📰 신규 이슈 포스트 (5건)
+### 📰 신규 이슈 포스트 (6건)
 - `복지` [강릉페이 사용처, 민생지원금 10만원은 어느 가게에서 될까?](https://awoo.or.kr/issues/gangneung-pay-where-to-use/)
   - 강릉 민생안정지원금 10만원은 강릉시 안 연 매출 30억원 이하 가맹점에서만 결제돼요. 사용기한은 2027년 2월 28일, 12월 31일 신청자는 59일 안에 다 써야 해요.
+- `복지` [난방비 지원금은 도시가스·지역난방·등유·연탄마다 받는 제도가 다르다](https://awoo.or.kr/issues/heating-cost-support-by-fuel/)
+  - 난방비 지원은 연료가 가릅니다. 바우처는 고지서 차감이나 국민행복카드로 받고, 한난 감면은 계좌로 들어와요. 바우처 때문에 도시가스 겨울 한도가 줄면 손해일까요?
 - `교육` [유치원 입학 신청 일반모집 추첨 방식과 등록기간](https://awoo.or.kr/issues/kindergarten-admission-application/)
   - 유치원 입학 신청 일반모집은 서울·대전·제주 기준 11월 17~23일, 최대 3곳이에요. 서울은 26일 오후 3시 발표, 등록은 27~30일 나흘인데 평일은 이틀뿐이에요.
 - `교육` [국가장학금 신청기간 열리기 전에 부모 동의부터 끝내 두세요](https://awoo.or.kr/issues/national-scholarship-application-period/)

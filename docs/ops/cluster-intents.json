@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 373,
-    "entryCount": 119,
+    "scannedPosts": 374,
+    "entryCount": 120,
     "regionCount": 63,
     "regions": [
       "강릉",
@@ -72,13 +72,13 @@
       "횡성"
     ],
     "families": {
-      "A": 83,
+      "A": 84,
       "B": 22,
       "V": 14
     },
     "clusters": {
       "minsaeng": 63,
-      "other": 56
+      "other": 57
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -348,6 +348,14 @@
         ],
         "family": "B",
         "cluster": "minsaeng"
+      },
+      {
+        "slug": "heating-cost-support-by-fuel-2026-10-20",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
       },
       {
         "slug": "kindergarten-admission-application-2026-10-20",
@@ -3015,6 +3023,29 @@
         "deadline=2027-02-28"
       ],
       "cluster": "minsaeng",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "heating-cost-support-by-fuel-2026-10-20",
+      "path": "src/data/issues/2026-10-20/heating-cost-support-by-fuel-2026-10-20.json",
+      "date": "2026-10-20",
+      "targetQuery": "난방비 지원금",
+      "coreFacts": {
+        "who": "수급·차상위·중증장애인 등, 연료별로 대상이 달라요",
+        "amount": "도시가스 겨울 월 14만8천원, 바우처 받으면 8만6천원",
+        "deadline": "한난 감면은 4월 30일 넘겨 신청하면 다음 해부터"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-04-30"
+      ],
+      "cluster": "other",
       "rollup": false,
       "regionOverride": true,
       "familyOverride": true,
