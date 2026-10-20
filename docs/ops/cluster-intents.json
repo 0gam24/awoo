@@ -3,7 +3,7 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 368,
+    "scannedPosts": 369,
     "entryCount": 115,
     "regionCount": 62,
     "regions": [
@@ -1563,14 +1563,14 @@
       "date": "2026-09-03",
       "targetQuery": null,
       "coreFacts": {
-        "who": "강릉시에 주민등록을 둔 전 시민(7월 조례안 기준 결혼이민자·영주자격자 포함, 소득·재산 무관). 재상정안의 대상·기준일 조항은 2026년 9월 3일 기준 미공개",
+        "who": "2026년 9월 30일 기준 강릉시 거주 시민·영주권자·결혼이민자(소득·재산 무관). 2007년 12월 31일 이전 출생 성인은 개인별 신청, 성인 없는 세대의 미성년 세대주는 직접 신청",
         "amount": "1인당 10만원 강릉페이, 시 발표 총사업비 211억원. 제2회 추경에 민생안정지원금 212억원·강릉사랑상품권 할인보전금 25억원 편성",
-        "deadline": "2026년 9월 22일 제332회 정례회 제3차 본회의 수정 가결, 9월 30일 조례 공포. 11월 중순부터 신청·지급 시작해 연내 종료 계획"
+        "deadline": "신청 2026년 11월 9일~12월 31일(마감일 온라인은 오후 6시), 첫 주는 출생연도 끝자리 요일제. 사용 기한 2027년 2월 28일, 남은 돈은 자동 소멸"
       },
       "coreFactsKeys": [
-        "who=2026-09-03",
+        "who=2026-09-30",
         "amount=10만원",
-        "deadline=2026-09-22"
+        "deadline=2026-11-09"
       ],
       "cluster": "minsaeng",
       "rollup": false
