@@ -1,15 +1,15 @@
 {
   "_readme": "다음에 크게 뜰 주제(묶음 단위). scripts/next-wave.mjs가 만들고 scripts/ops-widget.mjs가 읽는다. stage = rising(지금 뜨는 중)·soon(작년 이맘때 한두 달 뒤 1.5배↑)·growing(커지는 중)·gap(큰데 우리 글 2개 이하)·steady·fading(꺾이는 중). level·base = 실업급여 28일 평균을 100으로 둔 검색량(최근 7일·직전 3주), growth = level÷base, fromPeak = 56일 최고 7일 평균 대비 %, season = 작년 같은 달 대비 다음 두 달 최고 배수와 그 달. seen = 뉴스 첫 관측일·일별 기사 수(30일).",
   "meta": {
-    "generatedAt": "2026-10-22T05:40:51.870Z",
-    "today": "2026-10-22",
+    "generatedAt": "2026-10-23T05:39:55.003Z",
+    "today": "2026-10-23",
     "window": {
-      "start": "2026-08-27",
-      "end": "2026-10-21"
+      "start": "2026-08-28",
+      "end": "2026-10-22"
     },
     "benchmark": "실업급여",
-    "newsTitles": 2072,
-    "measured": 39,
+    "newsTitles": 2123,
+    "measured": 40,
     "apiCalls": 40
   },
   "items": [
@@ -17,25 +17,25 @@
       "term": "민생지원금",
       "stage": "rising",
       "isNew": false,
-      "score": 87.6,
+      "score": 72.4,
       "season": {
         "up": 0.6,
         "month": 11,
         "lastYear": 100.6
       },
-      "level": 43.8,
-      "base": 21.7,
-      "growth": 2,
+      "level": 42.6,
+      "base": 25.5,
+      "growth": 1.7,
       "fromPeak": 24,
       "weekly": [
-        160.7,
-        148.4,
-        88.9,
-        69.5,
-        28.1,
-        16.1,
-        20.8,
-        43.8
+        154.6,
+        137,
+        91.7,
+        56.6,
+        25.8,
+        15.8,
+        35,
+        42.6
       ],
       "regions": [
         {
@@ -43,7 +43,7 @@
           "count": 1
         }
       ],
-      "mentions": 3,
+      "mentions": 4,
       "firstSeen": "2026-09-02",
       "posts": 29,
       "lastPost": "2026-10-20",
@@ -58,33 +58,33 @@
         "부안 민생지원금"
       ],
       "sample": [
-        "추석 지원금 미지급→현재 고유가 피해지원금(민생지원금) 지역 보니…...",
-        "부안군, 농어촌 기본소득 공모 준비 총력...민생지원금 마무리 점검"
+        "[사설] 위장 전입해 민생지원금 챙기는 염치없는 공무원들은 파면 등 엄...",
+        "민생지원금 받으려고 위장 전입 '가짜 군위군민' 40명 적발"
       ]
     },
     {
       "term": "문화누리카드",
       "stage": "soon",
       "isNew": false,
-      "score": 243.6,
+      "score": 237.6,
       "season": {
         "up": 2.3,
         "month": 12,
         "lastYear": 78.2
       },
-      "level": 105.9,
-      "base": 109,
+      "level": 103.3,
+      "base": 107.1,
       "growth": 1,
-      "fromPeak": 92,
+      "fromPeak": 91,
       "weekly": [
-        110,
-        106.7,
-        99.5,
-        95.5,
-        111.1,
-        110.5,
-        105.5,
-        105.9
+        109.2,
+        102.6,
+        96.1,
+        94.4,
+        110.9,
+        107.4,
+        102.9,
+        103.3
       ],
       "regions": [],
       "mentions": 0,
@@ -105,25 +105,25 @@
       "term": "근로장려금",
       "stage": "soon",
       "isNew": false,
-      "score": 225.9,
+      "score": 222.3,
       "season": {
         "up": 2.6,
         "month": 11,
         "lastYear": 71.7
       },
-      "level": 86.9,
-      "base": 76.7,
-      "growth": 1.1,
-      "fromPeak": 4,
+      "level": 85.5,
+      "base": 73.5,
+      "growth": 1.2,
+      "fromPeak": 7,
       "weekly": [
-        2084.8,
-        711.7,
-        367.1,
-        83.4,
-        94.2,
-        70.2,
-        65.6,
-        86.9
+        1281.7,
+        600,
+        318.8,
+        76.9,
+        87.6,
+        68.7,
+        64.2,
+        85.5
       ],
       "regions": [],
       "mentions": 0,
@@ -144,31 +144,31 @@
       "term": "연말정산",
       "stage": "soon",
       "isNew": false,
-      "score": 210.1,
+      "score": 211.1,
       "season": {
         "up": 10.4,
         "month": 12,
         "lastYear": 14.9
       },
-      "level": 20.2,
-      "base": 17.2,
+      "level": 20.3,
+      "base": 17.3,
       "growth": 1.2,
-      "fromPeak": 98,
+      "fromPeak": 100,
       "weekly": [
-        14.8,
-        14.2,
-        14.3,
         14.1,
-        14.3,
-        17.9,
-        19.5,
-        20.2
+        14,
+        14,
+        12.9,
+        15.3,
+        18.2,
+        18.6,
+        20.3
       ],
       "regions": [],
       "mentions": 0,
       "firstSeen": null,
-      "posts": 8,
-      "lastPost": "2026-10-21",
+      "posts": 9,
+      "lastPost": "2026-10-23",
       "queued": 0,
       "sources": [
         "감시 목록"
@@ -183,25 +183,25 @@
       "term": "에너지바우처",
       "stage": "soon",
       "isNew": false,
-      "score": 182.8,
+      "score": 182.4,
       "season": {
         "up": 2.2,
         "month": 12,
         "lastYear": 43.6
       },
-      "level": 83.1,
-      "base": 70.6,
+      "level": 82.9,
+      "base": 71.9,
       "growth": 1.2,
-      "fromPeak": 96,
+      "fromPeak": 98,
       "weekly": [
-        81,
-        54.5,
-        49.8,
-        51.9,
-        54.1,
-        78.4,
-        79.3,
-        83.1
+        77.3,
+        50.8,
+        49.5,
+        47.2,
+        59.8,
+        83.1,
+        72.7,
+        82.9
       ],
       "regions": [],
       "mentions": 0,
@@ -222,25 +222,25 @@
       "term": "코리아세일페스타",
       "stage": "soon",
       "isNew": false,
-      "score": 15.2,
+      "score": 16,
       "season": {
         "up": 1.6,
         "month": 11,
         "lastYear": 16.6
       },
-      "level": 7.3,
-      "base": 3.1,
-      "growth": 2.4,
+      "level": 7.7,
+      "base": 3.3,
+      "growth": 2.3,
       "fromPeak": 100,
       "weekly": [
+        1.1,
         1,
-        1,
-        1.2,
-        1.4,
-        2,
-        3.2,
-        4.2,
-        7.3
+        1.1,
+        1.3,
+        2.4,
+        3.1,
+        4.3,
+        7.7
       ],
       "regions": [],
       "mentions": 0,
@@ -261,21 +261,21 @@
       "term": "고향사랑기부제",
       "stage": "growing",
       "isNew": false,
-      "score": 142.2,
+      "score": 141.2,
       "season": null,
-      "level": 118.5,
-      "base": 98.6,
+      "level": 117.7,
+      "base": 99.4,
       "growth": 1.2,
-      "fromPeak": 98,
+      "fromPeak": 99,
       "weekly": [
-        87.9,
-        104.9,
-        115,
-        109.6,
-        87.5,
-        104,
-        104.1,
-        118.5
+        85,
+        108.8,
+        112.8,
+        96,
+        92.4,
+        102.8,
+        103,
+        117.7
       ],
       "regions": [],
       "mentions": 0,
@@ -296,9 +296,9 @@
       "term": "두배드림적금",
       "stage": "growing",
       "isNew": true,
-      "score": 7.3,
+      "score": 10.4,
       "season": null,
-      "level": 1.4,
+      "level": 2,
       "base": 0,
       "growth": 9.9,
       "fromPeak": 100,
@@ -310,15 +310,15 @@
         0,
         0,
         0,
-        1.4
+        2
       ],
       "regions": [
         {
           "name": "제주",
-          "count": 2
+          "count": 1
         }
       ],
-      "mentions": 6,
+      "mentions": 3,
       "firstSeen": "2026-10-21",
       "posts": 0,
       "lastPost": null,
@@ -340,37 +340,37 @@
       "term": "온누리상품권",
       "stage": "gap",
       "isNew": false,
-      "score": 115.8,
+      "score": 128.9,
       "season": {
         "up": 0.9,
         "month": 11,
-        "lastYear": 246.2
+        "lastYear": 246.3
       },
-      "level": 144.7,
-      "base": 172.6,
-      "growth": 0.8,
+      "level": 143.2,
+      "base": 164.4,
+      "growth": 0.9,
       "fromPeak": 26,
       "weekly": [
-        407.5,
-        312.4,
-        492.6,
-        382.7,
-        190.7,
-        178,
-        149.1,
-        144.7
+        401,
+        303.1,
+        507.7,
+        334.1,
+        188.4,
+        168.4,
+        136.5,
+        143.2
       ],
       "regions": [
         {
           "name": "태안",
-          "count": 4
+          "count": 2
         },
         {
-          "name": "진천",
-          "count": 4
+          "name": "경산",
+          "count": 1
         }
       ],
-      "mentions": 13,
+      "mentions": 5,
       "firstSeen": "2026-09-02",
       "posts": 2,
       "lastPost": "2026-10-16",
@@ -383,67 +383,32 @@
         "온누리상품권",
         "온누리상품권 신청",
         "태안 온누리상품권",
-        "진천 온누리상품권"
+        "경산 온누리상품권"
       ],
       "sample": [
-        "태안군, '돌려받는 재미에 또 찾는' 온누리상품권 페이백 재가동",
-        "태안 전통시장 ‘소비액 33%, 온누리상품권 지급’"
+        "태안군, 24일부터 온누리상품권 환급 행사…1인당 최대 3만원",
+        "태안군, 24일부터 온누리상품권 환급행사 재개"
       ]
-    },
-    {
-      "term": "청년미래적금",
-      "stage": "steady",
-      "isNew": false,
-      "score": 586.4,
-      "season": null,
-      "level": 837.7,
-      "base": 1226.8,
-      "growth": 0.7,
-      "fromPeak": 38,
-      "weekly": [
-        484,
-        404.8,
-        438.8,
-        464.1,
-        501,
-        1333.3,
-        1846.1,
-        837.7
-      ],
-      "regions": [],
-      "mentions": 0,
-      "firstSeen": "2026-09-02",
-      "posts": 17,
-      "lastPost": "2026-10-10",
-      "queued": 13,
-      "sources": [
-        "감시 목록"
-      ],
-      "keywords": [
-        "청년미래적금",
-        "청년미래적금 신청"
-      ],
-      "sample": []
     },
     {
       "term": "모두의카드",
       "stage": "steady",
       "isNew": false,
-      "score": 199.4,
+      "score": 194.7,
       "season": null,
-      "level": 221.5,
-      "base": 240.1,
+      "level": 216.3,
+      "base": 239,
       "growth": 0.9,
       "fromPeak": 49,
       "weekly": [
-        404.4,
-        376.2,
-        300.3,
-        252.9,
-        281.7,
-        243.6,
-        195,
-        221.5
+        426.4,
+        343.2,
+        283,
+        226.7,
+        318.6,
+        214,
+        184.5,
+        216.3
       ],
       "regions": [],
       "mentions": 0,
@@ -461,83 +426,28 @@
       "sample": []
     },
     {
-      "term": "반값여행",
-      "stage": "steady",
-      "isNew": false,
-      "score": 74.2,
-      "season": null,
-      "level": 70.7,
-      "base": 99.1,
-      "growth": 0.7,
-      "fromPeak": 57,
-      "weekly": [
-        109.6,
-        92.8,
-        81,
-        76,
-        90.5,
-        111.8,
-        95.1,
-        70.7
-      ],
-      "regions": [
-        {
-          "name": "강진",
-          "count": 13
-        },
-        {
-          "name": "함평",
-          "count": 1
-        },
-        {
-          "name": "산청",
-          "count": 1
-        }
-      ],
-      "mentions": 15,
-      "firstSeen": "2026-09-02",
-      "posts": 12,
-      "lastPost": "2026-10-02",
-      "queued": 3,
-      "sources": [
-        "뉴스",
-        "감시 목록"
-      ],
-      "keywords": [
-        "반값여행",
-        "반값여행 신청",
-        "강진 반값여행",
-        "함평 반값여행",
-        "산청 반값여행"
-      ],
-      "sample": [
-        "함평군, '국향대전 보고 반값 여행'... 철도·카셰어링 파격 지원",
-        "'강진 반값여행' 재개, 국비 20억 투입…\"12월부터 방식 개선\""
-      ]
-    },
-    {
       "term": "기초연금",
       "stage": "steady",
       "isNew": false,
-      "score": 50.6,
+      "score": 49.4,
       "season": {
         "up": 1.2,
         "month": 12,
         "lastYear": 33.7
       },
-      "level": 50.6,
-      "base": 52.1,
+      "level": 49.4,
+      "base": 51.1,
       "growth": 1,
       "fromPeak": 32,
       "weekly": [
-        158.4,
-        76.4,
-        51.1,
-        50.7,
-        57.5,
-        52,
-        46.7,
-        50.6
+        152.9,
+        67.2,
+        48.5,
+        49.3,
+        58.5,
+        49.6,
+        45.2,
+        49.4
       ],
       "regions": [],
       "mentions": 0,
@@ -555,67 +465,78 @@
       "sample": []
     },
     {
-      "term": "청년도약계좌",
+      "term": "반값여행",
       "stage": "steady",
       "isNew": false,
-      "score": 49.3,
-      "season": {
-        "up": 0.9,
-        "month": 12,
-        "lastYear": 213.6
-      },
-      "level": 70.5,
-      "base": 97.2,
+      "score": 42.8,
+      "season": null,
+      "level": 61.2,
+      "base": 84.1,
       "growth": 0.7,
-      "fromPeak": 57,
+      "fromPeak": 58,
       "weekly": [
-        72.4,
-        65.1,
-        68.5,
-        66.9,
-        75.5,
-        104.3,
-        111.7,
-        70.5
+        94.3,
+        74.1,
+        74.4,
+        60.4,
+        89.2,
+        85.9,
+        77.2,
+        61.2
       ],
-      "regions": [],
-      "mentions": 0,
-      "firstSeen": "2026-10-06",
-      "posts": 3,
-      "lastPost": "2026-09-28",
-      "queued": 2,
+      "regions": [
+        {
+          "name": "강진",
+          "count": 11
+        },
+        {
+          "name": "함평",
+          "count": 1
+        }
+      ],
+      "mentions": 12,
+      "firstSeen": "2026-09-02",
+      "posts": 12,
+      "lastPost": "2026-10-02",
+      "queued": 3,
       "sources": [
+        "뉴스",
         "감시 목록"
       ],
       "keywords": [
-        "청년도약계좌",
-        "청년도약계좌 신청"
+        "반값여행",
+        "반값여행 신청",
+        "강진 반값여행",
+        "함평 반값여행"
       ],
-      "sample": []
+      "sample": [
+        "함평군, '국향대전 보고 반값 여행'... 철도·카셰어링 파격 지원",
+        "'강진 반값여행' 재개, 국비 20억 투입…\"12월부터 방식 개선\""
+      ]
     },
     {
       "term": "아동수당",
       "stage": "steady",
       "isNew": false,
-      "score": 26.6,
+      "score": 22.8,
       "season": {
         "up": 1.3,
         "month": 12,
         "lastYear": 23.1
       },
-      "level": 24.2,
-      "base": 22.4,
-      "growth": 1.1,
-      "fromPeak": 27,
+      "level": 22.8,
+      "base": 22.3,
+      "growth": 1,
+      "fromPeak": 26,
       "weekly": [
-        86.3,
-        35.3,
-        25.4,
-        35.3,
-        23.5,
-        21.5,
-        22.3,
-        24.2
+        87.6,
+        30.4,
+        24.6,
+        33.7,
+        24,
+        20.6,
+        22.2,
+        22.8
       ],
       "regions": [],
       "mentions": 0,
@@ -636,28 +557,28 @@
       "term": "부모급여",
       "stage": "steady",
       "isNew": false,
-      "score": 19.1,
+      "score": 18.7,
       "season": {
         "up": 1.4,
         "month": 12,
         "lastYear": 12.4
       },
-      "level": 19.1,
-      "base": 18.6,
+      "level": 18.7,
+      "base": 18.4,
       "growth": 1,
       "fromPeak": 51,
       "weekly": [
-        37.7,
-        15.7,
-        14.1,
-        23.4,
-        15.7,
-        13.6,
-        26.6,
-        19.1
+        36.4,
+        14.2,
+        14,
+        22.8,
+        15.5,
+        15.3,
+        24.5,
+        18.7
       ],
       "regions": [],
-      "mentions": 1,
+      "mentions": 0,
       "firstSeen": "2026-10-21",
       "posts": 6,
       "lastPost": "2026-10-01",
@@ -669,45 +590,102 @@
         "부모급여",
         "부모급여 신청"
       ],
-      "sample": [
-        "출생서류 잘못돼 부모급여 신청 놓쳐…권익위 \"사정 살펴야\""
-      ]
+      "sample": []
     },
     {
-      "term": "가을여행",
+      "term": "사랑상품권",
       "stage": "steady",
       "isNew": false,
-      "score": 10.3,
+      "score": 8.1,
       "season": {
-        "up": 0.7,
-        "month": 11,
-        "lastYear": 7.3
+        "up": 1.2,
+        "month": 12,
+        "lastYear": 6
       },
-      "level": 8.8,
-      "base": 10.3,
-      "growth": 0.9,
-      "fromPeak": 69,
+      "level": 7.7,
+      "base": 10.5,
+      "growth": 0.7,
+      "fromPeak": 9,
       "weekly": [
-        3.5,
-        7,
-        7.8,
-        8.4,
-        8.1,
-        12.6,
-        10.2,
-        8.8
+        41.2,
+        21.5,
+        62.3,
+        51.7,
+        15.7,
+        8.7,
+        7.1,
+        7.7
       ],
       "regions": [
         {
-          "name": "평창",
-          "count": 1
+          "name": "포항",
+          "count": 12
         },
         {
-          "name": "강원",
+          "name": "부안",
+          "count": 3
+        },
+        {
+          "name": "함양",
+          "count": 2
+        },
+        {
+          "name": "서울",
+          "count": 2
+        },
+        {
+          "name": "강진",
           "count": 1
         }
       ],
-      "mentions": 5,
+      "mentions": 20,
+      "firstSeen": "2026-09-02",
+      "posts": 2,
+      "lastPost": "2026-10-10",
+      "queued": 0,
+      "sources": [
+        "뉴스"
+      ],
+      "keywords": [
+        "사랑상품권",
+        "사랑상품권 신청",
+        "포항 사랑상품권",
+        "부안 사랑상품권",
+        "함양 사랑상품권",
+        "서울 사랑상품권",
+        "강진 사랑상품권"
+      ],
+      "sample": [
+        "부안사랑상품권 인센티브, 선할인→캐시백…결제액 12%",
+        "부안사랑상품권 11월부터 '선 할인→후 캐시백' 전환"
+      ]
+    },
+    {
+      "term": "사회서비스 바우처",
+      "stage": "steady",
+      "isNew": false,
+      "score": 6.3,
+      "season": {
+        "up": 0.7,
+        "month": 12,
+        "lastYear": 5.3
+      },
+      "level": 4.4,
+      "base": 4.1,
+      "growth": 1.1,
+      "fromPeak": 71,
+      "weekly": [
+        6.1,
+        4.6,
+        3.6,
+        3.3,
+        4.2,
+        3.7,
+        4.5,
+        4.4
+      ],
+      "regions": [],
+      "mentions": 3,
       "firstSeen": "2026-10-02",
       "posts": 0,
       "lastPost": null,
@@ -716,266 +694,34 @@
         "뉴스"
       ],
       "keywords": [
-        "가을여행",
-        "가을여행 신청",
-        "평창 가을여행",
-        "강원 가을여행"
+        "사회서비스 바우처",
+        "사회서비스바우처",
+        "사회서비스 바우처 신청"
       ],
       "sample": [
-        "남이섬부터 평창 목장까지…강원 가을여행 즐기고 경품도 받자",
-        "\"가을여행 떠나고 선물도 받자!\"…춘식이가 기다리는 전국 여행지 33곳"
-      ]
-    },
-    {
-      "term": "카카오쇼핑페스타",
-      "stage": "steady",
-      "isNew": false,
-      "score": 5.2,
-      "season": null,
-      "level": 1.9,
-      "base": 0.9,
-      "growth": 2.1,
-      "fromPeak": 73,
-      "weekly": [
-        0.1,
-        0,
-        0,
-        0.1,
-        0.2,
-        0.5,
-        2.1,
-        1.9
-      ],
-      "regions": [],
-      "mentions": 3,
-      "firstSeen": "2026-10-07",
-      "posts": 0,
-      "lastPost": null,
-      "queued": 0,
-      "sources": [
-        "뉴스"
-      ],
-      "keywords": [
-        "카카오쇼핑페스타",
-        "카카오쇼핑페스타 신청"
-      ],
-      "sample": [
-        "바이툴즈, 카카오쇼핑페스타 참여…22일 첫 쇼핑라이브",
-        "JMW 바이툴즈, '카카오쇼핑페스타'서 음식물처리기 할인가 판매 및 라이..."
-      ]
-    },
-    {
-      "term": "전자바우처",
-      "stage": "steady",
-      "isNew": false,
-      "score": 4.3,
-      "season": {
-        "up": 0.5,
-        "month": 12,
-        "lastYear": 8.6
-      },
-      "level": 3.3,
-      "base": 3.3,
-      "growth": 1,
-      "fromPeak": 62,
-      "weekly": [
-        5.3,
-        3.9,
-        3.4,
-        3.1,
-        3.4,
-        3.6,
-        2.8,
-        3.3
-      ],
-      "regions": [
-        {
-          "name": "울산",
-          "count": 5
-        }
-      ],
-      "mentions": 8,
-      "firstSeen": "2026-10-15",
-      "posts": 0,
-      "lastPost": null,
-      "queued": 0,
-      "sources": [
-        "뉴스"
-      ],
-      "keywords": [
-        "전자바우처",
-        "전자바우처 신청",
-        "울산 전자바우처"
-      ],
-      "sample": [
-        "사회서비스 전자바우처의 투명성 높인다",
-        "\"전자바우처 부정수급 원천 차단\"... 한국사회보장정보원 현장 교육 강..."
-      ]
-    },
-    {
-      "term": "사랑카드",
-      "stage": "steady",
-      "isNew": false,
-      "score": 4.1,
-      "season": {
-        "up": 1.2,
-        "month": 11,
-        "lastYear": 5.5
-      },
-      "level": 3.9,
-      "base": 4.9,
-      "growth": 0.8,
-      "fromPeak": 45,
-      "weekly": [
-        8,
-        6.1,
-        5.1,
-        5.1,
-        4.7,
-        5.9,
-        4,
-        3.9
-      ],
-      "regions": [
-        {
-          "name": "천안",
-          "count": 12
-        },
-        {
-          "name": "구미",
-          "count": 2
-        }
-      ],
-      "mentions": 14,
-      "firstSeen": "2026-09-02",
-      "posts": 0,
-      "lastPost": null,
-      "queued": 1,
-      "sources": [
-        "뉴스"
-      ],
-      "keywords": [
-        "사랑카드",
-        "사랑카드 신청",
-        "천안 사랑카드",
-        "구미 사랑카드"
-      ],
-      "sample": [
-        "구미시, 26일부터 착한가격업소 구미사랑카드 결제액의 5% 캐시백 지원",
-        "구미사랑카드 쓰면 5% 적립…착한 가격업소 활성화 나선다"
-      ]
-    },
-    {
-      "term": "아동급식카드",
-      "stage": "steady",
-      "isNew": true,
-      "score": 3.5,
-      "season": {
-        "up": 1.5,
-        "month": 12,
-        "lastYear": 1.6
-      },
-      "level": 3,
-      "base": 3.4,
-      "growth": 0.9,
-      "fromPeak": 47,
-      "weekly": [
-        6.4,
-        4.1,
-        3.8,
-        3,
-        2.6,
-        4.3,
-        3.3,
-        3
-      ],
-      "regions": [
-        {
-          "name": "서울",
-          "count": 10
-        }
-      ],
-      "mentions": 15,
-      "firstSeen": "2026-10-21",
-      "posts": 0,
-      "lastPost": null,
-      "queued": 0,
-      "sources": [
-        "뉴스"
-      ],
-      "keywords": [
-        "아동급식카드",
-        "아동급식카드 신청",
-        "서울 아동급식카드"
-      ],
-      "sample": [
-        "신한은행, '서울배달+ 땡겨요'에 아동급식카드 결제 기능 도입…\"배달비...",
-        "신한은행, 서울 아동급식카드 배달 결제 지원"
-      ]
-    },
-    {
-      "term": "세일페스타",
-      "stage": "steady",
-      "isNew": false,
-      "score": 2.2,
-      "season": null,
-      "level": 0.8,
-      "base": 0.3,
-      "growth": 2.7,
-      "fromPeak": 100,
-      "weekly": [
-        0,
-        0,
-        0.1,
-        0.2,
-        0.2,
-        0.4,
-        0.4,
-        0.8
-      ],
-      "regions": [
-        {
-          "name": "안산",
-          "count": 3
-        }
-      ],
-      "mentions": 3,
-      "firstSeen": "2026-10-07",
-      "posts": 1,
-      "lastPost": "2026-10-02",
-      "queued": 0,
-      "sources": [
-        "뉴스"
-      ],
-      "keywords": [
-        "세일페스타",
-        "세일페스타 신청",
-        "안산 세일페스타"
-      ],
-      "sample": [
-        "안산시, ‘안산 잇(It) 세일페스타’ 개최…다온카드 결제 시 최대 15% 캐...",
-        "안산 세일페스타…지역화폐 결제시 10~15% 캐시백"
+        "[2026 국정감사] 사회서비스 바우처 부정수급 적발액 4배 증가…AI 탐지...",
+        "[이슈국감] 사회서비스 바우처 부정수급 479억…AI 조사율 1%대"
       ]
     },
     {
       "term": "난방비 지원",
       "stage": "steady",
       "isNew": false,
-      "score": 1.7,
+      "score": 3.7,
       "season": null,
-      "level": 1.1,
+      "level": 1.7,
       "base": 0.8,
-      "growth": 1.5,
+      "growth": 2.2,
       "fromPeak": 100,
       "weekly": [
         0.3,
         0.2,
         0.3,
         0.2,
-        0.4,
-        1,
+        0.6,
         0.9,
-        1.1
+        0.8,
+        1.7
       ],
       "regions": [],
       "mentions": 0,
@@ -994,6 +740,238 @@
       "sample": []
     },
     {
+      "term": "모바일 상품권",
+      "stage": "steady",
+      "isNew": false,
+      "score": 3.5,
+      "season": {
+        "up": 1,
+        "month": 12,
+        "lastYear": 3.7
+      },
+      "level": 3.4,
+      "base": 4,
+      "growth": 0.8,
+      "fromPeak": 42,
+      "weekly": [
+        5.4,
+        4.8,
+        5.9,
+        7.9,
+        4.6,
+        3.9,
+        3.6,
+        3.4
+      ],
+      "regions": [],
+      "mentions": 3,
+      "firstSeen": "2026-10-03",
+      "posts": 0,
+      "lastPost": null,
+      "queued": 0,
+      "sources": [
+        "뉴스"
+      ],
+      "keywords": [
+        "모바일 상품권",
+        "모바일상품권",
+        "모바일 상품권 신청"
+      ],
+      "sample": [
+        "KT알파 기프티쇼, 기업용 모바일 상품권에 카테고리별 포인트 선택 방식...",
+        "KT알파, 모바일 상품권 선택 폭 넓힌다…분할 사용도 가능"
+      ]
+    },
+    {
+      "term": "아동급식카드",
+      "stage": "steady",
+      "isNew": true,
+      "score": 2.9,
+      "season": {
+        "up": 1.5,
+        "month": 12,
+        "lastYear": 1.6
+      },
+      "level": 2.8,
+      "base": 3.4,
+      "growth": 0.8,
+      "fromPeak": 46,
+      "weekly": [
+        6.1,
+        3.9,
+        3.6,
+        2.7,
+        3.3,
+        3.7,
+        3.3,
+        2.8
+      ],
+      "regions": [
+        {
+          "name": "서울",
+          "count": 4
+        }
+      ],
+      "mentions": 6,
+      "firstSeen": "2026-10-21",
+      "posts": 0,
+      "lastPost": null,
+      "queued": 0,
+      "sources": [
+        "뉴스"
+      ],
+      "keywords": [
+        "아동급식카드",
+        "아동급식카드 신청",
+        "서울 아동급식카드"
+      ],
+      "sample": [
+        "신한은행 땡겨요, 서울 아동급식카드 배달 결제 도입…배달비도 지원",
+        "신한은행 떙겨요, 서울 아동급식카드 배달 결제 도입"
+      ]
+    },
+    {
+      "term": "세일페스타",
+      "stage": "steady",
+      "isNew": false,
+      "score": 2,
+      "season": null,
+      "level": 0.8,
+      "base": 0.3,
+      "growth": 2.5,
+      "fromPeak": 100,
+      "weekly": [
+        0,
+        0.1,
+        0.1,
+        0.1,
+        0.3,
+        0.3,
+        0.5,
+        0.8
+      ],
+      "regions": [
+        {
+          "name": "안산",
+          "count": 1
+        }
+      ],
+      "mentions": 3,
+      "firstSeen": "2026-10-07",
+      "posts": 1,
+      "lastPost": "2026-10-02",
+      "queued": 0,
+      "sources": [
+        "뉴스"
+      ],
+      "keywords": [
+        "세일페스타",
+        "세일페스타 신청",
+        "안산 세일페스타"
+      ],
+      "sample": [
+        "안산시, ‘안산 잇(It) 세일페스타’ 개최…다온카드 결제 시 최대 15% 캐...",
+        "카빌리지, K-세일페스타 프로모션 선보여…차종별 페이백 혜택 마련"
+      ]
+    },
+    {
+      "term": "사랑카드",
+      "stage": "steady",
+      "isNew": false,
+      "score": 1.9,
+      "season": {
+        "up": 1,
+        "month": 12,
+        "lastYear": 3.3
+      },
+      "level": 2.1,
+      "base": 2.9,
+      "growth": 0.7,
+      "fromPeak": 37,
+      "weekly": [
+        5.5,
+        3.9,
+        3.2,
+        3.4,
+        4,
+        2.6,
+        2.1,
+        2.1
+      ],
+      "regions": [
+        {
+          "name": "구미",
+          "count": 4
+        },
+        {
+          "name": "양산",
+          "count": 2
+        }
+      ],
+      "mentions": 6,
+      "firstSeen": "2026-09-02",
+      "posts": 0,
+      "lastPost": null,
+      "queued": 1,
+      "sources": [
+        "뉴스"
+      ],
+      "keywords": [
+        "사랑카드",
+        "사랑카드 신청",
+        "구미 사랑카드",
+        "양산 사랑카드"
+      ],
+      "sample": [
+        "양산그랜드세일 29일 시작, 지역 할인에 사랑카드 혜택 더한다",
+        "‘양산그랜드세일’ 29일부터 양산사랑카드 최대 20% 적립"
+      ]
+    },
+    {
+      "term": "폰교체패스",
+      "stage": "steady",
+      "isNew": true,
+      "score": 1.8,
+      "season": null,
+      "level": 1.5,
+      "base": 1.6,
+      "growth": 0.9,
+      "fromPeak": 77,
+      "weekly": [
+        1.6,
+        1.7,
+        1.9,
+        1.7,
+        1.6,
+        1.7,
+        1.6,
+        1.5
+      ],
+      "regions": [
+        {
+          "name": "강화",
+          "count": 1
+        }
+      ],
+      "mentions": 26,
+      "firstSeen": "2026-10-23",
+      "posts": 0,
+      "lastPost": null,
+      "queued": 0,
+      "sources": [
+        "뉴스"
+      ],
+      "keywords": [
+        "폰교체패스",
+        "폰교체패스 신청",
+        "강화 폰교체패스"
+      ],
+      "sample": [
+        "LG유플러스 '폰교체패스', 아시아 혁신상 수상 … 단말 케어 절차 간소...",
+        "LGU+, '폰교체패스' 서비스로 아시아 혁신상···수리비 부담 줄였다"
+      ]
+    },
+    {
       "term": "청년월세",
       "stage": "steady",
       "isNew": false,
@@ -1005,11 +983,11 @@
       "fromPeak": 15,
       "weekly": [
         3.4,
-        3.4,
-        9.2,
-        4,
+        3.2,
+        9,
+        3.7,
         2.1,
-        1.6,
+        1.5,
         1.4,
         1.4
       ],
@@ -1029,52 +1007,42 @@
       "sample": []
     },
     {
-      "term": "사랑상품권",
+      "term": "지방세 환급금",
       "stage": "steady",
       "isNew": false,
       "score": 0.9,
       "season": null,
-      "level": 1.8,
-      "base": 3.8,
-      "growth": 0.5,
-      "fromPeak": 9,
+      "level": 0.3,
+      "base": 0.1,
+      "growth": 2.4,
+      "fromPeak": 100,
       "weekly": [
-        19.3,
-        4.3,
-        3.2,
-        4.2,
-        4.7,
-        5.1,
-        1.6,
-        1.8
+        0.2,
+        0.2,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.1,
+        0.3
       ],
-      "regions": [
-        {
-          "name": "포항",
-          "count": 5
-        },
-        {
-          "name": "남양주",
-          "count": 1
-        }
-      ],
-      "mentions": 6,
-      "firstSeen": "2026-09-02",
-      "posts": 2,
-      "lastPost": "2026-10-10",
+      "regions": [],
+      "mentions": 8,
+      "firstSeen": "2026-10-02",
+      "posts": 0,
+      "lastPost": null,
       "queued": 0,
       "sources": [
         "뉴스"
       ],
       "keywords": [
-        "사랑상품권",
-        "사랑상품권 신청",
-        "포항 사랑상품권",
-        "남양주 사랑상품권"
+        "지방세 환급금",
+        "지방세환급금",
+        "지방세 환급금 신청"
       ],
       "sample": [
-        "포항시, 11월 2일 올해 마지막 포항사랑상품권 344억 할인 판매",
-        "포항시, 올해 마지막 포항사랑상품권 344억 원…11월 2일 10% 할인판매"
+        "지방세 환급금, 민간 앱으로 받는다",
+        "지방세 환급금, 이제 카카오 등 어플에서 조회·청구 가능"
       ]
     },
     {
@@ -1085,20 +1053,20 @@
       "season": null,
       "level": 0.5,
       "base": 0.4,
-      "growth": 1.3,
-      "fromPeak": 71,
+      "growth": 1.2,
+      "fromPeak": 70,
       "weekly": [
         0.6,
         0.7,
         0.6,
         0.3,
-        0.4,
-        0.4,
+        0.5,
+        0.3,
         0.4,
         0.5
       ],
       "regions": [],
-      "mentions": 24,
+      "mentions": 3,
       "firstSeen": "2026-10-21",
       "posts": 0,
       "lastPost": null,
@@ -1116,89 +1084,6 @@
       ]
     },
     {
-      "term": "지방세 환급금",
-      "stage": "steady",
-      "isNew": false,
-      "score": 0.5,
-      "season": null,
-      "level": 0.2,
-      "base": 0.1,
-      "growth": 2.1,
-      "fromPeak": 92,
-      "weekly": [
-        0.2,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.1,
-        0.2
-      ],
-      "regions": [],
-      "mentions": 21,
-      "firstSeen": "2026-10-02",
-      "posts": 0,
-      "lastPost": null,
-      "queued": 0,
-      "sources": [
-        "뉴스"
-      ],
-      "keywords": [
-        "지방세 환급금",
-        "지방세환급금",
-        "지방세 환급금 신청"
-      ],
-      "sample": [
-        "지방세 환급금, 12월부터 민간 앱으로 간편 신청",
-        "[포토]지방세 환급금 조회·환급 서비스 관계기관 업무협약식 개최"
-      ]
-    },
-    {
-      "term": "꿈나무카드",
-      "stage": "steady",
-      "isNew": true,
-      "score": 0.5,
-      "season": null,
-      "level": 0.3,
-      "base": 0.2,
-      "growth": 1.3,
-      "fromPeak": 70,
-      "weekly": [
-        0.4,
-        0.3,
-        0.2,
-        0.2,
-        0.1,
-        0.3,
-        0.2,
-        0.3
-      ],
-      "regions": [
-        {
-          "name": "서울",
-          "count": 2
-        }
-      ],
-      "mentions": 4,
-      "firstSeen": "2026-10-21",
-      "posts": 0,
-      "lastPost": null,
-      "queued": 0,
-      "sources": [
-        "뉴스"
-      ],
-      "keywords": [
-        "꿈나무카드",
-        "꿈나무카드 신청",
-        "서울 꿈나무카드"
-      ],
-      "sample": [
-        "신한 '땡겨요', 꿈나무카드 결제 도입…아동급식 가맹점 2만곳서 주문",
-        "신한 땡겨요, 꿈나무카드 결제 도입…아동급식 가맹점 2만곳서 주문"
-      ]
-    },
-    {
       "term": "반값 할인",
       "stage": "steady",
       "isNew": false,
@@ -1206,8 +1091,8 @@
       "season": null,
       "level": 0.3,
       "base": 0.3,
-      "growth": 1.1,
-      "fromPeak": 92,
+      "growth": 1,
+      "fromPeak": 82,
       "weekly": [
         0,
         0.1,
@@ -1224,7 +1109,7 @@
           "count": 2
         }
       ],
-      "mentions": 3,
+      "mentions": 9,
       "firstSeen": "2026-09-02",
       "posts": 0,
       "lastPost": null,
@@ -1239,8 +1124,53 @@
         "인천 반값 할인"
       ],
       "sample": [
-        "충남세종농협, 쪽파 가공식품 반값 할인 판매",
-        "인천시, '연안부두&수산물 축제' 개최... \"꽃게 반값 할인 행사 진행\""
+        "쿠팡 로켓프레시, 햅쌀·햇과일 등 600여종 최대 반값 할인",
+        "쿠팡, 가을 햇상품 600여개 최대 반값 할인"
+      ]
+    },
+    {
+      "term": "청소년 바우처",
+      "stage": "steady",
+      "isNew": true,
+      "score": 0.2,
+      "season": null,
+      "level": 0.1,
+      "base": 0.1,
+      "growth": 1.9,
+      "fromPeak": 97,
+      "weekly": [
+        0.1,
+        0.1,
+        0.1,
+        0,
+        0.1,
+        0.1,
+        0.1,
+        0.1
+      ],
+      "regions": [
+        {
+          "name": "평창",
+          "count": 1
+        }
+      ],
+      "mentions": 3,
+      "firstSeen": "2026-10-22",
+      "posts": 0,
+      "lastPost": null,
+      "queued": 0,
+      "sources": [
+        "뉴스"
+      ],
+      "keywords": [
+        "청소년 바우처",
+        "청소년바우처",
+        "청소년 바우처 신청",
+        "평창 청소년 바우처"
+      ],
+      "sample": [
+        "평창 청소년 바우처 지원 10세까지 확대…금액·횟수 제한 없애고 운영...",
+        "평창군의회, 청소년 바우처 지원 연령 확대…10세부터 혜택"
       ]
     },
     {
@@ -1266,10 +1196,10 @@
       "regions": [
         {
           "name": "평창",
-          "count": 2
+          "count": 3
         }
       ],
-      "mentions": 4,
+      "mentions": 3,
       "firstSeen": "2026-10-14",
       "posts": 0,
       "lastPost": null,
@@ -1284,8 +1214,8 @@
         "평창 꿈키움 바우처"
       ],
       "sample": [
-        "평창군 청소년 꿈키움 바우처, 지원 대상 10세까지 확대한다",
-        "평창 청소년 꿈키움 바우처 10세까지 확대 추진"
+        "평창 청소년 꿈키움 바우처 문턱 낮춘다…10~18세로 확대 추진",
+        "평창군 청소년 꿈키움 바우처, 지원 대상 10세까지 확대한다"
       ]
     },
     {
@@ -1309,7 +1239,7 @@
         0
       ],
       "regions": [],
-      "mentions": 10,
+      "mentions": 11,
       "firstSeen": "2026-10-21",
       "posts": 0,
       "lastPost": null,
@@ -1322,14 +1252,14 @@
         "후원수당 신청"
       ],
       "sample": [
-        "공정위, 유니시티코리아 '후원수당 지급한도 위반 의혹'에 동의의결 절...",
-        "'후원수당 지급한도 초과' 유니시티 코리아, 동의의결 개시"
+        "유니시티코리아, 후원수당 35% 상한 우회 의혹…공정위, 첫 동의의결 절...",
+        "공정위, 유니시티코리아 '후원수당 지급한도 위반 의혹'에 동의의결 절..."
       ]
     },
     {
-      "term": "렌탈료 할인",
+      "term": "포인트 상품권",
       "stage": "steady",
-      "isNew": true,
+      "isNew": false,
       "score": 0,
       "season": null,
       "level": 0,
@@ -1347,8 +1277,8 @@
         0
       ],
       "regions": [],
-      "mentions": 4,
-      "firstSeen": "2026-10-20",
+      "mentions": 9,
+      "firstSeen": "2026-10-08",
       "posts": 0,
       "lastPost": null,
       "queued": 0,
@@ -1356,13 +1286,90 @@
         "뉴스"
       ],
       "keywords": [
-        "렌탈료 할인",
-        "렌탈료할인",
-        "렌탈료 할인 신청"
+        "포인트 상품권",
+        "포인트상품권",
+        "포인트 상품권 신청"
       ],
       "sample": [
-        "코웨이, 정수기·공기청정기 등 신규 렌탈료 할인…최대 12개월 월 1만원",
-        "코웨이, 정수기·공기청정기·비데 렌탈료 할인…최대 12개월 월 1만원"
+        "KT알파 기프티쇼, 여러 브랜드서 골라 쓰는 포인트 상품권 출시",
+        "“원하는 상품 골라 쓴다”...업계 최초 ‘통합 포인트 상품권’"
+      ]
+    },
+    {
+      "term": "디지털 바우처",
+      "stage": "steady",
+      "isNew": true,
+      "score": 0,
+      "season": null,
+      "level": 0,
+      "base": 0,
+      "growth": 1,
+      "fromPeak": 0,
+      "weekly": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "regions": [],
+      "mentions": 7,
+      "firstSeen": "2026-10-23",
+      "posts": 0,
+      "lastPost": null,
+      "queued": 0,
+      "sources": [
+        "뉴스"
+      ],
+      "keywords": [
+        "디지털 바우처",
+        "디지털바우처",
+        "디지털 바우처 신청"
+      ],
+      "sample": [
+        "이정헌 의원 “통신요금 감면 넘어 AI·콘텐츠 지원”…‘디지털 바우처...",
+        "이정헌 의원 “취약계층 통신감면, 디지털 바우처로 바꿔야…AI·콘텐츠..."
+      ]
+    },
+    {
+      "term": "미환급금",
+      "stage": "steady",
+      "isNew": false,
+      "score": 0,
+      "season": null,
+      "level": 0,
+      "base": 0,
+      "growth": 1,
+      "fromPeak": 87,
+      "weekly": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "regions": [],
+      "mentions": 6,
+      "firstSeen": "2026-10-03",
+      "posts": 0,
+      "lastPost": null,
+      "queued": 0,
+      "sources": [
+        "뉴스"
+      ],
+      "keywords": [
+        "미환급금",
+        "미환급금 신청"
+      ],
+      "sample": [
+        "한준호 의원 \"통신 3사 미환급금 5년째 30억원 안팎…63만 건 쌓여\"",
+        "통신 3사 미환급금 5년째 30억원 안팎…63만건 주인 못 찾아"
       ]
     },
     {
@@ -1386,7 +1393,7 @@
         0
       ],
       "regions": [],
-      "mentions": 4,
+      "mentions": 5,
       "firstSeen": "2026-10-22",
       "posts": 0,
       "lastPost": null,
@@ -1400,12 +1407,12 @@
         "식량 바우처 신청"
       ],
       "sample": [
-        "기아대책, 레바논 분쟁 피해주민 2천명에 식량 바우처 지원",
-        "기아대책, 레바논 분쟁 피해 2000여명에 식량 바우처 지원"
+        "기아대책, 레바논 분쟁 피해 주민 2천여 명에 식량 바우처 지원",
+        "기아대책, 레바논 분쟁 피해주민 2천명에 식량 바우처 지원"
       ]
     },
     {
-      "term": "렌탈 할인",
+      "term": "통신요금 감면",
       "stage": "steady",
       "isNew": true,
       "score": 0,
@@ -1413,12 +1420,12 @@
       "level": 0,
       "base": 0,
       "growth": 1,
-      "fromPeak": null,
+      "fromPeak": 0,
       "weekly": [
         0,
         0,
         0,
-        0,
+        0.2,
         0,
         0,
         0,
@@ -1426,59 +1433,21 @@
       ],
       "regions": [],
       "mentions": 4,
-      "firstSeen": "2026-10-20",
-      "posts": 0,
-      "lastPost": null,
+      "firstSeen": "2026-10-23",
+      "posts": 1,
+      "lastPost": "2026-06-20",
       "queued": 0,
       "sources": [
         "뉴스"
       ],
       "keywords": [
-        "렌탈 할인",
-        "렌탈할인",
-        "렌탈 할인 신청"
+        "통신요금 감면",
+        "통신요금감면",
+        "통신요금 감면 신청"
       ],
       "sample": [
-        "“정수기부터 비데까지 월 1만원”…코웨이, 10월 한정 렌탈 할인",
-        "코웨이, 정수기·공기청정기·비데 렌탈 할인-최대 12개월 월 1만원"
-      ]
-    },
-    {
-      "term": "농촌여행",
-      "stage": "steady",
-      "isNew": false,
-      "score": 0,
-      "season": null,
-      "level": 0,
-      "base": 0,
-      "growth": 1,
-      "fromPeak": 29,
-      "weekly": [
-        0,
-        0.1,
-        0.1,
-        0,
-        0,
-        0,
-        0,
-        0
-      ],
-      "regions": [],
-      "mentions": 3,
-      "firstSeen": "2026-09-02",
-      "posts": 0,
-      "lastPost": null,
-      "queued": 0,
-      "sources": [
-        "뉴스"
-      ],
-      "keywords": [
-        "농촌여행",
-        "농촌여행 신청"
-      ],
-      "sample": [
-        "농촌여행도 취향 따라 즐긴다…농식품부, 23일부터 ‘촌캉스’ 체험 캠...",
-        "가을 농촌여행 어디로 갈까…내 취향 찾고 기부까지 하는 '촌캉스'"
+        "이정헌 의원 “통신요금 감면 넘어 AI·콘텐츠 지원”…‘디지털 바우처...",
+        "\"통신요금 감면, 디지털 바우처로 바꾸자…AI·콘텐츠까지 지원\""
       ]
     },
     {
@@ -1492,7 +1461,7 @@
       "growth": 1,
       "fromPeak": 0,
       "weekly": [
-        0,
+        0.1,
         0.2,
         0.3,
         0.3,
@@ -1554,28 +1523,106 @@
       "sample": []
     },
     {
+      "term": "청년미래적금",
+      "stage": "fading",
+      "isNew": false,
+      "score": 311.2,
+      "season": null,
+      "level": 622.4,
+      "base": 1266.8,
+      "growth": 0.5,
+      "fromPeak": 29,
+      "weekly": [
+        491.1,
+        396.5,
+        477.3,
+        391.6,
+        565.6,
+        1549.7,
+        1685.2,
+        622.4
+      ],
+      "regions": [],
+      "mentions": 1,
+      "firstSeen": "2026-09-02",
+      "posts": 17,
+      "lastPost": "2026-10-10",
+      "queued": 13,
+      "sources": [
+        "감시 목록"
+      ],
+      "keywords": [
+        "청년미래적금",
+        "청년미래적금 신청"
+      ],
+      "sample": [
+        "[경제야 놀자!] 청년도약계좌→청년미래적금 '갈아타기' 유리할까?"
+      ]
+    },
+    {
+      "term": "청년도약계좌",
+      "stage": "fading",
+      "isNew": false,
+      "score": 36.2,
+      "season": {
+        "up": 0.9,
+        "month": 12,
+        "lastYear": 213.6
+      },
+      "level": 60.4,
+      "base": 98,
+      "growth": 0.6,
+      "fromPeak": 50,
+      "weekly": [
+        70.3,
+        65.4,
+        69.2,
+        60.3,
+        84.5,
+        104.6,
+        104.7,
+        60.4
+      ],
+      "regions": [],
+      "mentions": 1,
+      "firstSeen": "2026-10-06",
+      "posts": 3,
+      "lastPost": "2026-09-28",
+      "queued": 2,
+      "sources": [
+        "감시 목록"
+      ],
+      "keywords": [
+        "청년도약계좌",
+        "청년도약계좌 신청"
+      ],
+      "sample": [
+        "[경제야 놀자!] 청년도약계좌→청년미래적금 '갈아타기' 유리할까?"
+      ]
+    },
+    {
       "term": "숙박세일페스타",
       "stage": "fading",
       "isNew": false,
-      "score": 8.9,
+      "score": 8.5,
       "season": {
         "up": 1.4,
         "month": 11,
         "lastYear": 21.7
       },
-      "level": 14.9,
-      "base": 23.1,
+      "level": 14.1,
+      "base": 22.4,
       "growth": 0.6,
-      "fromPeak": 42,
+      "fromPeak": 41,
       "weekly": [
-        5.4,
-        4.2,
-        5.6,
-        26.2,
-        27.3,
-        24.9,
-        17.1,
-        14.9
+        5.2,
+        4.1,
+        6.4,
+        27.5,
+        28.4,
+        22.6,
+        16.2,
+        14.1
       ],
       "regions": [],
       "mentions": 0,
@@ -1596,21 +1643,21 @@
       "term": "든든전세",
       "stage": "fading",
       "isNew": false,
-      "score": 4.6,
+      "score": 3.7,
       "season": null,
-      "level": 7.6,
-      "base": 13.3,
-      "growth": 0.6,
-      "fromPeak": 40,
+      "level": 7.3,
+      "base": 13.5,
+      "growth": 0.5,
+      "fromPeak": 39,
       "weekly": [
         4.6,
-        4.5,
-        3.7,
-        3.7,
-        6.3,
-        15.5,
-        18.2,
-        7.6
+        4.4,
+        3.5,
+        3.2,
+        9.4,
+        13.9,
+        17.1,
+        7.3
       ],
       "regions": [],
       "mentions": 0,
@@ -1665,7 +1712,9 @@
         "2026-10-15": 2,
         "2026-10-19": 3,
         "2026-10-20": 3,
-        "2026-10-21": 3
+        "2026-10-21": 3,
+        "2026-10-23": 1,
+        "2026-10-22": 1
       }
     },
     "의료급여": {
@@ -1750,7 +1799,8 @@
       "term": "국고보조금",
       "first": "2026-09-02",
       "days": {
-        "2026-10-01": 1
+        "2026-10-01": 1,
+        "2026-10-23": 1
       }
     },
     "취업지원금": {
@@ -1860,7 +1910,8 @@
         "2026-10-13": 1,
         "2026-10-14": 1,
         "2026-10-15": 3,
-        "2026-10-16": 1
+        "2026-10-16": 1,
+        "2026-10-22": 1
       }
     },
     "도약장려금": {
@@ -1921,7 +1972,8 @@
       "first": "2026-09-02",
       "days": {
         "2026-09-30": 1,
-        "2026-10-19": 2
+        "2026-10-19": 2,
+        "2026-10-22": 1
       }
     },
     "청년내일저축계좌": {
@@ -1969,7 +2021,8 @@
         "2026-10-19": 4,
         "2026-10-20": 7,
         "2026-10-21": 11,
-        "2026-10-22": 5
+        "2026-10-22": 10,
+        "2026-10-23": 10
       }
     },
     "선불카드": {
@@ -2019,7 +2072,8 @@
         "2026-10-18": 2,
         "2026-10-20": 2,
         "2026-10-21": 5,
-        "2026-10-22": 13
+        "2026-10-22": 13,
+        "2026-10-23": 2
       }
     },
     "충전카드": {
@@ -2049,7 +2103,8 @@
       "days": {
         "2026-10-01": 1,
         "2026-09-30": 7,
-        "2026-10-19": 1
+        "2026-10-19": 1,
+        "2026-10-23": 1
       }
     },
     "인상교통비": {
@@ -2099,7 +2154,8 @@
       "term": "요금 할인",
       "first": "2026-09-02",
       "days": {
-        "2026-10-02": 1
+        "2026-10-02": 1,
+        "2026-10-23": 1
       }
     },
     "추석할인": {
@@ -2131,7 +2187,8 @@
         "2026-10-04": 1,
         "2026-10-06": 1,
         "2026-10-14": 1,
-        "2026-10-17": 2
+        "2026-10-17": 2,
+        "2026-10-23": 1
       }
     },
     "장례비용할인": {
@@ -2305,7 +2362,8 @@
       "term": "멤버십 할인",
       "first": "2026-09-02",
       "days": {
-        "2026-10-01": 1
+        "2026-10-01": 1,
+        "2026-10-23": 1
       }
     },
     "출시여행": {
@@ -2335,7 +2393,8 @@
         "2026-10-17": 1,
         "2026-10-19": 3,
         "2026-10-20": 3,
-        "2026-10-21": 1
+        "2026-10-21": 1,
+        "2026-10-23": 1
       }
     },
     "모두카드": {
@@ -2396,7 +2455,9 @@
         "2026-10-09": 1,
         "2026-10-14": 4,
         "2026-10-18": 3,
-        "2026-10-21": 3
+        "2026-10-21": 3,
+        "2026-10-23": 4,
+        "2026-10-22": 2
       }
     },
     "간편식할인": {
@@ -2706,7 +2767,8 @@
       "first": "2026-09-02",
       "days": {
         "2026-10-01": 2,
-        "2026-10-02": 1
+        "2026-10-02": 1,
+        "2026-10-23": 1
       }
     },
     "스벅상품권": {
@@ -2729,7 +2791,8 @@
         "2026-10-10": 1,
         "2026-10-12": 2,
         "2026-10-13": 1,
-        "2026-10-16": 1
+        "2026-10-16": 1,
+        "2026-10-23": 1
       }
     },
     "부의장지역화폐": {
@@ -2770,7 +2833,8 @@
         "2026-10-16": 1,
         "2026-10-18": 1,
         "2026-10-20": 15,
-        "2026-10-22": 2
+        "2026-10-22": 4,
+        "2026-10-23": 2
       }
     },
     "다함께페스타": {
@@ -3145,7 +3209,8 @@
       "days": {
         "2026-10-02": 5,
         "2026-10-07": 1,
-        "2026-10-21": 1
+        "2026-10-21": 1,
+        "2026-10-23": 1
       }
     },
     "폐업지원금": {
@@ -3220,7 +3285,8 @@
         "2026-10-16": 1,
         "2026-10-17": 1,
         "2026-10-19": 1,
-        "2026-10-22": 5
+        "2026-10-22": 5,
+        "2026-10-23": 2
       }
     },
     "국민건강보험환급금": {
@@ -3249,7 +3315,8 @@
         "2026-10-19": 1,
         "2026-10-18": 2,
         "2026-10-21": 1,
-        "2026-10-22": 21
+        "2026-10-22": 21,
+        "2026-10-23": 4
       }
     },
     "필수계좌": {
@@ -3322,7 +3389,8 @@
         "2026-10-15": 1,
         "2026-10-16": 1,
         "2026-10-20": 2,
-        "2026-10-21": 1
+        "2026-10-21": 1,
+        "2026-10-23": 2
       }
     },
     "사면할인": {
@@ -3348,7 +3416,7 @@
         "2026-10-06": 1,
         "2026-10-15": 4,
         "2026-10-16": 1,
-        "2026-10-22": 1,
+        "2026-10-22": 2,
         "2026-10-21": 1
       }
     },
@@ -3382,7 +3450,8 @@
         "2026-10-16": 1,
         "2026-10-19": 1,
         "2026-10-20": 1,
-        "2026-10-22": 1
+        "2026-10-22": 1,
+        "2026-10-23": 1
       }
     },
     "수하물할인": {
@@ -3599,7 +3668,8 @@
         "2026-10-06": 1,
         "2026-10-08": 1,
         "2026-10-10": 1,
-        "2026-10-22": 1
+        "2026-10-22": 1,
+        "2026-10-23": 1
       }
     },
     "패키지여행": {
@@ -3626,7 +3696,9 @@
         "2026-10-14": 1,
         "2026-10-20": 1,
         "2026-10-19": 1,
-        "2026-10-21": 2
+        "2026-10-21": 2,
+        "2026-10-23": 2,
+        "2026-10-22": 1
       }
     },
     "기후동행카드": {
@@ -3647,7 +3719,8 @@
         "2026-10-13": 5,
         "2026-10-14": 6,
         "2026-10-15": 6,
-        "2026-10-18": 1
+        "2026-10-18": 1,
+        "2026-10-23": 6
       }
     },
     "보험금환급금": {
@@ -3672,7 +3745,7 @@
         "2026-10-03": 1,
         "2026-10-12": 4,
         "2026-10-21": 1,
-        "2026-10-22": 1
+        "2026-10-22": 2
       }
     },
     "트래블카드": {
@@ -3868,7 +3941,8 @@
         "2026-10-03": 1,
         "2026-10-07": 3,
         "2026-10-16": 1,
-        "2026-10-19": 2
+        "2026-10-19": 2,
+        "2026-10-23": 1
       }
     },
     "아웃도어할인": {
@@ -3885,7 +3959,8 @@
       "days": {
         "2026-10-02": 1,
         "2026-10-20": 1,
-        "2026-10-22": 1
+        "2026-10-22": 1,
+        "2026-10-23": 1
       }
     },
     "반납지원금": {
@@ -3925,7 +4000,8 @@
       "term": "국세환급금",
       "first": "2026-10-04",
       "days": {
-        "2026-10-03": 1
+        "2026-10-03": 1,
+        "2026-10-22": 1
       }
     },
     "조회계좌": {
@@ -4023,7 +4099,8 @@
       "days": {
         "2026-10-04": 2,
         "2026-10-13": 10,
-        "2026-10-15": 1
+        "2026-10-15": 1,
+        "2026-10-23": 1
       }
     },
     "무료할인": {
@@ -4159,7 +4236,8 @@
       "term": "은행 계좌",
       "first": "2026-10-04",
       "days": {
-        "2026-10-04": 1
+        "2026-10-04": 1,
+        "2026-10-23": 1
       }
     },
     "녹색건축물지원사업": {
@@ -4596,7 +4674,8 @@
       "term": "보청기 지원금",
       "first": "2026-10-06",
       "days": {
-        "2026-10-06": 1
+        "2026-10-06": 1,
+        "2026-10-23": 1
       }
     },
     "보장구급여": {
@@ -4906,7 +4985,8 @@
       "first": "2026-10-06",
       "days": {
         "2026-10-06": 1,
-        "2026-10-08": 1
+        "2026-10-08": 1,
+        "2026-10-23": 1
       }
     },
     "지원상품권": {
@@ -4963,7 +5043,8 @@
       "days": {
         "2026-10-06": 2,
         "2026-10-07": 3,
-        "2026-10-12": 1
+        "2026-10-12": 1,
+        "2026-10-22": 1
       }
     },
     "건보료환급금": {
@@ -5160,7 +5241,8 @@
       "term": "고객 할인",
       "first": "2026-10-07",
       "days": {
-        "2026-10-06": 1
+        "2026-10-06": 1,
+        "2026-10-23": 1
       }
     },
     "반찬쿠폰": {
@@ -5188,7 +5270,8 @@
       "term": "커피 쿠폰",
       "first": "2026-10-07",
       "days": {
-        "2026-10-06": 1
+        "2026-10-06": 1,
+        "2026-10-23": 1
       }
     },
     "포인트쿠폰": {
@@ -5226,7 +5309,8 @@
       "days": {
         "2026-10-07": 1,
         "2026-10-20": 2,
-        "2026-10-21": 3
+        "2026-10-21": 3,
+        "2026-10-23": 2
       }
     },
     "지역맛여행": {
@@ -5471,7 +5555,8 @@
       "term": "구독료 할인",
       "first": "2026-10-07",
       "days": {
-        "2026-10-07": 1
+        "2026-10-07": 1,
+        "2026-10-23": 1
       }
     },
     "카카오페할인": {
@@ -6178,7 +6263,8 @@
       "term": "포인트 상품권",
       "first": "2026-10-08",
       "days": {
-        "2026-10-08": 1
+        "2026-10-08": 1,
+        "2026-10-23": 9
       }
     },
     "충전캐시백": {
@@ -6192,7 +6278,8 @@
       "term": "카드사 캐시백",
       "first": "2026-10-08",
       "days": {
-        "2026-10-08": 1
+        "2026-10-08": 1,
+        "2026-10-22": 1
       }
     },
     "가을맞할인": {
@@ -7091,7 +7178,8 @@
       "term": "온수매트 할인",
       "first": "2026-10-12",
       "days": {
-        "2026-10-12": 1
+        "2026-10-12": 1,
+        "2026-10-23": 1
       }
     },
     "스파할인": {
@@ -7751,7 +7839,8 @@
       "term": "미래에셋생명 퇴직연금",
       "first": "2026-10-13",
       "days": {
-        "2026-10-13": 1
+        "2026-10-13": 1,
+        "2026-10-23": 1
       }
     },
     "특별한여행": {
@@ -7982,7 +8071,8 @@
       "days": {
         "2026-10-14": 3,
         "2026-10-21": 2,
-        "2026-10-22": 2
+        "2026-10-22": 2,
+        "2026-10-23": 1
       }
     },
     "블루여행": {
@@ -8046,7 +8136,8 @@
       "first": "2026-10-14",
       "days": {
         "2026-10-14": 1,
-        "2026-10-16": 1
+        "2026-10-16": 1,
+        "2026-10-23": 1
       }
     },
     "사면상품권": {
@@ -8457,7 +8548,8 @@
       "first": "2026-10-15",
       "days": {
         "2026-10-15": 1,
-        "2026-10-21": 1
+        "2026-10-21": 1,
+        "2026-10-22": 1
       }
     },
     "사랑패스": {
@@ -9117,7 +9209,8 @@
       "term": "구독 할인",
       "first": "2026-10-17",
       "days": {
-        "2026-10-16": 1
+        "2026-10-16": 1,
+        "2026-10-23": 1
       }
     },
     "기저귀바우처": {
@@ -9498,7 +9591,8 @@
       "term": "달빛상품권",
       "first": "2026-10-19",
       "days": {
-        "2026-10-19": 18
+        "2026-10-19": 18,
+        "2026-10-23": 2
       }
     },
     "부담할인": {
@@ -9610,7 +9704,8 @@
       "term": "규모 할인",
       "first": "2026-10-19",
       "days": {
-        "2026-10-19": 1
+        "2026-10-19": 1,
+        "2026-10-23": 1
       }
     },
     "산청여행": {
@@ -9871,7 +9966,8 @@
       "first": "2026-10-20",
       "days": {
         "2026-10-20": 3,
-        "2026-10-22": 1
+        "2026-10-22": 1,
+        "2026-10-23": 1
       }
     },
     "앞두고연금": {
@@ -10277,7 +10373,8 @@
       "term": "와우회원 할인",
       "first": "2026-10-20",
       "days": {
-        "2026-10-20": 1
+        "2026-10-20": 1,
+        "2026-10-23": 1
       }
     },
     "편한여행": {
@@ -10475,7 +10572,8 @@
       "first": "2026-10-21",
       "days": {
         "2026-10-21": 14,
-        "2026-10-22": 13
+        "2026-10-22": 13,
+        "2026-10-23": 2
       }
     },
     "배달비쿠폰": {
@@ -10665,7 +10763,8 @@
       "term": "후원수당",
       "first": "2026-10-21",
       "days": {
-        "2026-10-21": 10
+        "2026-10-21": 10,
+        "2026-10-22": 1
       }
     },
     "다단계판매수당": {
@@ -10714,7 +10813,8 @@
       "term": "은퇴계좌",
       "first": "2026-10-22",
       "days": {
-        "2026-10-21": 1
+        "2026-10-21": 1,
+        "2026-10-23": 1
       }
     },
     "추석지원금": {
@@ -10833,14 +10933,15 @@
       "term": "식량 바우처",
       "first": "2026-10-22",
       "days": {
-        "2026-10-22": 4
+        "2026-10-22": 4,
+        "2026-10-23": 1
       }
     },
     "청소년바우처": {
       "term": "청소년 바우처",
       "first": "2026-10-22",
       "days": {
-        "2026-10-22": 1
+        "2026-10-22": 3
       }
     },
     "키움바우처": {
@@ -10917,7 +11018,7 @@
       "term": "일반카드",
       "first": "2026-10-22",
       "days": {
-        "2026-10-22": 1
+        "2026-10-22": 2
       }
     },
     "과천토리카드": {
@@ -11016,6 +11117,321 @@
       "first": "2026-10-22",
       "days": {
         "2026-10-21": 1
+      }
+    },
+    "근속지원금": {
+      "term": "근속지원금",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "개발지원금": {
+      "term": "개발지원금",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "철강보조금": {
+      "term": "철강 보조금",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "폰교체패스": {
+      "term": "폰교체패스",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 26
+      }
+    },
+    "청년할인": {
+      "term": "청년할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "대출환급금": {
+      "term": "대출 환급금",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "반값플렉스여행": {
+      "term": "반값플렉스여행",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "이상국민연금": {
+      "term": "이상 국민연금",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "매장할인": {
+      "term": "매장 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-22": 1
+      }
+    },
+    "지역할인": {
+      "term": "지역 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "통신요금감면": {
+      "term": "통신요금 감면",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 4
+      }
+    },
+    "디지털바우처": {
+      "term": "디지털 바우처",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 7
+      }
+    },
+    "통신감면": {
+      "term": "통신감면",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "하나은행카드": {
+      "term": "하나은행 카드",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "포켓몬카드": {
+      "term": "포켓몬 카드",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "소진할인": {
+      "term": "소진 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "삼성생명퇴직연금": {
+      "term": "삼성생명 퇴직연금",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 2
+      }
+    },
+    "필수템할인": {
+      "term": "필수템 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "통신비감면": {
+      "term": "통신비 감면",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 2
+      }
+    },
+    "선택하바우처": {
+      "term": "선택하 바우처",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "받고할인": {
+      "term": "받고 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "화재공제보조금": {
+      "term": "화재공제 보조금",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "워치바우처": {
+      "term": "워치 바우처",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-22": 1
+      }
+    },
+    "공공배달앱할인": {
+      "term": "공공배달앱 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "마이리얼트립여행": {
+      "term": "마이리얼트립 여행",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "영화여행": {
+      "term": "영화 여행",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "감사쿠폰": {
+      "term": "감사쿠폰",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "잡아라할인": {
+      "term": "잡아라 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "나흘간할인": {
+      "term": "나흘간 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "바로할인": {
+      "term": "바로할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "충전한캐시백": {
+      "term": "충전한 캐시백",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "이달카드": {
+      "term": "이달 카드",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "이용하면지역화폐": {
+      "term": "이용하면 지역화폐",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "상품백서카드": {
+      "term": "상품백서 카드",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "연말캐시백": {
+      "term": "연말 캐시백",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-22": 1
+      }
+    },
+    "중국여행": {
+      "term": "중국 여행",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-22": 1
+      }
+    },
+    "연말지역화폐": {
+      "term": "연말 지역화폐",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-22": 1
+      }
+    },
+    "깨고지역화폐": {
+      "term": "깨고 지역화폐",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-22": 1
+      }
+    },
+    "전북은행계좌": {
+      "term": "전북은행 계좌",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-22": 1
+      }
+    },
+    "바퀴여행": {
+      "term": "바퀴 여행",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "부진할인": {
+      "term": "부진 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "가전제품할인": {
+      "term": "가전제품 할인",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "진수당": {
+      "term": "진수당",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "포켓몬신용카드": {
+      "term": "포켓몬 신용카드",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
+      }
+    },
+    "공무원퇴직연금": {
+      "term": "공무원 퇴직연금",
+      "first": "2026-10-23",
+      "days": {
+        "2026-10-23": 1
       }
     }
   }
