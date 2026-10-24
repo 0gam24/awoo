@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 377,
-    "entryCount": 120,
+    "scannedPosts": 378,
+    "entryCount": 121,
     "regionCount": 63,
     "regions": [
       "강릉",
@@ -72,13 +72,13 @@
       "횡성"
     ],
     "families": {
-      "A": 84,
+      "A": 85,
       "B": 22,
       "V": 14
     },
     "clusters": {
       "minsaeng": 63,
-      "other": 57
+      "other": 58
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -3120,6 +3120,31 @@
       "regionOverride": true,
       "familyOverride": true,
       "clusterOverride": true
+    },
+    {
+      "region": [
+        "강화"
+      ],
+      "family": "A",
+      "slug": "ganghwa-small-business-grant-2026-10-24",
+      "path": "src/data/issues/2026-10-24/ganghwa-small-business-grant-2026-10-24.json",
+      "date": "2026-10-24",
+      "targetQuery": "강화군 소상공인 지원금",
+      "coreFacts": {
+        "who": "9월 1일 기준 강화군에 사업자등록한 소상공인",
+        "amount": "업체당 30만원, 인천e음 정책수당으로 지급",
+        "deadline": "2026-10-30 신청 마감, 예산 소진 시 조기 마감"
+      },
+      "coreFactsKeys": [
+        "who=2026-09-01",
+        "amount=30만원",
+        "deadline=2026-10-30"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionContext": [
+        "인천"
+      ]
     }
   ]
 }
