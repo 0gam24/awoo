@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 379,
-    "entryCount": 121,
-    "regionCount": 63,
+    "scannedPosts": 383,
+    "entryCount": 125,
+    "regionCount": 65,
     "regions": [
       "강릉",
       "강북구",
@@ -54,12 +54,14 @@
       "유족연금",
       "의령",
       "의성",
+      "인천",
       "장성",
       "장흥",
       "전국",
       "전남",
       "정선",
       "정읍",
+      "제주",
       "창원",
       "청년미래적금",
       "청양",
@@ -72,13 +74,13 @@
       "횡성"
     ],
     "families": {
-      "A": 85,
-      "B": 22,
+      "A": 88,
+      "B": 23,
       "V": 14
     },
     "clusters": {
       "minsaeng": 63,
-      "other": 58
+      "other": 62
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -377,6 +379,38 @@
         "slug": "ontong-daejeon-cashback-2026-10-20",
         "region": [
           "대전"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "incheon-small-business-support-2026-10-25",
+        "region": [
+          "인천"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "ontong-daejeon-where-to-use-2026-10-25",
+        "region": [
+          "대전"
+        ],
+        "family": "B",
+        "cluster": "other"
+      },
+      {
+        "slug": "small-business-hiring-subsidies-2026-10-25",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "tamnaneun-jeon-cashback-2026-10-25",
+        "region": [
+          "제주"
         ],
         "family": "A",
         "cluster": "other"
@@ -3145,6 +3179,101 @@
       "regionContext": [
         "인천"
       ]
+    },
+    {
+      "region": [
+        "인천"
+      ],
+      "family": "A",
+      "slug": "incheon-small-business-support-2026-10-25",
+      "path": "src/data/issues/2026-10-25/incheon-small-business-support-2026-10-25.json",
+      "date": "2026-10-25",
+      "targetQuery": "인천 소상공인 지원금",
+      "coreFacts": {
+        "who": "인천 소상공인, 군·구 사업은 사업장 주소 기준",
+        "amount": "강화군 업체당 30만원, 부평구 융자 이차보전 3%",
+        "deadline": "강화군 2026-10-30, 시 고용보험료 2026-12-18"
+      },
+      "coreFactsKeys": [
+        "amount=30만원",
+        "deadline=2026-10-30"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "대전"
+      ],
+      "family": "B",
+      "slug": "ontong-daejeon-where-to-use-2026-10-25",
+      "path": "src/data/issues/2026-10-25/ontong-daejeon-where-to-use-2026-10-25.json",
+      "date": "2026-10-25",
+      "targetQuery": "온통대전 사용처",
+      "coreFacts": {
+        "who": "온통대전 카드 이용자, 대전 안 가맹점 결제",
+        "amount": "등록 가맹점 6만6,386곳, 착한가격업소 5%p 추가",
+        "deadline": "시장 추가분 2026-11-30, 착한가격업소 2026-12-31까지"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-11-30"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "small-business-hiring-subsidies-2026-10-25",
+      "path": "src/data/issues/2026-10-25/small-business-hiring-subsidies-2026-10-25.json",
+      "date": "2026-10-25",
+      "targetQuery": "소상공인 고용지원금",
+      "coreFacts": {
+        "who": "직원을 뽑거나 계속 쓰는 우선지원대상기업 사업주",
+        "amount": "청년 채용 1년 최대 720만원, 정규직 전환 월 최대 60만원",
+        "deadline": "청년도약은 2026-12-31 채용분까지, 사업별 기한 다름"
+      },
+      "coreFactsKeys": [
+        "amount=720만원",
+        "deadline=2026-12-31"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "제주"
+      ],
+      "family": "A",
+      "slug": "tamnaneun-jeon-cashback-2026-10-25",
+      "path": "src/data/issues/2026-10-25/tamnaneun-jeon-cashback-2026-10-25.json",
+      "date": "2026-10-25",
+      "targetQuery": "탐나는전 캐시백",
+      "coreFacts": {
+        "who": "탐나는전 이용자, 연매출 10억원 이하 가맹점 결제",
+        "amount": "10월 31일까지 월 100만원 결제분의 10%, 최대 10만원",
+        "deadline": "2026-10-31 상향 종료, 이후 월 70만원은 8월 발표 기준"
+      },
+      "coreFactsKeys": [
+        "amount=100만원",
+        "deadline=2026-10-31"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
     }
   ]
 }
