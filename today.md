@@ -2,9 +2,15 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-10-26 12:38 KST
+> 마지막 갱신: 2026-10-27 04:33 KST
 
-## 2026-10-26 (오늘)
+## 2026-10-27 (오늘)
+
+### 📰 신규 이슈 포스트 (1건)
+- `창업` [새출발기금 재산심사 강화, 감면율 30~80% 차등화](https://awoo.or.kr/issues/new-start-fund-reduction-rate-change/)
+  - 새출발기금 원금감면율은 변제가능률 100%를 넘으면 30%, 넘지 않으면 최대 80%로 적용되며 가상자산과 비상장주식도 재산심사에 새로 포함됩니다.
+
+## 2026-10-26
 
 ### 📰 신규 이슈 포스트 (7건)
 - `복지` [부안사랑상품권 선할인이 끝나면 캐시백은 어떻게 쌓이나요?](https://awoo.or.kr/issues/buan-love-gift-certificate-cashback/)
