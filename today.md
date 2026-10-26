@@ -2,11 +2,13 @@
 
 > 매일 06:00 KST `sync-issues` cron 직후 `scripts/update-today-md.mjs` 자동 실행.
 > 최근 30일치 누적. 더 오래된 기록은 git history 참조.
-> 마지막 갱신: 2026-10-26 10:00 KST
+> 마지막 갱신: 2026-10-26 12:38 KST
 
 ## 2026-10-26 (오늘)
 
-### 📰 신규 이슈 포스트 (6건)
+### 📰 신규 이슈 포스트 (7건)
+- `복지` [부안사랑상품권 선할인이 끝나면 캐시백은 어떻게 쌓이나요?](https://awoo.or.kr/issues/buan-love-gift-certificate-cashback/)
+  - 부안군 10월 23일 발표 기준, 누리집 게시 전 내용이에요. 11월 2일부터 충전 할인 대신 결제금액의 12%를 캐시백으로 주고, 보유한도는 70만원으로 줄어요.
 - `창업` [고용유지지원금, 매출 15% 줄었을 때 휴업수당 돌려받는 순서](https://awoo.or.kr/issues/employment-retention-subsidy/)
   - 휴업수당의 3분의 2를 1인 하루 6만8,100원까지 돌려받는 제도예요. 매출이 직전 6개월 평균보다 15% 이상 줄었고, 휴업 전날까지 계획서를 냈나요?
 - `복지` [경기지역화폐 인센티브·사용처와 시군별 충전 혜택 차이](https://awoo.or.kr/issues/gyeonggi-local-currency/)

@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 388,
-    "entryCount": 130,
+    "scannedPosts": 389,
+    "entryCount": 131,
     "regionCount": 65,
     "regions": [
       "강릉",
@@ -75,12 +75,12 @@
     ],
     "families": {
       "A": 92,
-      "B": 24,
+      "B": 25,
       "V": 14
     },
     "clusters": {
       "minsaeng": 63,
-      "other": 67
+      "other": 68
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -413,6 +413,14 @@
           "제주"
         ],
         "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "buan-love-gift-certificate-cashback-2026-10-26",
+        "region": [
+          "부안"
+        ],
+        "family": "B",
         "cluster": "other"
       },
       {
@@ -3308,6 +3316,30 @@
       "coreFactsKeys": [
         "amount=100만원",
         "deadline=2026-10-31"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "부안"
+      ],
+      "family": "B",
+      "slug": "buan-love-gift-certificate-cashback-2026-10-26",
+      "path": "src/data/issues/2026-10-26/buan-love-gift-certificate-cashback-2026-10-26.json",
+      "date": "2026-10-26",
+      "targetQuery": "부안사랑상품권",
+      "coreFacts": {
+        "who": "부안사랑상품권 개인 이용자, 고향사랑페이 카드형",
+        "amount": "결제금액 12% 즉시 캐시백, 보유한도 70만원",
+        "deadline": "2026-11-02 11월 충전 개시일부터 전환"
+      },
+      "coreFactsKeys": [
+        "amount=70만원",
+        "deadline=2026-11-02"
       ],
       "cluster": "other",
       "rollup": false,
