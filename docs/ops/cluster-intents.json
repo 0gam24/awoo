@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 383,
-    "entryCount": 125,
+    "scannedPosts": 388,
+    "entryCount": 130,
     "regionCount": 65,
     "regions": [
       "강릉",
@@ -74,13 +74,13 @@
       "횡성"
     ],
     "families": {
-      "A": 88,
-      "B": 23,
+      "A": 92,
+      "B": 24,
       "V": 14
     },
     "clusters": {
       "minsaeng": 63,
-      "other": 62
+      "other": 67
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -411,6 +411,46 @@
         "slug": "tamnaneun-jeon-cashback-2026-10-25",
         "region": [
           "제주"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "employment-retention-subsidy-2026-10-26",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "gyeonggi-local-currency-2026-10-26",
+        "region": [
+          "경기"
+        ],
+        "family": "B",
+        "cluster": "other"
+      },
+      {
+        "slug": "gyeonggi-support-programs-open-now-2026-10-26",
+        "region": [
+          "경기"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "seoul-hope-double-youth-account-2026-10-26",
+        "region": [
+          "서울"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "sme-youth-worker-support-2026-10-26",
+        "region": [
+          "전국"
         ],
         "family": "A",
         "cluster": "other"
@@ -3268,6 +3308,121 @@
       "coreFactsKeys": [
         "amount=100만원",
         "deadline=2026-10-31"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "employment-retention-subsidy-2026-10-26",
+      "path": "src/data/issues/2026-10-26/employment-retention-subsidy-2026-10-26.json",
+      "date": "2026-10-26",
+      "targetQuery": "고용유지지원금",
+      "coreFacts": {
+        "who": "매출 감소로 휴업·휴직을 실시하는 사업주",
+        "amount": "휴업수당의 3분의 2, 1인 하루 6만8,100원 한도",
+        "deadline": "계획서는 휴업 전날까지, 지급 신청은 3개월 안"
+      },
+      "coreFactsKeys": [],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "경기"
+      ],
+      "family": "B",
+      "slug": "gyeonggi-local-currency-2026-10-26",
+      "path": "src/data/issues/2026-10-26/gyeonggi-local-currency-2026-10-26.json",
+      "date": "2026-10-26",
+      "targetQuery": "경기지역화폐",
+      "coreFacts": {
+        "who": "경기도 31개 시군 지역화폐 이용자",
+        "amount": "인센티브 시군별, 착한가격업소 결제액 5% 추가",
+        "deadline": "2026-12-31 착한가격업소 추가 캐시백 종료"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-12-31"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "경기"
+      ],
+      "family": "A",
+      "slug": "gyeonggi-support-programs-open-now-2026-10-26",
+      "path": "src/data/issues/2026-10-26/gyeonggi-support-programs-open-now-2026-10-26.json",
+      "date": "2026-10-26",
+      "targetQuery": "경기도 지원금",
+      "coreFacts": {
+        "who": "경기도 주민등록 도민, 사업마다 나이·시군 조건",
+        "amount": "아이 교통비 연 24만원 한도, 산후조리비 50만원",
+        "deadline": "교통비 수시, 산후조리비는 출생일 포함 12개월 안"
+      },
+      "coreFactsKeys": [
+        "amount=24만원"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "서울"
+      ],
+      "family": "A",
+      "slug": "seoul-hope-double-youth-account-2026-10-26",
+      "path": "src/data/issues/2026-10-26/seoul-hope-double-youth-account-2026-10-26.json",
+      "date": "2026-10-26",
+      "targetQuery": "희망두배청년통장",
+      "coreFacts": {
+        "who": "서울 거주 만 18~34세 근로 청년, 1991~2008년생",
+        "amount": "월 15만원 저축에 같은 금액 매칭, 3년 원금 1,080만원",
+        "deadline": "2026-11-03 선정 발표 예정, 신규 접수는 6월 19일 마감"
+      },
+      "coreFactsKeys": [
+        "amount=15만원",
+        "deadline=2026-11-03"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "sme-youth-worker-support-2026-10-26",
+      "path": "src/data/issues/2026-10-26/sme-youth-worker-support-2026-10-26.json",
+      "date": "2026-10-26",
+      "targetQuery": "중소기업 청년지원금",
+      "coreFacts": {
+        "who": "중소기업에 정규직으로 들어간 만 15~34세 청년 본인",
+        "amount": "근속 인센티브 2년 최대 720만원, 소득세 연 200만원 한도",
+        "deadline": "2026-12-31 입사분까지, 감면 연장안 국회 심의 중"
+      },
+      "coreFactsKeys": [
+        "amount=720만원",
+        "deadline=2026-12-31"
       ],
       "cluster": "other",
       "rollup": false,
