@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 390,
-    "entryCount": 131,
+    "scannedPosts": 395,
+    "entryCount": 136,
     "regionCount": 65,
     "regions": [
       "강릉",
@@ -74,13 +74,13 @@
       "횡성"
     ],
     "families": {
-      "A": 92,
+      "A": 97,
       "B": 25,
       "V": 14
     },
     "clusters": {
       "minsaeng": 63,
-      "other": 68
+      "other": 73
     },
     "rollups": 9,
     "knownPairEntries": 8,
@@ -457,6 +457,46 @@
       },
       {
         "slug": "sme-youth-worker-support-2026-10-26",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "gyeonggi-youth-support-programs-2026-10-27",
+        "region": [
+          "경기"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "medical-refund-check-2026-10-27",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "pet-support-subsidy-2026-10-27",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "resting-youth-support-2026-10-27",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "youth-support-types-2026-10-27",
         "region": [
           "전국"
         ],
@@ -3455,6 +3495,123 @@
       "coreFactsKeys": [
         "amount=720만원",
         "deadline=2026-12-31"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "경기"
+      ],
+      "family": "A",
+      "slug": "gyeonggi-youth-support-programs-2026-10-27",
+      "path": "src/data/issues/2026-10-27/gyeonggi-youth-support-programs-2026-10-27.json",
+      "date": "2026-10-27",
+      "targetQuery": "경기도 청년지원금",
+      "coreFacts": {
+        "who": "경기도 주민등록 만 18~39세 청년, 사업마다 나이 다름",
+        "amount": "면접 1회 5만원, 복지포인트는 올해 선정자 6개월분",
+        "deadline": "통장·중소기업 청년 지원은 2026 신규 모집 미운영"
+      },
+      "coreFactsKeys": [
+        "amount=5만원"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "medical-refund-check-2026-10-27",
+      "path": "src/data/issues/2026-10-27/medical-refund-check-2026-10-27.json",
+      "date": "2026-10-27",
+      "targetQuery": "병원비 환급금 조회",
+      "coreFacts": {
+        "who": "건강보험 가입자·피부양자, 보험료 환급은 납부의무자",
+        "amount": "상한액 초과분 전액, 2025년 진료분 상한 89만~1,074만원",
+        "deadline": "받을 권리 3년, 보험료 환급 집중지급 2026-11-30까지"
+      },
+      "coreFactsKeys": [
+        "amount=1074만원",
+        "deadline=2026-11-30"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "pet-support-subsidy-2026-10-27",
+      "path": "src/data/issues/2026-10-27/pet-support-subsidy-2026-10-27.json",
+      "date": "2026-10-27",
+      "targetQuery": "반려동물 지원금",
+      "coreFacts": {
+        "who": "수급자·차상위·한부모가족, 국가봉사동물 입양자",
+        "amount": "서울 선택진료 20만원 이내, 입양비 최대 100만원",
+        "deadline": "서울 진료비 12월 10일까지, 예산 소진 시 조기 마감"
+      },
+      "coreFactsKeys": [
+        "amount=20만원",
+        "deadline=2026-12-10"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "resting-youth-support-2026-10-27",
+      "path": "src/data/issues/2026-10-27/resting-youth-support-2026-10-27.json",
+      "date": "2026-10-27",
+      "targetQuery": "쉬었음 청년 지원금",
+      "coreFacts": {
+        "who": "쉬었음 응답이 아닌 6개월 이력·가구 소득으로 자격 갈림",
+        "amount": "청년도전 최대 350만원, 구직촉진수당 6개월 360만원",
+        "deadline": "국민취업지원 상시, 청년도전은 운영기관 모집별"
+      },
+      "coreFactsKeys": [
+        "amount=350만원"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "youth-support-types-2026-10-27",
+      "path": "src/data/issues/2026-10-27/youth-support-types-2026-10-27.json",
+      "date": "2026-10-27",
+      "targetQuery": "2026 청년지원금",
+      "coreFacts": {
+        "who": "만 15~39세 청년, 사업마다 시작·끝 나이 다름",
+        "amount": "구직촉진수당 월 60만원, 청년월세 월 최대 20만원",
+        "deadline": "청년도전 11월, 국민취업지원 12월까지 신청"
+      },
+      "coreFactsKeys": [
+        "amount=60만원"
       ],
       "cluster": "other",
       "rollup": false,
