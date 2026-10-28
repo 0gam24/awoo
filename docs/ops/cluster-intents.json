@@ -3,9 +3,9 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 397,
-    "entryCount": 136,
-    "regionCount": 65,
+    "scannedPosts": 404,
+    "entryCount": 143,
+    "regionCount": 67,
     "regions": [
       "강릉",
       "강북구",
@@ -50,10 +50,12 @@
       "영천",
       "완도",
       "완주",
+      "용인",
       "울진",
       "유족연금",
       "의령",
       "의성",
+      "익산",
       "인천",
       "장성",
       "장흥",
@@ -74,15 +76,15 @@
       "횡성"
     ],
     "families": {
-      "A": 97,
-      "B": 25,
+      "A": 103,
+      "B": 26,
       "V": 14
     },
     "clusters": {
       "minsaeng": 63,
-      "other": 73
+      "other": 80
     },
-    "rollups": 9,
+    "rollups": 10,
     "knownPairEntries": 8,
     "manualOverrides": [
       {
@@ -497,6 +499,62 @@
       },
       {
         "slug": "youth-support-types-2026-10-27",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "basic-livelihood-recipient-benefits-2026-10-28",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "child-allowance-2026-10-28",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "first-meeting-voucher-2026-10-28",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "iksan-dairoum-cashback-2026-10-28",
+        "region": [
+          "익산"
+        ],
+        "family": "B",
+        "cluster": "other"
+      },
+      {
+        "slug": "parental-benefit-2026-10-28",
+        "region": [
+          "전국"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "yongin-ev-subsidy-2026-10-28",
+        "region": [
+          "용인"
+        ],
+        "family": "A",
+        "cluster": "other"
+      },
+      {
+        "slug": "youth-employment-success-money-2026-10-28",
         "region": [
           "전국"
         ],
@@ -3612,6 +3670,168 @@
       },
       "coreFactsKeys": [
         "amount=60만원"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "basic-livelihood-recipient-benefits-2026-10-28",
+      "path": "src/data/issues/2026-10-28/basic-livelihood-recipient-benefits-2026-10-28.json",
+      "date": "2026-10-28",
+      "targetQuery": "기초수급자 지원금",
+      "coreFacts": {
+        "who": "생계·의료·주거·교육급여 수급자, 항목마다 대상 급여 다름",
+        "amount": "통신비 월 최대 3만3,500원, 바우처 1인 29만5,200원",
+        "deadline": "문화누리카드 11월 30일, 에너지바우처 12월 31일 신청 마감"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-11-30"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "child-allowance-2026-10-28",
+      "path": "src/data/issues/2026-10-28/child-allowance-2026-10-28.json",
+      "date": "2026-10-28",
+      "targetQuery": "아동수당",
+      "coreFacts": {
+        "who": "만 9세 미만 대한민국 국적 아동, 소득 무관",
+        "amount": "월 10만원, 비수도권 10만5천원, 최대 13만원",
+        "deadline": "출생일 포함 60일 안 신청 시 태어난 달부터"
+      },
+      "coreFactsKeys": [
+        "amount=10만원"
+      ],
+      "cluster": "other",
+      "rollup": true,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "first-meeting-voucher-2026-10-28",
+      "path": "src/data/issues/2026-10-28/first-meeting-voucher-2026-10-28.json",
+      "date": "2026-10-28",
+      "targetQuery": "첫만남이용권",
+      "coreFacts": {
+        "who": "주민등록번호를 받은 출생아, 생년월일부터 2년 이내",
+        "amount": "첫째 200만원·둘째 이상 300만원, 국민행복카드 포인트",
+        "deadline": "두 번째 생일 전날까지 사용, 지나면 자동 소멸"
+      },
+      "coreFactsKeys": [
+        "amount=200만원"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "익산"
+      ],
+      "family": "B",
+      "slug": "iksan-dairoum-cashback-2026-10-28",
+      "path": "src/data/issues/2026-10-28/iksan-dairoum-cashback-2026-10-28.json",
+      "date": "2026-10-28",
+      "targetQuery": "익산 다이로움",
+      "coreFacts": {
+        "who": "다이로움 결제자, 1인 결제 30만원까지 인정",
+        "amount": "결제액 5% 추가 환급, 1인 최대 1만5천원",
+        "deadline": "2026-11-15 결제분까지, 국비 소진 시 조기 종료"
+      },
+      "coreFactsKeys": [
+        "deadline=2026-11-15"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "parental-benefit-2026-10-28",
+      "path": "src/data/issues/2026-10-28/parental-benefit-2026-10-28.json",
+      "date": "2026-10-28",
+      "targetQuery": "부모급여",
+      "coreFacts": {
+        "who": "국적·주민번호 있는 0~23개월 아동, 소득 무관",
+        "amount": "0세 월 100만원, 1세 월 50만원 현금",
+        "deadline": "출생일 포함 60일 안 신청 시 출생월부터 소급"
+      },
+      "coreFactsKeys": [
+        "amount=100만원"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "용인"
+      ],
+      "family": "A",
+      "slug": "yongin-ev-subsidy-2026-10-28",
+      "path": "src/data/issues/2026-10-28/yongin-ev-subsidy-2026-10-28.json",
+      "date": "2026-10-28",
+      "targetQuery": "용인 전기차 보조금",
+      "coreFacts": {
+        "who": "용인 90일 거주 만 18세 이상 개인, 시내 사업장 법인",
+        "amount": "승용 최대 928만원, 화물 최대 1,680만원",
+        "deadline": "화물 2026-10-30, 승용 2026-11-06 접수 시작"
+      },
+      "coreFactsKeys": [
+        "amount=928만원",
+        "deadline=2026-10-30"
+      ],
+      "cluster": "other",
+      "rollup": false,
+      "regionOverride": true,
+      "familyOverride": true,
+      "clusterOverride": true
+    },
+    {
+      "region": [
+        "전국"
+      ],
+      "family": "A",
+      "slug": "youth-employment-success-money-2026-10-28",
+      "path": "src/data/issues/2026-10-28/youth-employment-success-money-2026-10-28.json",
+      "date": "2026-10-28",
+      "targetQuery": "청년 취업지원금",
+      "coreFacts": {
+        "who": "국민취업지원·청년도전 참여 뒤 취업한 청년",
+        "amount": "취업성공수당 최대 150만원, 청년도전 인센티브 50만원",
+        "deadline": "근속 충족 뒤 신청, 취업성공수당 청구권 3년"
+      },
+      "coreFactsKeys": [
+        "amount=150만원"
       ],
       "cluster": "other",
       "rollup": false,
