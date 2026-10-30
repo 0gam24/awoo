@@ -143,25 +143,5 @@ jobs:
           gh pr merge "$PR" --squash --delete-branch
           echo "merged=true" >> "$GITHUB_OUTPUT"
 
-      - name: 저장소 체크아웃 (IndexNow 키·URL 파생용)
-        if: steps.merge.outputs.merged == 'true'
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: 신규 이슈 URL IndexNow 핑
-        if: steps.merge.outputs.merged == 'true'
-        run: |
-          KEY=$(ls public/ | grep -E '^[0-9a-f]{32}\.txt$' | head -1 | sed 's/\.txt$//')
-          if [ -z "$KEY" ]; then echo "::warning::IndexNow 키 파일 없음 — 핑 생략"; exit 0; fi
-          urls=$(gh api "repos/${{ github.repository }}/pulls/$PR/files" --paginate \
-            --jq '.[] | select(.status == "added") | .filename' \
-            | grep -E '^src/data/issues/[0-9]{4}-[0-9]{2}-[0-9]{2}/.+\.json$' \
-            | sed -E 's#^src/data/issues/[0-9-]+/##; s#-[0-9]{4}-[0-9]{2}-[0-9]{2}\.json$##' \
-            | sed 's#^#"https://awoo.or.kr/issues/#; s#$#/"#' | paste -sd, -)
-          if [ -z "$urls" ]; then echo "신규 이슈 파일 없음 (갱신 전용 PR) — 핑 생략"; exit 0; fi
-          echo "ping: $urls"
-          curl -s -X POST "https://api.indexnow.org/IndexNow" \
-            -H "Content-Type: application/json; charset=utf-8" \
-            -d "{\"host\":\"awoo.or.kr\",\"key\":\"$KEY\",\"keyLocation\":\"https://awoo.or.kr/$KEY.txt\",\"urlList\":[$urls]}" \
-            -w "\nHTTP %{http_code}\n"
+      # IndexNow는 여기서 보내지 않는다 — 병합 직후엔 아직 배포 전이라 새 주소가 404다.
+      # 다음 배포(sync-issues·deploy) 뒤 IndexNow 단계가 상태 비교로 새 글을 잡아 보낸다(네이버 IndexNow 가이드).

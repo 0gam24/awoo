@@ -77,8 +77,9 @@ const blufSummaryCategory = `${category.name} 분야 정부 지원금은 ${inCat
 const collectionSchema = buildCollectionPage({
   name: `${category.name} 분야 정부 지원금 ${inCategory.length}건`,
   description: category.description ?? `${category.name} 분야 정부 지원금 모음`,
-  pageUrl: `/categories/${category.id}/`,
-  items: sorted.slice(0, 100).map((s) => ({
+  pageUrl: `/categories/${encodeURIComponent(category.id)}/`,
+  // 네이버 캐러셀 가이드: 목록 마크업은 화면에 보이는 항목과 같아야 한다 — 화면의 대표 지원금 8건만.
+  items: top.map((s) => ({
     url: `/subsidies/${s.data.id}/`,
     name: s.data.title,
   })),

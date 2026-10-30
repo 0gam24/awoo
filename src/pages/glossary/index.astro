@@ -2,7 +2,6 @@
 import Container from '@/components/Container.astro';
 import PageHeader from '@/components/PageHeader.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildCollectionPage } from '@/lib/schema';
 import { getCollection } from 'astro:content';
 
 const items = (await getCollection('glossary')).sort((a, b) =>
@@ -38,12 +37,7 @@ const definedTermSetSchema = {
   })),
 };
 
-const collectionSchema = buildCollectionPage({
-  name: `정부 지원금 용어 ${items.length}개`,
-  description: '정부 지원금을 검색하다 자주 만나는 핵심 용어 1문단 정의 모음.',
-  pageUrl: '/glossary/',
-  items: items.map((i) => ({ url: `/glossary/${i.data.id}/`, name: i.data.term })),
-});
+// 같은 용어 목록을 ItemList로 한 번 더 내지 않는다(네이버 캐러셀 가이드: 한 페이지에 목록 하나) — DefinedTermSet만.
 ---
 
 <BaseLayout
@@ -57,7 +51,6 @@ const collectionSchema = buildCollectionPage({
   ]}
 >
   <script type="application/ld+json" set:html={JSON.stringify(definedTermSetSchema)} />
-  {collectionSchema && <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
 
   <section class="band">
     <Container size="wide">

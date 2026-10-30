@@ -29,7 +29,7 @@ export const ORG = {
  * @id 앵커로 다른 schema(GovernmentService.provider, NewsArticle.publisher 등)에서
  * `{"@id": "https://awoo.or.kr/#organization"}` 참조하여 entity 일관성 유지.
  */
-export function buildOrganization() {
+export function buildOrganization(opts: { withAddress?: boolean } = {}) {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -37,16 +37,23 @@ export function buildOrganization() {
     name: '지원금가이드',
     legalName: ORG.legalName,
     url: SITE_URL,
-    logo: `${SITE_URL}/og-default.png`,
+    logo: `${SITE_URL}/icon-512.png`,
     email: ORG.email,
     taxID: ORG.taxID,
     founder: { '@type': 'Person', name: ORG.founder },
-    address: {
-      '@type': 'PostalAddress',
-      addressCountry: 'KR',
-      addressLocality: '인천광역시 계양구',
-      streetAddress: '새벌로 88',
-    },
+    // 네이버 주소(Address) 가이드: 사이트 공통 주소를 모든 페이지에 똑같이 넣지 않는다 —
+    // 첫 화면·소개·문의 페이지에만. addressRegion은 가장 큰 지역명.
+    ...(opts.withAddress
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            addressCountry: 'KR',
+            addressRegion: '인천광역시',
+            addressLocality: '계양구',
+            streetAddress: '새벌로 88',
+          },
+        }
+      : {}),
     inLanguage: 'ko-KR',
     description: '정부 지원금을 페르소나·상황 단위로 정리한 정보 안내 사이트. 스마트데이터샵 운영.',
     // Cycle #20: 영역 + 전문성 신호 (knowledge graph entity 강화)
@@ -136,12 +143,18 @@ export function buildBreadcrumb(items: BreadcrumbItem[], pageUrl?: string) {
   const base: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
-    itemListElement: items.map((item, idx) => ({
-      '@type': 'ListItem',
-      position: idx + 1,
-      name: item.name,
-      item: item.href.startsWith('http') ? item.href : `${SITE_URL}${item.href}`,
-    })),
+    // 네이버 BreadcrumbList 가이드: "top"·"홈" 같은 일반 단어 대신 페이지를 설명하는 이름,
+    // item은 { @id, name } 형태(네이버 예제). ListItem.name은 구글 호환을 위해 함께 둔다.
+    itemListElement: items.map((item, idx) => {
+      const name = item.name === '홈' ? '지원금가이드' : item.name;
+      const url = item.href.startsWith('http') ? item.href : `${SITE_URL}${item.href}`;
+      return {
+        '@type': 'ListItem',
+        position: idx + 1,
+        name,
+        item: { '@id': url, name },
+      };
+    }),
   };
   if (pageUrl) {
     const absolute = pageUrl.startsWith('http') ? pageUrl : `${SITE_URL}${pageUrl}`;
@@ -219,8 +232,8 @@ export function buildWebApplication(opts: {
     inLanguage: 'ko-KR',
     // Schema.org ApplicationCategory 표준 enum (Cycle #6 P0-8 회귀 차단)
     // 'GovernmentApplication'은 비표준 → 'BusinessApplication' + additionalType
+    // 민간 도구라 GovernmentService 표기는 하지 않는다(정부 서비스로 오인될 수 있음).
     applicationCategory: opts.applicationCategory ?? 'BusinessApplication',
-    additionalType: 'https://schema.org/GovernmentService',
     operatingSystem: 'Web',
     browserRequirements: 'JavaScript',
     isAccessibleForFree: true,
@@ -256,8 +269,8 @@ export function buildCollectionPage(opts: {
   pageUrl: string;
   items: ItemListEntry[];
 }) {
-  // 빈 ItemList는 Google rich-result 가이드라인 위반 가능 — null 반환으로 호출부 분기
-  if (opts.items.length === 0) return null;
+  // 네이버 캐러셀 가이드: 항목이 너무 적은 목록은 쓰지 않는다 — 3개 미만이면 null(호출부 분기)
+  if (opts.items.length < 3) return null;
   const absolute = (href: string) => (href.startsWith('http') ? href : `${SITE_URL}${href}`);
   return {
     '@context': 'https://schema.org',

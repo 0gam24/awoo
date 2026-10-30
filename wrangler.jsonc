@@ -6,8 +6,14 @@
   "main": "./src/worker.ts",
   "assets": {
     "directory": "./dist",
-    "binding": "ASSETS"
+    "binding": "ASSETS",
+    // 첫 화면 쿼리(/?p=…)와 /404 직접 요청을 Worker가 먼저 보고 410·404로 답한다(src/worker.ts)
+    "run_worker_first": ["/", "/404", "/404/", "/404.html"]
   },
+  // 같은 사이트를 workers.dev 주소로도 내보내지 않는다(네이버: 같은 내용에 호스트 여러 개 금지).
+  // 네이버 웹문서 검색에 workers.dev 주소 색인 0건 확인(2026-10-30) 후 끔.
+  "workers_dev": false,
+  "preview_urls": false,
   "observability": {
     "enabled": true
   },

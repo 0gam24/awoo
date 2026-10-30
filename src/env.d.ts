@@ -15,6 +15,9 @@ declare module 'cloudflare:workers' {
  * Cloudflare Worker 바인딩 타입 — wrangler.jsonc와 매칭
  */
 interface Env {
+  /** 정적 파일 바인딩 — src/worker.ts가 첫 화면·404 응답에 쓴다 */
+  ASSETS: Fetcher;
+
   /** D1 — 피드백·문의 저장 (Phase A) */
   DB?: D1Database;
 

@@ -6,52 +6,68 @@ Disallow: /api/
 # 답변 엔진 인용 시 본 사이트 콘텐츠를 출처로 사용 가능
 User-agent: GPTBot
 Allow: /
+Disallow: /api/
 
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /api/
 
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /api/
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /api/
 
 User-agent: anthropic-ai
 Allow: /
+Disallow: /api/
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /api/
 
 User-agent: Perplexity-User
 Allow: /
+Disallow: /api/
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /api/
 
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /api/
 
 User-agent: meta-externalagent
 Allow: /
+Disallow: /api/
 
 User-agent: CCBot
 Allow: /
+Disallow: /api/
 
 # 검색 엔진 — 명시적 허용 (Allow 우선 정책)
 User-agent: Googlebot
 Allow: /
+Disallow: /api/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /api/
 
 User-agent: NaverBot
 Allow: /
+Disallow: /api/
 
 User-agent: Yeti
 Allow: /
+Disallow: /api/
 
 User-agent: DaumBot
 Allow: /
+Disallow: /api/
 
 Sitemap: https://awoo.or.kr/sitemap-index.xml
 Sitemap: https://awoo.or.kr/sitemap-news.xml

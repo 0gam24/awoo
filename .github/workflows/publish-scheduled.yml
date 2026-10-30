@@ -79,16 +79,31 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         run: npm run build
 
-      - name: IndexNow ping
-        if: steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != ''
-        env:
-          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
-        continue-on-error: true
-        run: npm run indexnow:ping
-
       - name: Deploy to Cloudflare Workers
         if: steps.diff.outputs.changed == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # IndexNow는 배포가 끝난 뒤(공개 URL이 200일 때) 보낸다 — 네이버 IndexNow 가이드.
+      # [skip ci] 커밋이라 indexnow.yml이 안 돌므로 여기서 직접 호출, 상태는 indexnow.yml과 같은 캐시를 쓴다.
+      - name: Restore IndexNow state
+        if: steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != ''
+        uses: actions/cache/restore@v4
+        with:
+          path: .indexnow-state.json
+          key: indexnow-state-${{ github.run_id }}
+          restore-keys: indexnow-state-
+
+      - name: IndexNow ping (배포 뒤)
+        if: steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != ''
+        continue-on-error: true
+        run: npm run indexnow:ping
+
+      - name: Save IndexNow state
+        if: always() && steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != '' && hashFiles('.indexnow-state.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .indexnow-state.json
+          key: indexnow-state-${{ github.run_id }}-${{ github.run_attempt }}

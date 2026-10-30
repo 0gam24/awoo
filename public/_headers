@@ -31,9 +31,11 @@
 # Cloudflare 기본 text/plain(charset 없음) + nosniff → 브라우저가 CP949로 오해석 → 정정.
 /llms.txt
   Content-Type: text/plain; charset=utf-8
+  X-Robots-Tag: noindex
   Cache-Control: public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400
 /llms-full.txt
   Content-Type: text/plain; charset=utf-8
+  X-Robots-Tag: noindex
   Cache-Control: public, max-age=3600, s-maxage=3600, stale-while-revalidate=86400
 /feed.xml
   Content-Type: application/rss+xml; charset=utf-8
@@ -50,8 +52,14 @@
 /rss/*
   Content-Type: application/rss+xml; charset=utf-8
   Cache-Control: public, max-age=600, s-maxage=600, stale-while-revalidate=3600
+# 텍스트 파일은 검색 결과 대상이 아니다 — 서치어드바이저 "title 없음" 진단 제외(2026-10-30)
 /robots.txt
   Content-Type: text/plain; charset=utf-8
+  X-Robots-Tag: noindex
   Cache-Control: public, max-age=86400
 /manifest.webmanifest
   Cache-Control: public, max-age=86400
+/ads.txt
+  X-Robots-Tag: noindex
+/688d988e7b95bfc707173f8b9e638f6e.txt
+  X-Robots-Tag: noindex

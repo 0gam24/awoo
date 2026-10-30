@@ -47,12 +47,7 @@ const definedTermSchema: Record<string, unknown> = {
   alternateName: term.synonyms,
   termCode: term.id,
 };
-// related — 동의어·관련 용어 cross-link (entity 그래프 강화)
-if (term.related && term.related.length > 0) {
-  definedTermSchema.sameAs = term.related.map(
-    (rid: string) => `https://awoo.or.kr/glossary/${rid}/#term`,
-  );
-}
+// 관련 용어는 sameAs(같은 대상)가 아니라 화면 링크로만 잇는다 — sameAs 오용 정리(2026-10-30)
 // 본 용어가 적용되는 GovernmentService cross-link
 if (matched.length > 0) {
   definedTermSchema.subjectOf = matched.slice(0, 5).map((s) => ({

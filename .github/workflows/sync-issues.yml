@@ -89,15 +89,6 @@ jobs:
         if: steps.diff.outputs.changed == 'true'
         run: npm run build
 
-      # Cycle #12 P0-3: 신규 영구 포스트 즉시 IndexNow ping (검색엔진 24h → 즉시)
-      # [skip ci] 커밋이라 indexnow.yml 트리거 안 됨 → 직접 호출
-      - name: IndexNow ping (sync 직후)
-        if: steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != ''
-        env:
-          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
-        continue-on-error: true
-        run: npm run indexnow:ping
-
       # Cycle #79: cron 결과 즉시 사이트 반영 — [skip ci] 커밋이라 deploy.yml 트리거 안 되므로
       # sync-issues.yml 안에서 직접 wrangler deploy 호출 (deploy.yml과 동일 패턴)
       # 사전 설정: secrets.CLOUDFLARE_API_TOKEN + secrets.CLOUDFLARE_ACCOUNT_ID (deploy.yml과 공유)
@@ -107,3 +98,25 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      # IndexNow는 배포가 끝난 뒤(공개 URL이 200일 때) 보낸다 — 네이버 IndexNow 가이드.
+      # [skip ci] 커밋이라 indexnow.yml이 안 돌므로 여기서 직접 호출, 상태는 indexnow.yml과 같은 캐시를 쓴다.
+      - name: Restore IndexNow state
+        if: steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != ''
+        uses: actions/cache/restore@v4
+        with:
+          path: .indexnow-state.json
+          key: indexnow-state-${{ github.run_id }}
+          restore-keys: indexnow-state-
+
+      - name: IndexNow ping (배포 뒤)
+        if: steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != ''
+        continue-on-error: true
+        run: npm run indexnow:ping
+
+      - name: Save IndexNow state
+        if: always() && steps.diff.outputs.changed == 'true' && env.INDEXNOW_KEY != '' && hashFiles('.indexnow-state.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .indexnow-state.json
+          key: indexnow-state-${{ github.run_id }}-${{ github.run_attempt }}

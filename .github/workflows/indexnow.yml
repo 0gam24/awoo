@@ -1,15 +1,17 @@
 name: IndexNow ping
 
-# main 브랜치 push 후 색인 알림 (Bing·Yandex 등)
-# - Cloudflare 자동 배포와 병렬 — 색인 실패는 배포 차단 X
+# 배포(Deploy (Cloudflare Workers))가 성공한 뒤 색인 알림 — 네이버 서치어드바이저 + IndexNow 공용 창구
+# - 네이버 가이드: 공개돼 200을 주는 URL만, 새로 생기거나 바뀐 URL만 보낸다
+# - 직전 상태(.indexnow-state.json)는 actions/cache로 이어받는다(예전엔 저장이 안 돼 매번 704건 전체 재전송)
 # - INDEXNOW_KEY secret 미설정 시 graceful skip
 on:
-  push:
-    branches: [main]
+  workflow_run:
+    workflows: ['Deploy (Cloudflare Workers)']
+    types: [completed]
   workflow_dispatch:
     inputs:
-      reset:
-        description: '상태 초기화 (전체 재ping)'
+      seed:
+        description: '보내지 않고 현재 사이트맵을 상태로만 기록'
         required: false
         default: 'false'
         type: choice
@@ -22,11 +24,12 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   ping:
     name: Build + IndexNow submit
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 8
 
@@ -54,9 +57,13 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         run: npm ci --no-audit --no-fund --ignore-scripts
 
-      - name: Reset state (수동 트리거 시)
-        if: steps.gate.outputs.skip == 'false' && inputs.reset == 'true'
-        run: rm -f .indexnow-state.json
+      - name: Restore IndexNow state
+        if: steps.gate.outputs.skip == 'false'
+        uses: actions/cache/restore@v4
+        with:
+          path: .indexnow-state.json
+          key: indexnow-state-${{ github.run_id }}
+          restore-keys: indexnow-state-
 
       - name: Build
         if: steps.gate.outputs.skip == 'false'
@@ -66,16 +73,13 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
-        run: npm run indexnow:ping
+        run: |
+          if [ "${{ inputs.seed }}" = "true" ]; then npm run indexnow:ping -- --seed; else npm run indexnow:ping; fi
         continue-on-error: true
 
-      - name: Commit state
-        if: steps.gate.outputs.skip == 'false'
-        run: |
-          if [ -n "$(git status --porcelain .indexnow-state.json)" ]; then
-            git config user.name "awoo-bot"
-            git config user.email "noreply@awoo.or.kr"
-            git add .indexnow-state.json
-            git commit -m "chore(indexnow): 상태 갱신 — $(date -u +%Y-%m-%d) [skip ci]"
-            git push origin main
-          fi
+      - name: Save IndexNow state
+        if: always() && steps.gate.outputs.skip == 'false' && hashFiles('.indexnow-state.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: .indexnow-state.json
+          key: indexnow-state-${{ github.run_id }}-${{ github.run_attempt }}

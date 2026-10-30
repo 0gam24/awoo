@@ -191,7 +191,7 @@ const collectionSchema = buildCollectionPage({
   activeNav="/subsidies/"
   breadcrumbs={breadcrumbs}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  {collectionSchema && <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
   <section class="region-hero">
     <Container size="wide">
       <a class="back-link" href="/regions/">← 지역별 목록</a>

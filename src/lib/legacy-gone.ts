@@ -27,6 +27,24 @@ export function isLegacyPath(pathname: string): boolean {
   return LEGACY_PATTERNS.some((re) => re.test(pathname));
 }
 
+// 첫 화면에 붙던 워드프레스 쿼리(/?p=123 등). 첫 화면이 그대로 200으로 열려 소프트 404·중복으로 잡혔다.
+const LEGACY_HOME_PARAMS = [
+  'p',
+  'page_id',
+  'cat',
+  'tag',
+  'm',
+  'author',
+  'feed',
+  'attachment_id',
+  's',
+  'preview',
+];
+
+export function isLegacyHomeQuery(url: URL): boolean {
+  return url.pathname === '/' && LEGACY_HOME_PARAMS.some((k) => url.searchParams.has(k));
+}
+
 const GONE_HTML = `<!doctype html>
 <html lang="ko">
 <head>
@@ -43,7 +61,7 @@ const GONE_HTML = `<!doctype html>
 
 /** 옛 주소면 410 응답, 아니면 null. */
 export function legacyGoneResponse(url: URL): Response | null {
-  if (!isLegacyPath(url.pathname)) return null;
+  if (!isLegacyPath(url.pathname) && !isLegacyHomeQuery(url)) return null;
   return new Response(GONE_HTML, {
     status: 410,
     headers: {

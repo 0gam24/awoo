@@ -13,6 +13,8 @@ interface Props {
   /** head <meta name="keywords"> — tags 최대 8개 (네이버 신호, 구글 무해) */
   keywords?: string[];
   noindex?: boolean;
+  /** 오류 페이지처럼 대표 URL이 없는 페이지 — canonical·og:url을 내지 않는다(네이버 색인 효율성 가이드) */
+  noCanonical?: boolean;
   /** 활성 nav 키: 'home' | '/subsidies' | '/guide' 등 */
   activeNav?: string;
   /** 페이지별 breadcrumb — 명시 시 BreadcrumbList JSON-LD 자동 출력 */
@@ -36,6 +38,7 @@ const {
   ogImage = '/og-default.png',
   keywords,
   noindex = false,
+  noCanonical = false,
   activeNav = '',
   breadcrumbs,
   ogType = 'website',
@@ -47,7 +50,8 @@ const canonicalPath = canonical ?? Astro.url.pathname;
 const breadcrumbSchema = breadcrumbs && breadcrumbs.length > 1 ? buildBreadcrumb(breadcrumbs, canonicalPath) : null;
 
 // 사이트와이드 entity — 모든 페이지에 1회 노출 (Organization + WebSite, @id 앵커로 다른 schema에서 참조)
-const orgSchema = buildOrganization();
+// 주소는 첫 화면·소개·문의에만(네이버 주소 가이드 — 공통 주소를 모든 페이지에 반복하지 않는다)
+const orgSchema = buildOrganization({ withAddress: ['/', '/about/', '/contact/'].includes(canonicalPath) });
 const siteSchema = buildWebSite();
 
 // Cycle #24: SiteNavigationElement schema — TopBar 주요 메뉴 + 핵심 hub 진입점 명시
@@ -118,7 +122,7 @@ const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
       <meta name="news_keywords" content={keywords.slice(0, 8).join(', ')} />
     )}
     {ogType === 'article' && <meta name="author" content={ogArticle?.author ?? '김준혁'} />}
-    <link rel="canonical" href={canonicalURL} />
+    {!noCanonical && <link rel="canonical" href={canonicalURL} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {/* Cycle #30: PWA manifest — Chrome installable, 빠른 재방문 신호 */}
     <link rel="manifest" href="/manifest.webmanifest" />
@@ -154,7 +158,7 @@ const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
     <meta property="og:site_name" content={siteName} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonicalURL} />
+    {!noCanonical && <meta property="og:url" content={canonicalURL} />}
     <meta property="og:image" content={ogImageURL} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />

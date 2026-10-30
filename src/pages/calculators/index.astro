@@ -39,7 +39,7 @@ const collectionSchema = buildCollectionPage({
   activeNav="/subsidies/"
   breadcrumbs={breadcrumbs}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />
+  {collectionSchema && <script type="application/ld+json" set:html={JSON.stringify(collectionSchema)} />}
   <section class="calc-hero">
     <Container size="wide">
       <h1 class="title">지원금 계산기</h1>
