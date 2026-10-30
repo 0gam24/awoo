@@ -808,7 +808,16 @@ async function runNew(items) {
 // ─────────────────────────────────────────────────────────────
 async function main() {
   const env = await loadEnv();
-  const key = env.DATA_GO_KR_KEY;
+  // 공공데이터포털은 키를 두 가지로 준다 — Decoding(+ / = 그대로)과 Encoding(%2B 등으로 이미 인코딩).
+  // 아래 fetch가 encodeURIComponent를 한 번 더 하므로 Encoding 키를 넣으면 이중 인코딩돼
+  // "등록되지 않은 인증키"(401)가 난다(2026-10-30). 어느 쪽을 넣어도 되게 먼저 풀고, 앞뒤 공백·줄바꿈도 뗀다.
+  const rawKey = (env.DATA_GO_KR_KEY ?? '').trim();
+  let key = rawKey;
+  if (/%[0-9A-Fa-f]{2}/.test(rawKey)) {
+    try {
+      key = decodeURIComponent(rawKey);
+    } catch {}
+  }
   if (!key) {
     console.error('❌ DATA_GO_KR_KEY 미설정 (.env / .env.local 또는 환경변수)');
     process.exit(1);
