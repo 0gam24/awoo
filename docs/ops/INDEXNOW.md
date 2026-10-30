@@ -126,7 +126,7 @@ npm run indexnow:ping
 | **Bing** | 직접 색인 (한국 일부 사용자) |
 | **Yandex** | 색인 (한국 영향 적음) |
 | **Seznam** | 색인 (체코 — 무관) |
-| **Naver** | IndexNow 미참여 → Search Advisor 별도 등록 필요 |
+| **Naver** | IndexNow 지원 — `https://searchadvisor.naver.com/indexnow`로 직접 전송 (네이버 공식 가이드 10-IndexNow, 2026-10-30 반영). 사이트맵·RSS 제출과 수집 요청은 그대로 병행 |
 | **Google** | IndexNow 미참여 → Search Console (sitemap만으로 색인) |
 
 > Naver Search Advisor: https://searchadvisor.naver.com/  

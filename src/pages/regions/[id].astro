@@ -166,7 +166,11 @@ export const getStaticPaths = (async () => {
 const { region, matchedPosts, matchedSubsidies } = Astro.props;
 
 const pageTitle = `${region.full} 지원금·지원 정책 모음 | 지원금가이드`;
-const description = `${region.full} 주민이 받을 수 있는 지원금 ${matchedSubsidies.length}건과 관련 이슈 ${matchedPosts.length}건을 한 페이지에 모았습니다. 대상·금액·신청 방법은 각 글에서 확인하세요.`;
+const latestPostTitle = matchedPosts[0]?.data.title;
+const description =
+  matchedSubsidies.length > 0
+    ? `${region.full} 주민이 받을 수 있는 지원금 ${matchedSubsidies.length}건과 관련 글 ${matchedPosts.length}건을 모았습니다.${latestPostTitle ? ` 최근 글: ${latestPostTitle}` : ''}`
+    : `${region.full} 지원금 소식 ${matchedPosts.length}건을 모았습니다.${latestPostTitle ? ` 최근 글: ${latestPostTitle}` : ''}`;
 
 const breadcrumbs = [
   { name: '홈', href: '/' },

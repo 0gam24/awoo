@@ -170,7 +170,7 @@ node scripts/keyword-coverage.mjs > /tmp/audit-keyword.json
 - ❌ sync:issues (네이버 뉴스 API)
 - ❌ generate:issues (Claude API — API 키 사용)
 - ❌ check:apply-urls (외부 URL HEAD)
-- ❌ indexnow:ping (Bing/Yandex)
+- ❌ indexnow:ping (네이버·Bing/Yandex — CI가 배포 뒤 자동 전송)
 → 이들은 GitHub Actions cron에 위임. 사이클은 빌드타임 검증만.
 
 **로컬 가능 운영:**

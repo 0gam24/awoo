@@ -1,6 +1,6 @@
 # Naver Search Advisor 등록 가이드
 
-> 한국 검색 엔진 1위 Naver는 IndexNow에 참여하지 않으므로 별도 등록·sitemap 제출 필요.
+> 네이버도 IndexNow를 지원한다(searchadvisor.naver.com/indexnow)(네이버 공식 가이드 10-IndexNow, 2026-10-30 반영). 그래도 사이트 등록·사이트맵·RSS 제출은 따로 해야 한다.
 > 본 문서는 awoo.or.kr이 Naver 검색 결과에 색인되는 절차를 정리한다.
 
 ---

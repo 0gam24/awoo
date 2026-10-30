@@ -123,11 +123,13 @@ const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
     )}
     {ogType === 'article' && <meta name="author" content={ogArticle?.author ?? '김준혁'} />}
     {!noCanonical && <link rel="canonical" href={canonicalURL} />}
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* 네이버 파비콘 가이드: 절대 경로, shortcut icon → icon 순으로 읽는다. 아이콘은 scripts/generate-icons.mjs */}
+    <link rel="shortcut icon" href="https://awoo.or.kr/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="https://awoo.or.kr/favicon.svg" />
     {/* Cycle #30: PWA manifest — Chrome installable, 빠른 재방문 신호 */}
     <link rel="manifest" href="/manifest.webmanifest" />
-    {/* iOS는 SVG apple-touch-icon 미지원 — 빌드 시 favicon.svg에서 180px PNG 생성(generate-og-images.mjs) */}
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    {/* iOS는 SVG apple-touch-icon 미지원 — 180px PNG(scripts/generate-icons.mjs) */}
+    <link rel="apple-touch-icon" href="https://awoo.or.kr/apple-touch-icon.png" />
 
     {/* 피드 — RSS·Atom·JSON 구독 채널 (전체 안내: /feeds) */}
     <link rel="alternate" type="application/rss+xml" title="신규 정부 지원금" href="/feed.xml" />
@@ -180,6 +182,7 @@ const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageURL} />
+    <meta name="twitter:domain" content="awoo.or.kr" />
 
     <meta name="theme-color" content="#0071e3" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />

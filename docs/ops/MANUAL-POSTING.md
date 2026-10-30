@@ -205,7 +205,7 @@ STEP 8  발행 후처리 ── IndexNow + SC 안내 + today.md 갱신 + (선택
 0. `npm run sync:history` — 메인 트렌딩 카드 'term→포스트' 링크 **자동 연결**(포스트의 `freshness.trendingTerm` 기준 derive). **수기 `_history.json` 편집 불필요.**
    - 트렌딩 포스트는 JSON에 `freshness.trendingTerm`(매핑 키)을 반드시 넣는다.
    - 같은 날 같은 term으로 2건 이상 발행하면, 트렌딩 카드가 가리킬 대표 글에 `freshness.trendingPrimary: true` 를 표시(없으면 최신 발행순).
-1. `npm run indexnow:ping` — Bing·Yandex 즉시
+1. `npm run indexnow:ping` — 네이버·Bing·Yandex(배포가 끝난 뒤, 새·변경 URL만)
 2. `npm run update:today` — today.md 갱신
 3. **Google Search Console 색인 요청 URL 안내** (운영자 1클릭)
 4. **Naver Search Advisor 신규 URL 등록 안내** (1주차 신규 도메인 최강 채널)

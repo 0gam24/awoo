@@ -21,7 +21,7 @@
    - 신규 발행 영구 이슈 포스트 (최근 7일치) 우선 — `src/data/issues/{date}/*.json`
    - flagship 가이드 (`/guides/*`) — 발행 후 24h 이내 즉시 제출
 2. 제출 후 24~72시간 내 결과 통보 — 색인 거부 시 본문 thin 또는 메타 부적합 점검
-3. 자동 IndexNow는 awoo가 매일 수행 (Bing/Yandex만). Naver는 제외 (지원 안 함)
+3. 자동 IndexNow는 배포 뒤 네이버(searchadvisor.naver.com/indexnow)와 IndexNow 공용 창구에 새·변경·삭제 URL만 보낸다(네이버 공식 가이드 10-IndexNow, 2026-10-30 반영)
 
 ## 3. 색인제외 (soft-404·중복) 정리 (운영자 결정)
 

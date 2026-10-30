@@ -273,12 +273,9 @@ for (const [file, size] of [
 ]) {
   const out = join(ROOT, 'public', file);
   if (existsSync(out)) continue;
-  const png = new Resvg(faviconSvg, {
-    fitTo: { mode: 'width', value: size },
-    font: { loadSystemFonts: false, fontBuffers: [fontBold] },
-  })
-    .render()
-    .asPng();
+  // favicon.svg는 글자를 외곽선(path)으로 담아 글꼴이 필요 없다(scripts/generate-icons.mjs).
+  // font 옵션을 넘기면 fitTo가 무시돼 64px로 나오던 문제가 있었다(2026-10-30 확인) — 넘기지 않는다.
+  const png = new Resvg(faviconSvg, { fitTo: { mode: 'width', value: size } }).render().asPng();
   await writeFile(out, png);
   console.log(`[og] 아이콘 생성: ${file} (${size}px)`);
 }
