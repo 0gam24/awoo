@@ -16,7 +16,7 @@ npm run lint:content
 err는 무조건 차단, warn은 목록화. 실패 항목은 파일·필드 단위로 특정.
 
 ### 2. 18항목 체크리스트 (글별)
-**메타** ① title ≤40자+연도 ② metaDescription 60~110자 (lint 기준과 동일) ③ slug 규칙 ④ **publishedAt↔date↔디렉토리↔slug 4중 일치** ⑤ reportType 5종 enum
+**메타** ① title ≤40자+연도 ② metaDescription 60~110자·**1~2문장**·대표 검색어 1회, 제목 낱말 반복 금지(네이버 콘텐츠 마크업 가이드, 2026-10-31+ lint err) ③ slug 규칙 ④ **publishedAt↔date↔디렉토리↔slug 4중 일치** ⑤ reportType 5종 enum
 **본문** ⑥ tldr 3~6·첫 문장 수치 ⑦ sections 3~7·heading 질문형 40~60% 혼합(2026-08-28+, 이전 글은 질문형 위주) ⑧ lead 자체 완결 ⑨ coreFacts 4개 채움 ⑩ table 있으면 셀 수 일치·≥3행 (2026-08-28+는 비교·구간 주제만 필수) ⑪ faq 3~7·답변 첫 문장 완결+수치
 **관계** ⑫ relatedSubsidies 실제 ID (src/data/subsidies/ 에 존재 grep) ⑬ relatedPersonas 6종 enum ⑭ sources ≥3·publisher 2기관·정부 1차 ≥1·자사 URL 금지 ⑮ category 7종
 **점수** ⑯ factCheckScore↔sourceConfidence 정합 (0.6 미만=noindex 경고) ⑰ sourcePublisherCount = 고유 publisher 수 ⑱ matchedSubsidies 비어있지 않음

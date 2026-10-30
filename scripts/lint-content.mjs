@@ -221,6 +221,10 @@ const CLICKBAIT_PATTERNS = [
 // ── 독자 가독성 v2 검사 ───────────────────────────────────────────
 // 게이트: contentVersion ≥ 2. 2026-09-10 이후 글인데 필드가 없으면 경고만(누락 방지).
 const CONTENT_V2_CUTOFF = '2026-09-10';
+// 네이버 공식 가이드(04-HTML 마크업/02 콘텐츠 마크업) 제목·설명문 규칙 — 2026-10-31 이후 신규 글만(기존 글 불변)
+//  - 설명문은 1~2문장의 짧은 단락
+//  - 제목·설명문에 같은 키워드를 2회 이상 반복하지 않는다(대표 검색어 포함)
+const NAVER_MARKUP_CUTOFF = '2026-10-31';
 const V2_FORBID = /[()（）]|제\d+조|시행령|시행규칙|별지|별표|부칙|https?:|\.go\.kr/;
 const V2_PAREN_CITE =
   /\(\s*(출처|같은 조|시행령|시행규칙|고용보험법|근로기준법|소득세법|민법|별표|별지)[^)]*\)/;
@@ -669,6 +673,8 @@ for (const { date, slug, file } of issueFiles) {
   // 규칙은 docs/ops/READER-UX-V2.md. 기존 글(contentVersion 없음)은 한 건도 검사하지 않는다.
   lintReaderV2(post, date, slug);
 
+  if (date >= NAVER_MARKUP_CUTOFF) lintNaverMarkup(post, date, slug);
+
   // metaDescription 길이 + 전역 중복
   if (typeof post.metaDescription === 'string') {
     const len = post.metaDescription.length;
@@ -909,3 +915,40 @@ console.log(
   `[lint] 통과 — 지원금 ${subsidyFiles.length}개 / 이슈 ${issueFiles.length}개 / 페르소나 ${personaIds.size}개`,
 );
 process.exit(0);
+
+/**
+ * 네이버 콘텐츠 마크업 가이드 — 제목·설명문 반복·길이(2026-10-31 이후 신규 글).
+ * docs/references/H-네이버-공식가이드/04-HTML 마크업/02-콘텐츠 마크업.md
+ */
+function lintNaverMarkup(post, date, slug) {
+  const id = `${date}/${slug}`;
+  const title = typeof post.title === 'string' ? post.title : '';
+  const desc = typeof post.metaDescription === 'string' ? post.metaDescription : '';
+  const keyword = (post.targetQuery ?? post.freshness?.trendingTerm ?? '').replace(/\s+/g, '');
+  const squash = (t) => t.replace(/\s+/g, '');
+  const countOf = (text, kw) => (kw ? squash(text).split(kw).length - 1 : 0);
+
+  // 1) 설명문 2문장까지 — 마침표·물음표·느낌표 뒤 공백(또는 끝)을 문장 끝으로 본다(1.5개월 같은 숫자는 제외)
+  const sentences = desc.split(/[.?!](?=\s|$)/).filter((x) => x.trim()).length;
+  if (sentences > 2) {
+    err(`네이버 마크업: metaDescription ${sentences}문장 — 1~2문장의 짧은 단락으로: ${id}`);
+  }
+  // 2) 대표 검색어를 제목·설명문에 각각 1번만
+  if (keyword && countOf(title, keyword) >= 2) {
+    err(`네이버 마크업: 제목에 대표 검색어 "${keyword}" ${countOf(title, keyword)}회 반복: ${id}`);
+  }
+  if (keyword && countOf(desc, keyword) >= 2) {
+    err(`네이버 마크업: 설명문에 대표 검색어 "${keyword}" ${countOf(desc, keyword)}회 반복: ${id}`);
+  }
+  // 3) 제목 안에서 같은 낱말(2자 이상, 띄어쓰기 단위) 반복 금지
+  const words = title
+    .split(/\s+/)
+    .map((w) => w.replace(/[^가-힣A-Za-z0-9]/g, ''))
+    .filter((w) => w.length >= 2);
+  const seen = new Set();
+  const repeated = new Set();
+  for (const w of words) (seen.has(w) ? repeated : seen).add(w);
+  if (repeated.size > 0) {
+    err(`네이버 마크업: 제목에 같은 낱말 반복(${[...repeated].join(', ')}): ${id}`);
+  }
+}
