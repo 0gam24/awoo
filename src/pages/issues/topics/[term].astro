@@ -245,11 +245,11 @@ const uniquePublishers = new Set(
 const mediaCount = uniquePublishers.size;
 const firstSeenLabel = entry.firstSeen ?? '최근';
 const lastSeenLabel = entry.lastSeen ?? '오늘';
-const mediaPart = mediaCount > 0 ? `매체 ${mediaCount}곳에서 ` : '';
 // 클러스터 허브는 "언급 N회"가 아니라 "보유 글 N건"이다 — 수치의 의미가 다르므로 문구를 바꾼다
 const blufSummaryTopic = isCluster
   ? `"${term}" 관련 글 ${relatedPosts.length}건을 ${firstSeenLabel}부터 ${lastSeenLabel}까지 정리했습니다. 관련 지원금 ${matchedSubsidies.length}건도 한 페이지에서 확인할 수 있습니다.`
-  : `"${term}"는 ${firstSeenLabel}부터 ${lastSeenLabel}까지 ${entry.daysActive}일 동안 ${mediaPart}${entry.totalCount}회 언급된 정부 지원금 키워드입니다. 관련 지원금 ${matchedSubsidies.length}건을 한 페이지에 정리했습니다.`;
+  : // 자동 통계 문장("…는 1일 동안 1회 언급된 키워드입니다")은 조사 오류·기계적 문구라 뺐다(네이버 '저품질 대량 생성' 대응)
+    `"${term}" 관련 글 ${relatedPosts.length}건과 관련 지원금 ${matchedSubsidies.length}건을 한 페이지에 모았습니다.`;
 const blufStatsTopic = isCluster
   ? [
       { value: `${relatedPosts.length}건`, label: '관련 글' },
@@ -286,7 +286,7 @@ const collectionSchema = !isThin
 ---
 
 <BaseLayout
-  title={isCluster ? `${term} 정리 ${relatedPosts.length}건 | 지원금가이드` : `${term} — 트렌딩 토픽 | 지원금가이드`}
+  title={isCluster ? `${term} 정리 | 지원금가이드` : `${term} — 트렌딩 토픽 | 지원금가이드`}
   description={isCluster
     ? `"${term}" 관련 글 ${relatedPosts.length}건과 지원금 ${matchedSubsidies.length}건을 한 페이지에 모았습니다. 자격·금액·신청 방법 정리.`
     : `"${term}" 정부 지원금 한 페이지 정리. ${entry.daysActive}일 화제 · ${entry.totalCount}건 보도 · 관련 지원금 ${matchedSubsidies.length}건 안내.`}

@@ -14,7 +14,7 @@ import { issueUrlPath } from './src/lib/issue-url.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// 빌드타임에 _gov24/_manifest.json 읽어 slug → regDate(ISO) 맵 구축
+// 빌드타임에 _gov24/_manifest.json 읽어 slug → modDate(없으면 regDate) ISO 맵 구축 — lastmod는 '페이지 수정일'(네이버 사이트맵 가이드)
 // sitemap의 lastmod에 활용 (SEO/GEO 신선도 신호)
 const slugToLastmod = new Map();
 try {
@@ -22,7 +22,7 @@ try {
     readFileSync(join(__dirname, 'src/data/subsidies/_gov24/_manifest.json'), 'utf8'),
   );
   for (const entry of Object.values(manifest.items ?? {})) {
-    const r = entry.regDate;
+    const r = entry.modDate ?? entry.regDate;
     if (typeof r === 'string' && r.length >= 8) {
       const iso = `${r.slice(0, 4)}-${r.slice(4, 6)}-${r.slice(6, 8)}T00:00:00.000Z`;
       slugToLastmod.set(entry.slug, iso);

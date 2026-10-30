@@ -95,9 +95,9 @@ const personaSummary = personaLabels.length > 0
   ? `${personaLabels.slice(0, 2).join('·')}${personaLabels.length > 2 ? ' 외' : ''}`
   : '대상 확인 필요';
 const isClosed = s.status === '마감';
-const blufSummarySubsidy = `${withJosa(s.title, '은/는')} ${withJosa(s.agency, '이/가')} 제공하는 ${s.category} 분야 지원입니다. 지원 규모는 ${withJosa(amountPhrase(s), '이고/고')}, ${
+const blufSummarySubsidy = `${s.title} 지원 규모는 ${withJosa(amountPhrase(s), '이고/고')}, ${
   personaLabels.length > 0 ? `${withJosa(personaSummary, '이/가')} 받을 수 있습니다.` : '지원 대상은 아래 조건으로 확인하세요.'
-}${s.closedNote ? ` 다만 ${s.closedNote}` : ''}`;
+} 신청 기한은 ${s.deadline.trim()}입니다.${s.closedNote ? ` 다만 ${s.closedNote}` : ''}`;
 const blufStatsSubsidy = [
   { value: amount.value, label: amount.isMoney ? s.amountLabel || '지원 금액' : amount.unit || '혜택' },
   { value: s.deadline, label: '신청 마감' },
@@ -189,7 +189,7 @@ for (const part of descParts.slice(1)) {
 ---
 
 <BaseLayout
-  title={`${s.title} — ${s.agency} | 지원금가이드`}
+  title={s.title.includes(s.agency) ? `${s.title} | 지원금가이드` : `${s.title} — ${s.agency} | 지원금가이드`}
   description={metaDescription}
   ogImage={`/og/subsidies/${s.id}.png`}
   activeNav="/subsidies/"

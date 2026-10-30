@@ -35,7 +35,7 @@ const cats = CATEGORIES.slice(1).map((c) => ({
     <div class="cat-grid">
       {
         cats.map((c) => (
-          <a class="cat-tile" href={`/subsidies/?category=${encodeURIComponent(c.id)}`}>
+          <a class="cat-tile" href={`/categories/${encodeURIComponent(c.id)}/`}>
             <div class={`cat-glyph tint-${c.id}`}>
               <Icon name={c.icon} size={28} strokeWidth={1.6} />
             </div>

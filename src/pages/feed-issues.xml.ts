@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { escapeXml, type FeedPost, renderFullText, SITE, trendingPrefix } from '@/lib/feed-content';
+import { escapeXml, type FeedPost, renderFullText, SITE } from '@/lib/feed-content';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // 오늘의 이슈 포스트 전용 RSS — Substack·AI agent 인용 친화
@@ -47,7 +47,7 @@ export const GET: APIRoute = async () => {
       <category>${escapeXml(data.category)}</category>${categories
         .map((c) => `\n      <category>${escapeXml(c)}</category>`)
         .join('')}
-      <description>${escapeXml(trendingPrefix(data) + data.metaDescription)}</description>
+      <description>${escapeXml(data.metaDescription)}</description>
       <content:encoded><![CDATA[${renderFullText(data, url)}]]></content:encoded>
     </item>`;
     })

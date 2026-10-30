@@ -10,7 +10,6 @@ import {
   lastBatchSlugs,
   lastBatchAtISO,
   formatDateKR,
-  NEW_WINDOW_DAYS,
 } from '@/lib/subsidies-meta';
 import { buildCollectionPage } from '@/lib/schema';
 import { getCollection } from 'astro:content';
@@ -40,15 +39,15 @@ const dateLabel = formatDateKR(lastBatchAtISO);
 // Cycle #8 P0-3: hub 페이지 CollectionPage + ItemList — Google rich result + 검색 친화
 const collectionSchema = buildCollectionPage({
   name: `새로 등록된 정부 지원금 ${all.length}건`,
-  description: `최근 ${NEW_WINDOW_DAYS}일 이내 새로 추가된 정부 지원금 모음`,
+  description: `${dateLabel ? `${dateLabel} 동기화 기준 ` : ''}최근 등록된 정부 지원금 모음`,
   pageUrl: '/subsidies/new/',
   items: all.map((s) => ({ url: `/subsidies/${s.id}/`, name: s.title })),
 });
 ---
 
 <BaseLayout
-  title={`새로 등록된 정부 지원금 ${all.length}건 — 지원금가이드`}
-  description={`최근 ${NEW_WINDOW_DAYS}일 이내 새로 등록된 정부 지원금 ${all.length}건을 한눈에 보세요.`}
+  title="새로 등록된 정부 지원금 — 지원금가이드"
+  description={`${dateLabel ? `${dateLabel} 동기화 기준 ` : ''}최근 등록된 정부 지원금 ${all.length}건을 한눈에 보세요.`}
   activeNav="/subsidies/"
   breadcrumbs={[
     { name: '홈', href: '/' },
@@ -65,7 +64,7 @@ const collectionSchema = buildCollectionPage({
         </div>
         <h1 class="title">새로 추가된 지원금</h1>
         <p class="lead">
-          최근 {NEW_WINDOW_DAYS}일 이내 새로 등록된 정부 지원금 <strong>{all.length}건</strong>을 한눈에 확인하세요.
+          {dateLabel ? `${dateLabel} 동기화 기준 ` : ''}최근 등록된 정부 지원금 <strong>{all.length}건</strong>을 한눈에 확인하세요.
         </p>
         <div class="actions">
           <a class="btn-ghost" href="/subsidies/">전체 지원금 보기</a>

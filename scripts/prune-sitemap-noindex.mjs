@@ -111,6 +111,32 @@ function main() {
   console.log(
     `[sitemap-prune] noindex ${noindexPaths.size}개 감지 → sitemap ${files}개 파일에서 ${pruned}건 제거 (${SITE})`,
   );
+  addIndexLastmod();
+}
+
+/**
+ * sitemap-index.xml의 각 <sitemap>에 <lastmod> — 하위 사이트맵 안 가장 최근 lastmod(네이버 사이트맵 가이드).
+ * 하위 사이트맵에 lastmod가 하나도 없으면 넣지 않는다(빌드 시각을 수정일로 꾸미지 않음).
+ */
+function addIndexLastmod() {
+  const indexPath = join(DIST, 'sitemap-index.xml');
+  let index;
+  try {
+    index = readFileSync(indexPath, 'utf8');
+  } catch {
+    return;
+  }
+  const next = index.replace(/<sitemap>\s*<loc>([^<]+)<\/loc>\s*<\/sitemap>/g, (whole, loc) => {
+    const file = join(DIST, new URL(loc).pathname.replace(/^\//, ''));
+    let latest = '';
+    try {
+      for (const m of readFileSync(file, 'utf8').matchAll(/<lastmod>([^<]+)<\/lastmod>/g)) {
+        if (m[1] > latest) latest = m[1];
+      }
+    } catch {}
+    return latest ? `<sitemap><loc>${loc}</loc><lastmod>${latest}</lastmod></sitemap>` : whole;
+  });
+  if (next !== index) writeFileSync(indexPath, next, 'utf8');
 }
 
 main();

@@ -33,7 +33,7 @@ export const GET: APIRoute = async () => {
       <pubDate>${pubDate}</pubDate>
       <dc:creator>김준혁</dc:creator>
       <category>${escapeXml(s.category)}</category>
-      <description>${escapeXml(s.summary)}</description>
+      <description>${escapeXml((s.summary ?? '').length >= 20 ? s.summary : `${s.agency} ${s.title} — 대상·금액·신청 방법 안내`)}</description>
       <content:encoded><![CDATA[${renderSubsidyFullText(s, url)}]]></content:encoded>
     </item>`;
     })

@@ -1,5 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { file, glob } from 'astro/loaders';
+import { isDeadlinePast } from './lib/deadline-format';
 
 const personas = defineCollection({
   loader: file('src/data/personas.json'),
@@ -31,32 +32,48 @@ const subsidies = defineCollection({
     ],
     base: 'src/data/subsidies',
   }),
-  schema: z.object({
-    id: z.string(),
-    applyUrl: z.string().url(),
-    title: z.string(),
-    agency: z.string(),
-    category: z.string(),
-    icon: z.string(),
-    bg: z.string(),
-    amount: z.number(),
-    amountLabel: z.string(),
-    monthly: z.string().optional(),
-    period: z.string(),
-    deadline: z.string(),
-    summary: z.string(),
-    eligibility: z.array(z.string()),
-    benefits: z.array(z.string()),
-    documents: z.array(z.string()),
-    status: z.enum(['신청 가능', '곧 마감', '마감']),
-    tags: z.array(z.string()),
-    targetPersonas: z.array(z.string()),
-    fitNotes: z.record(z.string(), z.string()).optional(),
-    isHot: z.boolean().optional(),
-    // 신청이 끝났지만 검색 수요가 남아 페이지를 유지하는 사업의 안내(2026-10-14).
-    // 이 값이 있으면 sweep-stale이 status '마감'이어도 _archived로 옮기지 않는다.
-    closedNote: z.string().optional(),
-  }),
+  schema: z
+    .object({
+      id: z.string(),
+      applyUrl: z.string().url(),
+      title: z.string(),
+      agency: z.string(),
+      category: z.string(),
+      icon: z.string(),
+      bg: z.string(),
+      amount: z.number(),
+      amountLabel: z.string(),
+      monthly: z.string().optional(),
+      period: z.string(),
+      deadline: z.string(),
+      summary: z.string(),
+      eligibility: z.array(z.string()),
+      benefits: z.array(z.string()),
+      documents: z.array(z.string()),
+      status: z.enum(['신청 가능', '곧 마감', '마감']),
+      tags: z.array(z.string()),
+      targetPersonas: z.array(z.string()),
+      fitNotes: z.record(z.string(), z.string()).optional(),
+      isHot: z.boolean().optional(),
+      // 신청이 끝났지만 검색 수요가 남아 페이지를 유지하는 사업의 안내(2026-10-14).
+      // 이 값이 있으면 sweep-stale이 status '마감'이어도 _archived로 옮기지 않는다.
+      closedNote: z.string().optional(),
+    })
+    // 기한이 확실히 지난 사업은 빌드 시점에 '마감'으로 본다(2026-10-30). 보조금24 동기화가 멈추면
+    // 마감 사업이 '신청 가능'으로 남아 네이버 스팸 정책 '사용자 혼동'에 걸린다. 원본 파일은 건드리지 않아
+    // 동기화가 돌아오면 새 일정이 그대로 반영된다. 페이지는 '신청 종료' 안내와 함께 유지.
+    .transform((d) =>
+      d.status !== '마감' && isDeadlinePast(d.deadline)
+        ? {
+            ...d,
+            status: '마감' as const,
+            isHot: false,
+            closedNote:
+              d.closedNote ??
+              `신청 기간(${d.deadline.trim()})이 지났습니다. 다음 모집은 ${d.agency} 공고에서 확인하세요.`,
+          }
+        : d,
+    ),
 });
 
 const issues = defineCollection({

@@ -29,23 +29,8 @@ import Container from '@/components/Container.astro';
         </span>
       </div>
 
-      <div class="urgency-stats">
-        <div class="urgency-stat">
-          <div class="urgency-stat-label">2025년 정부 지원금 누적 지급액</div>
-          <div class="urgency-stat-value">38조 4,200억원</div>
-          <div class="urgency-stat-src">출처: 기획재정부 2025 결산</div>
-        </div>
-        <div class="urgency-stat">
-          <div class="urgency-stat-label">2026년 정부 지원사업 총예산</div>
-          <div class="urgency-stat-value danger">42조 9,000억원</div>
-          <div class="urgency-stat-src">출처: 기획재정부 2026 예산서</div>
-        </div>
-        <div class="urgency-stat">
-          <div class="urgency-stat-label">한도형 지원금 평균 예산 소진</div>
-          <div class="urgency-stat-value warning">9월 중순</div>
-          <div class="urgency-stat-src">출처: 정부 부처 평균 (최근 3년)</div>
-        </div>
-      </div>
+      {/* 확인할 수 없는 출처의 금액·시기 통계(누적 지급액·총예산·평균 소진 시기)는 뺐다 —
+          네이버 콘텐츠 가이드 '진정성·투명성', 스팸 정책 '사용자 혼동'(2026-10-30) */}
     </div>
   </Container>
 </section>

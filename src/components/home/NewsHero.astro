@@ -243,7 +243,7 @@ void hookCopy;
 <section class="news-band">
   <Container size="wide">
     <div class="news-meta">
-      <span class="news-pulse"><span class="dot" aria-hidden="true"></span>오늘의 이슈</span>
+      <h1 class="news-pulse"><span class="dot" aria-hidden="true"></span>지원금가이드 · 오늘의 정부 지원금 이슈</h1>
       {hasSummary && daysActive >= 3 && (
         <span class="news-trending-pill">
           <span class="dot-tr" aria-hidden="true" />
@@ -258,7 +258,7 @@ void hookCopy;
     <div class="news-grid">
       <div class="news-big-card">
         <div class="news-big-head">
-          <h1 class="news-headline">{auto?.trendingTopic ?? displayHeadline}</h1>
+          <h2 class="news-headline">{auto?.trendingTopic ?? displayHeadline}</h2>
           {/* Cycle #40 #6: 단일 매체 표기·관련 지원금·훅 카피 제거. 키워드 + 매체 다양성만 표시 */}
           {isAuto && (auto?.trendingTopicCount || (auto?.aggregate?.publisherCount ?? 0) > 0) && (
             <p class="news-subhead">
@@ -363,7 +363,7 @@ void hookCopy;
                     </div>
                     <div class="trend-row-2">
                       <span class="trend-news-title">
-                        {t.topArticle?.title ?? t.term}
+                        {tier === 'post' ? `${t.term} 정리 글 보기` : `${t.term} 관련 지원금 모아보기`}
                       </span>
                       <span class="trend-arrow" aria-hidden="true">→</span>
                     </div>
@@ -372,12 +372,6 @@ void hookCopy;
                       <span class="trend-mini-pill" title="제목 등장 빈도 (raw)">
                         언급 {t.count}회
                       </span>
-                      {t.cities && t.cities.length > 0 && (
-                        <span class="trend-mini-pill">
-                          🏙 {t.cities.slice(0, 2).join('·')}
-                          {t.cities.length > 2 && ` 외 ${t.cities.length - 2}곳`}
-                        </span>
-                      )}
                       {t.matchedCount !== undefined && t.matchedCount > 0 && (
                         <span class="trend-mini-pill">⚡ 매칭 {t.matchedCount}건</span>
                       )}
@@ -474,6 +468,7 @@ void hookCopy;
   }
 
   .news-pulse {
+    margin: 0;
     display: inline-flex;
     align-items: center;
     gap: 7px;

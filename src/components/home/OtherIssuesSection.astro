@@ -33,7 +33,6 @@ const auto = todayIssue as {
 
 const topTerm = auto?.trendingTopic;
 const summary = auto?.summary;
-const hookCopy = summary?.hookCopy;
 const trending = auto?.trending ?? [];
 const subTrending = trending.slice(1, 5); // 2-5위
 const aggregate = auto?.aggregate;
@@ -118,8 +117,9 @@ const recommendedPersonas = personas
           </span>
         )}
       </div>
-      <h2 class="display">{summary?.headline ?? `${topTerm} — 이번 주 화제`}</h2>
-      {summary?.subhead && <p class="subhead">{summary.subhead}</p>}
+      {/* 자동 요약(headline·subhead·hookCopy)은 뉴스 제목에서 지명을 기계적으로 뽑아 오인식이 섞였다(예: 기자 이름을
+          지자체로) — 네이버 스팸 정책 '사용자 혼동'에 걸리지 않게 화면에는 키워드만 낸다(2026-10-30) */}
+      <h2 class="display">{`${topTerm} — 이번 주 화제`}</h2>
 
       {/* 사회적 증거 stat strip */}
       <div class="stat-strip">
@@ -149,14 +149,6 @@ const recommendedPersonas = personas
         )}
       </div>
     </div>
-
-    {/* 훅 카피 — 사용자 행동 유도 */}
-    {hookCopy && (
-      <div class="hook">
-        <span class="hook-mark" aria-hidden="true">★</span>
-        <span class="hook-text">{hookCopy}</span>
-      </div>
-    )}
 
     {/* 다층 진입점 — 사이트 내 체류 유도. Cycle #53: 모바일에서 primary만 항상 표시, 나머지는 toggle */}
     <div class="entry-grid" data-entry-grid>

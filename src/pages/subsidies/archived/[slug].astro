@@ -79,7 +79,7 @@ const similar = allActive
       {subsidy.summary && <p class="summary">{subsidy.summary}</p>}
 
       <div class="actions">
-        <a class="btn-primary" href={`/subsidies/?category=${encodeURIComponent(subsidy.category)}`}>
+        <a class="btn-primary" href={`/categories/${encodeURIComponent(subsidy.category)}/`}>
           {subsidy.category} 분야 활성 지원금 보기 →
         </a>
         <a class="btn-ghost" href="/subsidies/">전체 지원금</a>

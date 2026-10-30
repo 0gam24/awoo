@@ -93,12 +93,6 @@ export function renderFullText(data: FeedPost, url: string): string {
   return out.join('\n').replaceAll(']]>', ']]&gt;');
 }
 
-/** 트렌딩 접두사 — description 앞에 붙는다 */
-export const trendingPrefix = (data: FeedPost): string =>
-  data.freshness?.trendingTerm
-    ? `[트렌딩 ${data.freshness.trendingTerm} · ${data.freshness.daysActive ?? 1}일 연속] `
-    : '';
-
 export interface FeedSubsidy {
   id: string;
   title: string;

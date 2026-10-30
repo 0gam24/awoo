@@ -21,6 +21,8 @@ if (items.length === 0) {
 
 const limited = items.slice(0, 6);
 const dateLabel = formatDateKR(lastBatchAtISO);
+// 동기화가 2주 넘게 멈췄으면 "이번 주 신규"라고 쓰지 않는다(네이버 콘텐츠 가이드 '최신 정보 유지')
+const isFresh = !!lastBatchAtISO && Date.now() - Date.parse(lastBatchAtISO) < 14 * 86_400_000;
 ---
 
 {
@@ -29,7 +31,7 @@ const dateLabel = formatDateKR(lastBatchAtISO);
       <Container size="wide">
         <div class="head">
           <div class="head-meta">
-            <span class="badge"><span class="dot" aria-hidden="true" />이번 주 신규</span>
+            <span class="badge"><span class="dot" aria-hidden="true" />{isFresh ? '이번 주 신규' : '최근 등록'}</span>
             {mode === 'batch' && dateLabel && (
               <span class="meta">최근 동기화 {dateLabel} · +{limited.length}건</span>
             )}

@@ -102,8 +102,8 @@ const crossIndex: CrossEntry[] = [
 ---
 
 <BaseLayout
-  title={`정부 지원금 ${subsidies.length}개 둘러보기 — 지원금가이드`}
-  description={`전 국민 대상 정부 지원금 ${subsidies.length}개를 분야·페르소나별로 정리. 청년 월세, 신혼 특공, 청년도약계좌, 소상공인 정책자금 등.`}
+  title="정부 지원금 둘러보기 — 지원금가이드"
+  description={`전 국민 대상 정부 지원금 ${subsidies.length}개를 분야·페르소나별로 정리. 청년 월세, 신혼 특공, 청년미래적금, 소상공인 정책자금 등.`}
   activeNav="/subsidies/"
   breadcrumbs={[
     { name: '홈', href: '/' },
@@ -160,7 +160,7 @@ const crossIndex: CrossEntry[] = [
               <a
                 class="chip"
                 data-chip-cat={c.id}
-                href={c.id === 'all' ? '/subsidies/' : `/subsidies/?category=${encodeURIComponent(c.id)}`}
+                href={c.id === 'all' ? '/subsidies/' : `/categories/${encodeURIComponent(c.id)}/`}
               >
                 <Icon name={c.icon} size={14} />
                 {c.name}

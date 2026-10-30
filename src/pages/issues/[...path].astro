@@ -167,6 +167,8 @@ const modifiedCandidates = [jsonModifiedDate, latestUpdateDate].filter(
 const modifiedDate = modifiedCandidates.length > 0 ? modifiedCandidates.sort().at(-1)! : null;
 const lastSeenIso = modifiedDate ? `${modifiedDate}T00:00:00.000Z` : post.publishedAt;
 const isUpdated = modifiedDate != null && modifiedDate > post.date;
+// 연속 일수가 없는 글에 "일 연속 화제"(숫자 빠진 배지)를 띄우지 않는다 — 118편(네이버 '자극적 표현' 회피)
+const hasStreak = typeof post.freshness?.daysActive === 'number' && post.freshness.daysActive >= 2;
 // 2026-09-26+ 발행분은 소제목(h2)을 파란 배너 박스로 그린다(운영자 지시 2026-09-25).
 // 기존 글 불변 원칙(DUAL-STANDARD)에 따라 issue-url의 DATELESS_CUTOFF처럼 발행일로 가른다.
 const HEADING_BANNER_CUTOFF = '2026-09-26';
@@ -647,11 +649,11 @@ const reportTypeBadge = rt && rt in RT_LABELS
               title={`${post.freshness.trendingTerm} 토픽 hub로 이동`}
             >
               <span class="dot" aria-hidden="true" />
-              {post.freshness.daysActive}일 연속 화제
+              {hasStreak ? `${post.freshness.daysActive}일 연속 화제` : `${post.freshness.trendingTerm} 관련 글`}
               {post.freshness.totalCount > 0 && ` · ${post.freshness.totalCount}건 보도`}
             </a>
           )}
-          {post.freshness && !topicHubExists && (
+          {post.freshness && !topicHubExists && hasStreak && (
             <span class="freshness-pill freshness-pill--static">
               <span class="dot" aria-hidden="true" />
               {post.freshness.daysActive}일 연속 화제

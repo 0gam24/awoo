@@ -51,6 +51,61 @@ function todayKST(): Date {
   return new Date(Date.UTC(k.getUTCFullYear(), k.getUTCMonth(), k.getUTCDate()));
 }
 
+// 반복·상대 기한은 날짜가 지나도 "끝났다"고 볼 수 없다(매년 다시 열리거나 개인별로 다름)
+const RECURRING_OR_RELATIVE = [
+  /상시|수시|연중|매년|매월|매주|정기|분기별|이내|따름|상이|문의|참고|확인필요|불필요|소진/,
+];
+
+/**
+ * 신청 기한이 확실히 지났는지(2026-10-30, 네이버 스팸 정책 '사용자 혼동' 대응).
+ * 보조금24 동기화가 멈춰 마감 사업이 '신청 가능'으로 남는 것을 빌드 시점에 바로잡는 데 쓴다.
+ *
+ * 보수적으로 판단한다 — 연도가 적힌 날짜만 보고, 반복·상대 기한은 false.
+ * 날짜 여럿이면 가장 늦은 날(마감일). 연도 없는 날짜는 앞에 나온 연도를 따른다.
+ * 일(日) 없이 월만 있으면 그 달 말일. "예정"이 붙은 올해 이후 일정은 아직 안 지난 것으로 본다.
+ */
+export function isDeadlinePast(
+  deadline: string | undefined | null,
+  today: Date = todayKST(),
+): boolean {
+  const s = (deadline ?? '').trim();
+  if (!s) return false;
+
+  // 연도 위치 — 4자리, 또는 2자리+'년'
+  const years = [...s.matchAll(/((?:19|20)\d{2})|(\d{2})\s*년/g)].map((m) => ({
+    index: m.index ?? 0,
+    year: m[1] ? Number(m[1]) : 2000 + Number(m[2]),
+  }));
+  if (years.length === 0) return false;
+  // 적힌 연도가 모두 지난해 이전이면(예: "24년 5월 모집 예정, 주민센터 문의") 반복 문구가 아닌 한 지난 일정
+  if (!/매년|매월|매주/.test(s) && Math.max(...years.map((y) => y.year)) < today.getUTCFullYear())
+    return true;
+  if (RECURRING_OR_RELATIVE.some((re) => re.test(s))) return false;
+  const yearBefore = (idx: number) => years.filter((y) => y.index <= idx).at(-1)?.year ?? null;
+
+  let latest: number | null = null;
+  // [연도 구분자] 월 구분자 [일] — 시각(10:00)은 ':'라 걸리지 않는다
+  const re =
+    /(?:((?:19|20)\d{2}|\d{2}(?=\s*년))\s*[년.\-/]\s*)?(\d{1,2})\s*[월.\-/]\s*(?:(\d{1,2})(?!\s*[:\d])\s*(?:일|\.)?)?/g;
+  for (const m of s.matchAll(re)) {
+    const y = m[1]
+      ? m[1].length === 2
+        ? 2000 + Number(m[1])
+        : Number(m[1])
+      : yearBefore(m.index ?? 0);
+    const mo = Number(m[2]);
+    if (!y || mo < 1 || mo > 12) continue;
+    const day = m[3] ? Number(m[3]) : null;
+    if (day !== null && (day < 1 || day > 31)) continue;
+    // 일이 없으면 그 달 말일
+    const t = day ? Date.UTC(y, mo - 1, day) : Date.UTC(y, mo, 0);
+    if (latest === null || t > latest) latest = t;
+  }
+  if (latest === null) return false;
+  if (/예정/.test(s) && latest >= Date.UTC(today.getUTCFullYear(), 0, 1)) return false;
+  return latest < today.getTime();
+}
+
 export function getDeadlineBadge(deadline: string | undefined | null): DeadlineBadge {
   if (!deadline || !deadline.trim()) {
     return { tone: 'unknown', label: '확인 필요' };

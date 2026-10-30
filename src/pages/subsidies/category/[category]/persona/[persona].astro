@@ -87,7 +87,7 @@ const breadcrumbs = [
       <div class="crumb">
         <a href="/subsidies/">지원금</a>
         <span aria-hidden="true">›</span>
-        <a href={`/subsidies/?category=${encodeURIComponent(category)}`}>{category}</a>
+        <a href={`/categories/${encodeURIComponent(category)}/`}>{category}</a>
         <span aria-hidden="true">›</span>
         <a href={`/personas/${persona.id}/`}>{persona.label}</a>
       </div>
@@ -148,7 +148,7 @@ const breadcrumbs = [
         <div class="cn-eyebrow">다른 시점에서 보기</div>
         <ul class="cn-list">
           <li><a href={`/personas/${persona.id}/`}>{persona.label} 전체 지원금 →</a></li>
-          <li><a href={`/subsidies/?category=${encodeURIComponent(category)}`}>{category} 분야 전체 →</a></li>
+          <li><a href={`/categories/${encodeURIComponent(category)}/`}>{category} 분야 전체 →</a></li>
           <li><a href="/subsidies/">전체 지원금 둘러보기 →</a></li>
           <li><a href="/quick/">5분 진단으로 정확 매칭 →</a></li>
         </ul>

@@ -1,5 +1,5 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
-import { escapeXml, type FeedPost, renderFullText, SITE, trendingPrefix } from '@/lib/feed-content';
+import { escapeXml, type FeedPost, renderFullText, SITE } from '@/lib/feed-content';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
 
 // 카테고리별 RSS — 이슈 포스트를 카테고리 채널로 분리 구독
@@ -71,7 +71,7 @@ export const GET: APIRoute = async ({ params }) => {
       <pubDate>${pubDate}</pubDate>
       <dc:creator>김준혁</dc:creator>
       <category>${escapeXml(data.category)}</category>${tagCats}
-      <description>${escapeXml(trendingPrefix(data) + data.metaDescription)}</description>
+      <description>${escapeXml(data.metaDescription)}</description>
       <content:encoded><![CDATA[${renderFullText(data, url)}]]></content:encoded>
     </item>`;
     })
