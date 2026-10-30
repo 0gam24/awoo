@@ -2,7 +2,8 @@
   "compatibility_date": "2026-04-28",
   "compatibility_flags": ["global_fetch_strictly_public"],
   "name": "awoo",
-  "main": "@astrojs/cloudflare/entrypoints/server",
+  // 옛 도메인 주소 410 처리를 위해 어댑터 handler를 감싼 진입점(src/worker.ts)
+  "main": "./src/worker.ts",
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
