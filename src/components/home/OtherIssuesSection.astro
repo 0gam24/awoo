@@ -32,7 +32,6 @@ const auto = todayIssue as {
 };
 
 const topTerm = auto?.trendingTopic;
-const summary = auto?.summary;
 const trending = auto?.trending ?? [];
 const subTrending = trending.slice(1, 5); // 2-5위
 const aggregate = auto?.aggregate;
