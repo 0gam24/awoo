@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-31T00:48:05.546Z",
+  "updatedAt": "2026-10-31T08:26:09.366Z",
   "snapshots": [
     {
       "ts": "2026-10-24T16:02:08.967Z",
@@ -40009,6 +40009,62 @@
           }
         }
       ]
+    },
+    {
+      "ts": "2026-10-31T08:26:09.366Z",
+      "sourceStatus": {
+        "kin": "fail: kin.json 500 (seed: 지원금 신청)",
+        "news": "ok (1 terms)",
+        "analytics": "ok (40 gaps, naver-analytics-search-2026-09-02_08.json)",
+        "datalab": "ok (41 terms, 모멘텀 36, 측정 41, born 0, 진입조건 0)",
+        "demo": "ok (1 terms)",
+        "market": "ok (1 terms)"
+      },
+      "keywords": [
+        {
+          "term": "재가급여",
+          "signals": {
+            "kinQuestions": 0,
+            "news": 4,
+            "datalab": 0.1,
+            "momentum": 1.02,
+            "volume": {
+              "measured": true,
+              "relative": 1.95,
+              "recent7": 1.97,
+              "window": 29,
+              "zeroDays": 0,
+              "firstNonZero": 0,
+              "days": 29,
+              "trend": 1.02,
+              "born": false
+            },
+            "gap": 8.4
+          },
+          "questions": [],
+          "matchedSubsidies": [],
+          "score": 4.1,
+          "demo": {
+            "young": 33,
+            "middle": 33,
+            "senior": 33,
+            "peak": "young",
+            "personaHint": "office-rookie"
+          },
+          "market": {
+            "blogTotal": 177747,
+            "blogFresh": 1,
+            "cafeTotal": 93747,
+            "newsRecent": 88
+          },
+          "lifecycle": {
+            "age": 21,
+            "growth": 0.62,
+            "stage": "fading",
+            "observations": 8
+          }
+        }
+      ]
     }
   ],
   "byTerm": {
@@ -58037,8 +58093,8 @@
     "재가급여": {
       "firstSeen": "2026-10-09T09:09:13.683Z",
       "bestScore": 9,
-      "appearances": 9,
-      "lastSeen": "2026-10-31T00:48:05.546Z",
+      "appearances": 10,
+      "lastSeen": "2026-10-31T08:26:09.366Z",
       "hist": [
         [
           "2026-10-09",
@@ -58072,6 +58128,11 @@
         ],
         [
           "2026-10-30",
+          4.1,
+          8.4
+        ],
+        [
+          "2026-10-31",
           4.1,
           8.4
         ],
@@ -61862,28 +61923,28 @@
   },
   "updateCandidates": [],
   "apiUsage": {
-    "ts": "2026-10-31T00:48:05.546Z",
+    "ts": "2026-10-31T08:26:09.366Z",
     "mode": "hub",
     "runsPerDay": 4,
-    "thisRun": 24,
+    "thisRun": 18,
     "detail": {
       "datalab:trend": 14,
-      "search:kin": 7,
+      "search:kin": 1,
       "search:blog": 1,
       "search:cafearticle": 1,
       "search:news": 1
     },
     "groups": {
       "search": {
-        "perRun": 10,
-        "perDay": 40,
-        "perMonth": 1200,
+        "perRun": 4,
+        "perDay": 16,
+        "perMonth": 480,
         "dailyQuota": 25000,
         "monthlyQuota": 775000,
-        "dailyPct": 0.16,
-        "monthlyPct": 0.15,
-        "dailyHeadroom": 24960,
-        "monthlyHeadroom": 773800
+        "dailyPct": 0.06,
+        "monthlyPct": 0.06,
+        "dailyHeadroom": 24984,
+        "monthlyHeadroom": 774520
       },
       "datalab": {
         "perRun": 14,
@@ -61924,7 +61985,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "2026 김해 민생지원금",
@@ -61950,7 +62011,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "김해시 지원금",
@@ -61976,7 +62037,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "통영 지원금 신청",
@@ -62002,7 +62063,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "문경시 지원금",
@@ -62028,7 +62089,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "주휴수당 계산법",
@@ -62054,7 +62115,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "완주 민생지원금",
@@ -62080,7 +62141,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "근로·자녀장려금 9월 신청 전 구분 3가지",
@@ -62106,7 +62167,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "김해 지원금",
@@ -62132,7 +62193,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "김해 민생지원금",
@@ -62158,7 +62219,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "통영 민생지원금 신청",
@@ -62184,7 +62245,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "완주 지원금",
@@ -62210,7 +62271,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "2026 근로장려금 대상 기준",
@@ -62236,7 +62297,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "문경 지원금",
@@ -62262,7 +62323,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "고창군 민생지원금",
@@ -62288,7 +62349,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "통영시 민생지원금 신청",
@@ -62314,7 +62375,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "김해시 지원금 10만원",
@@ -62340,7 +62401,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "중위소득 계산",
@@ -62366,7 +62427,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "정읍시 민생지원금",
@@ -62392,7 +62453,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "김해 추석 민생지원금",
@@ -62418,7 +62479,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "2026 주휴수당 포함 시급",
@@ -62444,7 +62505,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "조기취업수당 조건",
@@ -62470,7 +62531,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "나주 지원금",
@@ -62496,7 +62557,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "2027년 아이맞이지원금",
@@ -62522,7 +62583,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "알바 주휴수당 계산기",
@@ -62548,7 +62609,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "4차 민생쿠폰 신청",
@@ -62574,7 +62635,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "조기재취업수당 조건",
@@ -62600,7 +62661,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "9월14일 민생지원금",
@@ -62626,7 +62687,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "당진시 민생지원금",
@@ -62652,7 +62713,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "2026 재난지원금",
@@ -62678,7 +62739,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "영동군 민생지원금",
@@ -62704,7 +62765,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "고창 지원금",
@@ -62730,7 +62791,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "문경 고유가지원금",
@@ -62756,7 +62817,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "김해 10만원",
@@ -62782,7 +62843,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "김해시 추석지원금",
@@ -62808,7 +62869,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "문경시 민생지원금",
@@ -62834,7 +62895,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "김해시 추석 민생지원금",
@@ -62860,7 +62921,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "창원 지원금",
@@ -62886,7 +62947,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "함평 지원금",
@@ -62912,7 +62973,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     },
     {
       "term": "근로장려금 계산기",
@@ -62928,17 +62989,17 @@
       "signals": {
         "volume": {
           "measured": true,
-          "relative": 0.38,
-          "recent7": 0.28,
+          "relative": 0.39,
+          "recent7": 0.33,
           "window": 29,
-          "zeroDays": 3,
+          "zeroDays": 2,
           "firstNonZero": 0,
           "days": 29,
-          "trend": 0.68,
+          "trend": 0.79,
           "born": false
         }
       },
-      "flaggedAt": "2026-10-31T00:48:05.546Z"
+      "flaggedAt": "2026-10-31T08:26:09.366Z"
     }
   ],
   "analytics": {
