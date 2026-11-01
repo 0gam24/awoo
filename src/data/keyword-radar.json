@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-11-01T00:13:11.514Z",
+  "updatedAt": "2026-11-01T09:16:35.892Z",
   "snapshots": [
     {
       "ts": "2026-10-24T16:02:08.967Z",
@@ -42762,6 +42762,62 @@
           }
         }
       ]
+    },
+    {
+      "ts": "2026-11-01T09:16:35.892Z",
+      "sourceStatus": {
+        "kin": "fail: kin.json 500 (seed: 지원금 신청)",
+        "news": "ok (1 terms)",
+        "analytics": "ok (40 gaps, naver-analytics-search-2026-09-02_08.json)",
+        "datalab": "ok (41 terms, 모멘텀 35, 측정 41, born 0, 진입조건 0)",
+        "demo": "ok (1 terms)",
+        "market": "ok (1 terms)"
+      },
+      "keywords": [
+        {
+          "term": "재가급여",
+          "signals": {
+            "kinQuestions": 0,
+            "news": 2,
+            "datalab": 0.1,
+            "momentum": 1.08,
+            "volume": {
+              "measured": true,
+              "relative": 1.97,
+              "recent7": 2.09,
+              "window": 29,
+              "zeroDays": 0,
+              "firstNonZero": 0,
+              "days": 29,
+              "trend": 1.08,
+              "born": false
+            },
+            "gap": 8.8
+          },
+          "questions": [],
+          "matchedSubsidies": [],
+          "score": 2.1,
+          "demo": {
+            "young": 33,
+            "middle": 33,
+            "senior": 33,
+            "peak": "young",
+            "personaHint": "office-rookie"
+          },
+          "market": {
+            "blogTotal": 178066,
+            "blogFresh": 1,
+            "cafeTotal": 93785,
+            "newsRecent": 92
+          },
+          "lifecycle": {
+            "age": 23,
+            "growth": 0.58,
+            "stage": "fading",
+            "observations": 10
+          }
+        }
+      ]
     }
   ],
   "byTerm": {
@@ -56346,54 +56402,6 @@
         ]
       ]
     },
-    "증권계좌": {
-      "firstSeen": "2026-09-11T23:20:52.629Z",
-      "bestScore": 12,
-      "appearances": 10,
-      "lastSeen": "2026-10-02T08:36:44.571Z",
-      "hist": [
-        [
-          "2026-09-11",
-          12,
-          11
-        ],
-        [
-          "2026-09-12",
-          4.5,
-          10.2
-        ],
-        [
-          "2026-09-12",
-          9,
-          10.7
-        ],
-        [
-          "2026-09-12",
-          6,
-          10.4
-        ],
-        [
-          "2026-09-13",
-          4.5,
-          10.2
-        ],
-        [
-          "2026-09-13",
-          9,
-          10.7
-        ],
-        [
-          "2026-09-14",
-          7.5,
-          10.5
-        ],
-        [
-          "2026-10-02",
-          4.5,
-          8.5
-        ]
-      ]
-    },
     "보훈급여": {
       "firstSeen": "2026-09-12T15:36:44.941Z",
       "bestScore": 24,
@@ -57712,24 +57720,6 @@
         ]
       ]
     },
-    "초과수당": {
-      "firstSeen": "2026-09-22T07:47:30.097Z",
-      "bestScore": 3,
-      "appearances": 2,
-      "lastSeen": "2026-10-02T00:52:27.739Z",
-      "hist": [
-        [
-          "2026-09-22",
-          3,
-          12.9
-        ],
-        [
-          "2026-10-02",
-          3,
-          9.5
-        ]
-      ]
-    },
     "보청기지원금": {
       "firstSeen": "2026-09-22T17:02:00.619Z",
       "bestScore": 13.5,
@@ -57944,34 +57934,6 @@
           "2026-10-25",
           3,
           4.3
-        ]
-      ]
-    },
-    "ISA계좌": {
-      "firstSeen": "2026-09-23T07:50:20.019Z",
-      "bestScore": 6.9,
-      "appearances": 4,
-      "lastSeen": "2026-10-02T00:52:27.739Z",
-      "hist": [
-        [
-          "2026-09-23",
-          6.9,
-          10.5
-        ],
-        [
-          "2026-09-23",
-          3,
-          10.2
-        ],
-        [
-          "2026-10-01",
-          3,
-          9.2
-        ],
-        [
-          "2026-10-02",
-          3,
-          9.2
         ]
       ]
     },
@@ -59262,34 +59224,6 @@
         ]
       ]
     },
-    "장해연금": {
-      "firstSeen": "2026-10-01T09:01:27.831Z",
-      "bestScore": 7.5,
-      "appearances": 4,
-      "lastSeen": "2026-10-02T08:36:44.571Z",
-      "hist": [
-        [
-          "2026-10-01",
-          7.5,
-          1.8
-        ],
-        [
-          "2026-10-01",
-          4.5,
-          1.5
-        ],
-        [
-          "2026-10-02",
-          4.5,
-          2.1
-        ],
-        [
-          "2026-10-02",
-          4.5,
-          2.6
-        ]
-      ]
-    },
     "휴업급여": {
       "firstSeen": "2026-10-01T09:01:27.831Z",
       "bestScore": 6,
@@ -59426,19 +59360,6 @@
           "2026-10-14",
           3,
           0.3
-        ]
-      ]
-    },
-    "구직수당": {
-      "firstSeen": "2026-10-02T08:36:44.571Z",
-      "bestScore": 10.5,
-      "appearances": 1,
-      "lastSeen": "2026-10-02T08:36:44.571Z",
-      "hist": [
-        [
-          "2026-10-02",
-          10.5,
-          7.9
         ]
       ]
     },
@@ -60631,8 +60552,8 @@
     "재가급여": {
       "firstSeen": "2026-10-09T09:09:13.683Z",
       "bestScore": 9,
-      "appearances": 11,
-      "lastSeen": "2026-10-31T17:15:15.407Z",
+      "appearances": 12,
+      "lastSeen": "2026-11-01T09:16:35.892Z",
       "hist": [
         [
           "2026-10-09",
@@ -60683,6 +60604,11 @@
           "2026-10-31",
           2.1,
           8.6
+        ],
+        [
+          "2026-11-01",
+          2.1,
+          8.8
         ]
       ]
     },
@@ -64557,398 +64483,50 @@
       ]
     }
   },
-  "updateCandidates": [
-    {
-      "slug": "minsaeng-support-goseong-uiseong-may",
-      "date": "2026-05-17",
-      "term": "민생지원금",
-      "markers": 3,
-      "signal": {
-        "kinQuestions": 527,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 790.5,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "changwon-livelihood-grant-not-paid-2026-08-28",
-      "date": "2026-08-28",
-      "term": "민생지원금",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 527,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 790.5,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "welfare-payment-account-change-2026-05-31",
-      "date": "2026-05-31",
-      "term": "복지급여",
-      "markers": 2,
-      "signal": {
-        "kinQuestions": 103,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 154.5,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "welfare-payment-application-channels-2026-05-31",
-      "date": "2026-05-31",
-      "term": "복지급여",
-      "markers": 2,
-      "signal": {
-        "kinQuestions": 103,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 154.5,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "youth-future-savings-cancel-risk-2026-06-03",
-      "date": "2026-06-03",
-      "term": "청년미래적금",
-      "markers": 5,
-      "signal": {
-        "kinQuestions": 88,
-        "news": 0,
-        "datalab": 0.3
-      },
-      "signalScore": 132.3,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "youth-future-savings-eligibility-2026-06-03",
-      "date": "2026-06-03",
-      "term": "청년미래적금",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 88,
-        "news": 0,
-        "datalab": 0.3
-      },
-      "signalScore": 132.3,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "youth-future-savings-result-account-2026-07-07",
-      "date": "2026-07-07",
-      "term": "청년미래적금",
-      "markers": 3,
-      "signal": {
-        "kinQuestions": 88,
-        "news": 0,
-        "datalab": 0.3
-      },
-      "signalScore": 132.3,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "hampyeong-livelihood-recovery-grant-2026-08-16",
-      "date": "2026-08-16",
-      "term": "민생회복지원금",
-      "markers": 4,
-      "signal": {
-        "kinQuestions": 85,
-        "news": 0,
-        "datalab": 0.1
-      },
-      "signalScore": 127.6,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "goheung-livelihood-recovery-grant-2026-08-17",
-      "date": "2026-08-17",
-      "term": "민생회복지원금",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 85,
-        "news": 0,
-        "datalab": 0.1
-      },
-      "signalScore": 127.6,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "disability-allowance-child-allowance-2026-06-27",
-      "date": "2026-06-27",
-      "term": "장애수당",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 45,
-        "news": 0,
-        "datalab": 0.1
-      },
-      "signalScore": 67.6,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "oil-damage-relief-2nd-application-2026",
-      "date": "2026-05-18",
-      "term": "피해지원금",
-      "markers": 4,
-      "signal": {
-        "kinQuestions": 13,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 19.5,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "oil-damage-relief-2nd-application",
-      "date": "2026-05-20",
-      "term": "피해지원금",
-      "markers": 2,
-      "signal": {
-        "kinQuestions": 13,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 19.5,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "gyeonggi-high-oil-price-relief-2nd",
-      "date": "2026-05-26",
-      "term": "피해지원금",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 13,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 19.5,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "yearend-tax-preview-credit-card-threshold-2026-10-07",
-      "date": "2026-10-07",
-      "term": "연말정산 미리보기",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 12,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 18,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "mungyeong-high-oil-price-relief-2026-08-16",
-      "date": "2026-08-16",
-      "term": "고유가 지원금",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 7,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 10.5,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "marriage-grant-2027-timing-comparison-2026-09-04",
-      "date": "2026-09-04",
-      "term": "혼인지원금",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 6,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 9,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "farmer-fisher-public-allowance-jangseong",
-      "date": "2026-04-29",
-      "term": "공익수당",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 2,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 3,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "self-employed-essentials-weekly-2026-05-27",
-      "date": "2026-05-27",
-      "term": "소상공인 정책자금",
-      "markers": 2,
-      "signal": {
-        "kinQuestions": 2,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 3,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "youth-future-savings-2nd-round-result-2026-10-10",
-      "date": "2026-10-10",
-      "term": "청년미래적금 2차",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 2,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 3,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "slug": "housing-stability-scholarship-next-round-2026-10-16",
-      "date": "2026-10-16",
-      "term": "주거안정장학금",
-      "markers": 1,
-      "signal": {
-        "kinQuestions": 2,
-        "news": 0,
-        "datalab": 0
-      },
-      "signalScore": 3,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    }
-  ],
+  "updateCandidates": [],
   "apiUsage": {
-    "ts": "2026-11-01T00:13:11.514Z",
+    "ts": "2026-11-01T09:16:35.892Z",
     "mode": "hub",
     "runsPerDay": 4,
-    "thisRun": 253,
+    "thisRun": 18,
     "detail": {
-      "search:blog": 60,
-      "search:cafearticle": 60,
-      "search:news": 60,
-      "datalab:trend": 38,
-      "search:kin": 35
+      "datalab:trend": 14,
+      "search:kin": 1,
+      "search:blog": 1,
+      "search:cafearticle": 1,
+      "search:news": 1
     },
     "groups": {
       "search": {
-        "perRun": 215,
-        "perDay": 860,
-        "perMonth": 25800,
+        "perRun": 4,
+        "perDay": 16,
+        "perMonth": 480,
         "dailyQuota": 25000,
         "monthlyQuota": 775000,
-        "dailyPct": 3.44,
-        "monthlyPct": 3.33,
-        "dailyHeadroom": 24140,
-        "monthlyHeadroom": 749200
+        "dailyPct": 0.06,
+        "monthlyPct": 0.06,
+        "dailyHeadroom": 24984,
+        "monthlyHeadroom": 774520
       },
       "datalab": {
-        "perRun": 38,
-        "perDay": 152,
-        "perMonth": 4560,
+        "perRun": 14,
+        "perDay": 56,
+        "perMonth": 1680,
         "dailyQuota": null,
         "monthlyQuota": 50000,
         "dailyPct": null,
-        "monthlyPct": 9.12,
+        "monthlyPct": 3.36,
         "dailyHeadroom": null,
-        "monthlyHeadroom": 45440
+        "monthlyHeadroom": 48320
       }
     }
   },
-  "niche": [
-    {
-      "term": "완주군 민생지원금",
-      "opportunity": 81,
-      "demandPct": 87,
-      "supplyScarcity": 93,
-      "kinQuestions": 25,
-      "gap": 5.4,
-      "momentum": 2.55,
-      "stage": "mature",
-      "age": 51,
-      "growth": 0.98,
-      "blogTotal": 13351,
-      "demo": "senior",
-      "born": false,
-      "recent7": 0.34,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "term": "출산휴가급여",
-      "opportunity": 47,
-      "demandPct": 62,
-      "supplyScarcity": 77,
-      "kinQuestions": 9,
-      "gap": 5.2,
-      "momentum": 0.91,
-      "stage": "rising",
-      "age": 116,
-      "growth": 1.57,
-      "blogTotal": 112220,
-      "demo": "young",
-      "born": false,
-      "recent7": 12.56,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "term": "구직촉진수당",
-      "opportunity": 40,
-      "demandPct": 50,
-      "supplyScarcity": 80,
-      "kinQuestions": 5,
-      "gap": 1.1,
-      "momentum": 1.11,
-      "stage": "rising",
-      "age": 119,
-      "growth": 1.47,
-      "blogTotal": 72869,
-      "demo": null,
-      "born": false,
-      "recent7": 6.74,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "term": "임신바우처",
-      "opportunity": 36,
-      "demandPct": 57,
-      "supplyScarcity": 63,
-      "kinQuestions": 8,
-      "gap": 2.4,
-      "momentum": 1.14,
-      "stage": "new",
-      "age": 6,
-      "growth": 2.15,
-      "blogTotal": 199434,
-      "demo": "young",
-      "born": false,
-      "recent7": 4.44,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "term": "국가장학금",
-      "opportunity": 33,
-      "demandPct": 75,
-      "supplyScarcity": 43,
-      "kinQuestions": 18,
-      "gap": 11.4,
-      "momentum": 1.34,
-      "stage": "rising",
-      "age": 141,
-      "growth": 1.66,
-      "blogTotal": 385803,
-      "demo": "young",
-      "born": false,
-      "recent7": 58.3,
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    }
-  ],
+  "niche": [],
   "candidates": [
     {
       "term": "완주군 민생지원금",
       "reasons": [
-        "analytics",
-        "niche"
+        "analytics"
       ],
       "born": false,
       "fromAnalytics": true,
@@ -64957,12 +64535,6 @@
       "rankMeasured": true,
       "regionPattern": true,
       "signals": {
-        "kinQuestions": 25,
-        "news": 0,
-        "datalab": 0,
-        "momentum": 2.55,
-        "opportunity": 81,
-        "gap": 5.4,
         "volume": {
           "measured": true,
           "relative": 0.18,
@@ -64973,11 +64545,9 @@
           "days": 27,
           "trend": 2.55,
           "born": false
-        },
-        "stage": "mature",
-        "age": 51
+        }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "2026 김해 민생지원금",
@@ -65003,7 +64573,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "김해시 지원금",
@@ -65029,7 +64599,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "통영 지원금 신청",
@@ -65055,7 +64625,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "문경시 지원금",
@@ -65081,7 +64651,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "주휴수당 계산법",
@@ -65107,7 +64677,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "완주 민생지원금",
@@ -65133,7 +64703,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "근로·자녀장려금 9월 신청 전 구분 3가지",
@@ -65159,7 +64729,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "김해 지원금",
@@ -65185,7 +64755,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "김해 민생지원금",
@@ -65211,7 +64781,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "통영 민생지원금 신청",
@@ -65237,7 +64807,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "완주 지원금",
@@ -65263,7 +64833,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "2026 근로장려금 대상 기준",
@@ -65289,7 +64859,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "문경 지원금",
@@ -65315,7 +64885,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "고창군 민생지원금",
@@ -65341,7 +64911,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "통영시 민생지원금 신청",
@@ -65367,7 +64937,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "김해시 지원금 10만원",
@@ -65393,7 +64963,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "중위소득 계산",
@@ -65419,7 +64989,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "정읍시 민생지원금",
@@ -65445,7 +65015,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "김해 추석 민생지원금",
@@ -65471,7 +65041,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "2026 주휴수당 포함 시급",
@@ -65497,7 +65067,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "조기취업수당 조건",
@@ -65523,7 +65093,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "나주 지원금",
@@ -65549,7 +65119,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "2027년 아이맞이지원금",
@@ -65575,7 +65145,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "알바 주휴수당 계산기",
@@ -65601,7 +65171,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "4차 민생쿠폰 신청",
@@ -65627,7 +65197,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "조기재취업수당 조건",
@@ -65653,7 +65223,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "9월14일 민생지원금",
@@ -65679,7 +65249,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "당진시 민생지원금",
@@ -65705,7 +65275,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "2026 재난지원금",
@@ -65731,7 +65301,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "영동군 민생지원금",
@@ -65757,7 +65327,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "고창 지원금",
@@ -65783,7 +65353,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "문경 고유가지원금",
@@ -65809,7 +65379,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "김해 10만원",
@@ -65835,7 +65405,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "김해시 추석지원금",
@@ -65861,7 +65431,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "문경시 민생지원금",
@@ -65887,7 +65457,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "김해시 추석 민생지원금",
@@ -65913,7 +65483,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "창원 지원금",
@@ -65939,7 +65509,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "함평 지원금",
@@ -65965,7 +65535,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     },
     {
       "term": "근로장려금 계산기",
@@ -65991,143 +65561,7 @@
           "born": false
         }
       },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "term": "국가장학금",
-      "reasons": [
-        "niche"
-      ],
-      "born": false,
-      "fromAnalytics": false,
-      "inbound7d": null,
-      "ourRank": null,
-      "rankMeasured": false,
-      "regionPattern": false,
-      "signals": {
-        "kinQuestions": 18,
-        "news": 0,
-        "datalab": 1.4,
-        "momentum": 1.34,
-        "opportunity": 33,
-        "gap": 11.4,
-        "volume": {
-          "measured": true,
-          "relative": 47.07,
-          "recent7": 58.3,
-          "window": 29,
-          "zeroDays": 0,
-          "firstNonZero": 0,
-          "days": 29,
-          "trend": 1.34,
-          "born": false
-        },
-        "stage": "rising",
-        "age": 141
-      },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "term": "출산휴가급여",
-      "reasons": [
-        "niche"
-      ],
-      "born": false,
-      "fromAnalytics": false,
-      "inbound7d": null,
-      "ourRank": null,
-      "rankMeasured": false,
-      "regionPattern": false,
-      "signals": {
-        "kinQuestions": 9,
-        "news": 0,
-        "datalab": 0.4,
-        "momentum": 0.91,
-        "opportunity": 47,
-        "gap": 5.2,
-        "volume": {
-          "measured": true,
-          "relative": 13.52,
-          "recent7": 12.56,
-          "window": 29,
-          "zeroDays": 0,
-          "firstNonZero": 0,
-          "days": 29,
-          "trend": 0.91,
-          "born": false
-        },
-        "stage": "rising",
-        "age": 116
-      },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "term": "구직촉진수당",
-      "reasons": [
-        "niche"
-      ],
-      "born": false,
-      "fromAnalytics": false,
-      "inbound7d": null,
-      "ourRank": null,
-      "rankMeasured": false,
-      "regionPattern": false,
-      "signals": {
-        "kinQuestions": 5,
-        "news": 0,
-        "datalab": 0.2,
-        "momentum": 1.11,
-        "opportunity": 40,
-        "gap": 1.1,
-        "volume": {
-          "measured": true,
-          "relative": 6.22,
-          "recent7": 6.74,
-          "window": 29,
-          "zeroDays": 0,
-          "firstNonZero": 0,
-          "days": 29,
-          "trend": 1.11,
-          "born": false
-        },
-        "stage": "rising",
-        "age": 119
-      },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
-    },
-    {
-      "term": "임신바우처",
-      "reasons": [
-        "niche"
-      ],
-      "born": false,
-      "fromAnalytics": false,
-      "inbound7d": null,
-      "ourRank": null,
-      "rankMeasured": false,
-      "regionPattern": false,
-      "signals": {
-        "kinQuestions": 8,
-        "news": 0,
-        "datalab": 0.1,
-        "momentum": 1.14,
-        "opportunity": 36,
-        "gap": 2.4,
-        "volume": {
-          "measured": true,
-          "relative": 4.03,
-          "recent7": 4.44,
-          "window": 29,
-          "zeroDays": 0,
-          "firstNonZero": 0,
-          "days": 29,
-          "trend": 1.14,
-          "born": false
-        },
-        "stage": "new",
-        "age": 6
-      },
-      "flaggedAt": "2026-11-01T00:13:11.514Z"
+      "flaggedAt": "2026-11-01T09:16:35.892Z"
     }
   ],
   "analytics": {
