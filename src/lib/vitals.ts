@@ -19,6 +19,15 @@ const ENDPOINT = '/api/vitals/';
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1', '']);
 const canSend = (): boolean => !LOCAL_HOSTS.has(location.hostname);
 
+// 유입 사이트(호스트만) — 네이버·구글·직접 방문을 나눠 보기 위한 값. 경로·검색어는 보내지 않는다.
+const referrerHost = (): string => {
+  try {
+    return document.referrer ? new URL(document.referrer).hostname.slice(0, 60) : '';
+  } catch {
+    return '';
+  }
+};
+
 const send = (metric: Metric): void => {
   if (!canSend()) return;
 
@@ -28,6 +37,7 @@ const send = (metric: Metric): void => {
     rating: metric.rating,
     id: metric.id,
     path: location.pathname,
+    ref: referrerHost(),
     device: matchMedia('(max-width: 768px)').matches ? 'mobile' : 'desktop',
     connection: (navigator as Navigator & { connection?: { effectiveType?: string } }).connection
       ?.effectiveType,

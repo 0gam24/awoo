@@ -64,6 +64,7 @@ export const POST: APIRoute = async ({ request }) => {
         v.device ?? 'unknown',
         v.connection ?? 'unknown',
         v.rating ?? 'unknown',
+        v.ref ?? '',
       ],
       doubles: [v.value],
       indexes: [v.name],

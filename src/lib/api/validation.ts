@@ -9,6 +9,7 @@ export const vitalsSchema = z.object({
   rating: z.enum(['good', 'needs-improvement', 'poor']).optional(),
   id: z.string().min(1).max(80),
   path: z.string().max(255),
+  ref: z.string().max(60).optional(),
   device: z.enum(['mobile', 'desktop']).optional(),
   connection: z.string().max(20).optional(),
 });

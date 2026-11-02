@@ -116,6 +116,14 @@ for (const [label, from, to] of [
   );
 }
 
+console.log('=== 3-5) 유입 사이트별 조회(ref 기록 시작 뒤부터, 최근 3일)');
+const refs = await sql(
+  `SELECT toDate(timestamp) AS d, blob6 AS ref, SUM(_sample_interval) AS views FROM awoo_vitals WHERE blob1 = 'TTFB' AND timestamp > NOW() - INTERVAL '3' DAY GROUP BY d, ref ORDER BY d, views DESC FORMAT JSON`,
+);
+if (refs.error) console.log(refs.error);
+else
+  console.log(refs.data.map((r) => `${r.d.slice(5)} ${r.ref || '(없음)'}=${r.views}`).join(' | '));
+
 console.log('=== 4) 존 분석(권한이 있을 때만)');
 const zr = await fetch('https://api.cloudflare.com/client/v4/zones?name=awoo.or.kr', {
   headers: H,
