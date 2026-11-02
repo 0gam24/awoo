@@ -1,0 +1,24 @@
+name: Traffic probe
+
+# 수동 실행 전용 — 실제 방문 흐름(비콘)·유입 사이트·로봇 응답을 집계해 로그로 본다(scripts/traffic-probe.mjs).
+# 공개 저장소이므로 읽은 뒤 실행 기록을 지운다: gh run delete <id>
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+      - name: Probe
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/traffic-probe.mjs
