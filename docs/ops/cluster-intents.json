@@ -3,8 +3,8 @@
     "schema": 1,
     "source": "src/data/issues/**/*.json (_drafts·_scheduled 제외)",
     "generator": "scripts/build-cluster-intents.mjs",
-    "scannedPosts": 407,
-    "entryCount": 143,
+    "scannedPosts": 410,
+    "entryCount": 144,
     "regionCount": 67,
     "regions": [
       "강릉",
@@ -76,13 +76,13 @@
       "횡성"
     ],
     "families": {
-      "A": 103,
+      "A": 104,
       "B": 26,
       "V": 14
     },
     "clusters": {
       "minsaeng": 63,
-      "other": 80
+      "other": 81
     },
     "rollups": 10,
     "knownPairEntries": 8,
@@ -3839,6 +3839,27 @@
       "regionOverride": true,
       "familyOverride": true,
       "clusterOverride": true
+    },
+    {
+      "region": [
+        "부산"
+      ],
+      "family": "A",
+      "slug": "busan-support-programs-open-now-2026-11-01",
+      "path": "src/data/issues/2026-11-01/busan-support-programs-open-now-2026-11-01.json",
+      "date": "2026-11-01",
+      "targetQuery": "부산 지원금",
+      "coreFacts": {
+        "who": "부산시 사업자등록 소기업·소상공인, 사업마다 매출·업력 기준 다름",
+        "amount": "동백전 수수료 지원 최대 22만5,000원, QR가맹점 3만원, 저리대출 최대 3천만원",
+        "deadline": "에너지바우처·수수료 사전신청 11월 6일, QR가맹점은 11월 30일까지"
+      },
+      "coreFactsKeys": [
+        "amount=3만원",
+        "deadline=2026-11-06"
+      ],
+      "cluster": "other",
+      "rollup": false
     }
   ]
 }
