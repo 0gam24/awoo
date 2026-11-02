@@ -50,6 +50,72 @@ const dev = await sql(
 if (dev.error) console.log(dev.error);
 else for (const r of dev.data) console.log(r.d, r.device, r.views);
 
+console.log('=== 3-1) 시간별 조회(UTC 기준, KST는 +9시간) 10/27~');
+const hours = await sql(
+  `SELECT toStartOfInterval(timestamp, INTERVAL '1' HOUR) AS h, SUM(_sample_interval) AS views FROM awoo_vitals WHERE blob1 = 'TTFB' AND timestamp >= toDateTime('2026-10-27 00:00:00') GROUP BY h ORDER BY h FORMAT JSON`,
+);
+if (hours.error) console.log(hours.error);
+else console.log(hours.data.map((r) => `${r.h.slice(5, 13)}=${r.views}`).join(' '));
+
+console.log('=== 3-2) 지표별 일별 건수(비콘 자체가 끊겼는지 대조)');
+const kinds = await sql(
+  `SELECT toDate(timestamp) AS d, blob1 AS k, SUM(_sample_interval) AS c FROM awoo_vitals WHERE timestamp >= toDateTime('2026-10-25 00:00:00') GROUP BY d, k ORDER BY d, k FORMAT JSON`,
+);
+if (kinds.error) console.log(kinds.error);
+else console.log(kinds.data.map((r) => `${r.d.slice(5)} ${r.k}=${r.c}`).join(' | '));
+
+for (const [label, from, to] of [
+  ['10/30', '2026-10-30', '2026-10-31'],
+  ['10/31~11/02', '2026-10-31', '2026-11-03'],
+]) {
+  console.log(`=== 3-3) 경로 상위 20 ${label}`);
+  const t = await sql(
+    `SELECT blob2 AS path, SUM(_sample_interval) AS views FROM awoo_vitals WHERE blob1 = 'TTFB' AND timestamp >= toDateTime('${from} 00:00:00') AND timestamp < toDateTime('${to} 00:00:00') GROUP BY path ORDER BY views DESC LIMIT 20 FORMAT JSON`,
+  );
+  if (t.error) console.log(t.error);
+  else for (const r of t.data) console.log(r.views, r.path);
+}
+
+console.log('=== 3-4) 페이지 종류별 조회 비중');
+for (const [label, from, to] of [
+  ['10/05~10/28', '2026-10-05', '2026-10-29'],
+  ['10/30~11/02', '2026-10-30', '2026-11-03'],
+]) {
+  const all = await sql(
+    `SELECT blob2 AS path, SUM(_sample_interval) AS views FROM awoo_vitals WHERE blob1 = 'TTFB' AND timestamp >= toDateTime('${from} 00:00:00') AND timestamp < toDateTime('${to} 00:00:00') GROUP BY path ORDER BY views DESC LIMIT 3000 FORMAT JSON`,
+  );
+  if (all.error) {
+    console.log(all.error);
+    continue;
+  }
+  const sec = {};
+  let tot = 0;
+  for (const r of all.data) {
+    const v = Number(r.views);
+    tot += v;
+    const seg = r.path.split('/').filter(Boolean);
+    const key =
+      seg[0] === 'issues' && seg[1] === 'topics' ? 'issues/topics' : seg[0] ? seg[0] : '(home)';
+    sec[key] = (sec[key] ?? 0) + v;
+  }
+  console.log(
+    label,
+    `합계 ${tot} 경로 ${all.data.length} |`,
+    Object.entries(sec)
+      .sort((a, b) => b[1] - a[1])
+      .map(([k, v]) => `${k}=${v}(${((v / tot) * 100).toFixed(1)}%)`)
+      .join(' '),
+  );
+  console.log(
+    '  조회 있는 subsidies 상위:',
+    all.data
+      .filter((r) => r.path.startsWith('/subsidies/'))
+      .slice(0, 12)
+      .map((r) => `${r.path.replace('/subsidies/', '')}=${r.views}`)
+      .join(' '),
+  );
+}
+
 console.log('=== 4) 존 분석(권한이 있을 때만)');
 const zr = await fetch('https://api.cloudflare.com/client/v4/zones?name=awoo.or.kr', {
   headers: H,
