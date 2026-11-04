@@ -1,9 +1,9 @@
-# 키워드 후보 보고 — 2026-11-03 (KST)
+# 키워드 후보 보고 — 2026-11-04 (KST)
 
-생성 2026-11-03 07:28Z · scripts/keyword-pipeline.mjs
-SERP 실측: scout 30/35건(T1 15·T2 5·재측정 5)
-입력: cluster-intents 144건 · naver-ranks 58쿼리 · 레이더 candidates 45건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 26 · 글 411건
-후보: T1 1 · T2 6 · T3 1 · 갱신 30 · 제외 106
+생성 2026-11-04 07:09Z · scripts/keyword-pipeline.mjs
+SERP 실측: scout 35/35건(T1 15·T2 5·재측정 5)
+입력: cluster-intents 144건 · naver-ranks 58쿼리 · 레이더 candidates 47건(지역 후보 소스: radar.candidates) · volume-scale 계수 13 · big-keywords 12 · landgrab 26 · 글 411건
+후보: T1 1 · T2 6 · T3 1 · 갱신 30 · 제외 108
 
 ## 오늘 후보
 
@@ -11,10 +11,10 @@ SERP 실측: scout 30/35건(T1 15·T2 5·재측정 5)
 
 | # | 노출 가능성 | 트랙 | 쿼리 | 왜 | 예상 유입/주 | 조건 |
 |---|---|---|---|---|---|---|
-| 1 | 높음 80 · 돈 되는 주제 | T1 A 롤업 | 4차 민생지원금 지역별 지급 현황 · 변형: 4차 민생지원금 9월 신청 지역 / 4차 민생지원금 개시일 | 자리 열림 · 빈자리 4 · 위에 관공서 없음 | 50~500 | [보류] 변형 2개 웹문서 블록 위치 — 눈 확인 "그 아래" 아님(결정 #4, 2026-09-15 webDocOffset <30%에서 대체). 07-30 추석 롤업 잠식 시 noindex · 자사 글이 이미 "4차 민생지원금 9월 신청 지역" r1, "4차 민생지원금 개시일" r3 — 그 글을 잠식하지 않는 각도(A키 선두)로만 |
-| 2 | 높음 75 · 돈 되는 주제 | T2 | 임신바우처 | 자리 열림 · 빈자리 5 · 위에 관공서 없음 | 97~227 | 검색 결과 실측 필요 |
+| 1 | 높음 80 · 돈 되는 주제 | T1 A 롤업 | 4차 민생지원금 지역별 지급 현황 · 변형: 4차 민생지원금 9월 신청 지역 / 4차 민생지원금 개시일 | 자리 열림 · 빈자리 4 · 위에 관공서 없음 | 50~500 | [보류] 변형 2개 웹문서 블록 위치 — 눈 확인 "그 아래" 아님(결정 #4, 2026-09-15 webDocOffset <30%에서 대체). 07-30 추석 롤업 잠식 시 noindex · 자사 글이 이미 "4차 민생지원금 9월 신청 지역" r1, "4차 민생지원금 개시일" r2 — 그 글을 잠식하지 않는 각도(A키 선두)로만 |
+| 2 | 높음 75 · 돈 되는 주제 | T2 | 임신바우처 | 자리 열림 · 빈자리 5 · 위에 관공서 없음 | 94~220 | 검색 결과 실측 필요 |
 | 3 | 중간 65 · 돈 되는 주제 | T2 | 4차 민생쿠폰 신청 | 자리 열림 · 자사 8위 — 다른 의도로 재진입 | 현재 81/주 | [보류] — |
-| 4 | 중간 65 | T2 | 출판보조금 | 자리 열림 · 빈자리 9 · 위에 관공서 없음 | 0~0 | 검색 결과 실측 필요 |
+| 4 | 중간 65 | T2 | 희망두배통장 | 자리 열림 · 빈자리 5 · 위에 관공서 없음 | 20~46 | 검색 결과 실측 필요 |
 | 5 | 높음 75 · 광고 수익 적음 | T2 | 알바 주휴수당 계산기 | 자리 열림 · 빈자리 10 · 위에 관공서 없음 | 현재 81/주 | [보류] 검색 결과 실측 필요 |
 | 6 | 높음 75 · 광고 수익 적음 | T2 | 실업급여 구직급여 | 자리 열림 · 위에 관공서 없음 · 예상 주 152명 | 152~355 | 자매 주의: 지원금 축은 awoo 고유. '실업급여 계산기' 각도는 calculatorhost.com, 사회초년생 첫 실직 각도는 asia · 인접 글 unemployment-credit-pension-2026-06-25, job-promotion-allowance-extra-benefits-2026-06-29 — 각도 분리 |
 
@@ -33,26 +33,26 @@ T2 나머지 1건(점수순, 큐 JSON에 있음): 실업급여 상실신고(391.
 
 | # | 글 | 날짜 | 고칠 것 | 근거 |
 |---|---|---|---|---|
-| 1 | 희망두배청년통장 다음 모집 전에 볼 자격과 만기 수령액 (src/data/issues/2026-10-26/seoul-hope-double-youth-account-2026-10-26.json) | 2026-11-03 D-day | 오늘 마감·지급일 — 당일 표기 | coreFacts.deadline "2026-11-03 선정 발표 예정, 신규 접수는 6월 19일 마감" · 날짜 2026-11-03 D-day · dateModified 2026-10-26T08:35:37+09:00 |
-| 2 | 연말정산 미리보기, 신용카드 공제 25% 넘겼나요? (src/data/issues/2026-10-07/yearend-tax-preview-credit-card-threshold-2026-10-07.json) | 2026-11-05 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "작년 미리보기 11월 5일 개통, 올해는 국세청 발표 대기" · 날짜 2026-11-05 D-2 · 갱신 이력 없음 |
-| 3 | 청년미래적금 2차 결과 확인부터 이의신청과 계좌 개설까지 (src/data/issues/2026-10-10/youth-future-savings-2nd-round-result-2026-10-10.json) | 2026-11-05 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "이의신청 11월 5일 잠정 마감, 개설 11월 27일까지" · 날짜 2026-11-05 D-2 · dateModified 2026-10-10T11:29:17+09:00 |
-| 4 | 부산 소상공인 에너지바우처 신청, 20만원 받는 조건과 동백전 사용처 (src/data/issues/2026-10-02/busan-small-business-energy-voucher-200k-2026-10-02.json) | 2026-11-06 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2026년 11월 6일 18시 마감, 예산 소진 시 조기 마감" · 날짜 2026-11-06 D-3 · dateModified 2026-10-15T14:20:09+09:00 |
-| 5 | 부산 지원금, 동백전 수수료 지원부터 저리대출까지 4가지 (src/data/issues/2026-11-01/busan-support-programs-open-now-2026-11-01.json) | 2026-11-06 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "에너지바우처·수수료 사전신청 11월 6일, QR가맹점은 11월 30일까지" · 날짜 2026-11-06 D-3 · 갱신 이력 없음 |
-| 6 | 용인 전기차 보조금 신청 자격과 승용·화물 추가 지원 조건 (src/data/issues/2026-10-28/yongin-ev-subsidy-2026-10-28.json) | 2026-11-06 D-3 | 3일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "화물 2026-10-30, 승용 2026-11-06 접수 시작" · 날짜 2026-11-06 D-3 (+ 2026-10-30 D+4) · dateModified 2026-10-28T16:06:52+09:00 |
-| 7 | 부안사랑상품권 선할인이 끝나면 캐시백은 어떻게 쌓이나요? (src/data/issues/2026-10-26/buan-love-gift-certificate-cashback-2026-10-26.json) | 2026-11-02 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026-11-02 11월 충전 개시일부터 전환" · 날짜 2026-11-02 D+1 · dateModified 2026-10-26T12:34:28+09:00 |
-| 8 | 장흥 반값여행 인정 관광지와 가맹점 722곳 찾는 법 (src/data/issues/2026-09-30/jangheung-half-price-travel-attractions-chak-2026-09-30.json) | 2026-11-02 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2차 여행 10월 12일~11월 2일, 이틀 전 신청" · 날짜 2026-11-02 D+1 · dateModified 2026-09-30T04:59:26.000Z |
-| 9 | 태안 반값여행 2차 신청 준비물, 착 앱·신분증·유형 선택 (src/data/issues/2026-09-30/taean-half-price-travel-round2-chak-prep-2026-09-30.json) | 2026-11-02 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2차 10월 1일 마감, 3차 11월 2일 10시 선착순" · 날짜 2026-11-02 D+1 · dateModified 2026-10-01T04:20:21.515Z |
-| 10 | 유보통합포털 자녀 등록·찜하기부터 어린이집·유치원 신청까지 (src/data/issues/2026-10-15/yubo-portal-daycare-kindergarten-application-2026-10-15.json) | 2026-11-02 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "자녀 등록·찜하기 10월 28일부터, 신청 11월 2일부터" · 날짜 2026-11-02 D+1 (+ 2026-10-28 D+6) · dateModified 2026-10-15T17:44:35+09:00 |
-| 11 | 전남학생교육수당 신규 신청 2026, 초등 10만 중고 5만 (src/data/issues/2026-08-11/jeonnam-student-education-allowance-2026-08-11.json) | 2026-10-31 D+3 | 마감·지급일 3일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "신규 대상자 신청 2026.03.01~10.31 / 공생카드 사용기한은 카드·공고 안내 확인" · 날짜 2026-10-31 D+3 · 갱신 이력 없음 |
-| 12 | 탐나는전 캐시백 한도는 얼마이고 적립은 언제 멈추나요? (src/data/issues/2026-10-25/tamnaneun-jeon-cashback-2026-10-25.json) | 2026-10-31 D+3 | 마감·지급일 3일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026-10-31 상향 종료, 이후 월 70만원은 8월 발표 기준" · 날짜 2026-10-31 D+3 · dateModified 2026-10-25T17:51:52+09:00 |
-| 13 | 임금체불 대지급금 처리기간 7일로 단축되고 생계비 융자 금리도 내렸다 (src/data/issues/2026-09-23/wage-arrears-simplified-payment-7days-2026-09-23.json) | 2026-10-31 D+3 | 마감·지급일 3일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "간이대지급금 처리기간 단축, 10월31일까지" · 날짜 2026-10-31 D+3 · 갱신 이력 없음 |
-| 14 | 영천 반값여행 최대 10만원 청년 14만원 환급받기 (src/data/issues/2026-09-30/yeongcheon-half-price-travel-refund-2026-09-30.json) | 2026-10-31 D+3 | 마감·지급일 3일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2차 여행 10.1~10.31 접수 중, 여행 7일 전까지 신청" · 날짜 2026-10-31 D+3 · dateModified 2026-10-01T04:20:21.515Z |
-| 15 | 부안군 민생지원금 사용처 선불카드 11월 30일까지 쓰는 곳 (src/data/issues/2026-09-29/buan-grant-prepaid-card-nov30-usage-2026-09-29.json) | 2026-10-30 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026-11-30 사용 마감, 미수령 신청은 10월 30일" · 날짜 2026-10-30 D+4 · 갱신 이력 없음 |
-| 16 | 부안군 민생안정지원금 30만원, 대상 기준일과 지급 일정 (src/data/issues/2026-08-19/buan-livelihood-stability-grant-2026-08-19.json) | 2026-10-30 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "현장 지급 2026.9.16~18 종료 · 못 받았으면 9.21~10.30 읍·면사무소 방문 신청 · 사용기한 2026.11.30" · 날짜 2026-10-30 D+4 · dateModified 2026-09-29 |
-| 17 | 추석 지자체 민생지원금 지역별 얼마, 통영35 함평50만 (src/data/issues/2026-08-21/chuseok-local-livelihood-grant-by-region-2026-08-21.json) | 2026-10-30 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "지급시기 지역별 상이(속초 7.20부터~완주 10.30까지) / 사용기한은 속초·부안·나주 11.30, 통영·의령·함평·영동·완주·고창 12.3" · 날짜 2026-10-30 D+4 · dateModified 2026-10-19T16:25:30+09:00 |
-| 18 | 강화군 소상공인 지원금 30만원, 접수 마감 10월 30일 (src/data/issues/2026-10-24/ganghwa-small-business-grant-2026-10-24.json) | 2026-10-30 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026-10-30 신청 마감, 예산 소진 시 조기 마감" · 날짜 2026-10-30 D+4 · 갱신 이력 없음 |
-| 19 | 고흥 민생지원금 언제 나오나, 30만원 추진 상황 정리 (src/data/issues/2026-08-19/goheung-livelihood-grant-2026-08-19.json) | 2026-10-30 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "9월 1일 확정 발표: 2026.9.14~18 마을 방문 지급(1차), 9.21~10.30 읍면사무소 신청, 사용기한 2026.12.31(지류 " · 날짜 2026-10-30 D+4 · dateModified 2026-09-21 |
-| 20 | HUG 든든전세주택 신청 자격, 소득·자산 무관 무주택 8년 거주 (src/data/issues/2026-07-27/hug-deundeun-jeonse-eligibility-2026-07-27.json) | 2026-10-30 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "제12차 접수 종료(2026.9.30~10.12) / 서류 제출 10.20 17시 / 당첨자 발표 2026.12.30 / 제11차 당첨자 발표 " · 날짜 2026-10-30 D+4 · dateModified 2026-10-14T05:21:23.000Z |
+| 1 | 연말정산 미리보기, 신용카드 공제 25% 넘겼나요? (src/data/issues/2026-10-07/yearend-tax-preview-credit-card-threshold-2026-10-07.json) | 2026-11-05 D-1 | 1일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "작년 미리보기 11월 5일 개통, 올해는 국세청 발표 대기" · 날짜 2026-11-05 D-1 · 갱신 이력 없음 |
+| 2 | 청년미래적금 2차 결과 확인부터 이의신청과 계좌 개설까지 (src/data/issues/2026-10-10/youth-future-savings-2nd-round-result-2026-10-10.json) | 2026-11-05 D-1 | 1일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "이의신청 11월 5일 잠정 마감, 개설 11월 27일까지" · 날짜 2026-11-05 D-1 · dateModified 2026-10-10T11:29:17+09:00 |
+| 3 | 부산 소상공인 에너지바우처 신청, 20만원 받는 조건과 동백전 사용처 (src/data/issues/2026-10-02/busan-small-business-energy-voucher-200k-2026-10-02.json) | 2026-11-06 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "2026년 11월 6일 18시 마감, 예산 소진 시 조기 마감" · 날짜 2026-11-06 D-2 · dateModified 2026-10-15T14:20:09+09:00 |
+| 4 | 부산 지원금, 동백전 수수료 지원부터 저리대출까지 4가지 (src/data/issues/2026-11-01/busan-support-programs-open-now-2026-11-01.json) | 2026-11-06 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "에너지바우처·수수료 사전신청 11월 6일, QR가맹점은 11월 30일까지" · 날짜 2026-11-06 D-2 · 갱신 이력 없음 |
+| 5 | 용인 전기차 보조금 신청 자격과 승용·화물 추가 지원 조건 (src/data/issues/2026-10-28/yongin-ev-subsidy-2026-10-28.json) | 2026-11-06 D-2 | 2일 뒤 마감·지급일 — 카운트다운·마감 안내 정정 | coreFacts.deadline "화물 2026-10-30, 승용 2026-11-06 접수 시작" · 날짜 2026-11-06 D-2 (+ 2026-10-30 D+5) · dateModified 2026-10-28T16:06:52+09:00 |
+| 6 | 희망두배청년통장 다음 모집 전에 볼 자격과 만기 수령액 (src/data/issues/2026-10-26/seoul-hope-double-youth-account-2026-10-26.json) | 2026-11-03 D+1 | 마감·지급일 1일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026-11-03 선정 발표 예정, 신규 접수는 6월 19일 마감" · 날짜 2026-11-03 D+1 · dateModified 2026-10-26T08:35:37+09:00 |
+| 7 | 부안사랑상품권 선할인이 끝나면 캐시백은 어떻게 쌓이나요? (src/data/issues/2026-10-26/buan-love-gift-certificate-cashback-2026-10-26.json) | 2026-11-02 D+2 | 마감·지급일 2일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026-11-02 11월 충전 개시일부터 전환" · 날짜 2026-11-02 D+2 · dateModified 2026-10-26T12:34:28+09:00 |
+| 8 | 장흥 반값여행 인정 관광지와 가맹점 722곳 찾는 법 (src/data/issues/2026-09-30/jangheung-half-price-travel-attractions-chak-2026-09-30.json) | 2026-11-02 D+2 | 마감·지급일 2일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2차 여행 10월 12일~11월 2일, 이틀 전 신청" · 날짜 2026-11-02 D+2 · dateModified 2026-09-30T04:59:26.000Z |
+| 9 | 태안 반값여행 2차 신청 준비물, 착 앱·신분증·유형 선택 (src/data/issues/2026-09-30/taean-half-price-travel-round2-chak-prep-2026-09-30.json) | 2026-11-02 D+2 | 마감·지급일 2일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2차 10월 1일 마감, 3차 11월 2일 10시 선착순" · 날짜 2026-11-02 D+2 · dateModified 2026-10-01T04:20:21.515Z |
+| 10 | 유보통합포털 자녀 등록·찜하기부터 어린이집·유치원 신청까지 (src/data/issues/2026-10-15/yubo-portal-daycare-kindergarten-application-2026-10-15.json) | 2026-11-02 D+2 | 마감·지급일 2일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "자녀 등록·찜하기 10월 28일부터, 신청 11월 2일부터" · 날짜 2026-11-02 D+2 (+ 2026-10-28 D+7) · dateModified 2026-10-15T17:44:35+09:00 |
+| 11 | 전남학생교육수당 신규 신청 2026, 초등 10만 중고 5만 (src/data/issues/2026-08-11/jeonnam-student-education-allowance-2026-08-11.json) | 2026-10-31 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "신규 대상자 신청 2026.03.01~10.31 / 공생카드 사용기한은 카드·공고 안내 확인" · 날짜 2026-10-31 D+4 · 갱신 이력 없음 |
+| 12 | 탐나는전 캐시백 한도는 얼마이고 적립은 언제 멈추나요? (src/data/issues/2026-10-25/tamnaneun-jeon-cashback-2026-10-25.json) | 2026-10-31 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026-10-31 상향 종료, 이후 월 70만원은 8월 발표 기준" · 날짜 2026-10-31 D+4 · dateModified 2026-10-25T17:51:52+09:00 |
+| 13 | 임금체불 대지급금 처리기간 7일로 단축되고 생계비 융자 금리도 내렸다 (src/data/issues/2026-09-23/wage-arrears-simplified-payment-7days-2026-09-23.json) | 2026-10-31 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "간이대지급금 처리기간 단축, 10월31일까지" · 날짜 2026-10-31 D+4 · 갱신 이력 없음 |
+| 14 | 영천 반값여행 최대 10만원 청년 14만원 환급받기 (src/data/issues/2026-09-30/yeongcheon-half-price-travel-refund-2026-09-30.json) | 2026-10-31 D+4 | 마감·지급일 4일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2차 여행 10.1~10.31 접수 중, 여행 7일 전까지 신청" · 날짜 2026-10-31 D+4 · dateModified 2026-10-01T04:20:21.515Z |
+| 15 | 부안군 민생지원금 사용처 선불카드 11월 30일까지 쓰는 곳 (src/data/issues/2026-09-29/buan-grant-prepaid-card-nov30-usage-2026-09-29.json) | 2026-10-30 D+5 | 마감·지급일 5일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026-11-30 사용 마감, 미수령 신청은 10월 30일" · 날짜 2026-10-30 D+5 · 갱신 이력 없음 |
+| 16 | 부안군 민생안정지원금 30만원, 대상 기준일과 지급 일정 (src/data/issues/2026-08-19/buan-livelihood-stability-grant-2026-08-19.json) | 2026-10-30 D+5 | 마감·지급일 5일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "현장 지급 2026.9.16~18 종료 · 못 받았으면 9.21~10.30 읍·면사무소 방문 신청 · 사용기한 2026.11.30" · 날짜 2026-10-30 D+5 · dateModified 2026-09-29 |
+| 17 | 추석 지자체 민생지원금 지역별 얼마, 통영35 함평50만 (src/data/issues/2026-08-21/chuseok-local-livelihood-grant-by-region-2026-08-21.json) | 2026-10-30 D+5 | 마감·지급일 5일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "지급시기 지역별 상이(속초 7.20부터~완주 10.30까지) / 사용기한은 속초·부안·나주 11.30, 통영·의령·함평·영동·완주·고창 12.3" · 날짜 2026-10-30 D+5 · dateModified 2026-10-19T16:25:30+09:00 |
+| 18 | 강화군 소상공인 지원금 30만원, 접수 마감 10월 30일 (src/data/issues/2026-10-24/ganghwa-small-business-grant-2026-10-24.json) | 2026-10-30 D+5 | 마감·지급일 5일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "2026-10-30 신청 마감, 예산 소진 시 조기 마감" · 날짜 2026-10-30 D+5 · 갱신 이력 없음 |
+| 19 | 고흥 민생지원금 언제 나오나, 30만원 추진 상황 정리 (src/data/issues/2026-08-19/goheung-livelihood-grant-2026-08-19.json) | 2026-10-30 D+5 | 마감·지급일 5일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "9월 1일 확정 발표: 2026.9.14~18 마을 방문 지급(1차), 9.21~10.30 읍면사무소 신청, 사용기한 2026.12.31(지류 " · 날짜 2026-10-30 D+5 · dateModified 2026-09-21 |
+| 20 | HUG 든든전세주택 신청 자격, 소득·자산 무관 무주택 8년 거주 (src/data/issues/2026-07-27/hug-deundeun-jeonse-eligibility-2026-07-27.json) | 2026-10-30 D+5 | 마감·지급일 5일 지남 — 종료 표기·다음 절차로 정정 | coreFacts.deadline "제12차 접수 종료(2026.9.30~10.12) / 서류 제출 10.20 17시 / 당첨자 발표 2026.12.30 / 제11차 당첨자 발표 " · 날짜 2026-10-30 D+5 · dateModified 2026-10-14T05:21:23.000Z |
 
 갱신 나머지 10건은 큐 JSON(track "갱신")에 있음.
 
@@ -74,11 +74,11 @@ T2 나머지 1건(점수순, 큐 JSON에 있음): 실업급여 상실신고(391.
 - [T1] 완주 B — B 트리거: "완주 민생지원금" r10(2026-09-09) → cluster-intents VETO: 완주 × B 이미 존재: wanju-grant-proxy-application-after-sep14(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 완주 B — B 트리거: "완주군 민생지원금" rank null(통블록)(2026-09-09) → cluster-intents VETO: 완주 × B 이미 존재: wanju-grant-proxy-application-after-sep14(2026-09-10). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
 - [T1] 완주군 민생지원금 — 실유입 "완주군 민생지원금" 512/주 자사 미노출 → cluster-intents VETO: 완주 × A 이미 존재: wanju-livelihood-stability-grant-2026-08-12(2026-08-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
-- [T1] 통영 지원금 신청 — 실유입 "통영 지원금 신청" 182/주 순위 미측정 → cluster-intents VETO: 통영 × A 이미 존재: tongyeong-livelihood-recovery-grant-2026-08-15(2026-08-15). 막는 글의 deadline이 64일 지남(기준 2026-11-03, 임계 60일) — 끝난 제도이고 후보는 별개 제도(다음 물결)일 수 있음, 운영자 판단(--allow-stale로 통과). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
+- [T1] 통영 지원금 신청 — 실유입 "통영 지원금 신청" 182/주 순위 미측정 → cluster-intents VETO: 통영 × A 이미 존재: tongyeong-livelihood-recovery-grant-2026-08-15(2026-08-15). 막는 글의 deadline이 65일 지남(기준 2026-11-04, 임계 60일) — 끝난 제도이고 후보는 별개 제도(다음 물결)일 수 있음, 운영자 판단(--allow-stale로 통과). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
 - [T1] 완주 민생지원금 — 실유입 "완주 민생지원금" 170/주 r10 → cluster-intents VETO: 완주 × A 이미 존재: wanju-livelihood-stability-grant-2026-08-12(2026-08-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts)
-- [T1] 통영 민생지원금 신청 — 실유입 "통영 민생지원금 신청" 157/주 순위 미측정 → cluster-intents VETO: 통영 × A 이미 존재: tongyeong-livelihood-recovery-grant-2026-08-15(2026-08-15). 막는 글의 deadline이 64일 지남(기준 2026-11-03, 임계 60일) — 끝난 제도이고 후보는 별개 제도(다음 물결)일 수 있음, 운영자 판단(--allow-stale로 통과). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
+- [T1] 통영 민생지원금 신청 — 실유입 "통영 민생지원금 신청" 157/주 순위 미측정 → cluster-intents VETO: 통영 × A 이미 존재: tongyeong-livelihood-recovery-grant-2026-08-15(2026-08-15). 막는 글의 deadline이 65일 지남(기준 2026-11-04, 임계 60일) — 끝난 제도이고 후보는 별개 제도(다음 물결)일 수 있음, 운영자 판단(--allow-stale로 통과). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
 - [T1] 완주 지원금 — 실유입 "완주 지원금" 149/주 순위 미측정 → cluster-intents VETO: 완주 × A 이미 존재: wanju-livelihood-stability-grant-2026-08-12(2026-08-12). coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
-- [T1] 통영시 민생지원금 신청 — 실유입 "통영시 민생지원금 신청" 134/주 순위 미측정 → cluster-intents VETO: 통영 × A 이미 존재: tongyeong-livelihood-recovery-grant-2026-08-15(2026-08-15). 막는 글의 deadline이 64일 지남(기준 2026-11-03, 임계 60일) — 끝난 제도이고 후보는 별개 제도(다음 물결)일 수 있음, 운영자 판단(--allow-stale로 통과). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
+- [T1] 통영시 민생지원금 신청 — 실유입 "통영시 민생지원금 신청" 134/주 순위 미측정 → cluster-intents VETO: 통영 × A 이미 존재: tongyeong-livelihood-recovery-grant-2026-08-15(2026-08-15). 막는 글의 deadline이 65일 지남(기준 2026-11-04, 임계 60일) — 끝난 제도이고 후보는 별개 제도(다음 물결)일 수 있음, 운영자 판단(--allow-stale로 통과). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
 - [T1] 함평 지원금 — 실유입 "함평 지원금" 60/주 순위 미측정 → cluster-intents VETO: 함평 × A 이미 존재: hampyeong-livelihood-recovery-grant-2026-08-16(2026-08-16). 잠금 제외 3건(롤업·비민생) · coreFacts 미제공 → FIX 검사 생략(--who/--amount/--deadline 또는 --facts) — 기존 글 순위 재측정 대상
 - [T2] 실업급여 이직확인서 — 축 잠금 — separation-certificate-request-10days-2026-09-09(2026-09-09) 제목이 "이직확인서" 축을 이미 잡고 있다
 - [T2] 실업급여 조기재취업수당 — 축 잠금 — early-reemployment-allowance-2026-06-16(2026-06-16) 제목이 "조기재취업수당" 축을 이미 잡고 있다
@@ -91,7 +91,7 @@ T2 나머지 1건(점수순, 큐 JSON에 있음): 실업급여 상실신고(391.
 - [T2] 근로장려금 지급일 — 축 잠금 — eitc-semiannual-vs-regular-payment-date-2026-07-01(2026-07-01) 제목이 "지급일" 축을 이미 잡고 있다
 - [T2] 근로장려금 자녀장려금 — 축 잠금 — child-tax-credit-payment-2026-07-15(2026-07-15) 제목이 "자녀장려금" 축을 이미 잡고 있다
 - [T2] 근로장려금 대상 기준 — 축 잠금 — eitc-2026-eligibility-criteria(2026-09-13) 제목이 "대상 기준" 축을 이미 잡고 있다
-- [T2] 근로장려금 계산기 — recent7 0.45 < 1.5(radar)
+- [T2] 근로장려금 계산기 — recent7 0.47 < 1.5(radar)
 - [T2] 근로장려금 현금수령 — 축 잠금 — eitc-refund-notice-cash-receipt-2026-08-07(2026-08-07) 제목이 "현금수령" 축을 이미 잡고 있다
 - [T2] 중위소득 계산 — 축 잠금 — median-income-calculation-guide-2026-09-19(2026-09-19) 제목이 "계산" 축을 이미 잡고 있다
 - [T2] 중위소득 2027 — 축 잠금 — median-income-2027-livelihood-benefit-threshold-2026-08-01(2026-08-01) 제목이 "2027" 축을 이미 잡고 있다
@@ -120,9 +120,11 @@ T2 나머지 1건(점수순, 큐 JSON에 있음): 실업급여 상실신고(391.
 - [T2] 노란우산공제 폐업 공제금 — 축 잠금 — small-biz-closure-money-checklist-2026-10-08(2026-10-08) 제목이 "폐업 공제금" 축을 이미 잡고 있다
 - [T2] 본인부담상한액 초과금 환급 — 축 잠금 — medical-copay-cap-refund-2026-08-31(2026-08-31) 제목이 "초과금 환급" 축을 이미 잡고 있다
 - [T2] 2027 예산안 — mode update-only — 갱신 트랙 전용(지금은 1.77로 작고 하락 중(trend 0.56). 대응 글 0. 국회 심사(11월)·통과(12/2 법정)
-- [T2] 구직촉진수당 — 기존 글 있음 — national-employment-support-allowance-2026-06-17(제목에 이 표현 포함). 새 글 아님
-- [T2] 경영안정바우처 — 기존 글 있음 — small-biz-management-voucher-detail-2026-09-15(제목에 이 표현 포함). 새 글 아님
-- [T2] 국가장학금 — 기존 글 있음 — national-scholarship-2nd-semester-2026-06-17(제목에 이 표현 포함). 새 글 아님
+- [T2] 에너지바우처 — 기존 글 있음 — energy-voucher-summer-2026-06-08(제목에 이 표현 포함). 새 글 아님
+- [T2] 청년일자리도약장려금 — 기존 글 있음 — youth-job-leap-nonmetro-incentive-2026-07-30(제목에 이 표현 포함). 새 글 아님
+- [T2] 재취업수당 — 기존 글 있음 — early-reemployment-allowance-2026-06-16(제목에 이 표현 포함). 새 글 아님
+- [T2] 희망두배청년통장 — 기존 글 있음 — seoul-hope-double-youth-account-2026-10-26(제목에 이 표현 포함). 새 글 아님
+- [T2] 취업성공수당 — 기존 글 있음 — youth-employment-success-money-2026-10-28(제목에 이 표현 포함). 새 글 아님
 - [T2] 2026 근로장려금 대상 기준 — 기존 글 있음 — eitc-2026-eligibility-criteria(제목에 이 표현 포함). 새 글 아님
 - [T2] 2027년 아이맞이지원금 — 기존 글 있음 — child-benefit-2027-overhaul-2026-09-03(제목에 이 표현 포함). 새 글 아님
 - [T2] 조기재취업수당 조건 — 기존 글 있음 — early-reemployment-allowance-conditions-2026-07-31(제목에 이 표현 포함). 새 글 아님
@@ -131,14 +133,14 @@ T2 나머지 1건(점수순, 큐 JSON에 있음): 실업급여 상실신고(391.
 - [T3] 중도퇴사 연말정산 — hold: peak ≥3 ✗(2.86 — 미달) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인(asiatop 사회초년생 퇴사 각도). 재측정에서 ≥3 나올 때만
 - [T3] 연말정산 경정청구 — hold: peak ≥3 ✓(12.9) + openSlots ≥2 + 자매 0 + 운영자 승인 + 자매 미러 확인 — awoo 각도는 '놓친 월세·의료비 환급을 5년 안에 돌려받는 절차'
 - [T3] 국가건강검진 2026 대상자(짝수년) 연내 마감 — hold: scout 2026-09-24: openSlots 8·뉴스벽 0·총량 1,896만(상업 블로그 강함). nhis.or.kr 원문. 각도는 대상자 조회가 아니라 "연말 몰림·미수검 불이익·검진기관 예약" 실무형
-- [T2] 2026 재난지원금 — scout 2026-11-03 verdictT2 closed: "2026 재난지원금" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
-- [T2] 9월14일 민생지원금 — scout 2026-11-03 verdictT2 closed: "9월14일 민생지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
-- [T2] 조기취업수당 조건 — scout 2026-11-03 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
-- [T2] 2026 주휴수당 포함 시급 — scout 2026-11-03 verdictT2 closed: "2026 주휴수당 포함 시급" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
-- [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-11-03 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" already r3, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
-- [T1] 창원 지원금 — scout 2026-11-03 verdictT1 closed: "창원 지원금" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
-- [T1] 정읍시 민생지원금 — scout 2026-11-03 verdictT1 closed: "정읍시 민생지원금" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
-- [T1] 강릉 민생안정지원금 신청 — scout 2026-11-03 verdictT1 closed: "강릉 민생안정지원금 신청" already r3, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
+- [T2] 2026 재난지원금 — scout 2026-11-04 verdictT2 closed: "2026 재난지원금" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
+- [T2] 9월14일 민생지원금 — scout 2026-11-04 verdictT2 closed: "9월14일 민생지원금" already r2, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
+- [T2] 조기취업수당 조건 — scout 2026-11-04 verdictT2 closed: "조기취업수당 조건" already r3, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
+- [T2] 2026 주휴수당 포함 시급 — scout 2026-11-04 verdictT2 closed: "2026 주휴수당 포함 시급" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
+- [T2] 근로·자녀장려금 9월 신청 전 구분 3가지 — scout 2026-11-04 verdictT2 closed: "근로·자녀장려금 9월 신청 전 구분 3가지" already r3, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
+- [T1] 창원 지원금 — scout 2026-11-04 verdictT1 closed: "창원 지원금" already r2, openSlots 1<2, offset·press 미측정(API) — 자사 이미 r2 — 신규 불필요
+- [T1] 정읍시 민생지원금 — scout 2026-11-04 verdictT1 closed: "정읍시 민생지원금" already r1, openSlots 0<2, offset·press 미측정(API) — 자사 이미 r1 — 신규 불필요
+- [T1] 강릉 민생안정지원금 신청 — scout 2026-11-04 verdictT1 closed: "강릉 민생안정지원금 신청" already r3, offset·press 미측정(API) — 자사 이미 r3 — 신규 불필요
 - [T2] 주휴수당 포함 시급 — 이미 노출 — 자사 3위
 - [T3] 고향사랑기부제 세액공제 — 발행됨(2026-10-18)
 - [T3] 10월 대체공휴일 휴일근무 수당 — 운영자 반려(2026-09-29T04:54:48.865Z)
@@ -313,9 +315,9 @@ T2 나머지 1건(점수순, 큐 JSON에 있음): 실업급여 상실신고(391.
 
 ## 다음 물결 감시
 
-- 나주 — 개시 09/14 D+50 · 신규 없음. D-1·D+1 재측정, 4위 이하면 B(계획 §5)
-- 문경 — 개시 09/14 D+50 · 신규 없음. 9/16 B 필요 여부 판단(계획 §5) (판단일 2026-09-16)
-- 김해 — 개시 09/17 D+47 · 김해시 공고 게시 후 B키 2개 확정 시만(결정 #5)
+- 나주 — 개시 09/14 D+51 · 신규 없음. D-1·D+1 재측정, 4위 이하면 B(계획 §5)
+- 문경 — 개시 09/14 D+51 · 신규 없음. 9/16 B 필요 여부 판단(계획 §5) (판단일 2026-09-16)
+- 김해 — 개시 09/17 D+48 · 김해시 공고 게시 후 B키 2개 확정 시만(결정 #5)
 - 당진 — 개시일 미정 · V글 보유. 신규 금지, 가결 감시(결정 #6)
 - 대구 — 개시일 미정 · 확인 불가 — 첫 주 제외(계획 §5)
 - 경기 — 개시일 미정 · 확인 불가 — 첫 주 제외(계획 §5)
@@ -331,11 +333,11 @@ T2 나머지 1건(점수순, 큐 JSON에 있음): 실업급여 상실신고(391.
 - 실업급여 연말정산 — 새벽 자동 발행 2026-10-23 배정
 - 2027 소상공인 정책자금(1분기 접수) — watch · 감시 시작 2026-12-15 · 중소벤처기업부 2027 소상공인 정책자금 융자계획 공고 확인
 - 2027 소상공인 지원사업 통합공고 — watch · 감시 시작 2026-12-15 · 중소벤처기업부 2027 소상공인 지원사업 통합공고 확인
-- 부안 신청 마감 11/30 — 2026-11-30(D-27) 갱신 예정 · buan-livelihood-stability-grant-2026-08-19, buan-grant-prepaid-card-nov30-usage-2026-09-29, buan-love-gift-certificate-cashback-2026-10-26
-- 강릉 신청 시작 11/9(첫 주 요일제) — 2026-11-09(D-6) 갱신 예정 · gangneung-livelihood-grant-resubmission-2026-09-03, gangneung-pay-where-to-use-2026-10-20
-- 재측정 "2026 김해 민생지원금": r2 · 본청 0 · 뉴스7일 1·같은제목 1 · openSlots 0 · 눈 확인 전(추정 첫 화면)
-- 재측정 "김해시 지원금": r2 · 본청 0 · 뉴스7일 6·같은제목 1 · openSlots 0 · 눈 확인 전(추정 첫 화면)
-- 재측정 "통영 지원금 신청": r2 · 본청 0 · 뉴스7일 8·같은제목 1 · openSlots 0 · 눈 확인 전(추정 첫 화면)
+- 부안 신청 마감 11/30 — 2026-11-30(D-26) 갱신 예정 · buan-livelihood-stability-grant-2026-08-19, buan-grant-prepaid-card-nov30-usage-2026-09-29, buan-love-gift-certificate-cashback-2026-10-26
+- 강릉 신청 시작 11/9(첫 주 요일제) — 2026-11-09(D-5) 갱신 예정 · gangneung-livelihood-grant-resubmission-2026-09-03, gangneung-pay-where-to-use-2026-10-20
+- 재측정 "2026 김해 민생지원금": r2 · 본청 0 · 뉴스7일 0·같은제목 0 · openSlots 0 · 눈 확인 전(추정 첫 화면)
+- 재측정 "김해시 지원금": r2 · 본청 0 · 뉴스7일 5·같은제목 1 · openSlots 0 · 눈 확인 전(추정 첫 화면)
+- 재측정 "통영 지원금 신청": r2 · 본청 0 · 뉴스7일 10·같은제목 1 · openSlots 0 · 눈 확인 전(추정 첫 화면)
 - 재측정 "문경시 지원금": r2 · 본청 0 · 뉴스7일 2·같은제목 1 · openSlots 0 · 눈 확인 전(추정 첫 화면)
 - 재측정 "김해 지원금": r2 · 본청 0 · 뉴스7일 16·같은제목 1 · openSlots 0 · 눈 확인 전(추정 첫 화면)
 
