@@ -1,19 +1,19 @@
 {
-  "syncedAt": "2026-11-08T13:56:39.584Z",
+  "syncedAt": "2026-11-09T00:12:49.254Z",
   "source": "naver-news",
   "method": "trending-ngram",
-  "headline": "고용노동부, 실업급여 부정수급 정조준..연말까지 집중신고·특별점검",
-  "description": "김영훈 고용노동부 장관은 “임시직 비중이 높은 우리 노동시장 구조상 반복수급은 불가피하게 생기는 측면이 있다”며 “고용이 불안정한 취약 노동자는 더 두텁게 보호하되 제도를 악용해 지원금을 부정하게 타가는...",
-  "pubDate": "Sun, 08 Nov 2026 13:06:00 +0900",
+  "headline": "실업급여·육아휴직급여 부정수급 집중신고 9일 시작…자진신고 시 추가...",
+  "description": "고용노동부가 실업급여와 육아휴직급여 등 고용보험 급여 및 지원금의 부정수급을 근절하기 위해 연말까지... 부정하게 지급받은 급여나 지원금은 반환해야 하며, 추가징수 면제는 별도의 요건에 따라 적용된다. 특히...",
+  "pubDate": "Mon, 09 Nov 2026 00:06:00 +0900",
   "pubDateKR": "2026.11.08",
-  "link": "https://kpenews.com/View.aspx?No=4302464",
+  "link": "https://www.cbci.co.kr/news/articleView.html?idxno=624582",
   "category": "취업",
-  "score": 79,
+  "score": 93,
   "trendingTopic": "실업급여",
-  "trendingTopicCount": 2,
+  "trendingTopicCount": 3,
   "summary": {
     "headline": "실업급여 — 이번 주 화제",
-    "subhead": "매체 2회 언급 · 관련 지원금 1건 매칭",
+    "subhead": "매체 3회 언급 · 관련 지원금 2건 매칭",
     "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다.",
     "coreFacts": [
       {
@@ -23,8 +23,8 @@
       },
       {
         "label": "보도 건수",
-        "value": "2건",
-        "sub": "2개 매체 보도"
+        "value": "3건",
+        "sub": "3개 매체 보도"
       },
       {
         "label": "트렌드",
@@ -40,26 +40,36 @@
   },
   "aggregate": {
     "cities": [],
-    "publisherCount": 2,
+    "publisherCount": 3,
     "publishers": [
-      "kpenews.com",
-      "newsgn.com"
+      "cbci.co.kr",
+      "newsgn.com",
+      "gosiweek.com"
     ],
     "newestArticle": {
-      "title": "실업급여, 실직의 보호막인가 구직의 걸림돌인가",
-      "description": "지원금만 노린 단기 취업을 막을 장치도 필요하다. 직업훈련과 취업 알선을 강화하고 반복적인 부정수급에는 엄정하게 대응해야 한다. 동시에 저임금과 열악한 근로환경 때문에 재취업을 망설이는 현실도 외면해선 안...",
-      "pubDate": "Sun, 08 Nov 2026 16:50:00 +0900",
-      "link": "https://www.newsgn.com/news/articleView.html?idxno=584152",
-      "naverLink": "https://www.newsgn.com/news/articleView.html?idxno=584152",
+      "title": "실업급여 부정수급 자진신고하면 최대 5배 추가징수 면제…연말까지 집...",
+      "description": "불가피하게 발생하는 측면이 있다\"며 \"이러한 특성을 고려해 고용불안정에 놓인 취약 노동자에 대한 보호는 보다 두텁게 하되, 제도를 악용하고 지원금을 부정 수급하는 행위에는 더욱 엄정하게 대응해 나가겠다\"고 밝혔다.",
+      "pubDate": "Mon, 09 Nov 2026 07:34:00 +0900",
+      "link": "https://www.gosiweek.com/article/1065565862322042",
+      "naverLink": "https://www.gosiweek.com/article/1065565862322042",
       "category": "취업",
-      "score": 69,
+      "score": 77,
       "govCount": 2
     },
-    "newestPubDate": "Sun, 08 Nov 2026 16:50:00 +0900"
+    "newestPubDate": "Mon, 09 Nov 2026 07:34:00 +0900"
   },
   "daysActive": 1,
-  "totalCount": 2,
+  "totalCount": 3,
   "matchedSubsidies": [
+    {
+      "id": "parenting-allowance-000008",
+      "title": "육아휴직급여",
+      "agency": "고용노동부",
+      "category": "교육",
+      "icon": "cat-education",
+      "amount": 4500000,
+      "amountLabel": "최대"
+    },
     {
       "id": "senior-employment",
       "title": "신중년 적합직무 고용장려금",
@@ -73,6 +83,15 @@
   "matchedSubsidiesByTerm": {
     "실업급여": [
       {
+        "id": "parenting-allowance-000008",
+        "title": "육아휴직급여",
+        "agency": "고용노동부",
+        "category": "교육",
+        "icon": "cat-education",
+        "amount": 4500000,
+        "amountLabel": "최대"
+      },
+      {
         "id": "senior-employment",
         "title": "신중년 적합직무 고용장려금",
         "agency": "고용노동부",
@@ -82,7 +101,16 @@
         "amountLabel": "1년간"
       }
     ],
-    "민생안정지원금": [
+    "출산지원금": [
+      {
+        "id": "maternity-grant",
+        "title": "첫만남이용권 + 부모급여",
+        "agency": "보건복지부",
+        "category": "복지",
+        "icon": "cat-baby",
+        "amount": 20000000,
+        "amountLabel": "0~1세 누적(첫째)"
+      },
       {
         "id": "basic-livelihood",
         "title": "기초생활보장 생계급여",
@@ -91,6 +119,26 @@
         "icon": "cat-welfare",
         "amount": 9846672,
         "amountLabel": "연 최대(1인)"
+      },
+      {
+        "id": "allowance-000739",
+        "title": "아이 꿈 수당 지급",
+        "agency": "인천광역시",
+        "category": "복지",
+        "icon": "cat-welfare",
+        "amount": 50000,
+        "amountLabel": "월 지원"
+      }
+    ],
+    "육아휴직급여": [
+      {
+        "id": "parenting-allowance-000008",
+        "title": "육아휴직급여",
+        "agency": "고용노동부",
+        "category": "교육",
+        "icon": "cat-education",
+        "amount": 4500000,
+        "amountLabel": "최대"
       },
       {
         "id": "maternity-grant",
@@ -102,129 +150,199 @@
         "amountLabel": "0~1세 누적(첫째)"
       },
       {
-        "id": "allowance-000739",
-        "title": "아이 꿈 수당 지급",
-        "agency": "인천광역시",
-        "category": "복지",
-        "icon": "cat-welfare",
-        "amount": 50000,
-        "amountLabel": "월 지원"
+        "id": "senior-employment",
+        "title": "신중년 적합직무 고용장려금",
+        "agency": "고용노동부",
+        "category": "취업",
+        "icon": "cat-employment",
+        "amount": 9600000,
+        "amountLabel": "1년간"
       }
     ]
   },
   "trending": [
     {
       "term": "실업급여",
-      "count": 2,
-      "mediaCount": 2,
-      "articleCount": 2,
+      "count": 3,
+      "mediaCount": 3,
+      "articleCount": 3,
       "topArticle": {
-        "title": "고용노동부, 실업급여 부정수급 정조준..연말까지 집중신고·특별점검",
-        "link": "https://kpenews.com/View.aspx?No=4302464",
-        "pubDate": "Sun, 08 Nov 2026 13:06:00 +0900",
+        "title": "실업급여·육아휴직급여 부정수급 집중신고 9일 시작…자진신고 시 추가...",
+        "link": "https://www.cbci.co.kr/news/articleView.html?idxno=624582",
+        "pubDate": "Mon, 09 Nov 2026 00:06:00 +0900",
         "pubDateKR": "2026.11.08",
         "category": "취업"
       },
       "summary": {
         "headline": "실업급여 — 이번 주 화제",
-        "subhead": "매체 2회 언급 · 관련 지원금 1건 매칭",
+        "subhead": "매체 3회 언급 · 관련 지원금 2건 매칭",
         "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
       },
       "cities": [],
-      "publisherCount": 2,
+      "publisherCount": 3,
       "daysActive": 1,
-      "matchedCount": 1
+      "matchedCount": 2
     },
     {
-      "term": "민생안정지원금",
-      "count": 2,
-      "mediaCount": 1,
-      "articleCount": 2,
+      "term": "출산지원금",
+      "count": 3,
+      "mediaCount": 2,
+      "articleCount": 3,
       "topArticle": {
-        "title": "강릉시 \"민생안정지원금 꼭 신청하세요\"",
-        "link": "https://www.yna.co.kr/view/PYH20261108114200062?input=1196m",
-        "pubDate": "Sun, 08 Nov 2026 17:14:00 +0900",
+        "title": "[리포트]\"출산지원금 최대 6배 인상\"⋯저출생 해법 될까?",
+        "link": "https://tjmbc.co.kr/NewsArticle/872139",
+        "pubDate": "Mon, 09 Nov 2026 08:00:00 +0900",
         "pubDateKR": "2026.11.08",
         "category": "복지"
       },
       "summary": {
-        "headline": "민생안정지원금 — 이번 주 화제",
-        "subhead": "강릉시 시행 · 매체 2회 언급 · 관련 지원금 3건 매칭",
-        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
+        "headline": "출산지원금 — 2개 지자체 동시 시행 중",
+        "subhead": "태안군·논산시 신청 접수 · 매체 누적 4회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "태안군·논산시 거주자라면 즉시 신청 검토. 일부 지자체는 신청 기한이 짧아 놓치기 쉽습니다."
       },
       "cities": [
-        "강릉시"
+        "태안군",
+        "논산시"
       ],
-      "publisherCount": 1,
-      "daysActive": 1,
+      "publisherCount": 2,
+      "daysActive": 2,
+      "matchedCount": 3
+    },
+    {
+      "term": "육아휴직급여",
+      "count": 2,
+      "mediaCount": 2,
+      "articleCount": 2,
+      "topArticle": {
+        "title": "실업급여·육아휴직급여 부정수급 집중신고 9일 시작…자진신고 시 추가...",
+        "link": "https://www.cbci.co.kr/news/articleView.html?idxno=624582",
+        "pubDate": "Mon, 09 Nov 2026 00:06:00 +0900",
+        "pubDateKR": "2026.11.08",
+        "category": "취업"
+      },
+      "summary": {
+        "headline": "육아휴직급여 — 이번 주 화제",
+        "subhead": "매체 누적 3회 언급 · 관련 지원금 3건 매칭",
+        "hookCopy": "받을 수 있는 분이라면 지금 확인하세요. 관련 지원금도 함께 안내합니다."
+      },
+      "cities": [],
+      "publisherCount": 2,
+      "daysActive": 2,
       "matchedCount": 3
     }
   ],
   "topTrendingArticles": [
     {
-      "title": "고용노동부, 실업급여 부정수급 정조준..연말까지 집중신고·특별점검",
-      "description": "김영훈 고용노동부 장관은 “임시직 비중이 높은 우리 노동시장 구조상 반복수급은 불가피하게 생기는 측면이 있다”며 “고용이 불안정한 취약 노동자는 더 두텁게 보호하되 제도를 악용해 지원금을 부정하게 타가는...",
-      "pubDate": "Sun, 08 Nov 2026 13:06:00 +0900",
+      "title": "실업급여·육아휴직급여 부정수급 집중신고 9일 시작…자진신고 시 추가...",
+      "description": "고용노동부가 실업급여와 육아휴직급여 등 고용보험 급여 및 지원금의 부정수급을 근절하기 위해 연말까지... 부정하게 지급받은 급여나 지원금은 반환해야 하며, 추가징수 면제는 별도의 요건에 따라 적용된다. 특히...",
+      "pubDate": "Mon, 09 Nov 2026 00:06:00 +0900",
       "pubDateKR": "2026.11.08",
-      "link": "https://kpenews.com/View.aspx?No=4302464",
-      "publisher": "kpenews.com",
+      "link": "https://www.cbci.co.kr/news/articleView.html?idxno=624582",
+      "publisher": "cbci.co.kr",
       "category": "취업"
     },
     {
       "title": "실업급여, 실직의 보호막인가 구직의 걸림돌인가",
-      "description": "지원금만 노린 단기 취업을 막을 장치도 필요하다. 직업훈련과 취업 알선을 강화하고 반복적인 부정수급에는 엄정하게 대응해야 한다. 동시에 저임금과 열악한 근로환경 때문에 재취업을 망설이는 현실도 외면해선 안...",
+      "description": "조기 재취업 수당을 현실화하고 새 직장에서 2년 이상 근속하면 장려금을 지급하는 방안도 검토할 만하다. 지원금만 노린 단기 취업을 막을 장치도 필요하다. 직업훈련과 취업 알선을 강화하고 반복적인 부정수급에는...",
       "pubDate": "Sun, 08 Nov 2026 16:50:00 +0900",
       "pubDateKR": "2026.11.08",
       "link": "https://www.newsgn.com/news/articleView.html?idxno=584152",
       "publisher": "newsgn.com",
+      "category": "취업"
+    },
+    {
+      "title": "실업급여 부정수급 자진신고하면 최대 5배 추가징수 면제…연말까지 집...",
+      "description": "불가피하게 발생하는 측면이 있다\"며 \"이러한 특성을 고려해 고용불안정에 놓인 취약 노동자에 대한 보호는 보다 두텁게 하되, 제도를 악용하고 지원금을 부정 수급하는 행위에는 더욱 엄정하게 대응해 나가겠다\"고 밝혔다.",
+      "pubDate": "Mon, 09 Nov 2026 07:34:00 +0900",
+      "pubDateKR": "2026.11.08",
+      "link": "https://www.gosiweek.com/article/1065565862322042",
+      "publisher": "gosiweek.com",
       "category": "취업"
     }
   ],
   "trendingArticlesByTerm": {
     "실업급여": [
       {
-        "title": "고용노동부, 실업급여 부정수급 정조준..연말까지 집중신고·특별점검",
-        "description": "김영훈 고용노동부 장관은 “임시직 비중이 높은 우리 노동시장 구조상 반복수급은 불가피하게 생기는 측면이 있다”며 “고용이 불안정한 취약 노동자는 더 두텁게 보호하되 제도를 악용해 지원금을 부정하게 타가는...",
-        "link": "https://kpenews.com/View.aspx?No=4302464",
-        "pubDate": "Sun, 08 Nov 2026 13:06:00 +0900",
+        "title": "실업급여·육아휴직급여 부정수급 집중신고 9일 시작…자진신고 시 추가...",
+        "description": "고용노동부가 실업급여와 육아휴직급여 등 고용보험 급여 및 지원금의 부정수급을 근절하기 위해 연말까지... 부정하게 지급받은 급여나 지원금은 반환해야 하며, 추가징수 면제는 별도의 요건에 따라 적용된다. 특히...",
+        "link": "https://www.cbci.co.kr/news/articleView.html?idxno=624582",
+        "pubDate": "Mon, 09 Nov 2026 00:06:00 +0900",
         "pubDateKR": "2026.11.08",
-        "publisher": "kpenews.com"
+        "publisher": "cbci.co.kr"
       },
       {
         "title": "실업급여, 실직의 보호막인가 구직의 걸림돌인가",
-        "description": "지원금만 노린 단기 취업을 막을 장치도 필요하다. 직업훈련과 취업 알선을 강화하고 반복적인 부정수급에는 엄정하게 대응해야 한다. 동시에 저임금과 열악한 근로환경 때문에 재취업을 망설이는 현실도 외면해선 안...",
+        "description": "조기 재취업 수당을 현실화하고 새 직장에서 2년 이상 근속하면 장려금을 지급하는 방안도 검토할 만하다. 지원금만 노린 단기 취업을 막을 장치도 필요하다. 직업훈련과 취업 알선을 강화하고 반복적인 부정수급에는...",
         "link": "https://www.newsgn.com/news/articleView.html?idxno=584152",
         "pubDate": "Sun, 08 Nov 2026 16:50:00 +0900",
         "pubDateKR": "2026.11.08",
         "publisher": "newsgn.com"
-      }
-    ],
-    "민생안정지원금": [
-      {
-        "title": "강릉시 \"민생안정지원금 꼭 신청하세요\"",
-        "description": "김중남 강릉시장이 8일 소관 부서 국·과장들과 함께 농산물 새벽시장을 방문, 9일부터 시행되는 민생안정지원금 지급을 시민에게 신청 안내를 하며 장보기를 진행하고 있다. 2026.11.8 [강릉시 제공. 재판매 및 DB 금지]",
-        "link": "https://www.yna.co.kr/view/PYH20261108114200062?input=1196m",
-        "pubDate": "Sun, 08 Nov 2026 17:14:00 +0900",
-        "pubDateKR": "2026.11.08",
-        "publisher": "연합뉴스"
       },
       {
-        "title": "강릉시 \"민생안정지원금 꼭 신청하세요\"",
-        "description": "김중남 강릉시장이 8일 소관 부서 국·과장들과 함께 농산물 새벽시장을 방문, 9일부터 시행되는 민생안정지원금 지급을 시민에게 신청 안내를 하며 장보기를 진행하고 있다. 2026.11.8 [강릉시 제공. 재판매 및 DB 금지]",
-        "link": "https://www.yna.co.kr/view/PYH20261108114100062?input=1196m",
-        "pubDate": "Sun, 08 Nov 2026 17:13:00 +0900",
+        "title": "실업급여 부정수급 자진신고하면 최대 5배 추가징수 면제…연말까지 집...",
+        "description": "불가피하게 발생하는 측면이 있다\"며 \"이러한 특성을 고려해 고용불안정에 놓인 취약 노동자에 대한 보호는 보다 두텁게 하되, 제도를 악용하고 지원금을 부정 수급하는 행위에는 더욱 엄정하게 대응해 나가겠다\"고 밝혔다.",
+        "link": "https://www.gosiweek.com/article/1065565862322042",
+        "pubDate": "Mon, 09 Nov 2026 07:34:00 +0900",
         "pubDateKR": "2026.11.08",
-        "publisher": "연합뉴스"
+        "publisher": "gosiweek.com"
+      }
+    ],
+    "출산지원금": [
+      {
+        "title": "[리포트]\"출산지원금 최대 6배 인상\"⋯저출생 해법 될까?",
+        "description": "◀ 앵 커 ▶ 저출생 위기 속에서 충남 지자체들이, 출산지원금을 앞다퉈 올리고 있습니다. 태안군은 내년부터 지원금을 최대 6배 늘리고, 논산시도 최대 천만 원까지 인상하는데요. 지원금 확대가 실제 출산과 정착으로...",
+        "link": "https://tjmbc.co.kr/NewsArticle/872139",
+        "pubDate": "Mon, 09 Nov 2026 08:00:00 +0900",
+        "pubDateKR": "2026.11.08",
+        "publisher": "tjmbc.co.kr"
+      },
+      {
+        "title": "\"출산지원금 최대 6배 인상\" 인구 감소 해법?",
+        "description": "◀ 앵커 ▶ 인구 감소를 우려하는 지자체들이 그 해결책으로, 출산지원금을 올리고 있는데요. 하지만 단순히 지원금을 올리는 것만으론, 출산과 정착을 늘리는 데 한계가 있다는 지적도 나옵니다. 김지혜 기자입니다....",
+        "link": "https://imnews.imbc.com/replay/2026/nwtoday/article/6864151_37012.html",
+        "pubDate": "Mon, 09 Nov 2026 07:08:00 +0900",
+        "pubDateKR": "2026.11.08",
+        "publisher": "MBC"
+      },
+      {
+        "title": "[리포트]\"출산지원금 최대 6배 인상\"⋯저출생 해법 될까?",
+        "description": "◀ 앵 커 ▶ 저출생 위기속에서 충남 지자체들이, 출산지원금을 앞다퉈 올리고 있습니다. 태안군은 내년부터 지원금을 최대 6배 늘리고, 논산시도 최대 천만 원까지 인상하는데요. 지원금 확대가, 실제 출산과 정착으로...",
+        "link": "https://tjmbc.co.kr/NewsArticle/872083",
+        "pubDate": "Sun, 08 Nov 2026 20:35:00 +0900",
+        "pubDateKR": "2026.11.08",
+        "publisher": "tjmbc.co.kr"
+      }
+    ],
+    "육아휴직급여": [
+      {
+        "title": "실업급여·육아휴직급여 부정수급 집중신고 9일 시작…자진신고 시 추가...",
+        "description": "고용노동부가 실업급여와 육아휴직급여 등 고용보험 급여 및 지원금의 부정수급을 근절하기 위해 연말까지... 부정하게 지급받은 급여나 지원금은 반환해야 하며, 추가징수 면제는 별도의 요건에 따라 적용된다. 특히...",
+        "link": "https://www.cbci.co.kr/news/articleView.html?idxno=624582",
+        "pubDate": "Mon, 09 Nov 2026 00:06:00 +0900",
+        "pubDateKR": "2026.11.08",
+        "publisher": "cbci.co.kr"
+      },
+      {
+        "title": "고용부, 고용보험 부정수급 집중신고기간 운영… 육아휴직급여도 대상",
+        "description": "악용하고 지원금을 부정수급하는 행위에는 더욱 엄정하게 대응해 나가겠다”고 밝혔다. ◇ 고용보험 부정수급 집중신고기간 문답풀이 Q. 자진신고나 제보는 어떻게 하나요? 자진신고와 제보는 고용24 홈페이지와...",
+        "link": "https://www.ibabynews.com/news/articleView.html?idxno=156665",
+        "pubDate": "Sun, 08 Nov 2026 20:02:00 +0900",
+        "pubDateKR": "2026.11.08",
+        "publisher": "ibabynews.com"
       }
     ]
   },
   "trendingAll": [
     {
-      "term": "민생안정지원금",
-      "count": 2
+      "term": "출산지원금",
+      "count": 3
     },
     {
       "term": "실업급여",
+      "count": 3
+    },
+    {
+      "term": "육아휴직급여",
       "count": 2
     }
   ]
