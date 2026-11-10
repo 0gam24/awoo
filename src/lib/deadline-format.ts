@@ -107,7 +107,7 @@ export function isDeadlinePast(
 }
 
 export function getDeadlineBadge(deadline: string | undefined | null): DeadlineBadge {
-  if (!deadline || !deadline.trim()) {
+  if (!deadline?.trim()) {
     return { tone: 'unknown', label: '확인 필요' };
   }
   const s = deadline.trim();
