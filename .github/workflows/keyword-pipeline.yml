@@ -6,8 +6,9 @@ name: Keyword pipeline (daily candidates)
 # KST 09:55 — 순위 측정(naver-rank.yml 09:40)이 naver-ranks.json을 갱신한 뒤. 레이더 06:17 회차도 반영된다.
 # 산출 docs/ops/pipeline-queue.json·DAILY-KEYWORDS.md는 사이트 미사용 운영 데이터 → build/deploy 없음.
 on:
-  schedule:
-    - cron: '55 0 * * *'
+  # 2026-11-11 예약 실행 중지 — 네이버 유입 소멸로 네이버 기준 글감·순위 장치를 쉬게 둔다(수동 실행은 가능)
+  # schedule:
+  #    - cron: '55 0 * * *'
   workflow_dispatch:
     inputs:
       serp:

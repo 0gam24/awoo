@@ -1,7 +1,6 @@
 ---
 import Container from '@/components/Container.astro';
 import Icon from '@/components/Icon.astro';
-import MainBackrefBox from '@/components/MainBackrefBox.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { formatWon } from '@/data/site-data';
 import { buildImageObject } from '@/lib/schema';
@@ -286,7 +285,7 @@ const articleSchema = {
     '@type': 'SpeakableSpecification',
     cssSelector: ['.answer-box', '.tldr li'],
   },
-  // 본 사이트는 AI 보조 + 사람 편집 정책 (editorial-policy 페이지 명시)
+  // 편집 정책은 editorial-policy 페이지에 명시
   // E-E-A-T 강화 — 책임 편집자 실명 명시 (Discover YMYL 영역 가산)
   author: [
     {
@@ -723,14 +722,13 @@ const reportTypeBadge = rt && rt in RT_LABELS
           </div>
         )}
 
-        {/* 편집·검수 신뢰 단서 — 사람 검수 + 정부 공식 출처를 전면화.
-            AI 보조 활용은 편집정책 페이지에 투명 공개(여기선 숫자 점수·AI 라벨 미노출 → YMYL 첫인상 신뢰). */}
-        <aside class="ai-disclosure" aria-label="편집·검수 정보">
-          <span class="ai-icon" aria-hidden="true">✓</span>
-          <span class="ai-text">
+        {/* 편집·검수 신뢰 단서 — 검수 책임자와 정부 공식 출처를 전면화 */}
+        <aside class="editor-note" aria-label="편집·검수 정보">
+          <span class="editor-note-icon" aria-hidden="true">✓</span>
+          <span class="editor-note-text">
             편집책임자 <a href="/editor/jjh/"><strong>김준혁</strong></a> 검수 · 정부 공식 출처 기반 ·
             <strong>신청 대행·수수료 없음</strong>, 신청은 정부 공식 창구만 안내
-            <a class="ai-policy" href="/editorial-policy/">편집 정책</a>
+            <a class="editor-note-link" href="/editorial-policy/">편집 정책</a>
           </span>
         </aside>
 
@@ -1064,16 +1062,6 @@ const reportTypeBadge = rt && rt in RT_LABELS
       )}
     </Container>
   </article>
-
-  {/* smartdatashop network — 메인 정책 카테고리로 자연 funnel (이슈 포스트는 시사 정책 본질) */}
-  <section class="band">
-    <Container size="wide">
-      <MainBackrefBox
-        variant="inline"
-        mainCategoryUrl="https://smartdatashop.kr/category/policy/"
-      />
-    </Container>
-  </section>
 
   {/* Cycle #46: 모바일 하단 sticky CTA — 사용자가 글 끝까지 안 읽어도 전환 가능 */}
   <div class="mobile-sticky-cta" aria-label="다음 행동">
@@ -1464,8 +1452,8 @@ const reportTypeBadge = rt && rt in RT_LABELS
     background: var(--surface);
   }
 
-  /* Cycle #23: AI disclosure box */
-  .ai-disclosure {
+  /* 편집·검수 정보 상자 */
+  .editor-note {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1507,7 +1495,7 @@ const reportTypeBadge = rt && rt in RT_LABELS
     color: var(--text);
     font-weight: 700;
   }
-  .ai-icon {
+  .editor-note-icon {
     flex-shrink: 0;
     width: 22px;
     height: 22px;
@@ -1520,18 +1508,18 @@ const reportTypeBadge = rt && rt in RT_LABELS
     font-size: 13px;
     font-weight: 700;
   }
-  .ai-text strong {
+  .editor-note-text strong {
     color: var(--text);
   }
-  .ai-text a {
+  .editor-note-text a {
     color: var(--accent-link);
     text-decoration: none;
     margin: 0 4px;
   }
-  .ai-text a:hover {
+  .editor-note-text a:hover {
     text-decoration: underline;
   }
-  .ai-policy {
+  .editor-note-link {
     margin-left: auto;
     font-weight: 600;
   }

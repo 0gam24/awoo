@@ -193,7 +193,8 @@ export const GET: APIRoute = async () => {
       .map((t) => [t.term, t.mediaCount]),
   );
   const activeTopics = Object.entries(history.byTerm ?? {})
-    .filter(([, e]) => e.totalCount >= 1)
+    // 한글 제도명만 — 옛 기계식 이름(new-subsidies-… 등)은 허브 페이지가 없어 링크가 깨진다
+    .filter(([t, e]) => e.totalCount >= 1 && /[가-힣]/.test(t))
     .sort((a, b) => b[1].totalCount - a[1].totalCount);
   if (activeTopics.length > 0) {
     lines.push('## 트렌딩 토픽 hub');

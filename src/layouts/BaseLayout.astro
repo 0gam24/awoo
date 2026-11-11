@@ -3,6 +3,7 @@ import '@/styles/global.css';
 import Footer from '@/components/Footer.astro';
 import HotkeyNav from '@/components/HotkeyNav.astro';
 import TopBar from '@/components/TopBar.astro';
+import noindexPaths from '@/data/noindex-paths.json';
 import { buildBreadcrumb, buildOrganization, buildWebSite, type BreadcrumbItem } from '@/lib/schema';
 
 interface Props {
@@ -37,13 +38,18 @@ const {
   canonical,
   ogImage = '/og-default.png',
   keywords,
-  noindex = false,
+  noindex: noindexProp = false,
   noCanonical = false,
   activeNav = '',
   breadcrumbs,
   ogType = 'website',
   ogArticle,
 } = Astro.props;
+
+// 구글 색인 정리 목록(src/data/noindex-paths.json)에 든 주소는 색인에서 뺀다 — 목록은 scripts/index-prune-classify.mjs가 만든다
+const prunePath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const noindex =
+  noindexProp || noindexPaths.paths.includes(prunePath) || (noindexPaths.manual as string[]).includes(prunePath);
 
 // breadcrumbSchema에 @id 부여 (canonical URL + #breadcrumb) — entity 그래프 강화 (Cycle #4 P0-5)
 const canonicalPath = canonical ?? Astro.url.pathname;

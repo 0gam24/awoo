@@ -426,13 +426,13 @@ const webAppSchema = buildWebApplication({
       btnNext.hidden = n === TOTAL_STEPS;
       btnSubmit.hidden = n !== TOTAL_STEPS;
     }
-    // Cycle #51: result step 외에는 sticky CTA 숨김
+    // result step 외에는 sticky CTA 숨김
     if (n !== 'result') {
       const stickyEl = document.querySelector('[data-quick-sticky]');
       if (stickyEl) stickyEl.hidden = true;
     }
     window.scrollTo({ top: root.offsetTop - 80, behavior: 'smooth' });
-    // Cycle #10 P1-6: 키보드 사용자 단계 전환 인지 — 헤딩으로 포커스 이동
+    // 키보드 사용자 단계 전환 인지 — 헤딩으로 포커스 이동
     const sel = n === 'result' ? '[data-step="result"] .result-title' : `[data-step="${n}"] .q`;
     const heading = root.querySelector(sel);
     if (heading) {
@@ -660,7 +660,7 @@ const webAppSchema = buildWebApplication({
       income,
     });
 
-    // Cycle #8 P0-5: document.title 동적 업데이트 (SNS·메신저 공유 시 컨텍스트 노출)
+    // document.title 동적 업데이트 (SNS·메신저 공유 시 컨텍스트 노출)
     updateDocumentTitle(persona, top.length);
   }
 
@@ -807,7 +807,7 @@ const webAppSchema = buildWebApplication({
       ? rest.map(({ s, score, reasons }, i) => buildCompactCard(s, score, reasons, i + 4)).join('')
       : '';
 
-    // Cycle #51: Top1 지원금 정보로 모바일 sticky CTA 채움
+    // Top1 지원금 정보로 모바일 sticky CTA 채움
     const stickyEl = document.querySelector('[data-quick-sticky]');
     const stickyPrimary = document.querySelector('[data-qsc-primary]');
     const stickyText = document.querySelector('[data-qsc-text]');

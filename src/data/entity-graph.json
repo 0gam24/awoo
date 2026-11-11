@@ -6,7 +6,7 @@
     "situations": 12,
     "glossary": 41,
     "topics": 3,
-    "subsidies": 112
+    "subsidies": 117
   },
   "entities": {
     "personas": {
@@ -61,10 +61,11 @@
           "https://awoo.or.kr/subsidies/youth-business-regional-000044/",
           "https://awoo.or.kr/subsidies/youth-business-savings-account-assets-support-005013/",
           "https://awoo.or.kr/subsidies/youth-housing-000088/",
+          "https://awoo.or.kr/subsidies/youth-housing-support-000863/",
           "https://awoo.or.kr/subsidies/youth-loan-100042/",
           "https://awoo.or.kr/subsidies/youth-rent-support-000099/"
         ],
-        "subsidiesCount": 48
+        "subsidiesCount": 49
       },
       "self-employed": {
         "@id": "https://awoo.or.kr/personas/self-employed/",
@@ -105,6 +106,7 @@
           "https://awoo.or.kr/subsidies/couple-support-000100/",
           "https://awoo.or.kr/subsidies/couple-support-000130/",
           "https://awoo.or.kr/subsidies/disability-voucher-education-800002/",
+          "https://awoo.or.kr/subsidies/disability-women-maternity-support-000567/",
           "https://awoo.or.kr/subsidies/energy-400009/",
           "https://awoo.or.kr/subsidies/housing-000026/",
           "https://awoo.or.kr/subsidies/housing-jeonse-000024/",
@@ -138,9 +140,10 @@
           "https://awoo.or.kr/subsidies/voucher-welfare-000176/",
           "https://awoo.or.kr/subsidies/welfare-discount-200003/",
           "https://awoo.or.kr/subsidies/worker-support-000020/",
-          "https://awoo.or.kr/subsidies/youth-business-regional-000044/"
+          "https://awoo.or.kr/subsidies/youth-business-regional-000044/",
+          "https://awoo.or.kr/subsidies/youth-housing-support-000863/"
         ],
-        "subsidiesCount": 44
+        "subsidiesCount": 46
       },
       "senior": {
         "@id": "https://awoo.or.kr/personas/senior/",
@@ -176,6 +179,8 @@
           "https://awoo.or.kr/subsidies/basic-support-000116/",
           "https://awoo.or.kr/subsidies/business-medical-disaster-support-008743/",
           "https://awoo.or.kr/subsidies/comfort-payment-support-000351/",
+          "https://awoo.or.kr/subsidies/disability-voucher-education-400007/",
+          "https://awoo.or.kr/subsidies/disability-voucher-education-support-700009/",
           "https://awoo.or.kr/subsidies/disability-voucher-education-support-700011/",
           "https://awoo.or.kr/subsidies/discount-000002/",
           "https://awoo.or.kr/subsidies/discount-000092/",
@@ -227,10 +232,11 @@
           "https://awoo.or.kr/subsidies/youth-allowance-support-000126/",
           "https://awoo.or.kr/subsidies/youth-business-savings-account-assets-support-005013/",
           "https://awoo.or.kr/subsidies/youth-housing-000088/",
+          "https://awoo.or.kr/subsidies/youth-housing-support-000863/",
           "https://awoo.or.kr/subsidies/youth-loan-100042/",
           "https://awoo.or.kr/subsidies/youth-rent-support-000099/"
         ],
-        "subsidiesCount": 57
+        "subsidiesCount": 60
       },
       "farmer": {
         "@id": "https://awoo.or.kr/personas/farmer/",
@@ -985,6 +991,7 @@
           "https://awoo.or.kr/subsidies/special-supply-single-parent-housing-rental-000017/",
           "https://awoo.or.kr/subsidies/youth-business-savings-account-assets-support-005013/",
           "https://awoo.or.kr/subsidies/youth-housing-000088/",
+          "https://awoo.or.kr/subsidies/youth-housing-support-000863/",
           "https://awoo.or.kr/subsidies/farm-startup/",
           "https://awoo.or.kr/subsidies/savings-account/",
           "https://awoo.or.kr/subsidies/youth-future-savings/",
@@ -1018,11 +1025,13 @@
         "matchedSubsidies": [
           "https://awoo.or.kr/subsidies/maternity-grant/",
           "https://awoo.or.kr/subsidies/newlywed-housing/",
+          "https://awoo.or.kr/subsidies/disability-women-maternity-support-000567/",
           "https://awoo.or.kr/subsidies/maternity-allowance-000004/",
           "https://awoo.or.kr/subsidies/maternity-allowance-001460/",
           "https://awoo.or.kr/subsidies/maternity-health-support-007672/",
           "https://awoo.or.kr/subsidies/maternity-integrated-000029/",
           "https://awoo.or.kr/subsidies/housing-000026/",
+          "https://awoo.or.kr/subsidies/loan-800003/",
           "https://awoo.or.kr/subsidies/child-allowance-000120/"
         ],
         "mainPersonas": [
@@ -1098,7 +1107,9 @@
           "https://awoo.or.kr/topics/youth-housing/"
         ],
         "mentionedGlossary": [
-          "https://awoo.or.kr/glossary/homeless/"
+          "https://awoo.or.kr/glossary/median-income/",
+          "https://awoo.or.kr/glossary/homeless/",
+          "https://awoo.or.kr/glossary/bokjiro/"
         ]
       },
       "job-card": {
@@ -1344,6 +1355,19 @@
         "mentionedInTopics": [],
         "mentionedGlossary": []
       },
+      "disability-voucher-education-400007": {
+        "@id": "https://awoo.or.kr/subsidies/disability-voucher-education-400007/",
+        "title": "2026년 경상북도 장애인 평생교육이용권 우수이용자",
+        "category": "교육",
+        "targetPersonas": [
+          "https://awoo.or.kr/personas/low-income/"
+        ],
+        "mentionedInTopics": [],
+        "mentionedGlossary": [
+          "https://awoo.or.kr/glossary/basic-livelihood/",
+          "https://awoo.or.kr/glossary/near-poor/"
+        ]
+      },
       "disability-voucher-education-800002": {
         "@id": "https://awoo.or.kr/subsidies/disability-voucher-education-800002/",
         "title": "2026년 대구광역시 장애인 평생교육 이용권신청",
@@ -1354,6 +1378,19 @@
         ],
         "mentionedInTopics": [],
         "mentionedGlossary": []
+      },
+      "disability-voucher-education-support-700009": {
+        "@id": "https://awoo.or.kr/subsidies/disability-voucher-education-support-700009/",
+        "title": "2026년 경상남도 장애인 평생교육이용권 지원(우수이용자 2차)",
+        "category": "교육",
+        "targetPersonas": [
+          "https://awoo.or.kr/personas/low-income/"
+        ],
+        "mentionedInTopics": [],
+        "mentionedGlossary": [
+          "https://awoo.or.kr/glossary/basic-livelihood/",
+          "https://awoo.or.kr/glossary/near-poor/"
+        ]
       },
       "disability-voucher-education-support-700011": {
         "@id": "https://awoo.or.kr/subsidies/disability-voucher-education-support-700011/",
@@ -1367,6 +1404,18 @@
           "https://awoo.or.kr/glossary/basic-livelihood/",
           "https://awoo.or.kr/glossary/near-poor/"
         ]
+      },
+      "disability-women-maternity-support-000567": {
+        "@id": "https://awoo.or.kr/subsidies/disability-women-maternity-support-000567/",
+        "title": "여성장애인 출산비용 지원",
+        "category": "복지",
+        "targetPersonas": [
+          "https://awoo.or.kr/personas/newlywed-family/"
+        ],
+        "mentionedInTopics": [
+          "https://awoo.or.kr/topics/newlywed-childcare/"
+        ],
+        "mentionedGlossary": []
       },
       "discount-000002": {
         "@id": "https://awoo.or.kr/subsidies/discount-000002/",
@@ -1723,7 +1772,8 @@
           "https://awoo.or.kr/personas/low-income/"
         ],
         "mentionedInTopics": [
-          "https://awoo.or.kr/topics/youth-housing/"
+          "https://awoo.or.kr/topics/youth-housing/",
+          "https://awoo.or.kr/topics/newlywed-childcare/"
         ],
         "mentionedGlossary": [
           "https://awoo.or.kr/glossary/homeless/",
@@ -2164,6 +2214,14 @@
         "mentionedInTopics": [],
         "mentionedGlossary": []
       },
+      "subsidy-000616": {
+        "@id": "https://awoo.or.kr/subsidies/subsidy-000616/",
+        "title": "에이즈 및 성병 검사",
+        "category": "복지",
+        "targetPersonas": [],
+        "mentionedInTopics": [],
+        "mentionedGlossary": []
+      },
       "support-000005": {
         "@id": "https://awoo.or.kr/subsidies/support-000005/",
         "title": "상해보험 가입비 지원(만원의행복보험)",
@@ -2489,6 +2547,24 @@
           "https://awoo.or.kr/glossary/subscription-account/"
         ]
       },
+      "youth-housing-support-000863": {
+        "@id": "https://awoo.or.kr/subsidies/youth-housing-support-000863/",
+        "title": "2026년 충청남도 청년 주택임차보증금 이자 지원(신규 신청자 대상)",
+        "category": "주거",
+        "targetPersonas": [
+          "https://awoo.or.kr/personas/office-rookie/",
+          "https://awoo.or.kr/personas/newlywed-family/",
+          "https://awoo.or.kr/personas/low-income/"
+        ],
+        "mentionedInTopics": [
+          "https://awoo.or.kr/topics/youth-housing/"
+        ],
+        "mentionedGlossary": [
+          "https://awoo.or.kr/glossary/median-income/",
+          "https://awoo.or.kr/glossary/near-poor/",
+          "https://awoo.or.kr/glossary/self-reliance-youth/"
+        ]
+      },
       "youth-loan-100042": {
         "@id": "https://awoo.or.kr/subsidies/youth-loan-100042/",
         "title": "미소금융 청년 미래이음 대출",
@@ -2525,12 +2601,12 @@
   "stats": {
     "glossary_dangling_count": 0,
     "topics_glossary_dangling_count": 0,
-    "subsidies_with_glossary_mentions": 66,
+    "subsidies_with_glossary_mentions": 69,
     "topics_with_subsidy_matches": 2,
     "topics_total": 3,
     "topics_without_matches": 1,
-    "subsidies_total": 112,
-    "subsidies_orphan_count": 3,
+    "subsidies_total": 117,
+    "subsidies_orphan_count": 4,
     "subsidies_inbound_coverage_pct": 97
   }
 }

@@ -407,7 +407,7 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
   </section>
 
   <script is:inline>
-    /* Cycle #55: 카테고리 필터 — post-list 클라이언트 토글, month-block 0건이면 숨김 */
+    /* 카테고리 필터 — post-list 클라이언트 토글, month-block 0건이면 숨김 */
     (() => {
       const filters = document.querySelectorAll('[data-af-cat]');
       if (filters.length === 0) return;

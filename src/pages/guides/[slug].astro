@@ -85,12 +85,12 @@ const faqSchema = d.faq && d.faq.length > 0
         <h1 class="title">{d.title}</h1>
         <p class="lead">{d.description}</p>
 
-        <aside class="ai-disclosure" aria-label="편집 정책">
-          <span class="ai-icon" aria-hidden="true">✓</span>
-          <span class="ai-text">
+        <aside class="editor-note" aria-label="편집 정책">
+          <span class="editor-note-icon" aria-hidden="true">✓</span>
+          <span class="editor-note-text">
             편집책임자
             <a href="/editor/jjh/">김준혁</a> 검수
-            <a class="ai-policy" href="/editorial-policy/">편집 정책</a>
+            <a class="editor-note-link" href="/editorial-policy/">편집 정책</a>
           </span>
         </aside>
       </header>
@@ -182,7 +182,7 @@ const faqSchema = d.faq && d.faq.length > 0
     line-height: 1.6;
     margin: 0 0 16px;
   }
-  .ai-disclosure {
+  .editor-note {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -193,7 +193,7 @@ const faqSchema = d.faq && d.faq.length > 0
     font-size: 13px;
     color: var(--text-2);
   }
-  .ai-icon {
+  .editor-note-icon {
     width: 22px;
     height: 22px;
     background: var(--accent);
@@ -204,11 +204,11 @@ const faqSchema = d.faq && d.faq.length > 0
     justify-content: center;
     font-weight: 700;
   }
-  .ai-text a {
+  .editor-note-text a {
     color: var(--accent-link);
     margin: 0 4px;
   }
-  .ai-policy { margin-left: auto; }
+  .editor-note-link { margin-left: auto; }
 
   .tldr {
     margin: 24px 0;

@@ -2,8 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /api/
 
-# AI 크롤러 명시적 허용 (GEO 가시성 강화 — Cycle #16)
-# 답변 엔진 인용 시 본 사이트 콘텐츠를 출처로 사용 가능
 User-agent: GPTBot
 Allow: /
 Disallow: /api/
@@ -48,7 +46,6 @@ User-agent: CCBot
 Allow: /
 Disallow: /api/
 
-# 검색 엔진 — 명시적 허용 (Allow 우선 정책)
 User-agent: Googlebot
 Allow: /
 Disallow: /api/
@@ -72,8 +69,3 @@ Disallow: /api/
 Sitemap: https://awoo.or.kr/sitemap-index.xml
 Sitemap: https://awoo.or.kr/sitemap-news.xml
 
-# AI 답변 엔진용 콘텐츠 인덱스 (Cycle #20)
-# llms.txt: 사이트맵 + 핵심 진입점 요약
-# llms-full.txt: 전체 콘텐츠 합본 (glossary, topics, subsidies 본문)
-# AI 크롤러는 우선 이 파일들을 읽어 사이트 컨텍스트 파악 가능
-# Reference: https://llmstxt.org/

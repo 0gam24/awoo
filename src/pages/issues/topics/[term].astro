@@ -226,7 +226,7 @@ const sourceArticles: SourceArticle[] = articlesByTerm[term] ?? [];
 // 본다(네이버 웹 콘텐츠 스팸: 저품질 콘텐츠 대량 생성 / 구글 스팸정책: 가치 기준 판정).
 // 자동생성 허브는 보유 글 3건 미만이면 색인 제외하고 follow만 남긴다 — 내부 링크 흐름은 유지.
 // 임계값을 넘긴 허브는 실제로 클러스터를 묶어 주므로 색인 유지.
-const HUB_INDEX_MIN_POSTS = 3;
+const HUB_INDEX_MIN_POSTS = 5; // 2026-11-11 3→5: 글 몇 편만 모은 묶음 쪽은 구글에 내밀지 않는다
 const isThin = relatedPosts.length < HUB_INDEX_MIN_POSTS && matchedSubsidies.length < 5;
 
 // dailyCounts → 정렬된 일별 트렌드

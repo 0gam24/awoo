@@ -5,8 +5,9 @@ name: Naver rank check
 # KST 09:40 — 새벽 자동 발행(04:00) 결과가 색인될 시간을 준 뒤.
 # 산출 src/data/naver-ranks.json은 사이트 미사용 운영 데이터 → build/deploy 없음.
 on:
-  schedule:
-    - cron: '40 0 * * *'
+  # 2026-11-11 예약 실행 중지 — 네이버 유입 소멸로 네이버 기준 글감·순위 장치를 쉬게 둔다(수동 실행은 가능)
+  # schedule:
+  #    - cron: '40 0 * * *'
   workflow_dispatch:
     inputs:
       limit:

@@ -7,10 +7,9 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "prebuild": "npm run generate:mirror && npm run generate:og",
+    "prebuild": "npm run generate:og",
     "build": "node scripts/build-entity-graph.mjs && astro build && node scripts/prune-sitemap-noindex.mjs && node scripts/check-bundle-size.mjs",
     "build:graph": "node scripts/build-entity-graph.mjs",
-    "generate:mirror": "node scripts/generate-network-mirror.mjs",
     "generate:og": "node scripts/generate-og-images.mjs",
     "update:today": "node scripts/update-today-md.mjs",
     "preview": "npm run build && wrangler dev",
