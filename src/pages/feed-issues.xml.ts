@@ -1,6 +1,14 @@
 import type { APIRoute } from 'astro';
+import noindexPaths from '@/data/noindex-paths.json';
 import { escapeXml, type FeedPost, renderFullText, SITE } from '@/lib/feed-content';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
+
+// 색인에서 뺀 글은 RSS에도 싣지 않는다 (검색 로봇에 엇갈린 신호를 주지 않기 위해)
+const NOINDEX = new Set<string>([
+  ...noindexPaths.paths,
+  ...noindexPaths.rework,
+  ...(noindexPaths.manual as string[]),
+]);
 
 // 오늘의 이슈 포스트 전용 RSS — Substack·AI agent 인용 친화
 // /feed.xml (지원금 신규)와 분리 — 검색 봇·뉴스 큐레이터가 카테고리별 구독 가능
@@ -18,6 +26,7 @@ export const GET: APIRoute = async () => {
     const date = m[1];
     const slug = m[2];
     if (!date || !slug || slug.startsWith('_')) continue;
+    if (NOINDEX.has(issueUrlPath(date, slug))) continue;
     posts.push({ date, slug, data: mod.default });
   }
 

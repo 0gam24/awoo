@@ -1,6 +1,14 @@
 import type { APIRoute, GetStaticPaths } from 'astro';
+import noindexPaths from '@/data/noindex-paths.json';
 import { escapeXml, type FeedPost, renderFullText, SITE } from '@/lib/feed-content';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
+
+// 색인에서 뺀 글은 RSS에도 싣지 않는다 (검색 로봇에 엇갈린 신호를 주지 않기 위해)
+const NOINDEX = new Set<string>([
+  ...noindexPaths.paths,
+  ...noindexPaths.rework,
+  ...(noindexPaths.manual as string[]),
+]);
 
 // 카테고리별 RSS — 이슈 포스트를 카테고리 채널로 분리 구독
 // /rss/welfare.xml, /rss/housing.xml 등. feed-issues.xml(전체)의 카테고리 필터판.
@@ -39,6 +47,7 @@ export const GET: APIRoute = async ({ params }) => {
     const date = m[1];
     const slug = m[2];
     if (!date || !slug || slug.startsWith('_')) continue;
+    if (NOINDEX.has(issueUrlPath(date, slug))) continue;
     if (mod.default?.category !== ko) continue;
     posts.push({ date, slug, data: mod.default });
   }
