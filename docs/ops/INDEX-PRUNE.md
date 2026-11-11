@@ -1,6 +1,6 @@
 # 구글 색인 정리 목록 (2026-11-11)
 
-글 411편 → 뺄 글 34 · 합칠 글 2 · 고쳐 남길 글 202 · 그대로 남길 글 173
+글 411편 → 뺄 글 34 · 합칠 글 2 · 고쳐 남길 글 199 · 그대로 남길 글 176
 
 뺄 글은 색인 제외(noindex) 표시만 붙고 주소·본문은 그대로다. 합칠 글은 후보일 뿐 아직 아무 조치도 하지 않았다. 되살리려면 src/data/noindex-paths.json에서 주소를 지운다.
 
@@ -50,7 +50,7 @@
 | 2026-07-15 | [영동군 민생안정지원금 30만원, 2026 추석 전 지역화폐 지급](https://awoo.or.kr/issues/local-livelihood-support-payment/) | 같은 주제 대표 글: /issues/yeongdong-livelihood-stability-grant/ |
 | 2026-08-07 | [나주 민생회복지원금 20만원, 9월 14일 신청 시작](https://awoo.or.kr/issues/naju-livelihood-recovery-grant/) | 같은 주제 대표 글: /issues/naju-livelihood-grant-rotation-days/ |
 
-## 고쳐서 되살릴 글 — 지금은 색인 제외 (202편)
+## 고쳐서 되살릴 글 — 지금은 색인 제외 (199편)
 
 | 발행일 | 글 | 이유 |
 |---|---|---|
@@ -109,14 +109,11 @@
 | 2026-06-16 | [2026 한부모 아동양육비 — 중위 65% 확대·월 23만원 총정리](https://awoo.or.kr/issues/2026-06-16/single-parent-childcare-allowance-2026-06-16/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-16 | [2026 청년월세 특별지원 — 상시 전환·월 20만원 24개월](https://awoo.or.kr/issues/2026-06-16/youth-monthly-rent-support-2026-06-16/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-17 | [2026 장애인연금 자격·금액 총정리 — 월 최대 43만9,700원](https://awoo.or.kr/issues/2026-06-17/disability-pension-eligibility-2026-06-17/) | 옛 틀 — 고쳐 쓰면 되살림 |
-| 2026-06-17 | [2026 평생교육바우처 35만원 — 대상·신청·사용처 총정리](https://awoo.or.kr/issues/2026-06-17/lifelong-education-voucher-2026-06-17/) | 옛 틀 — 고쳐 쓰면 되살림 |
-| 2026-06-17 | [국민취업지원제도 2026 — 구직촉진수당 월 60만원 자격·금액·신청](https://awoo.or.kr/issues/2026-06-17/national-employment-support-allowance-2026-06-17/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-17 | [2026 2학기 국가장학금 신청 D-5 — 6월 22일 18시 마감](https://awoo.or.kr/issues/2026-06-17/national-scholarship-2nd-semester-2026-06-17/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-17 | [2026 자립준비청년 자립수당 — 월 50만원 대상·신청 총정리](https://awoo.or.kr/issues/2026-06-17/self-reliance-youth-allowance-2026-06-17/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-18 | [2026 재난적 의료비 지원 자격·지원율·신청기한 총정리](https://awoo.or.kr/issues/2026-06-18/catastrophic-medical-expense-support-2026-06-18/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-18 | [2026 긴급복지 생계지원금 — 위기사유·소득기준·신청 총정리](https://awoo.or.kr/issues/2026-06-18/emergency-welfare-livelihood-support-2026-06-18/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-18 | [2026 버팀목 전세자금대출 — 청년·신혼 한도·금리·소득요건 비교](https://awoo.or.kr/issues/2026-06-18/jeonse-loan-youth-newlywed-2026-06-18/) | 옛 틀 — 고쳐 쓰면 되살림 |
-| 2026-06-18 | [소상공인 정책자금 2026 — 일반경영안정자금 금리·한도·신청 총정리](https://awoo.or.kr/issues/2026-06-18/small-business-policy-fund-loan-2026-06-18/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-18 | [국민내일배움카드 2026 — 최대 500만원·자격·발급제외 총정리](https://awoo.or.kr/issues/2026-06-18/tomorrow-learning-card-2026-06-18/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-19 | [2026 디딤돌 주택구입대출 — 소득요건·금리·한도 신청 총정리](https://awoo.or.kr/issues/2026-06-19/didimdol-home-purchase-loan-2026-06-19/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-19 | [2026 어린이집 보육료 지원 — 0~5세 연령별 단가·신청 총정리](https://awoo.or.kr/issues/2026-06-19/infant-childcare-fee-support-2026-06-19/) | 옛 틀 — 고쳐 쓰면 되살림 |
@@ -257,10 +254,13 @@
 | 2026-08-27 | [추석 지원금 50만원 받는 지역, 의령·함평 대상 확인](https://awoo.or.kr/issues/chuseok-grant-50man-uiryeong-hampyeong/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-08-27 | [문경 민생지원금 추석 전 지급되나, 9월 1일 추경 관건](https://awoo.or.kr/issues/mungyeong-livelihood-grant-chuseok-payment/) | 옛 틀 — 고쳐 쓰면 되살림 |
 
-## 그대로 남길 글 (173편)
+## 그대로 남길 글 (176편)
 
 | 발행일 | 글 | 이유 |
 |---|---|---|
+| 2026-06-17 | [평생교육바우처 35만원 잔액 사용기한과 우수이용자 추가 35만원](https://awoo.or.kr/issues/2026-06-17/lifelong-education-voucher-2026-06-17/) |  |
+| 2026-06-17 | [국민취업지원제도 1유형 2유형 차이, 중위소득 60% 자격과 신청 순서](https://awoo.or.kr/issues/2026-06-17/national-employment-support-allowance-2026-06-17/) |  |
+| 2026-06-18 | [소상공인 정책자금 한도 7천만원, 자금별 가산금리로 고르는 기준](https://awoo.or.kr/issues/2026-06-18/small-business-policy-fund-loan-2026-06-18/) |  |
 | 2026-08-28 | [창원 민생지원금 지급하나요? 8월 27일 미지급 결정](https://awoo.or.kr/issues/changwon-livelihood-grant-not-paid/) |  |
 | 2026-08-28 | [8월 27일 자녀장려금만 0원인 4가지 원인](https://awoo.or.kr/issues/ctc-missing-eitc-paid/) |  |
 | 2026-08-28 | [생계·의료급여 수급 근로가구 희망저축계좌 9월 3차 모집 D-4](https://awoo.or.kr/issues/hope-savings-account-type1-round3/) |  |
