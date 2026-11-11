@@ -1,6 +1,6 @@
 # 구글 색인 정리 목록 (2026-11-11)
 
-글 411편 → 뺄 글 34 · 합칠 글 2 · 고쳐 남길 글 199 · 그대로 남길 글 176
+글 411편 → 뺄 글 34 · 합칠 글 2 · 고쳐 남길 글 194 · 그대로 남길 글 181
 
 뺄 글은 색인 제외(noindex) 표시만 붙고 주소·본문은 그대로다. 합칠 글은 후보일 뿐 아직 아무 조치도 하지 않았다. 되살리려면 src/data/noindex-paths.json에서 주소를 지운다.
 
@@ -50,7 +50,7 @@
 | 2026-07-15 | [영동군 민생안정지원금 30만원, 2026 추석 전 지역화폐 지급](https://awoo.or.kr/issues/local-livelihood-support-payment/) | 같은 주제 대표 글: /issues/yeongdong-livelihood-stability-grant/ |
 | 2026-08-07 | [나주 민생회복지원금 20만원, 9월 14일 신청 시작](https://awoo.or.kr/issues/naju-livelihood-recovery-grant/) | 같은 주제 대표 글: /issues/naju-livelihood-grant-rotation-days/ |
 
-## 고쳐서 되살릴 글 — 지금은 색인 제외 (199편)
+## 고쳐서 되살릴 글 — 지금은 색인 제외 (194편)
 
 | 발행일 | 글 | 이유 |
 |---|---|---|
@@ -94,7 +94,6 @@
 | 2026-06-03 | [청년미래적금 일반형·우대형 차이 — 대상별 가입 가이드](https://awoo.or.kr/issues/2026-06-03/youth-future-savings-types-personas-2026-06-03/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-03 | [청년미래적금 vs 청년도약계좌 — 차이·갈아타기 2026 비교](https://awoo.or.kr/issues/2026-06-03/youth-future-savings-vs-leap-2026-06-03/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-05 | [유가연동보조금 신청 방법 2026 — 화물차·택시·농업인 단계별](https://awoo.or.kr/issues/2026-06-05/oil-linked-subsidy-how-to-apply-2026-06-05/) | 옛 틀 — 고쳐 쓰면 되살림 |
-| 2026-06-06 | [실업급여(실업수당) 2026 — 자격·금액·신청방법 총정리](https://awoo.or.kr/issues/2026-06-06/unemployment-benefit-guide-2026-06-06/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-07 | [상병수당 2026 — 아파서 못 쉴 때 하루 48,150원, 자격·신청](https://awoo.or.kr/issues/2026-06-07/sickness-benefit-guide-2026-06-07/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-08 | [2026 근로장려금 기한후신청, 12월 1일까지 5% 감액](https://awoo.or.kr/issues/2026-06-08/eitc-late-application-guide-2026-06-08/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-08 | [2026 에너지바우처 — 여름 냉방비·계절제한 폐지·신청방법 총정리](https://awoo.or.kr/issues/2026-06-08/energy-voucher-summer-2026-06-08/) | 옛 틀 — 고쳐 쓰면 되살림 |
@@ -133,7 +132,6 @@
 | 2026-06-24 | [산림복지서비스이용권 2026 — 연 10만원 대상·사용처·신청 총정리](https://awoo.or.kr/issues/2026-06-24/forest-welfare-voucher-2026-06-24/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-24 | [2026 아이돌봄서비스 — 중위소득 250% 확대·시간당 요금·신청법](https://awoo.or.kr/issues/2026-06-24/idolbom-childcare-service-2026-06-24/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-24 | [2026 차상위 본인부담경감 — 대상·본인부담·신청 총정리](https://awoo.or.kr/issues/2026-06-24/near-poor-medical-copay-reduction-2026-06-24/) | 옛 틀 — 고쳐 쓰면 되살림 |
-| 2026-06-24 | [2026 청년주택드림 청약통장 — 금리·자격·전환 신청 총정리](https://awoo.or.kr/issues/2026-06-24/youth-housing-dream-account-2026-06-24/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-25 | [2026 아동수당 만 9세 미만 확대 — 월 10만원·지역 최대 13만원·25일 지급](https://awoo.or.kr/issues/2026-06-25/child-allowance-expanded-2026-06-25/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-25 | [2026 정부양곡 할인지원 — 10kg 2,500원·다음 신청 7월 1~10일](https://awoo.or.kr/issues/2026-06-25/government-rice-discount-2026-06-25/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-25 | [2026 육아휴직급여 — 월 상한 250만원·사후지급금 폐지·1년6개월](https://awoo.or.kr/issues/2026-06-25/parental-leave-pay-2026-06-25/) | 옛 틀 — 고쳐 쓰면 되살림 |
@@ -160,13 +158,11 @@
 | 2026-06-29 | [2026 중장년내일센터 — 40대+ 무료 생애경력설계·전직·재취업 지원](https://awoo.or.kr/issues/2026-06-29/midlife-career-center-reemployment-2026-06-29/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-29 | [공공임대주택 2026 — 영구임대·행복주택·국민임대·장기전세 자격 비교](https://awoo.or.kr/issues/2026-06-29/public-rental-housing-types-compare-2026-06-29/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-30 | [행복주택 신청자격 2026 — 청년·신혼 소득·자산기준·당첨 전략](https://awoo.or.kr/issues/2026-06-30/happy-house-eligibility-income-2026-06-30/) | 옛 틀 — 고쳐 쓰면 되살림 |
-| 2026-06-30 | [구직촉진수당 2026 — 월 60만원·부양가족 가산·이행조건 총정리](https://awoo.or.kr/issues/2026-06-30/job-seeker-allowance-60-2026-06-30/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-30 | [2026 다자녀 자동차 취득세 감면 — 2자녀 50%·2027년까지](https://awoo.or.kr/issues/2026-06-30/multi-child-2-children-tax-cut-2026-06-30/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-30 | [노인일자리 2026 — 유형별 활동비·신청자격·추가모집 총정리](https://awoo.or.kr/issues/2026-06-30/senior-job-program-application-2026-06-30/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-06-30 | [한부모 임대주택 우선공급 2026 — 매입·전세임대 자격·소득기준 총정리](https://awoo.or.kr/issues/2026-06-30/single-parent-rental-housing-priority-2026-06-30/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-01 | [근로장려금 반기 vs 정기 — 2026 지급일 8월 27일 총정리](https://awoo.or.kr/issues/2026-07-01/eitc-semiannual-vs-regular-payment-date-2026-07-01/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-01 | [에너지바우처 하절기 언제까지·잔액 동절기 이월 총정리](https://awoo.or.kr/issues/2026-07-01/energy-voucher-usage-period-carryover-2026-07-01/) | 옛 틀 — 고쳐 쓰면 되살림 |
-| 2026-07-03 | [2026 국민연금 감액 완화 — 월 519만원까지 안 깎인다](https://awoo.or.kr/issues/2026-07-03/national-pension-income-reduction-relief-2026-07-03/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-07 | [서울커리업 구직지원금 자격과 90만원 지급 구조](https://awoo.or.kr/issues/2026-07-07/seoul-careerup-job-grant-2026-07-07/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-07 | [청년미래적금 138만명 최종 가입·계좌개설 종료, 미개설자 대처법](https://awoo.or.kr/issues/2026-07-07/youth-future-savings-result-account-2026-07-07/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-09 | [일손부족일자리 동행인센티브 — 중장년 360만원·1,000명 한정](https://awoo.or.kr/issues/2026-07-09/labor-shortage-companion-incentive-2026-07-09/) | 옛 틀 — 고쳐 쓰면 되살림 |
@@ -187,7 +183,6 @@
 | 2026-07-15 | [청년미래적금 가구원 소득동의 안 하면 탈락, E100 대처법](https://awoo.or.kr/issues/youth-future-savings-consent-verification/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-16 | [청년내일저축계좌 보유자 청년미래적금 중복가입 되나](https://awoo.or.kr/issues/youth-savings-future-savings-overlap/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-17 | [근로장려금 재산 기준 2026, 전세보증금 1.7억 넘으면 50% 감액](https://awoo.or.kr/issues/eitc-property-requirement-jeonse/) | 옛 틀 — 고쳐 쓰면 되살림 |
-| 2026-07-19 | [에너지바우처 4인 70만원, 가구원수별 금액과 소득기준](https://awoo.or.kr/issues/energy-voucher-household-size-amount/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-19 | [속초 민생회복지원금 20만원, 7월 20일 신청 요일제 확인](https://awoo.or.kr/issues/sokcho-livelihood-recovery-grant/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-19 | [실업급여 반복수급 감액 개정안, 5년 3회 10%~50%](https://awoo.or.kr/issues/unemployment-repeat-claim-cut/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-07-21 | [청년미래적금 심사결과 7월 24일, 탈락 사유·계좌개설 방법](https://awoo.or.kr/issues/youth-future-savings-result-rejection/) | 옛 틀 — 고쳐 쓰면 되살림 |
@@ -254,13 +249,18 @@
 | 2026-08-27 | [추석 지원금 50만원 받는 지역, 의령·함평 대상 확인](https://awoo.or.kr/issues/chuseok-grant-50man-uiryeong-hampyeong/) | 옛 틀 — 고쳐 쓰면 되살림 |
 | 2026-08-27 | [문경 민생지원금 추석 전 지급되나, 9월 1일 추경 관건](https://awoo.or.kr/issues/mungyeong-livelihood-grant-chuseok-payment/) | 옛 틀 — 고쳐 쓰면 되살림 |
 
-## 그대로 남길 글 (176편)
+## 그대로 남길 글 (181편)
 
 | 발행일 | 글 | 이유 |
 |---|---|---|
+| 2026-06-06 | [실업급여 조건과 신청 순서, 1일 66,048원부터 첫 입금까지](https://awoo.or.kr/issues/2026-06-06/unemployment-benefit-guide-2026-06-06/) |  |
 | 2026-06-17 | [평생교육바우처 35만원 잔액 사용기한과 우수이용자 추가 35만원](https://awoo.or.kr/issues/2026-06-17/lifelong-education-voucher-2026-06-17/) |  |
 | 2026-06-17 | [국민취업지원제도 1유형 2유형 차이, 중위소득 60% 자격과 신청 순서](https://awoo.or.kr/issues/2026-06-17/national-employment-support-allowance-2026-06-17/) |  |
 | 2026-06-18 | [소상공인 정책자금 한도 7천만원, 자금별 가산금리로 고르는 기준](https://awoo.or.kr/issues/2026-06-18/small-business-policy-fund-loan-2026-06-18/) |  |
+| 2026-06-24 | [청년주택드림청약통장 4.5% 조건, 대출 실적엔 전환 잔고 500만원만](https://awoo.or.kr/issues/2026-06-24/youth-housing-dream-account-2026-06-24/) |  |
+| 2026-06-30 | [구직촉진수당 월 60만원, 부양가족 가산과 아르바이트 소득 감액 셈법](https://awoo.or.kr/issues/2026-06-30/job-seeker-allowance-60-2026-06-30/) |  |
+| 2026-07-03 | [국민연금 감액 519만원 기준, 세전 월급으로는 632만원부터](https://awoo.or.kr/issues/2026-07-03/national-pension-income-reduction-relief-2026-07-03/) |  |
+| 2026-07-19 | [에너지바우처 금액 4인 이상 70만1,300원, 세대원 수별 월 환산](https://awoo.or.kr/issues/energy-voucher-household-size-amount/) |  |
 | 2026-08-28 | [창원 민생지원금 지급하나요? 8월 27일 미지급 결정](https://awoo.or.kr/issues/changwon-livelihood-grant-not-paid/) |  |
 | 2026-08-28 | [8월 27일 자녀장려금만 0원인 4가지 원인](https://awoo.or.kr/issues/ctc-missing-eitc-paid/) |  |
 | 2026-08-28 | [생계·의료급여 수급 근로가구 희망저축계좌 9월 3차 모집 D-4](https://awoo.or.kr/issues/hope-savings-account-type1-round3/) |  |
