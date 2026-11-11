@@ -104,13 +104,15 @@ for (const x of posts) {
   if (reason) out.drop.push({ ...x, reason });
   else if (dupOf.has(x.slug))
     out.merge.push({ ...x, reason: `같은 주제 대표 글: ${dupOf.get(x.slug).rep.url}` });
-  else if (d < '2026-08-28') out.fix.push({ ...x, reason: '옛 틀 — 구조 손질 대상' });
+  // 옛 틀 글은 색인에서 빼 두고, 고쳐 쓴 글(reworkedAt 기록)부터 되살린다 (운영자 결정 2026-11-11)
+  else if (d < '2026-08-28' && !p.reworkedAt)
+    out.fix.push({ ...x, reason: '옛 틀 — 고쳐 쓰면 되살림' });
   else out.keep.push({ ...x, reason: '' });
 }
 
 const n = (k) => out[k].length;
 console.log(
-  `글 ${posts.length}편 → 뺄 글 ${n('drop')} · 합칠 글 ${n('merge')} · 고쳐 남길 글 ${n('fix')} · 그대로 남길 글 ${n('keep')}`,
+  `글 ${posts.length}편 → 뺄 글 ${n('drop')} · 합칠 글 ${n('merge')} · 고쳐서 되살릴 글 ${n('fix')} · 그대로 남길 글 ${n('keep')}`,
 );
 const why = {};
 for (const x of out.drop) {
@@ -121,9 +123,10 @@ console.log(why);
 
 if (WRITE) {
   const paths = out.drop.map((x) => x.url).sort();
+  const rework = out.fix.map((x) => x.url).sort();
   writeFileSync(
     'src/data/noindex-paths.json',
-    `${JSON.stringify({ _comment: '구글 색인에서 뺄 주소. scripts/index-prune-classify.mjs --write 로 생성. 되살리려면 주소를 지운다. 손으로 넣은 주소는 manual에.', generatedAt: TODAY, manual: [], paths }, null, 2)}\n`,
+    `${JSON.stringify({ _comment: '구글 색인에서 뺄 주소. scripts/index-prune-classify.mjs --write 로 생성. paths=뺄 글, rework=고쳐 쓰기 전까지 빼 두는 옛 틀 글(글 파일에 reworkedAt을 적으면 빠진다), manual=손으로 넣는 칸.', generatedAt: TODAY, manual: [], paths, rework }, null, 2)}\n`,
   );
   const row = (x) =>
     `| ${x.d} | [${x.p.title.replace(/\|/g, '/')}](https://awoo.or.kr${x.url}) | ${x.reason} |`;
@@ -131,7 +134,7 @@ if (WRITE) {
     `## ${title} (${n(k)}편)\n\n| 발행일 | 글 | 이유 |\n|---|---|---|\n${out[k].map(row).join('\n')}\n`;
   writeFileSync(
     'docs/ops/INDEX-PRUNE.md',
-    `# 구글 색인 정리 목록 (${TODAY})\n\n글 ${posts.length}편 → 뺄 글 ${n('drop')} · 합칠 글 ${n('merge')} · 고쳐 남길 글 ${n('fix')} · 그대로 남길 글 ${n('keep')}\n\n뺄 글은 색인 제외(noindex) 표시만 붙고 주소·본문은 그대로다. 합칠 글은 후보일 뿐 아직 아무 조치도 하지 않았다. 되살리려면 src/data/noindex-paths.json에서 주소를 지운다.\n\n${sec('뺄 글', 'drop')}\n${sec('합칠 글 후보 — 사람이 보고 정한다', 'merge')}\n${sec('고쳐 남길 글', 'fix')}\n${sec('그대로 남길 글', 'keep')}`,
+    `# 구글 색인 정리 목록 (${TODAY})\n\n글 ${posts.length}편 → 뺄 글 ${n('drop')} · 합칠 글 ${n('merge')} · 고쳐 남길 글 ${n('fix')} · 그대로 남길 글 ${n('keep')}\n\n뺄 글은 색인 제외(noindex) 표시만 붙고 주소·본문은 그대로다. 합칠 글은 후보일 뿐 아직 아무 조치도 하지 않았다. 되살리려면 src/data/noindex-paths.json에서 주소를 지운다.\n\n${sec('뺄 글', 'drop')}\n${sec('합칠 글 후보 — 사람이 보고 정한다', 'merge')}\n${sec('고쳐서 되살릴 글 — 지금은 색인 제외', 'fix')}\n${sec('그대로 남길 글', 'keep')}`,
   );
   console.log('written');
 } else {
