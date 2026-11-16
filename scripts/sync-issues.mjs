@@ -772,6 +772,14 @@ function scoreItem(item, cat) {
   };
 }
 
+// 뉴스에 묶을 주제가 없는 날은 고장이 아니다 — 어제 이슈를 그대로 두고 정상 종료한다.
+// 실패(exit 1)로 끝내면 진짜 고장(키 없음·기사 0건)과 구분이 안 돼 경보가 무뎌진다(2026-11-16).
+function keepTodayIssue(reason) {
+  const msg = `오늘의 이슈 그대로 둠 — ${reason}`;
+  console.log(process.env.GITHUB_ACTIONS ? `::notice::${msg}` : `ℹ️ ${msg}`);
+  process.exit(0);
+}
+
 // ─────────────────────────────────────────────────────────────
 // 메인 — 하이브리드: 광역 fetch → N-gram 빈도 → 트렌딩 토픽 → 베스트 기사 선정
 // ─────────────────────────────────────────────────────────────
@@ -830,8 +838,7 @@ async function main() {
   });
 
   if (ranked.length === 0) {
-    console.error('❌ 트렌딩 토픽 0개 (모든 기사가 단발성)');
-    process.exit(1);
+    keepTodayIssue('트렌딩 토픽 0개 (모든 기사가 단발성)');
   }
 
   // 3. 트렌딩 토픽별 매칭 기사 전체 수집 + 대표 기사 선정
@@ -877,8 +884,7 @@ async function main() {
   });
 
   if (trendingWithArticles.length === 0) {
-    console.error('❌ 모든 트렌딩 토픽이 필터 통과 못함');
-    process.exit(1);
+    keepTodayIssue('모든 트렌딩 토픽이 필터 통과 못함');
   }
 
   // 1위 = 매체×기사 가중점수 최상위
