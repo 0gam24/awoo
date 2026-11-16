@@ -21,15 +21,16 @@ npm run dev                          # http://localhost:4321
 
 ## 다른 PC / 다른 사람에게 인계
 
-**👉 [HANDOFF.md](./HANDOFF.md) 를 먼저 읽으세요.** 프로젝트 전체 상태·세팅·트랩·미완료 작업을 한 문서에 정리해 두었습니다.
+**👉 [STRUCTURE.md](./STRUCTURE.md) 를 먼저 읽으세요.** 현재 구조와 운영 방침(2026-11-16 기준)을 정리해 두었습니다.
+[HANDOFF.md](./HANDOFF.md) 는 4~10월 개발 이력과 세팅 요령입니다.
 
 ## 기술 스택
 
 - **Astro 6** + React 19 Islands + Tailwind 4 + TypeScript strict
 - **Cloudflare Workers + Static Assets** 배포 (GitHub push → 자동 배포)
 - **웹폰트 없음** — 기기 기본 한글 글꼴 (2026-10-02 실측 후 결정, global.css 상단 주석)
-- **Astro Content Collections** (페르소나 6 / 지원금 119 / 일간 이슈 자동 생성)
-- **자동 콘텐츠 파이프라인** — 보조금24·네이버 뉴스 + Claude Sonnet 4.6 일간 생성
+- **글 데이터** — 정보 글 411편·지원금 117개·페르소나 6 (글 1편 = JSON 파일 1개)
+- **자동 데이터 동기화** — 보조금24(주 1회)·네이버 뉴스 "오늘의 이슈"(하루 2회). 글 자동 생성은 2026-05-27에 없앴다
 - 커스텀 도메인 [awoo.or.kr](https://awoo.or.kr)
 
 ## 주요 명령
@@ -51,11 +52,12 @@ npm run dev                          # http://localhost:4321
 |---|---|
 | `npm run sync:subsidies:new` | 보조금24 신규 incremental sync |
 | `npm run sync:issues` | 네이버 뉴스 → today-issue.json |
-| `npm run generate:issues` | Claude → /issues/[date]/[slug].json |
 | `npm run sweep:stale[:apply]` | 마감 30일+ 항목 archive |
 | `npm run tag:personas[:apply]` | 페르소나 휴리스틱 backfill |
 | `npm run check:apply-urls` | 외부 applyUrl HEAD 헬스 체크 (5% 샘플) |
 | `npm run indexnow:ping` | Bing/Yandex IndexNow 색인 ping |
+| `node scripts/index-prune-classify.mjs --write` | 구글 색인 제외 목록 다시 만들기 |
+| `node scripts/index-request-queue.mjs` | 구글 색인 요청 대기 목록 |
 
 ## 운영 표준
 
@@ -82,7 +84,7 @@ src/
 └── styles/global.css            # Tailwind + 디자인 토큰
 
 scripts/                         # 빌드/운영 자동화 (Node CLI)
-├── sync-subsidies / sync-issues / generate-issue-posts
+├── sync-subsidies / sync-issues / publish-scheduled
 ├── sweep-stale / tag-personas / check-apply-urls / indexnow-ping
 └── lint-content                 # CI 게이트
 
@@ -91,7 +93,7 @@ public/
 ├── _redirects                   # 301 매핑
 └── robots.txt / og-default.png / favicon.svg
 
-.github/workflows/               # CI · 배포 · 5종 cron
+.github/workflows/               # CI · 배포 · 정기 작업 (STRUCTURE.md §9)
 docs/ops/                        # 운영 가이드 (Search Console, IndexNow, ...)
 ```
 

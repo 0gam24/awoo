@@ -2,6 +2,8 @@
 
 > 본 문서는 다른 PC 또는 미래의 작업 세션에서 본 프로젝트를 **컨텍스트 손실 없이** 이어 작업할 수 있도록 작성됐습니다.
 > 처음 보시는 분은 위에서 아래로 순서대로 읽으세요.
+>
+> ⚠️ 2026-11-16 메모: 이 문서는 4~10월 개발 이력과 세팅 요령이다. 지금 구조와 운영 방침(구글 색인 회복 우선, 새 글 발행 쉼, 색인 제외 장치)은 [STRUCTURE.md](./STRUCTURE.md)를 먼저 볼 것. 아래 "현재 상태"는 작성 당시 기준이다.
 
 ---
 
@@ -27,7 +29,7 @@
 | **Phase 4** | 홈 페이지 — UrgencyHook + NewsHero + IncomeChecker(React Island) + OtherIssues + PersonaPicker + CategoriesGrid. `/personas/[id]/`, `/subsidies/`, `/subsidies/[id]/`, `/guide/` 페이지 |
 | **Phase 5** | 법적 페이지 5종(privacy/terms/cookies/editorial-policy/contact), `@astrojs/sitemap`, `/llms.txt`+`/llms-full.txt` 자동생성, OG PNG, A11y target-size |
 | **Phase A** | API 라우트 3종 (`/api/vitals`, `/api/feedback`, `/api/contact`) + Cloudflare Analytics Engine `awoo_vitals` 데이터셋 |
-| **자동 콘텐츠** | 보조금24 API → `_gov24/_manifest.json` 주간 incremental sync (119건) + 네이버 뉴스 → 트렌딩 N-gram 추출 → `today-issue.json` 일간 + Claude Sonnet 4.6 → `issues/[date]/[slug].json` 일간 SEO/GEO 포스트 |
+| **자동 콘텐츠** | 보조금24 API → `_gov24/_manifest.json` 주간 incremental sync (119건) + 네이버 뉴스 → 트렌딩 N-gram 추출 → `today-issue.json` 일간 (글 자동 생성 `generate-issue-posts.mjs`는 2026-05-27 삭제 — §11-Z 참고) |
 | **9-스프린트 (4/29 일괄)** | 시청자 니치 → 보안 → 운영 → IA → SEO 9단계 일괄 적용 (아래 §2-1 참고) |
 
 ### 2-1. 4/29 9-스프린트 결과
@@ -175,7 +177,6 @@ awoo/
 ├── scripts/                      # 빌드/운영 자동화
 │   ├── sync-subsidies.mjs        # 보조금24 API → _gov24/{slug}.json + atomic manifest
 │   ├── sync-issues.mjs           # 네이버 뉴스 → today-issue.json (안전 clean·길이 캡)
-│   ├── generate-issue-posts.mjs  # Claude API → issues/[date]/[slug].json (.fail.json 로그)
 │   ├── tag-personas.mjs          # _gov24 휴리스틱 페르소나 태깅 (94% 자동)
 │   ├── sweep-stale.mjs           # 마감 30일+ → _archived/ 이동
 │   ├── check-apply-urls.mjs      # 외부 applyUrl HEAD 헬스 체크 (5% 샘플 + 재시도)

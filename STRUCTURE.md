@@ -1,334 +1,149 @@
-# awoo.or.kr 자매 사이트 — STRUCTURE.md
+# awoo.or.kr — STRUCTURE.md
 
-> smartdata HQ 가 본 사이트를 관리하기 위한 구조 문서.
-> 본 문서는 본 repo 분석 결과 자동 생성.
+> 지원금가이드(awoo.or.kr)의 현재 구조 문서. 코드와 저장소를 직접 확인해 적었다.
 >
-> 마지막 갱신: 2026-05-07 (Cycle #84)
-> 분석 기준 commit: 6adfd66 (feat(cycle-84): fact-checker LITE 환각 자동 차단 게이트)
+> 마지막 갱신: 2026-11-16
+> 이전 판(2026-05-07, 자매 사이트 연동 기준)은 git 이력에 있다.
 
 ## 1. 정체성
-- 도메인: awoo.or.kr
-- 역할: 자매 (정부 지원금 신청 가이드)
-- 메인: smartdatashop.kr 의 자매
-- repo: github.com/0gam24/awoo
 
-## 2. 기술 스택
-- Astro 6.1.10 (output: static, trailingSlash: always)
-- React 19.2.5 (Islands 전용 — IncomeChecker 등 일부)
-- Tailwind CSS 4.2.4 (@tailwindcss/vite 플러그인)
-- TypeScript 5.9.3 (strict, astro check + tsc --noEmit)
-- Zod 4.3.6 (Content Collections schema)
-- web-vitals 5.2.0
-- 웹폰트 없음 — 기기 기본 한글 글꼴 (2026-10-02 결정, global.css 상단 주석)
-- Biome 2.4.13 (lint/format)
-- Lighthouse CI 0.15.1 (4×100 게이트)
-- Wrangler 4.86.0 (Cloudflare 배포)
-- lefthook 2.1.6 (Git hook)
-- Node ≥ 22.12.0
+- 도메인: awoo.or.kr — 정부 지원금 안내 사이트
+- 운영 주체: 스마트데이터샵 (편집책임자 김준혁, `/about/`·`/editor/jjh/`)
+- 수익: 구글 자동 광고만 쓴다(수동 광고 칸 없음)
+- 저장소: github.com/0gam24/awoo (main 푸시 → 자동 배포)
 
-## 3. 라우트 (정적)
-- /
-- /about/
-- /ads-policy/
-- /contact/
-- /cookies/
-- /demo/
-- /editor/jjh/
-- /editorial-policy/
-- /guide/
-- /privacy/
-- /terms/
-- /preferences/
-- /quick/
-- /404
-- /categories/
-- /personas/
-- /situations/
-- /topics/
-- /glossary/
-- /guides/
-- /issues/
-- /issues/main/  *(meta-refresh redirect — sitemap 제외)*
-- /subsidies/
-- /subsidies/new/
+## 2. 지금의 운영 방침 (2026-11-16)
 
-## 4. 라우트 (동적)
-- /categories/[id] — 카테고리 hub
-- /personas/[id] — 페르소나 hub (6명)
-- /situations/[id] — 상황 hub
-- /topics/[id] — 주제 hub
-- /glossary/[id] — 용어 사전 항목
-- /guides/[slug] — flagship 가이드 (Cycle #39, markdown 본문)
-- /issues/[date]/[slug] — 영구 이슈 포스트 (날짜+slug)
-- /issues/all/[...page] — 이슈 페이지네이션
-- /issues/topics/[term] — 트렌딩 토픽 영구 hub
-- /subsidies/[id] — 지원금 상세 (gov24 + curated)
-- /subsidies/archived/[slug] — 마감 후 410 처리
-- /subsidies/category/[category]/persona/[persona] — 4축 cross-ref hub
+- 목표는 구글 색인 회복. 네이버 유입은 2026-11 웹사이트 영역 개편 뒤 크게 줄었다.
+- 새 글 발행은 쉰다. 새벽 자동 발행(0400 클라우드 루틴)은 꺼져 있다.
+- 색인 제외 장치: `src/data/noindex-paths.json`
+  - `paths` 칸: 분류기(`scripts/index-prune-classify.mjs --write`)가 채운다. 기한 지난 글 등
+  - `rework` 칸: 옛 틀이라 빼 둔 글. 글 파일에 `"reworkedAt"`을 적고 분류기를 다시 돌리면 되살아난다
+  - `manual` 칸: 사람이 직접 넣는 칸
+  - 여기 든 쪽은 BaseLayout이 noindex를 달고, 빌드 뒤 사이트맵·RSS에서 빠진다
+- 고쳐 쓴 글의 구글 색인 요청 대기 목록: `node scripts/index-request-queue.mjs`
+- 주간 기록: `docs/ops/GOOGLE-WEEKLY.md`, 사람이 읽는 제외 목록: `docs/ops/INDEX-PRUNE.md`
 
-## 5. API endpoints
-- /api/contact — 문의 (rate-limited, Resend/Turnstile 연동 예정)
-- /api/feedback — 피드백 위젯
-- /api/health — 헬스체크
-- /api/vitals — Web Vitals 수집 (Analytics Engine)
-- /feed.xml — 신규 지원금 RSS
-- /feed-issues.xml — 이슈 포스트 RSS
-- /sitemap-news.xml — Google News sitemap
-- /llms.txt — AI 크롤러용 사이트 요약
-- /llms-full.txt — AI 크롤러용 풀 콘텐츠
-- /sitemap-index.xml + /sitemap-0.xml — @astrojs/sitemap 자동 생성
+## 3. 기술 스택
 
-## 6. 레이아웃
-- BaseLayout.astro — SEO/OG/Twitter, canonical, RSS alternate, skip-link, Organization+WebSite+SiteNavigationElement JSON-LD, 다크모드 깜빡임 방지, idle 시 web-vitals lazy import. (단일 레이아웃)
+- Astro 6.1.10 — `output: 'static'`, `trailingSlash: 'always'`, 모든 쪽을 빌드 때 미리 만든다
+- React 19.2.5 — 계산기 같은 일부 화면 조각만 (`IncomeChecker.tsx`, `EitcCalculator.tsx`)
+- Tailwind CSS 4.2.4, TypeScript 5.9.3 strict, Zod 4.3.6
+- 웹폰트 없음 — 기기 기본 한글 글꼴 (2026-10-02 결정, `src/styles/global.css` 상단 주석)
+- Biome 2.4.13(검사·정리), lefthook 2.1.6(커밋 전 검사, 푸시 전 빌드), Lighthouse CI 0.15.1
+- Cloudflare Workers + 정적 자산, Wrangler 4.86.0, Node ≥ 22.12.0
+- 패키지 관리자는 npm (pnpm 안 됨)
 
-## 7. 컴포넌트
-- **MainBackrefBox.astro** — smartdatashop.kr (메인 데이터 저널) backref. variant: inline / sidebar / footer. persona 자동 매핑 (CATEGORY_MAP §3.2). 메인 토큰 #8b1538 좌측 라인. (Cycle #83 신설)
-- Badge.astro — 상태 뱃지 (신청 가능 / 곧 마감 / 마감)
-- BlufBox.astro — BLUF (Bottom Line Up Front) 요약 박스
-- Button.astro — 공통 버튼 atom
-- Chip.astro — 태그·필터 칩
-- Container.astro — 레이아웃 폭 제한 wrapper
-- CrossRefRail.astro — 페이지 간 cross-reference 사이드 레일
-- FeedbackWidget.astro — 페이지 하단 피드백 박스
-- Footer.astro — 사이트 푸터 (운영 주체·연락처·약관 링크)
-- HotkeyNav.astro — 키보드 단축 네비게이션
-- Icon.astro — SVG 아이콘 wrapper
-- PageHeader.astro — eyebrow + h1 + lead 통일 헤더
-- TopBar.astro — 상단 네비게이션 (메뉴 9종)
-- home/CategoriesGrid.astro — 카테고리 그리드 (홈)
-- home/IncomeChecker.astro — 소득 자가진단 wrapper
-- home/IncomeChecker.tsx — React island (가구원·소득→중위소득% 산출)
-- home/NewsHero.astro — 오늘의 이슈 hero
-- home/OtherIssuesSection.astro — 추가 이슈 섹션
-- home/PersonaPicker.astro — 페르소나 6종 진입점
-- home/QuickCheckCTA.astro — 5분 진단 CTA
-- home/RecentlyAdded.astro — 신규 추가 지원금
-- home/UrgencyHook.astro — 마감 임박 hook (deadline 기반)
+## 4. 콘텐츠와 데이터
 
-## 8. 지원금 가이드 페이지 list
-콘텐츠 데이터 소스: `src/data/subsidies/`
-- _gov24/ — 보조금24 sync 102개 (일반 신청 안내)
-- _curated/ — 큐레이션 10개 (basic-livelihood, farm-startup, housing-monthly, job-card, maternity-grant, newlywed-housing, savings-account, senior-employment, small-biz-loan, startup-grant)
-- _archived/ — 마감 sweep 6개 (410 응답)
-- 총 합계: **활성 112개** (_gov24 102 + _curated 10), 아카이브 6개
+| 위치 | 내용 |
+|---|---|
+| `src/data/issues/{날짜}/{slug}.json` | 정보 글 1편 = 파일 1개 (검사기 기준 411편) |
+| `src/data/issues/_scheduled/` | 예약 발행 대기 글 (`publish-scheduled.mjs`가 기일에 옮김) |
+| `src/data/issues/_drafts/` | 초안 (빌드에 안 실림) |
+| `src/data/issues/_history.json` | 뉴스 트렌딩 주제 → 글 연결 기록 |
+| `src/data/subsidies/_gov24/` | 보조금24 동기화 지원금 |
+| `src/data/subsidies/_curated/` | 손으로 고른 지원금 (두 곳 합쳐 117개) |
+| `src/data/subsidies/_archived/` | 마감 정리된 지원금 (410 응답) |
+| `src/data/personas.json` 등 | 페르소나 6·상황·주제·지역·용어 사전 |
+| `src/data/today-issue.json` | 첫 화면 "오늘의 이슈" (하루 2회 자동 갱신) |
+| `src/data/noindex-paths.json` | 색인 제외 목록 (§2) |
+| `src/content/guides/` | 긴 안내 글 (markdown) |
 
-각 항목은 `/subsidies/{id}/` 라우트로 발행. README 명시상 119개(아카이브 포함).
+- 글 주소: 2026-07-10 이후 발행분은 `/issues/{slug}/`, 그 전은 `/issues/{날짜}/{slug}/` 유지 (`src/lib/issue-url.mjs`)
+- 글 발행 조건은 `src/lib/issue-gate.mjs` 하나로 판정한다 — 상세·목록·뉴스 사이트맵이 같은 판정을 쓴다
+- 새 글은 `contentVersion: 2` 규칙(`docs/ops/READER-UX-V2.md`)과 이중 노출 표준(`docs/ops/GOOGLE-NAVER-DUAL-STANDARD.md`)을 따른다
+- 기존 글 정정 범위는 운영자 결재 사항이다
 
-## 9. 자격 체크·마감 트래커
-- /quick/ — 5분 진단 (페르소나·상황 매칭)
-- IncomeChecker (홈) — 가구원 수 + 월 소득 → 중위소득 % → 자격 등급(차상위/중위 안/중간/외) 표시
-- UrgencyHook (홈) — deadline 기반 마감 임박 hook
-- src/lib/deadline-format.ts — 마감일 포맷·임박 판정 유틸
-- sweep-stale 스크립트 — 마감 30일+ 항목 archive 자동화
+## 5. 화면 주소
 
-## 10. lib 모듈
-- anon-prefs.ts — 익명 사용자 prefs (localStorage)
-- api/error-log.ts — API 에러 로깅
-- api/rate-limit.ts — KV/in-memory rate limit (글로벌 분산 옵션)
-- api/utils.ts — API 공용 헬퍼
-- api/validation.ts — Zod 입력 검증
-- deadline-format.ts — 마감일 포맷 + 임박 판정
-- inline-glossary.ts — 본문 내 용어 자동 링크
-- inline-markdown.ts — 인라인 마크다운 파서
-- schema.ts — JSON-LD 헬퍼 (Organization/WebSite/Breadcrumb)
-- subsidies-meta.ts — 지원금 메타 가공
-- vitals.ts — Web Vitals 측정·전송 (idle import)
+정적:
+`/` `/about/` `/ads-policy/` `/contact/` `/cookies/` `/demo/` `/editor/jjh/` `/editorial-policy/` `/feeds/` `/guide/` `/preferences/` `/privacy/` `/terms/` `/quick/` `/calculators/` `/calculators/eitc/` `/calculators/median-income/` `/404`
 
-## 11. GitHub Actions
-- ci.yml — push/PR — lint + check + build + LHCI 4×100
-- deploy.yml — main push (md/docs/.github 제외) — wrangler deploy → Cloudflare Workers
-- sync-subsidies.yml — 보조금24 incremental sync + PR
-- sync-issues.yml — daily 21:00 UTC (06:00 KST) — 네이버 뉴스 sync + Claude 영구 포스트 생성 + IndexNow ping + Cloudflare deploy
-- sweep-stale.yml — 마감 항목 archive
-- check-apply-urls.yml — 외부 applyUrl HEAD 헬스체크 (5% 샘플)
-- indexnow.yml — Bing/Yandex IndexNow 색인 ping
-- citations.yml — Perplexity/AI citation tracking
-- dep-audit.yml — 의존성 취약점 audit
-- **fact-check.yml** — 매일 02:00 KST (cron `0 17 * * *` UTC) + workflow_dispatch — 직전 24h 발행 콘텐츠 정적 audit, risk 분류 (low/medium/high), high-risk 시 exit 1 → 운영자 알림. (Cycle #84 신설, AI 호출 0건)
+목록·묶음:
+- `/issues/` · `/issues/all/[...page]` · `/issues/topics/[term]` · `/issues/main/`(다른 쪽으로 넘기는 쪽, 사이트맵 제외)
+- `/issues/[...path]` — 글 상세 (날짜 있는 주소·없는 주소 모두)
+- `/subsidies/` · `/subsidies/new/` · `/subsidies/[id]` · `/subsidies/archived/[slug]`(410) · `/subsidies/category/[category]/persona/[persona]`
+- `/categories/[id]` · `/personas/[id]` · `/situations/[id]` · `/topics/[id]` · `/regions/[id]` · `/glossary/[id]` · `/guides/[slug]` (각각 목록 쪽 있음)
 
-## 12. scripts
-- **agents/fact-checker.mjs** — LITE 정적 audit (Cycle #84 신설). 매일 02:00 KST 자동 실행. 분석 대상: `src/data/issues/*.json` + `src/content/guides/*.md`. risk 분류: **low**(수치+출처 정상) / **medium**(페어링 부족·factCheckScore<0.8·sourceConfidence=low·추정 표현) / **high**(sources 누락·factCheckScore<0.6). 출력: `fact-check-queue/{YYYY-MM-DD}.json`. AI 호출 0건.
-- audit-content-depth.mjs — 본문 thin content 검증 (AdSense 정합)
-- audit-headings.mjs — h1/h2 구조 검증
-- audit-rss.mjs — RSS 형식 검증
-- audit-skip-link.mjs — a11y skip-link 검증
-- audit-specificity.mjs — 모호 표현 검출 ("확인 필요" 등)
-- audit-titles.mjs — 페이지 title 중복·길이
-- build-entity-graph.mjs — entity-graph.json 빌드 (build 전제)
-- check-apply-urls.mjs — 외부 신청 URL HEAD 체크
-- check-bundle-size.mjs — 번들 사이즈 게이트 (build 후)
-- citation-tracker.mjs — AI 답변엔진 인용 추적
-- cycle-runner.mjs — 운영 사이클 status/advance/reset
-- generate-issue-posts.mjs — Claude → /issues/{date}/{slug}.json 생성
-- indexnow-ping.mjs — IndexNow 색인 ping
-- internal-link-audit.mjs — 내부 링크 감사
-- keyword-coverage.mjs — 키워드 커버리지
-- lint-content.mjs — 콘텐츠 무결성 (slug/참조/schema) — CI 게이트
-- llms-freshness.mjs — llms.txt 신선도 검증
-- schema-validate.mjs — JSON-LD 검증
-- sweep-stale.mjs — 마감 30일+ archive
-- sync-issues.mjs — 네이버 뉴스 → today-issue.json
-- sync-subsidies.mjs — 보조금24 → _gov24/*.json
-- tag-personas.mjs — 페르소나 휴리스틱 backfill
+피드·기계용:
+`/feed.xml` `/feed-issues.xml` `/feed.json` `/atom.xml` `/rss/[cat].xml` `/sitemap-news.xml` `/sitemap-index.xml` `/llms.txt` `/llms-full.txt`
 
-## 13. 빌드·배포 명령
-- `npm run dev` — 개발 서버 (localhost:4321)
-- `npm run build` — **prebuild(generate:mirror)** + entity-graph + astro build + bundle-size 게이트
-- `npm run preview` — build + wrangler dev 로컬 Worker
-- `npm run check` — astro check + tsc --noEmit
-- `npm run lint` / `lint:fix` — Biome
-- `npm run lint:content` — 콘텐츠 무결성 (CI 게이트)
-- `npm run lhci` / `lhci:mobile` — Lighthouse CI 4×100
-- `npm run verify` — lint + lint:content + check + build + lhci 일괄
-- `npm run deploy` — build + wrangler deploy
-- `npm run sync:subsidies[:new|:bootstrap]` — 보조금24 sync
-- `npm run sync:issues` — 네이버 뉴스 sync
-- `npm run generate:issues` — Claude 이슈 포스트 생성
-- `npm run sweep:stale[:apply]` — 마감 sweep
-- `npm run tag:personas[:apply]` — 페르소나 backfill
-- `npm run check:apply-urls[:all]` — 외부 URL 헬스
-- `npm run indexnow:ping` — IndexNow ping
-- `npm run citations:track` — AI 인용 추적
-- `npm run cycle:{status|advance|reset}` — 운영 사이클
-- `npm run audit:{links|schema|llms|keywords|headings|skip-link|a11y|rss|titles|specificity|content-depth}`
+서버 기능 (`src/pages/api/`, 요청 수 제한 있음):
+`/api/contact` `/api/feedback` `/api/health` `/api/vitals`
 
-## 14. 환경변수 의존
-빌드/Worker 런타임은 `process.env` 직접 참조 거의 없음 (정적 출력 + Cloudflare 어댑터). 자동화 스크립트와 CI/Wrangler에서 다음 키 사용 (값 미공개):
+## 6. 서버 (Cloudflare Worker)
 
-**GitHub Actions secrets:**
-- ANTHROPIC_API_KEY — Claude 이슈 포스트 생성
-- NAVER_CLIENT_ID / NAVER_CLIENT_SECRET — 네이버 뉴스 API
-- DATA_GO_KR_KEY — 보조금24 (data.go.kr) API
-- INDEXNOW_KEY — Bing/Yandex IndexNow
-- PERPLEXITY_API_KEY — citation tracker
-- CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID — wrangler deploy
-- LHCI_GITHUB_APP_TOKEN — Lighthouse CI GitHub 연동
-- GITHUB_TOKEN — 자동 PR
+- `src/worker.ts` (44줄)이 하는 일은 셋뿐이다
+  - 옛 도메인 주인(워드프레스) 주소 → 410 (`src/lib/legacy-gone.ts`)
+  - 없는 쪽 → 404 화면 + `x-robots-tag: noindex`
+  - 나머지 → 정적 파일 그대로
+- `wrangler.jsonc`: `run_worker_first`는 `/`와 404 경로만, 측정값은 Analytics Engine `awoo_vitals`
+- 보안 머리글: `public/_headers` (HSTS·CSP 등), 넘기기 규칙: `public/_redirects`
+- CSP의 스크립트 허용에 `'unsafe-inline'`이 남아 있다 — 광고·분석 태그 때문, 과제는 `docs/ops/CSP-NONCE.md`
+- 한국에서 접속하면 Cloudflare 로스앤젤레스 서버로 가는 경우가 있다 (2026-11-16 측정, 첫 응답 1~2초)
 
-**Wrangler runtime secrets (계획 / 미설정):**
-- RESEND_API_KEY — 문의 메일
-- TURNSTILE_SECRET_KEY — Cloudflare Turnstile (봇 차단)
-- ADMIN_EMAIL — 알림 수신처 (기본 smartdatashop@gmail.com)
+## 7. 화면 부품
 
-**Wrangler bindings:**
-- ASSETS — 정적 자산
-- ANALYTICS — Analytics Engine (awoo_vitals 데이터셋)
-- DB / RATE_LIMIT_KV — D1 / KV (주석 처리, in-memory fallback 동작)
+- `src/layouts/BaseLayout.astro` — 유일한 틀. 제목·설명·대표 주소·공유 카드, 구조화 데이터(Organization·WebSite·SiteNavigationElement), noindex 판정, 분석(GA4·네이버)·자동 광고 태그
+- `src/components/` — Badge, BlufBox, Button, Chip, Container, CrossRefRail, FeedbackWidget, Footer, HotkeyNav, Icon, PageHeader, TopBar
+- `src/components/home/` — NewsHero, UrgencyHook, IncomeChecker(.astro/.tsx), PersonaPicker, CategoriesGrid, OtherIssuesSection, QuickCheckCTA, RecentlyAdded
+- `src/components/calculators/EitcCalculator.tsx`
+- `src/lib/` — schema.ts(구조화 데이터), issue-url.mjs, issue-gate.mjs, related-posts.mjs, inline-glossary.ts, deadline-format.ts, subsidy-display.ts, subsidies-meta.ts, feed-content.ts, legacy-gone.ts, vitals.ts, anon-prefs.ts, api/(요청 제한·입력 검사·오류 기록)
 
-**스크립트 환경:**
-- GITHUB_ACTIONS / GITHUB_STEP_SUMMARY (CI 컨텍스트)
+## 8. 빌드
 
-## 15. 의존성 (핵심)
-- astro@6.1.10
-- @astrojs/cloudflare@13.2.2
-- @astrojs/react@5.0.4
-- @astrojs/sitemap@3.7.2
-- @tailwindcss/vite@4.2.4
-- tailwindcss@4.2.4
-- react@19.2.5 / react-dom@19.2.5 / @types/react@19.2.14
-- zod@4.3.6
-- (dev) @astrojs/check@0.9.9, @biomejs/biome@2.4.13, @lhci/cli@0.15.1, lefthook@2.1.6, typescript@5.9.3, web-vitals@5.2.0, wrangler@4.86.0
-- override: vite ^7
+`npm run build` 순서:
+1. `prebuild` — 공유 카드 이미지 생성 (`generate-og-images.mjs`)
+2. `build-entity-graph.mjs` — 페르소나·상황·주제·지원금 연결표
+3. `astro build`
+4. `prune-sitemap-noindex.mjs` — noindex 쪽을 사이트맵에서 뺀다
+5. `check-bundle-size.mjs` — 용량 관문
 
-## 16. 배포
-- 호스팅: Cloudflare Workers (Static Assets + Worker entrypoint)
-- 프로젝트 이름: awoo (wrangler.jsonc `name: "awoo"`)
-- 도메인: awoo.or.kr
-- production branch: main
-- compatibility_date: 2026-04-28
-- compatibility_flags: ["global_fetch_strictly_public"]
-- observability: enabled
-- 자동 배포: main push 시 `.github/workflows/deploy.yml` (md/docs/.github 변경은 skip)
-- cron 결과 즉시 반영: sync-issues.yml 내부에 wrangler deploy 직접 호출 (`[skip ci]` 우회)
+검사 명령: `npm run lint`(Biome), `npm run lint:content`(글 무결성, CI 관문), `npm run check`(astro check + tsc), `npm run lhci`(성능 점수 관문), `npm run verify`(전부)
 
-## 17. 페르소나·톤 (분석된 내용)
-- 주 타겟: 정부 지원금 수령 희망자 (대한민국 일반 시민)
-- 페르소나: 6종 — office-rookie / self-employed / newlywed-family / student / senior / unemployed-career-shift (`src/data/personas.json`)
-- 톤: 친근·단계별 안내·신뢰 (정부 출처 1차 인용, 신청 대행 X 명시)
-- 콘텐츠 유형: 신청 가이드 (HowTo) · 자격 체크 (IncomeChecker / quick) · 마감 트래커 (UrgencyHook · sweep-stale) · 일간 트렌딩 이슈 포스트 (Claude 자동 생성)
-- 운영 원칙: 회원가입 X / 개인정보 수집 X / 신청 대행 X / 정부 공식 사이트로 안내
-- E-E-A-T: about.astro에 편집책임자(김준혁), 정정 정책, 검수 명시. /editor/jjh/ 상세 프로필.
+자동 시험(단위·화면 시험) 코드는 없다.
 
-## 18. JSON-LD / SEO
-- Schema.org 사용: ✓ (사이트와이드 + 페이지별)
-- 사용 type:
-  - 사이트와이드 (BaseLayout): Organization (parentOrganization=스마트데이터샵 — Cycle #83) · WebSite · SiteNavigationElement · BreadcrumbList
-  - 페이지별: AboutPage(/about), GovernmentService(/subsidies/[id]), HowTo(/guide, /quick, /editorial-policy), Article/NewsArticle(/issues/[date]/[slug]), FAQPage(/topics/[id], /glossary/[id], /guides/[slug])
-- @id 앵커 정책 (entity 그래프 일관성): `https://awoo.or.kr/#organization` 등 절대 URL
-- inLanguage: ko-KR 일괄
-- canonical: ✓ (BaseLayout 기본 + 페이지 override)
-- sitemap: ✓ (@astrojs/sitemap, daily/weekly/monthly priority 차등화, lastmod 자동 주입 — gov24 regDate / 이슈 publishedAt / 토픽 hub lastSeen)
-- Google News sitemap: ✓ (/sitemap-news.xml)
-- llms.txt + llms-full.txt: ✓ (AGENTS §12-7)
-- robots.txt: AI 크롤러(GPTBot·ClaudeBot·PerplexityBot 등) 명시 허용
-- naver-site-verification: ✓ (BaseLayout 인라인)
-- Web Vitals: ✓ (idle import + Cloudflare Analytics Engine)
-- Prefetch: prefetchAll + hover 전략
-- inlineStylesheets: always (build-time inline)
+## 9. 자동 작업 (`.github/workflows/`)
 
-## 19. 광고
-- AdSense: ✗ (정책 페이지 `/ads-policy/` 와 audit 스크립트 주석에는 언급되나, 실제 통합 코드(adsbygoogle / data-ad-client) 미발견)
-- AdSense client ID: 미설정
-- 기타 광고: 없음
-- 비고: README에 "비영리 정보 안내 사이트"로 명시. AdSense 승인 대비 콘텐츠 quality 게이트(audit-content-depth, audit-specificity)는 운영 중.
+| 파일 | 하는 일 | 일정 (UTC) |
+|---|---|---|
+| ci.yml | 검사·빌드·성능 점수 관문 | 푸시·PR |
+| deploy.yml | Cloudflare 배포 (md·docs·.github만 바뀌면 건너뜀) | main 푸시 |
+| sync-issues.yml | 네이버 뉴스 → 오늘의 이슈, 바뀌면 빌드·배포·IndexNow | `0 21,7 * * *` |
+| publish-scheduled.yml | 예약 글 발행 | `15 9 * * *` |
+| sync-subsidies.yml | 보조금24 동기화 | `0 18 * * 0` |
+| sweep-stale.yml | 마감 지원금 정리 | `0 18 * * 1` |
+| check-apply-urls.yml | 신청 링크 살아 있는지 표본 확인 | `0 19 * * 2` |
+| dep-audit.yml | 의존성 취약점 확인 | `0 19 * * 3` |
+| citations.yml | AI 답변 인용 추적 | `0 23 * * 0` |
+| indexnow.yml · traffic-probe.yml · auto-publish-0400.yml | 손으로 실행 | — |
+| keyword-pipeline.yml · keyword-radar.yml · naver-rank.yml | 네이버 기준 작업, 일정 꺼 둠 (2026-11-11) | — |
 
-## 20. 현재 콘텐츠 통계 (분석 시점: 2026-05-07, commit 6adfd66)
-- 지원금 페이지: 활성 112개 (_gov24 102 + _curated 10) + 아카이브 6개
-- 페르소나 hub: 6명
-- 트렌딩 토픽 hub: `_history.json` 기준 다수 (피해지원금·공익수당 등)
-- 영구 이슈 포스트: **9편** (2026-04-29 ~ 2026-05-07, 7일치 누적)
-  - 일자별: 04-29(2), 05-01(1), 05-02(2), 05-04(1), 05-05(1), 05-06(2), 05-07(1) — `_*.json` (fail 마커) 제외
-- flagship 가이드(/guides/[slug]): **0편 발행** (`_template.md`만 존재)
-- 자격 체크 도구: 1개 (IncomeChecker — 가구원 수 + 월 소득)
-- 5분 진단: 1개 (/quick)
-- 마감 트래커: 1개 (UrgencyHook + sweep-stale 자동화)
-- 마지막 deploy 일: 2026-05-07 (commit `4167a14` 자동 배포 — backref + lint cleanup)
-- 활성 상태: 운영 중 (일간 자동 발행 cycle #82 정책 + Cycle #84 환각 자동 차단 게이트)
+- 오늘의 이슈는 뉴스에 묶을 주제가 없는 날 "그대로 둠"으로 정상 종료한다 (2026-11-16부터)
+- 쓰는 저장소 비밀값: CLOUDFLARE_API_TOKEN·CLOUDFLARE_ACCOUNT_ID, NAVER_CLIENT_ID·NAVER_CLIENT_SECRET, NCP_API_KEY_ID·NCP_API_KEY(네이버 API HUB), NAVER_SEARCHAD_*(검색광고 API), DATA_GO_KR_KEY, INDEXNOW_KEY, PERPLEXITY_API_KEY, LHCI_GITHUB_APP_TOKEN
+- 로컬 비밀값은 `.env.local` (gitignore)
 
-## 20-A. 신설 디렉토리 (Cycle #84)
-- `fact-check-queue/` — fact-checker LITE 매일 audit 결과 저장
-  - `.gitkeep` — 빈 디렉토리 git tracking 보장
-  - `2026-05-07.json` — 첫 audit 결과 (low=0, medium=1, high=0)
-  - 매일 02:00 KST workflow가 `{KST date}.json` 추가 + `[skip ci]` 자동 commit
-  - biome ignore 등록 (자동 생성물 churn 차단)
+## 10. 운영 스크립트 (`scripts/`, 54개)
 
-## 21. NETWORK.md 헌법 적용 가능성
-- 디자인 토큰 (color/font) 메인과 일치: (미확인) — smartdatashop.kr 메인 토큰을 본 repo에서 확인 불가. 본 사이트는 자체 토큰(`src/styles/global.css` + Tailwind 4)·기기 기본 한글 글꼴 사용. NETWORK.md v0.6 dual-brand 정책에 따라 자매 자율성 인정. MainBackrefBox 한정으로만 메인 토큰(#8b1538) 사용.
-- 4 절대 규칙 (신뢰성·실시간·정확성·출처표기) 준수: ✓
-  - 신뢰성: editorial-policy + about(편집책임자·정정 정책) + Organization JSON-LD(parentOrganization=스마트데이터샵) ✓
-  - 실시간: 일간 sync-issues cron + IndexNow + lastmod 자동 갱신 ✓
-  - 정확성: lint-content + audit-content-depth + audit-specificity + check-apply-urls + **fact-checker LITE (Cycle #84)** 게이트 ✓
-  - 출처표기: 정부 공식 발표 1차 인용 명시 + 영구 이슈 포스트 `sources[]` 필드 의무 + fact-checker가 매일 출처 페어링 검증 ✓
-- 의무 컴포넌트 (TrustBar / SourceList / 메인 backref) 존재: ✓ (Cycle #83)
-  - TrustBar: 본 repo 별도 컴포넌트 없음 (Footer trust-badge + 이슈 포스트 ai-disclosure가 통합 역할 수행)
-  - SourceList: 영구 이슈 포스트의 `sources[]` 배열 + 본문 publisher 인라인 인용으로 충족 (전용 컴포넌트는 없음)
-  - 메인 backref(smartdatashop.kr 링크): ✓ MainBackrefBox 컴포넌트 (Cycle #83) — Footer 사이트 전역 + 지원금 상세 112개 + 영구 이슈 포스트 9개 + 페르소나 hub 6개에 적용. Organization JSON-LD에 parentOrganization=스마트데이터샵 entity 그래프.
-- 안전 게이트 (smoke / verifier / fact-checker) 존재: ✓✓ (Cycle #84로 강화)
-  - smoke: 빌드 + LHCI 4×100 + bundle-size 게이트 ✓
-  - verifier: lint-content (slug/참조/schema) + schema-validate + audit 13종 ✓
-  - **fact-checker LITE (Cycle #84)**: ✓ 매일 02:00 KST 가동. AI 호출 0건. 직전 24h 발행 콘텐츠 정적 audit. high-risk 발견 시 workflow exit 1 → 운영자 1시간 내 검토 알림. PURPOSE.md §5 절대 마지노선(환각 0) 보장.
-- 환각 자동 차단: ✓ (Cycle #84 — 직전까지 ✗, 사람 검수 의존 → 정적 분석 자동 게이트 가동)
-- 종합: 5 사이트 한 덩어리 운영의 모든 핵심 메커니즘(메인 backref + fact-checker LITE) 보유. NETWORK.md v0.6 §7.1 안전 게이트 의무 4 항목 모두 충족.
+- 데이터: sync-issues, sync-history, sync-subsidies, publish-scheduled, sweep-stale, tag-personas, update-today-md, merge-data-store
+- 구글 정리: index-prune-classify, index-request-queue, prune-sitemap-noindex, indexnow-ping
+- 빌드 보조: build-entity-graph, generate-og-images, generate-icons, check-bundle-size
+- 검사: lint-content, audit-*(제목·소제목·건너뛰기 링크·RSS·구체성·본문 깊이), schema-validate, internal-link-audit, llms-freshness, keyword-coverage, check-apply-urls
+- 키워드·네이버(지금은 거의 안 씀): keyword-pipeline, keyword-radar, keyword-volume, searchad-volume, next-wave, wave-split, wave-auto, naver-rank-check, build-cluster-intents, eye-offset, ingest-analytics, ingest-search-advisor, traffic-probe, citation-tracker
+- 운영자 화면: ops-dashboard(`npm run ops:dashboard` → `docs/ops/dashboard.html`, gitignore), ops-widget
+- 기타: cycle-runner, hwp-text(한글 파일 본문 추출)
+- 공용 모듈: `scripts/lib/`
 
-## 20-B. Network mirror (Cycle #85)
-- 첫 빌드 결과: 122편 (지원금 112 + 이슈 10) — 6 페르소나, 3 categories, isCommercial=false
-- gitignored — repo에는 commit하지 않고 build 시 매번 재생성 (sync-issues cron 의 새 이슈 자동 반영)
+## 11. 글 작성 팀 (`.claude/`)
 
-## 22. 변경 이력
-- 2026-05-07 — 초기 자동 생성 (commit `e76c61e` 기준)
-- 2026-05-07 — Cycle #83 (commit `8e9fb24`): smartdatashop network backref 컴포넌트 신설 (`MainBackrefBox.astro`) + Footer/지원금 112/이슈 9/페르소나 6 적용 + Organization JSON-LD에 `parentOrganization=스마트데이터샵` 추가
-- 2026-05-07 — biome auto-fix 사전 결함 정리 (commit `4167a14`): 16 errors → 0 errors. `scripts/generate-issue-posts.mjs` + `src/lib/deadline-format.ts` + `src/pages/llms-full.txt.ts` 정리, `biome.json`에 자동 생성 데이터 ignore 추가.
-- 2026-05-07 — Cycle #84 (commit `6adfd66`): fact-checker LITE 환각 자동 차단 게이트
-  - `.github/workflows/fact-check.yml` 신설 (cron `0 17 * * *` UTC = 02:00 KST 매일)
-  - `scripts/agents/fact-checker.mjs` 신설 (LITE 정적 audit, AI 호출 0건)
-  - `fact-check-queue/` 디렉토리 신설 (`.gitkeep` + 매일 audit JSON 결과)
-  - 첫 실행: `src/data/issues` 1건 audit (low=0, medium=1, high=0)
-  - medium-risk 1건: 영천시 농가당 추산값 "약 60만원" — 본문에 "추산"·"약" 명시 의도된 표현
-  - `paths-ignore: ['.github/**']`로 deploy.yml 미트리거 (사이트 배포 영향 0)
-  - NETWORK.md v0.6 §7.1 안전 게이트 의무 4 항목 보장 — 환각 자동 차단 ✓ 전환
-  - PURPOSE.md §5 절대 마지노선 (환각 0) 보장
-  - 다음 cron 실행: 2026-05-08 02:00 KST
-- 2026-05-08 — Cycle #85: Network mirror 빌드 자동 생성
-  - `package.json` `prebuild` hook 추가 → `npm run build` 시 자동 실행
-  - 메인 사이트(smartdatashop.kr Network HQ)가 awoo 발행물 list sync 가능
-  - isCommercial: false 명시 (awoo 비영리)
+- 에이전트 12종 (`.claude/agents/`): keyword-scout, emerging-keyword-hunter, longtail-strategist, cluster-auditor, naver-serp-scout, post-writer, fact-checker, google-quality-auditor, naver-content-shaper, quality-gate, publish-gatekeeper, naver-rank-tracker
+- 명령 9종 (`.claude/commands/`): /post, /sprint, /today, /목록, /naver, /naver-daily, /traffic, /cycle, /dashboard
+- 수동 발행 절차: `docs/ops/MANUAL-POSTING.md`
+
+## 12. 알아 둘 함정
+
+- 프로젝트 경로에 `#` 쓰지 말 것 (Vite 빌드 실패)
+- 푸시 전 빌드가 lefthook에서 돈다. 실패 판독은 요약 위 빌드 오류부터 (`lefthook.yml` 주석)
+- 저장소는 공개다 — 광고 수익 금액을 파일·주석·커밋에 적지 않는다
+- 사이트 화면·llms 파일에 AI 활용 표시를 넣지 않는다 (운영자 결정 2026-10-14)
