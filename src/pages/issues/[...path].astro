@@ -7,6 +7,7 @@ import { buildImageObject } from '@/lib/schema';
 import { paragraphsAndLists } from '@/lib/inline-markdown';
 import { issuePathParam, issueUrlPath } from '@/lib/issue-url.mjs';
 import { issueGateReason } from '@/lib/issue-gate.mjs';
+import { issueModifiedDate } from '@/lib/issue-modified.mjs';
 import { buildRelatedMap } from '@/lib/related-posts.mjs';
 import { type GetStaticPaths } from 'astro';
 import { getCollection } from 'astro:content';
@@ -156,14 +157,9 @@ const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
 // P2: dateModified·OG·hero 수정일을 단일 변수로 통일.
 // 2026-10-30: 트렌딩 재등장(lastSeen)은 후보에서 뺐다. 글을 고치지 않았는데 "업데이트" 날짜가
 // 올라가 111편이 최신성을 꾸민 것처럼 보였다 — 실제 갱신(updates[]·JSON dateModified)만 쓴다.
+// 2026-11-18: 목록(홈·/issues/·/issues/all/)과 같은 함수 — 발행일 이후 실제 수정일만.
 const updates = post.updates ?? [];
-const latestUpdateDate = updates.length > 0 ? [...updates].map((u) => u.date).sort().at(-1) ?? null : null;
-const jsonModifiedDate = post.dateModified ? post.dateModified.slice(0, 10) : null;
-// 발행일 이후인 후보만 쓴다.
-const modifiedCandidates = [jsonModifiedDate, latestUpdateDate].filter(
-  (d): d is string => Boolean(d) && (d as string) > post.date,
-);
-const modifiedDate = modifiedCandidates.length > 0 ? modifiedCandidates.sort().at(-1)! : null;
+const modifiedDate = issueModifiedDate(post.date, post);
 const lastSeenIso = modifiedDate ? `${modifiedDate}T00:00:00.000Z` : post.publishedAt;
 const isUpdated = modifiedDate != null && modifiedDate > post.date;
 // 연속 일수가 없는 글에 "일 연속 화제"(숫자 빠진 배지)를 띄우지 않는다 — 118편(네이버 '자극적 표현' 회피)

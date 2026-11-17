@@ -2,6 +2,7 @@
 import Container from '@/components/Container.astro';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
 import { passesIssueGate } from '@/lib/issue-gate.mjs';
+import { compareIssuesByLatest, issueModifiedDate } from '@/lib/issue-modified.mjs';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import todayIssue from '@/data/today-issue.json';
 
@@ -27,6 +28,8 @@ interface PostMeta {
   freshness?: { trendingTerm: string; daysActive: number; totalCount: number };
   date: string;
   publishedAt: string;
+  dateModified?: string;
+  updates?: Array<{ date: string; note?: string }>;
   sections?: unknown[];
   faq?: unknown[];
   tldr?: unknown[];
@@ -49,7 +52,7 @@ const issueModules = import.meta.glob<{ default: PostMeta }>(
   { eager: true },
 );
 
-const posts: Array<{ date: string; slug: string; data: PostMeta }> = [];
+const posts: Array<{ date: string; slug: string; data: PostMeta; modified: string | null }> = [];
 for (const [path, mod] of Object.entries(issueModules)) {
   const m = path.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
   if (!m) continue;
@@ -58,11 +61,11 @@ for (const [path, mod] of Object.entries(issueModules)) {
   if (!date || !slug || slug.startsWith('_')) continue;
   // 발행 게이트 공유 판정 — 상세 페이지가 skip한 포스트를 목록에 실으면 404 링크
   if (!passesIssueGate(date, slug, mod.default)) continue;
-  posts.push({ date, slug, data: mod.default });
+  posts.push({ date, slug, data: mod.default, modified: issueModifiedDate(date, mod.default) });
 }
 
-// 날짜 desc 정렬
-posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+// 2026-11-18: 고친 글이 위로 — 실제 수정일(없으면 발행일) 최신순. 발행일·주소는 그대로.
+posts.sort(compareIssuesByLatest);
 
 // today-issue 의 트렌딩 → 매칭 포스트로 다층 hero 구성
 type MatchedSubsidy = { id: string; title: string; agency: string; category: string };
@@ -93,7 +96,7 @@ type HeroCard = {
   rank: number;
   term: string;
   count: number;
-  post: { date: string; slug: string; data: PostMeta } | null;
+  post: (typeof posts)[number] | null;
   topicHref: string | null;
 };
 const heroCards: HeroCard[] = trending.slice(0, 3).map((t, i) => ({
@@ -107,7 +110,8 @@ const heroCards: HeroCard[] = trending.slice(0, 3).map((t, i) => ({
 // Cycle #23: 분석 포스트 좌측 본문에 모두 최신순 정렬 (hero 중복 허용 — 사용자 요청)
 // hero가 있어도 본문 list에도 같은 포스트가 보임. 시간 desc + 월별 그룹.
 const byMonth = posts.reduce<Record<string, typeof posts>>((acc, p) => {
-  const ym = p.date.slice(0, 7);
+  // 정렬 기준과 같은 날짜(수정일 우선)로 월을 묶어야 목록 순서가 월 제목과 어긋나지 않는다
+  const ym = (p.modified ?? p.date).slice(0, 7);
   acc[ym] = acc[ym] ?? [];
   acc[ym].push(p);
   return acc;
@@ -317,7 +321,11 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
                             </span>
                           )}
                           <span class="cat">{p.data.category}</span>
-                          <span class="date">{p.date}</span>
+                          {p.modified ? (
+                            <span class="date">수정 <time datetime={p.modified}>{p.modified}</time></span>
+                          ) : (
+                            <span class="date"><time datetime={p.date}>{p.date}</time></span>
+                          )}
                           <span class="read-time">📖 {readingTimeMin(p.data)}분</span>
                         </div>
                         <div class="pc-title">{p.data.title}</div>

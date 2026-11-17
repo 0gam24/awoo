@@ -2,6 +2,7 @@
 import Container from '@/components/Container.astro';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
 import { passesIssueGate } from '@/lib/issue-gate.mjs';
+import { compareIssuesByLatest, issueModifiedDate } from '@/lib/issue-modified.mjs';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildCollectionPage } from '@/lib/schema';
 import type { GetStaticPaths } from 'astro';
@@ -15,12 +16,14 @@ interface PostMeta {
   freshness?: { trendingTerm: string; daysActive: number; totalCount: number };
   date: string;
   publishedAt: string;
+  dateModified?: string;
+  updates?: Array<{ date: string; note?: string }>;
   sections?: unknown[];
   faq?: unknown[];
   tldr?: unknown[];
 }
 
-interface PostEntry { date: string; slug: string; data: PostMeta }
+interface PostEntry { date: string; slug: string; data: PostMeta; modified: string | null }
 
 // Cycle #11 P1-5: 50건/페이지 페이지네이션 (Astro paginate)
 export const getStaticPaths = (async ({ paginate }) => {
@@ -37,9 +40,10 @@ export const getStaticPaths = (async ({ paginate }) => {
     if (!date || !slug || slug.startsWith('_')) continue;
     // 발행 게이트 공유 판정 — 상세 페이지가 skip한 포스트를 목록에 실으면 404 링크
     if (!passesIssueGate(date, slug, mod.default)) continue;
-    all.push({ date, slug, data: mod.default });
+    all.push({ date, slug, data: mod.default, modified: issueModifiedDate(date, mod.default) });
   }
-  all.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+  // 2026-11-18: 고친 글이 위로 — 실제 수정일(없으면 발행일) 최신순. 발행일·주소는 그대로.
+  all.sort(compareIssuesByLatest);
   return paginate(all, { pageSize: 50 });
 }) satisfies GetStaticPaths;
 
@@ -134,7 +138,11 @@ const collectionSchema = buildCollectionPage({
                     </span>
                   )}
                   <span class="cat">{p.data.category}</span>
-                  <span class="date">{p.date}</span>
+                  {p.modified ? (
+                    <span class="date">수정 <time datetime={p.modified}>{p.modified}</time></span>
+                  ) : (
+                    <span class="date"><time datetime={p.date}>{p.date}</time></span>
+                  )}
                   <span class="read-time">📖 {readingTimeMin(p.data)}분</span>
                 </div>
                 <div class="pc-title">{p.data.title}</div>
