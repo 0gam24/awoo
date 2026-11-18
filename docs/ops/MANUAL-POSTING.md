@@ -157,7 +157,7 @@ STEP 8  발행 후처리 ── IndexNow + SC 안내 + today.md 갱신 + (선택
   "definitions": [             // v2 선택 1~3개: 본문 전문용어 — 용어 박스 + DefinedTerm JSON-LD
     { "term": "...", "definition": "...", "glossarySlug": "..." }
   ],
-  "updates": [                 // v2 선택: 갱신 발행 시 append — 가시 이력 + dateModified 반영
+  "updates": [                 // 글을 고치면 필수 append + dateModified도 고친 시각으로 — 목록이 이 날짜로 정렬돼 맨 위로 올라감(2026-11-18), 발행일·주소는 그대로
     { "date": "YYYY-MM-DD", "note": "..." }
   ],
   "relatedSubsidies": ["..."], // 실제 존재하는 ID만

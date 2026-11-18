@@ -73,6 +73,7 @@ model: inherit
 **본문에 넣을 것(공통)**: 공고 원문 링크(시·군 go.kr, sources[]에도), 언론이 안 쓰는 마찰 지점(전입일 기준·대리신청 서류·5부제 예외), 기준일 명시("기준: YYYY-MM-DD 공고"). 가결 전 지자체(의안만 있는 강릉·당진 등)는 A를 쓰지 마라 — V만, 그것도 기존 V가 없을 때만.
 
 **갱신(기존 글)**: 운영자 결정(2026-09-10)으로 기존 글은 **틀린 사실·바뀐 날짜만** 고친다 — `updates[]` append·`dateModified`·표 행·본문 해당 문장. 제목·slug·구조·전면 재작성·`contentVersion` 추가는 금지.
+**고친 날 기록 필수(운영자 지시 2026-11-18)**: 글을 고치면 반드시 `dateModified`를 고친 시각(`YYYY-MM-DDTHH:mm:ss+09:00`)으로, `updates[]`에 같은 날짜로 한 줄을 남긴다. 홈·`/issues/`·`/issues/all/` 목록은 이 날짜로 정렬하고 "수정 YYYY-MM-DD"로 표시하므로(`src/lib/issue-modified.mjs`), 빠뜨리면 고친 글이 위로 안 올라온다. 발행일(폴더 날짜·`date`·`publishedAt`)과 주소는 절대 바꾸지 않는다.
 
 ## 정보 이득 (Information Gain — 필수)
 
