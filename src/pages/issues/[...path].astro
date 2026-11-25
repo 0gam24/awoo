@@ -153,6 +153,13 @@ const histModules = import.meta.glob<{ default: { byTerm?: Record<string, Histor
   { eager: true },
 );
 const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
+const hubCfgModules = import.meta.glob<{ default: { hubs?: { term: string }[] } }>(
+  '/docs/ops/topic-hubs.json',
+  { eager: true },
+);
+const curatedHubTerms = (Object.values(hubCfgModules)[0]?.default?.hubs ?? [])
+  .map((h) => h.term)
+  .filter((t) => t && /[가-힣]/.test(t));
 
 // P2: dateModified·OG·hero 수정일을 단일 변수로 통일.
 // 2026-10-30: 트렌딩 재등장(lastSeen)은 후보에서 뺐다. 글을 고치지 않았는데 "업데이트" 날짜가
@@ -169,11 +176,17 @@ const hasStreak = typeof post.freshness?.daysActive === 'number' && post.freshne
 const HEADING_BANNER_CUTOFF = '2026-09-26';
 const headingBanner = typeof post.date === 'string' && post.date >= HEADING_BANNER_CUTOFF;
 
-// 토픽 hub는 한국어 키워드 + totalCount≥1 일 때만 빌드됨([term].astro 가드와 동일).
+// 토픽 hub는 한국어 키워드 + (history totalCount≥1 또는 curatedHubs) 일 때 빌드됨([term].astro와 동일).
 // 미빌드 term에는 pill을 링크하지 않는다 — 죽은 hub 링크(dangling) 차단.
-const trendTerm = post.freshness?.trendingTerm;
+const matchedCuratedTerm = curatedHubTerms.find((term) => {
+  const hay = `${post.title ?? ''} ${(post.tags ?? []).join(' ')}`.replace(/\s+/g, '');
+  return hay.includes(term.replace(/\s+/g, ''));
+});
+const trendTerm = post.freshness?.trendingTerm ?? matchedCuratedTerm;
 const topicHubExists = Boolean(
-  trendTerm && /[가-힣]/.test(trendTerm) && (historyByTerm[trendTerm]?.totalCount ?? 0) >= 1,
+  trendTerm &&
+    /[가-힣]/.test(trendTerm) &&
+    ((historyByTerm[trendTerm]?.totalCount ?? 0) >= 1 || curatedHubTerms.includes(trendTerm)),
 );
 
 // 독자용 공식 안내·신청 외부 링크 — sources 중 정부 도메인 우선 (applyUrl은 JSON-LD에만 있어 화면에 노출)
@@ -204,15 +217,17 @@ function highlightFact(raw: string | undefined): string {
 const canonicalUrl = `https://awoo.or.kr${issueUrlPath(date, slug)}`;
 // Cycle #88: factCheckScore — articleSchema reviewedBy + ClaimReview emit 조건. 하단 isThinPost 검사에서도 재사용.
 const factCheckScore = (post as { factCheckScore?: number }).factCheckScore ?? 1;
-// Cycle #11 P0-1: wordCount — AI 인용 confidence 신호 (콘텐츠 depth 명시)
-const articleWordCount =
-  (post.metaDescription?.length ?? 0) +
-  (post.tldr ?? []).reduce((s, t) => s + t.length, 0) +
-  (post.sections ?? []).reduce(
-    (s, sec) => s + (sec.heading?.length ?? 0) + (sec.lead?.length ?? 0) + (sec.body?.length ?? 0),
-    0,
-  ) +
-  (post.faq ?? []).reduce((s, f) => s + (f.q?.length ?? 0) + (f.a?.length ?? 0), 0);
+// Cycle #11 P0-1: wordCount — 실제 어절 수 기준으로 산정 (문자 수 과대 계상 교정)
+const articleWordCount = [
+  post.metaDescription ?? '',
+  ...(post.tldr ?? []),
+  ...(post.sections ?? []).map((sec) => `${sec.heading ?? ''} ${sec.lead ?? ''} ${sec.body ?? ''}`),
+  ...(post.faq ?? []).map((f) => `${f.q ?? ''} ${f.a ?? ''}`),
+]
+  .join(' ')
+  .trim()
+  .split(/\s+/)
+  .filter(Boolean).length;
 // Cycle #78: reportType 분기 — 트렌딩(NewsArticle) vs 분석/가이드(Article)
 // AI 답변 엔진(Perplexity 등)은 Article을 "evergreen reference"로, NewsArticle을 "speed news"로 분류.
 // Source 2-5는 분석·가이드라 Article + isBasedOn(정부 출처)이 더 적합.
@@ -281,25 +296,15 @@ const articleSchema = {
     '@type': 'SpeakableSpecification',
     cssSelector: ['.answer-box', '.tldr li'],
   },
-  // 편집 정책은 editorial-policy 페이지에 명시
-  // E-E-A-T 강화 — 책임 편집자 실명 명시 (Discover YMYL 영역 가산)
-  author: [
-    {
-      '@type': 'Person',
-      name: '김준혁',
-      jobTitle: '편집책임자',
-      url: 'https://awoo.or.kr/about/',
-      worksFor: {
-        '@type': 'Organization',
-        name: '스마트데이터샵',
-      },
-    },
-    {
-      '@type': 'Organization',
-      name: '지원금가이드 편집팀',
-      url: 'https://awoo.or.kr/editorial-policy/',
-    },
-  ],
+  // E-E-A-T 강화 — 편집책임자 실명 프로필(/editor/jjh/#person)과 지식 그래프 직접 연결
+  author: {
+    '@type': 'Person',
+    '@id': 'https://awoo.or.kr/editor/jjh/#person',
+    name: '김준혁',
+    jobTitle: '편집책임자',
+    url: 'https://awoo.or.kr/editor/jjh/',
+    worksFor: { '@id': 'https://awoo.or.kr/#organization' },
+  },
   // 사이트와이드 Organization @id 참조 (Cycle #1 P0-2 자산) — entity 일관성 + 중복 제거
   publisher: { '@id': 'https://awoo.or.kr/#organization' },
   image: [
@@ -385,17 +390,7 @@ const articleSchema = {
         },
       }
     : {}),
-  // E-E-A-T (Cycle #88): 책임 편집자 검수 명시 — YMYL Discover 가산
-  ...(typeof factCheckScore === 'number' && factCheckScore >= 0.7
-    ? {
-        reviewedBy: {
-          '@type': 'Person',
-          name: '김준혁',
-          jobTitle: '편집책임자',
-          url: 'https://awoo.or.kr/about/',
-        },
-      }
-    : {}),
+  // (셀프 검수 오해 방지를 위해 동일인 author/reviewedBy 중복 제거 — 검수 절차는 /editor/jjh/·/editorial-policy/에 명시)
 };
 
 // ClaimReview는 emit하지 않는다 — 구글 팩트체크 가이드라인상 리뷰 대상 클레임은
@@ -419,15 +414,33 @@ function howToText(raw: string): string {
 }
 
 // "어떻게 신청하나요?" 등 신청 절차 섹션의 단계를 HowToStep으로 변환.
+// v2 문형 다양화(번호 리스트·단계 패턴)를 모두 인식하도록 확장해 HowTo 구조화 데이터 누락 방지.
 const stepRegex = /\*\*\s*(\d+)\s*단계\s*[:：]\s*([^*\n]+?)\s*\*\*\s*[—\-:]?\s*([\s\S]*?)(?=\*\*\s*\d+\s*단계|$)/g;
+const numberedStepRegex = /(?:^|\n)\s*(\d+)[.)]\s*(?:\*\*([^*\n]{2,50}?)\*\*[:：\s—\-]*|([^\n:：]{2,30})[:：]\s*)([\s\S]*?)(?=(?:\n\s*\d+[.)]\s)|$)/g;
 let howToSchema: Record<string, unknown> | null = null;
 for (const sec of post.sections ?? []) {
   if (!sec.body) continue;
-  // 신청·절차·방법 키워드 있는 섹션만 검사 (false positive 방지)
-  const isApplyHeading = /신청|절차|방법|어떻게/.test(sec.heading ?? '');
+  // 신청·절차·방법·순서 키워드 있는 섹션만 검사 (false positive 방지)
+  const isApplyHeading = /신청|절차|방법|어떻게|순서|준비|조회/.test(sec.heading ?? '');
   if (!isApplyHeading) continue;
-  const matches = [...sec.body.matchAll(stepRegex)];
-  if (matches.length < 3) continue; // 네이버 HowTo 가이드: 단계가 너무 적은 HowTo는 쓰지 않는다
+  const stageMatches = [...sec.body.matchAll(stepRegex)];
+  let steps: Array<{ name: string; text: string }> = [];
+  if (stageMatches.length >= 3) {
+    steps = stageMatches.map((m, i) => ({
+      name: (m[2] ?? `단계 ${i + 1}`).trim(),
+      text: howToText(m[3] ?? ''),
+    }));
+  } else {
+    const numMatches = [...sec.body.matchAll(numberedStepRegex)];
+    if (numMatches.length >= 3) {
+      steps = numMatches.map((m, i) => ({
+        name: ((m[2] ?? m[3]) ?? `단계 ${i + 1}`).trim(),
+        text: howToText(m[4] ?? ''),
+      }));
+    }
+  }
+  const validSteps = steps.filter((st) => st.name.length > 0 && st.text.length >= 8);
+  if (validSteps.length < 3) continue; // 네이버 HowTo 가이드: 단계가 너무 적은 HowTo는 쓰지 않는다
   howToSchema = {
     '@context': 'https://schema.org',
     '@type': 'HowTo',
@@ -435,11 +448,11 @@ for (const sec of post.sections ?? []) {
     name: `${post.title} — ${sec.heading}`,
     inLanguage: 'ko-KR',
     description: sec.lead ?? `${post.title}의 단계별 신청 절차`,
-    step: matches.map((m, i) => ({
+    step: validSteps.map((s, i) => ({
       '@type': 'HowToStep',
       position: i + 1,
-      name: (m[2] ?? `단계 ${i + 1}`).trim(),
-      text: howToText(m[3] ?? ''),
+      name: s.name,
+      text: s.text,
     })),
   };
   break; // 첫 신청 절차 섹션만 HowTo로
@@ -482,12 +495,6 @@ const faqSchema = post.faq.length > 0 ? {
       text: f.a,
     },
   })),
-  speakable: {
-    '@type': 'SpeakableSpecification',
-    // P2: .lead 과다매칭(모든 섹션 리드) 제거 → 자기충족 청크만 음성 발췌
-    // v2: 한 줄 정답 박스 추가 — 최우선 음성/발췌 청크
-    cssSelector: ['.answer-box', '.tldr', '.tldr li', '.faq-section'],
-  },
 } : null;
 
 // 네이버 BreadcrumbList 가이드: 경로 이름은 키워드로, 너무 긴 텍스트는 피한다 — 마지막 칸은 대표 검색어.
@@ -539,6 +546,66 @@ const rt = (post as { reportType?: string }).reportType;
 const reportTypeBadge = rt && rt in RT_LABELS
   ? { rt, label: RT_LABELS[rt as ReportType] }
   : null;
+
+// 허브-스포크 내부링크(2026-11-23): 주제별 하위 글에서 대표 심층 가이드·계산기로 신호 집중
+const PILLAR_RULES: Array<{
+  re: RegExp;
+  guideHref: string;
+  guideTitle: string;
+  calcHref?: string;
+  calcLabel?: string;
+}> = [
+  {
+    re: /실업급여|구직급여|조기재취업수당/,
+    guideHref: '/guides/unemployment-benefit-master/',
+    guideTitle: '2026 실업급여 완벽 가이드',
+    calcHref: '/calculators/unemployment/',
+    calcLabel: '실업급여 계산기',
+  },
+  {
+    re: /근로장려금|자녀장려금/,
+    guideHref: '/guides/eitc-ctc-master/',
+    guideTitle: '2026 근로장려금·자녀장려금 완벽 가이드',
+    calcHref: '/calculators/eitc/',
+    calcLabel: '근로장려금 계산기',
+  },
+  {
+    re: /청년미래적금|청년도약계좌|청년내일저축계좌/,
+    guideHref: '/guides/youth-savings-master/',
+    guideTitle: '청년미래적금·도약계좌·내일저축 비교 가이드',
+    calcHref: '/calculators/youth-savings/',
+    calcLabel: '청년미래적금 계산기',
+  },
+  {
+    re: /에너지바우처|전기요금\s*복지할인|도시가스\s*요금|난방비/,
+    guideHref: '/guides/energy-voucher-discount-master/',
+    guideTitle: '2026 에너지바우처·전기·가스 할인 총정리',
+    calcHref: '/calculators/median-income/',
+    calcLabel: '중위소득 % 계산기',
+  },
+  {
+    re: /기초연금|노인일자리|노인장기요양|치매치료관리비/,
+    guideHref: '/guides/basic-pension-senior-master/',
+    guideTitle: '2026 기초연금·노인복지 완벽 가이드',
+  },
+  {
+    re: /연말정산|고향사랑기부제/,
+    guideHref: '/guides/yearend-tax-credit-master/',
+    guideTitle: '2026 연말정산 세액공제 완벽 가이드',
+  },
+  {
+    re: /부모급여|아동수당|첫만남이용권|출산지원금|육아휴직급여/,
+    guideHref: '/guides/childbirth-parenting-master/',
+    guideTitle: '2026 출산·육아 지원금 통합 가이드',
+  },
+  {
+    re: /소상공인|노란우산|새출발기금|고용유지지원금|폐업지원금/,
+    guideHref: '/guides/small-business-support-master/',
+    guideTitle: '2026 소상공인·자영업자 지원금 통합 가이드',
+  },
+];
+const pillarHay = `${post.title} ${(post.tags ?? []).join(' ')}`;
+const pillarMatch = PILLAR_RULES.find((r) => r.re.test(pillarHay)) ?? null;
 ---
 
 <BaseLayout
@@ -727,6 +794,17 @@ const reportTypeBadge = rt && rt in RT_LABELS
             <a class="editor-note-link" href="/editorial-policy/">편집 정책</a>
           </span>
         </aside>
+
+        {/* 허브-스포크 대표 가이드·계산기 연결 바 */}
+        {pillarMatch && (
+          <nav class="pillar-bar" aria-label="이 주제의 전체 가이드와 계산기">
+            <span class="pb-label">전체 정리</span>
+            <a class="pb-link" href={pillarMatch.guideHref}>{pillarMatch.guideTitle} →</a>
+            {pillarMatch.calcHref && pillarMatch.calcLabel && (
+              <a class="pb-calc" href={pillarMatch.calcHref}>{pillarMatch.calcLabel} →</a>
+            )}
+          </nav>
+        )}
 
         {/* v2: 갱신 이력 — 무엇이 언제 바뀌었는지 가시화 (freshness 신호 + YMYL 신뢰) */}
         {updates.length > 0 && (
@@ -2224,4 +2302,38 @@ const reportTypeBadge = rt && rt in RT_LABELS
 
   /* ── FAQ 답변: 본문과 줄간 통일 ── */
   .post--v2 .faq-item p { line-height: 1.7; margin: 8px 0 0; }
+
+  /* ── 허브-스포크 대표 가이드·계산기 연결 바 ── */
+  .pillar-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 14px;
+    margin: 14px 0 0;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    background: color-mix(in oklch, var(--accent), transparent 93%);
+    border: 1px solid color-mix(in oklch, var(--accent), transparent 76%);
+    font-size: 13.5px;
+  }
+  .pb-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  .pb-link,
+  .pb-calc {
+    color: var(--accent-link);
+    font-weight: 700;
+    text-decoration: none;
+    padding: 4px 0;
+    min-height: 24px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .pb-link:hover,
+  .pb-calc:hover { text-decoration: underline; }
 </style>

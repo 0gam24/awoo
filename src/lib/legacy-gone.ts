@@ -14,13 +14,18 @@
 const LEGACY_PATTERNS: RegExp[] = [
   // 워드프레스 태그·분류·저자·쪽수 목록
   /^\/(tag|category|author|page)(\/|$)/i,
-  // 워드프레스 내부 경로
+  // 워드프레스 내부·기본 영문 고정 주소 및 PHP 경로
   /^\/(wp-[^/]*|xmlrpc\.php)(\/|$)/i,
+  /^\/(privacy-policy|sample-page|hello-world|trackback|embed)(\/|$)/i,
+  /\.php$/i,
   /^\/comments\/feed(\/|$)/i,
   // 날짜 보관함 /2024/05/…
   /^\/(19|20)\d{2}\/\d{1,2}(\/|$)/,
   // 맨 앞 조각이 한글인 글 주소(퍼센트 인코딩된 한글 음절은 %EA~%ED로 시작)
   /^\/%E[A-D]/i,
+  // 옛 유니세프 아우인형 시절 ASP·레거시 경로(/active/innovation.asp 등)
+  /\.aspx?$/i,
+  /^\/(active|board|doll|campaign|donate|event|news|notice|community|member|intro|awoo)(\/|$)/i,
 ];
 
 export function isLegacyPath(pathname: string): boolean {

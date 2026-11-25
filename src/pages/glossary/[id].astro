@@ -91,13 +91,31 @@ const crossRefItems = [
     : []),
   { href: '/glossary/', label: '용어 사전 전체', sub: '다른 용어 찾기' },
 ];
+// 구글 색인 집중 정책(2026-11-23): 순수 정책 개념 10종만 개별 색인 유지.
+// 개별 제도명 용어(근로장려금·실업급여·기초연금 등)는 심층 대표 가이드·이슈 글과의 키워드 자기잠식을 막기 위해
+// 페이지는 유지하되 noindex, follow 처리한다(통합 /glossary/ 인덱스는 색인 유지).
+const INDEXABLE_GLOSSARY_IDS = new Set([
+  'median-income',
+  'income-percentile',
+  'near-poor',
+  'basic-livelihood',
+  'homeless',
+  'subscription-points',
+  'bokjiro',
+  'ordinary-wage',
+  'weekly-holiday-pay',
+  'contractual-work-hours',
+]);
+const shouldNoindexGlossary = !INDEXABLE_GLOSSARY_IDS.has(term.id);
+const glossaryDesc = `${term.term} 뜻과 기준 정리: ${term.shortDef} ${matched.length > 0 ? `관련 정부 지원금 ${matched.length}건과 자격 기준을 함께 확인하세요.` : '정부 지원금 신청 전 필수 개념을 알기 쉽게 설명합니다.'}`.slice(0, 158);
 ---
 
 <BaseLayout
-  title={`${term.term} — 정부 지원금 용어 정의 | 지원금가이드`}
-  description={term.shortDef.slice(0, 160)}
+  title={`${term.term} 뜻과 기준, 정부 지원금 필수 용어 정리 | 지원금가이드`}
+  description={glossaryDesc}
   activeNav="/guide/"
   breadcrumbs={breadcrumbs}
+  noindex={shouldNoindexGlossary}
 >
   <script type="application/ld+json" set:html={JSON.stringify(definedTermSchema)} />
 

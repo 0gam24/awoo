@@ -16,7 +16,13 @@
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 
-# HTML — 엣지 캐시 + stale-while-revalidate
+# HTML — 엣지 캐시 + stale-while-revalidate (trailingSlash: 'always' 경로와 .html 모두 적용)
+/
+  Cache-Control: public, max-age=0, s-maxage=86400, stale-while-revalidate=604800
+
+/*/
+  Cache-Control: public, max-age=0, s-maxage=86400, stale-while-revalidate=604800
+
 /*.html
   Cache-Control: public, max-age=0, s-maxage=86400, stale-while-revalidate=604800
 

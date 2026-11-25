@@ -65,16 +65,6 @@ export const getStaticPaths = (() => {
     postsByDate[date]!.push(mod.default);
   }
 
-  // 활성 term — "다른 토픽 보기"에는 실제 한국어 키워드만 노출
-  // (옛 자동발행 시절의 machine-slug term: new-subsidies-…, deadline-imminent-… 제외)
-  const activeTopics = Object.entries(byTerm)
-    .filter(([t, e]) => e.totalCount >= 1 && /[가-힣]/.test(t))
-    .sort((a, b) => b[1].totalCount - a[1].totalCount)
-    .map(([t, e]) => ({ term: t, totalCount: e.totalCount, daysActive: e.daysActive }));
-
-  // 1:N — 같은 트렌딩 term의 모든 포스트 집계용 평탄 리스트
-  const allPostsFlat = Object.values(postsByDate).flat();
-
   // 운영자 관리 허브 — byTerm이 2026-08-19에 멈춰 그 뒤 발행분이 허브 없이 떠 있었다.
   // 태그로 자동 생성하면 "2026 정부 지원금"(29건) 같은 범용어 허브가 쏟아져
   // 네이버가 스팸으로 규정한 "저품질 대량 생성"이 되므로, 제도명만 손으로 관리한다.
@@ -85,6 +75,18 @@ export const getStaticPaths = (() => {
   const curatedHubs = (Object.values(hubCfgModules)[0]?.default?.hubs ?? [])
     .map((h) => h.term)
     .filter((t) => t && /[가-힣]/.test(t) && !byTerm[t]);
+
+  // 활성 term — "다른 토픽 보기"에 운영자 관리 핵심 허브(curatedHubs)도 포함해 고립(orphan) 차단
+  const activeTopics = [
+    ...curatedHubs.map((t) => ({ term: t, totalCount: 10, daysActive: 1 })),
+    ...Object.entries(byTerm)
+      .filter(([t, e]) => e.totalCount >= 1 && /[가-힣]/.test(t))
+      .sort((a, b) => b[1].totalCount - a[1].totalCount)
+      .map(([t, e]) => ({ term: t, totalCount: e.totalCount, daysActive: e.daysActive })),
+  ];
+
+  // 1:N — 같은 트렌딩 term의 모든 포스트 집계용 평탄 리스트
+  const allPostsFlat = Object.values(postsByDate).flat();
 
   /** 보유 글에서 허브 통계를 합성한다 (뉴스 언급 통계가 없는 클러스터 허브용) */
   const synthEntry = (posts: PostData[]): HistoryEntry => {

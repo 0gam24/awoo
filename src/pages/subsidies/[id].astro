@@ -185,6 +185,12 @@ for (const part of descParts.slice(1)) {
   if (`${metaDescription} ${part}`.length > 150) break;
   metaDescription = `${metaDescription} ${part}`;
 }
+// 구글 색인 집중 정책(2026-11-23): 수동 큐레이션(_curated)과 확정 금액이 있는 활성 중앙부처 사업만 색인 허용.
+// 보조금24 자동 수집 중 소규모 지자체 단건·금액 미표기 서비스·마감 항목은 페이지는 유지하되 noindex, follow 처리해
+// 크롤링 예산을 핵심 가이드·이슈 글에 집중한다.
+const isCuratedSubsidy = subsidy.id.startsWith('_curated/');
+const isLocalGov24 = Boolean(area);
+const shouldNoindexSubsidy = !isCuratedSubsidy && (isLocalGov24 || s.amount <= 0 || isClosed);
 ---
 
 <BaseLayout
@@ -193,6 +199,7 @@ for (const part of descParts.slice(1)) {
   ogImage={`/og/subsidies/${s.id}.png`}
   activeNav="/subsidies/"
   breadcrumbs={breadcrumbs}
+  noindex={shouldNoindexSubsidy}
 >
   <section class="detail-hero">
     <Container size="wide">

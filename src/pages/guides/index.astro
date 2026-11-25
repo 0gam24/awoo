@@ -23,8 +23,8 @@ const collectionSchema = buildCollectionPage({
 ---
 
 <BaseLayout
-  title="심층 가이드 — 지원금가이드"
-  description="정부 지원금을 페르소나별·상황별로 정리한 심층 가이드. 자격·금액·신청 절차·자주 묻는 질문 한 페이지 정리."
+  title="정부 지원금 심층 대표 가이드 모음, 실업급여·근로장려금·기초연금 | 지원금가이드"
+  description="실업급여, 근로장려금, 청년미래적금, 에너지바우처, 기초연금, 연말정산, 출산·육아, 소상공인 지원금의 자격·금액·계산·신청 절차를 한 페이지로 정리한 대표 가이드 모음입니다."
   activeNav="/guide/"
   breadcrumbs={[
     { name: '홈', href: '/' },
@@ -52,13 +52,13 @@ const collectionSchema = buildCollectionPage({
         <>
           {flagship.length > 0 && (
             <section class="section">
-              <h2 class="sect-title">flagship 가이드</h2>
+              <h2 class="sect-title">핵심 주제별 대표 가이드</h2>
               <ul class="grid">
                 {flagship.map((g) => (
                   <li>
                     <a class="card flagship" href={`/guides/${g.id}/`}>
                       <div class="card-meta">
-                        <span class="flagship-pill">flagship</span>
+                        <span class="flagship-pill">대표 가이드</span>
                         <span class="card-cat">{g.data.category}</span>
                       </div>
                       <h3 class="card-title">{g.data.title}</h3>

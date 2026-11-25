@@ -1,0 +1,161 @@
+---
+// 청년미래적금 3년 만기 수령액 모의계산기 — 금융위원회·서민금융진흥원 2026년 상품 기준
+import Container from '@/components/Container.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { YouthSavingsCalculator } from '@/components/calculators/YouthSavingsCalculator';
+
+const description =
+  '청년미래적금 월 납입액(최대 50만원)과 가입 유형(일반형 6%·우대형 12%), 적용 금리(연 5~8%)별 3년 만기 수령액과 정부기여금을 바로 계산합니다.';
+
+const breadcrumbs = [
+  { name: '홈', href: '/' },
+  { name: '계산기', href: '/calculators/' },
+  { name: '청년미래적금 계산기', href: '/calculators/youth-savings/' },
+];
+
+const faq = [
+  {
+    q: '월 50만원씩 3년 넣으면 만기 수령액이 얼마인가요?',
+    a: '연 7% 금리·금융위원회 공식 예시 기준으로 원금 1,800만원에 정부기여금과 비과세 이자가 더해져 일반형(6%)은 약 2,110만원, 우대형(12%)은 약 2,227만원을 받습니다.',
+  },
+  {
+    q: '일반형과 우대형의 자격 차이는 무엇인가요?',
+    a: '일반형은 직전 연도 총급여 6,000만원 이하(가구 중위소득 200% 이하) 청년이 대상이며 정부기여금 6%를 받습니다. 우대형은 중소기업 신규취업자(6,000만원 이하)·중소기업 재직자(3,600만원 이하·중위 150% 이하)·연매출 1억원 이하 소상공인이 대상이며 12%를 받습니다.',
+  },
+  {
+    q: '총급여가 6,000만원을 넘으면 아예 가입할 수 없나요?',
+    a: '총급여 6,000만원 초과 7,500만원 이하(가구 중위소득 200% 이하)라면 가입 자체는 가능하며, 정부기여금 없이 이자소득 비과세 혜택만 적용받습니다.',
+  },
+  {
+    q: '중도해지하면 정부기여금과 이자는 어떻게 되나요?',
+    a: '퇴직·폐업·생애최초 주택구입 등 6가지 특별중도해지 사유가 아니라면 정부기여금(6% 또는 12%)이 지급되지 않고 이자소득에 일반 과세(15.4%)가 적용됩니다.',
+  },
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  '@id': 'https://awoo.or.kr/calculators/youth-savings/#faq',
+  mainEntity: faq.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+
+const appSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  '@id': 'https://awoo.or.kr/calculators/youth-savings/#app',
+  name: '청년미래적금 만기 수령액 계산기',
+  url: 'https://awoo.or.kr/calculators/youth-savings/',
+  applicationCategory: 'FinanceApplication',
+  operatingSystem: 'Web',
+  description,
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: 0, priceCurrency: 'KRW' },
+  publisher: { '@id': 'https://awoo.or.kr/#organization' },
+};
+---
+
+<BaseLayout
+  title="청년미래적금 계산기 2026, 일반형 6%·우대형 12% 만기 수령액 | 지원금가이드"
+  description={description}
+  activeNav="/calculators/"
+  breadcrumbs={breadcrumbs}
+>
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(appSchema)} />
+
+  <section class="calc-hero">
+    <Container size="wide">
+      <h1 class="title">청년미래적금 만기 수령액 계산기</h1>
+      <p class="lead">
+        가입 유형(일반형 6%·우대형 12%)과 월 납입액, 예상 금리를 선택하면 3년(36개월) 만기 시
+        원금·정부기여금·비과세 이자 합계를 바로 계산합니다.
+      </p>
+      <YouthSavingsCalculator client:visible />
+    </Container>
+  </section>
+
+  <Container size="wide">
+    <section class="calc-section">
+      <h2>가입 유형별 혜택 비교 (월 50만원 · 3년 기준)</h2>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">청년미래적금 일반형·우대형·비과세전용 비교</caption>
+          <thead>
+            <tr>
+              <th scope="col">유형</th>
+              <th scope="col">핵심 소득 조건</th>
+              <th scope="col">정부기여금 비율</th>
+              <th scope="col">3년 기여금 최대</th>
+              <th scope="col">만기 수령액 예시 (연 7%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>일반형</td><td>총급여 6,000만원 이하 · 중위 200% 이하</td><td>6%</td><td>108만원</td><td>약 2,110만원</td></tr>
+            <tr><td>우대형</td><td>중소기업 재직·신규취업 · 연매출 1억 이하 소상공인</td><td>12%</td><td>216만원</td><td>약 2,227만원</td></tr>
+            <tr><td>비과세 전용</td><td>총급여 6,000만원 초과 ~ 7,500만원 이하</td><td>0%</td><td>0원 (비과세만)</td><td>약 1,994만원</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="calc-note">
+        가입 조건·은행별 금리·청년도약계좌 갈아타기 기준은
+        <a href="/guides/youth-savings-master/">청년미래적금·도약계좌 비교 가이드</a>와
+        <a href="/issues/2026-06-03/youth-future-savings-eligibility-2026-06-03/">가입조건 정리</a>,
+        <a href="/issues/2026-06-03/youth-future-savings-bank-rates-2026-06-03/">14개 은행 금리 비교</a>에서
+        확인하세요.
+      </p>
+    </section>
+
+    <section class="calc-section">
+      <h2>자주 묻는 질문</h2>
+      {faq.map((f) => (
+        <details class="calc-faq">
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </section>
+  </Container>
+</BaseLayout>
+
+<style is:global>
+  .calc-hero { padding: 40px 0 8px; }
+  .calc-hero .title { font-size: 28px; margin: 0 0 8px; }
+  .calc-hero .lead { color: var(--text-2); line-height: 1.6; max-width: 680px; margin-bottom: 24px; }
+  .ec-board { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+  @media (max-width: 780px) { .ec-board { grid-template-columns: 1fr; } }
+  .ec-inputs { display: flex; flex-direction: column; gap: 18px; }
+  .ec-fieldset { border: 0; padding: 0; margin: 0; }
+  .ec-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 8px; }
+  .ec-subhint { font-size: 12px; color: var(--text-2); margin: 8px 0 0; }
+  .ec-type-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .ec-type-btn { display: inline-flex; align-items: center; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-pill); font-size: 13px; font-weight: 600; cursor: pointer; background: var(--surface-2); color: var(--text); }
+  .ec-type-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .ec-income-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .ec-income-row input[type='number'] { width: 120px; padding: 8px 12px; font-size: 16px; font-weight: 700; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); }
+  .ec-unit { font-size: 14px; color: var(--text-2); }
+  .ec-inputs input[type='range'] { width: 100%; accent-color: var(--accent); }
+  .ec-result { background: var(--surface-2); border-radius: var(--radius-md); padding: 22px; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
+  .ec-zone { font-size: 13px; font-weight: 700; color: var(--accent); }
+  .ec-amount { font-size: 26px; color: var(--text); }
+  .ec-amount strong { font-size: 36px; font-weight: 800; color: var(--accent); }
+  .ec-breakdown { display: grid; gap: 8px; margin: 4px 0; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 14px; }
+  .ec-breakdown > div { display: flex; justify-content: space-between; gap: 12px; }
+  .ec-breakdown dt { color: var(--text-2); }
+  .ec-breakdown dd { margin: 0; font-weight: 700; }
+  .ec-note { font-size: 12px; color: var(--text-2); line-height: 1.55; margin: 0; }
+  .calc-section { margin: 36px 0; }
+  .calc-section h2 { font-size: 20px; margin: 0 0 14px; }
+  .table-wrap { overflow-x: auto; }
+  .calc-section table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--surface); border-radius: var(--radius-md); overflow: hidden; }
+  .calc-section th, .calc-section td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: left; }
+  .calc-section th { background: var(--surface-2); font-weight: 700; }
+  .calc-note { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-top: 12px; }
+  .calc-note a { color: var(--accent-link); font-weight: 600; }
+  .calc-faq { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 10px; }
+  .calc-faq summary { font-weight: 700; cursor: pointer; }
+  .calc-faq p { margin: 10px 0 0; font-size: 14px; color: var(--text-2); line-height: 1.65; }
+</style>

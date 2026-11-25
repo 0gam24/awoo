@@ -5,18 +5,28 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildCollectionPage } from '@/lib/schema';
 
 const description =
-  '근로장려금 예상 수령액, 중위소득 % 등 지원금 자격·금액을 바로 확인하는 무료 계산기 모음입니다. 법정 산식과 보건복지부 고시 기준을 그대로 반영했습니다.';
+  '근로장려금, 기준중위소득 %, 실업급여, 청년미래적금 만기 수령액을 회원가입 없이 바로 계산하는 무료 지원금 계산기 모음입니다. 법정 산식과 공식 고시 기준을 반영했습니다.';
 
 const CALCULATORS = [
   {
     href: '/calculators/eitc/',
     name: '근로장려금 계산기',
-    desc: '가구 유형·연 총급여로 예상 수령액 계산 (최대 330만원, 법정 산식 기준)',
+    desc: '가구 유형·연 총급여로 예상 수령액 계산 (단독 165만·홑벌이 285만·맞벌이 최대 330만원)',
   },
   {
     href: '/calculators/median-income/',
-    name: '중위소득 % 계산기',
-    desc: '가구원 수·월소득으로 기준 중위소득 대비 %와 지원 자격선 확인',
+    name: '기준중위소득 % 계산기',
+    desc: '2026년 가구원 수·월소득으로 중위소득 비율과 생계·의료·주거·청년월세 자격선 확인',
+  },
+  {
+    href: '/calculators/unemployment/',
+    name: '실업급여 모의계산기',
+    desc: '2026년 1일 상·하한액(66,048원~68,100원)과 나이·가입기간별 총 수령액 계산',
+  },
+  {
+    href: '/calculators/youth-savings/',
+    name: '청년미래적금 만기 계산기',
+    desc: '일반형(기여금 6%)·우대형(12%)과 금리별 3년 만기 수령액·비과세 이자 시뮬레이션',
   },
 ];
 

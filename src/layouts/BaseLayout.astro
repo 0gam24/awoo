@@ -73,6 +73,8 @@ const siteNavigation = {
   hasPart: [
     { '@type': 'WebPage', name: '홈', url: 'https://awoo.or.kr/' },
     { '@type': 'WebPage', name: '오늘의 이슈', url: 'https://awoo.or.kr/issues/' },
+    { '@type': 'WebPage', name: '심층 가이드', url: 'https://awoo.or.kr/guides/' },
+    { '@type': 'WebPage', name: '계산기', url: 'https://awoo.or.kr/calculators/' },
     { '@type': 'WebPage', name: '지원금', url: 'https://awoo.or.kr/subsidies/' },
     { '@type': 'WebPage', name: '가이드', url: 'https://awoo.or.kr/guide/' },
     { '@type': 'WebPage', name: '5분 진단', url: 'https://awoo.or.kr/quick/' },
@@ -88,13 +90,17 @@ const canonicalURL = canonical ?? new URL(Astro.url.pathname, Astro.site).toStri
 const ogImageURL = new URL(ogImage, Astro.site).toString();
 const siteName = '지원금가이드';
 
+// 구글 색인 회복기(2026-11-23~): 모바일 속도(LCP/INP/CLS) 보호 및 광고 과다(MFA) 오인 방지를 위해
+// 자동 광고 스크립트를 일시 중단한다. 구글 일일 클릭이 안정적으로 회복되면 false로 되돌리면 즉시 재개된다.
+const ADS_RECOVERY_PAUSE = true;
+
 // AdSense 로더는 정책·약관 페이지와 noindex(404·thin) 페이지에는 주입하지 않는다.
 // (ads-policy "광고 미게재 영역" 약속을 코드로 강제 + AdSense 정책페이지 광고 금지 준수)
 const POLICY_PATHS = new Set([
   '/privacy/', '/cookies/', '/terms/', '/about/', '/contact/', '/ads-policy/', '/editorial-policy/',
 ]);
 const normalizedPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : `${Astro.url.pathname}/`;
-const showAds = !noindex && !POLICY_PATHS.has(normalizedPath);
+const showAds = !ADS_RECOVERY_PAUSE && !noindex && !POLICY_PATHS.has(normalizedPath);
 ---
 
 <!doctype html>

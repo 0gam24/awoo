@@ -30,7 +30,14 @@ const articleSchema = {
   datePublished: d.publishedAt,
   dateModified: d.updatedAt ?? d.publishedAt,
   articleSection: d.category,
-  author: { '@type': 'Person', name: d.author, url: 'https://awoo.or.kr/editor/jjh/' },
+  author: {
+    '@type': 'Person',
+    '@id': 'https://awoo.or.kr/editor/jjh/#person',
+    name: d.author,
+    jobTitle: '편집책임자',
+    url: 'https://awoo.or.kr/editor/jjh/',
+    worksFor: { '@id': 'https://awoo.or.kr/#organization' },
+  },
   publisher: { '@id': 'https://awoo.or.kr/#organization' },
   isAccessibleForFree: true,
   ...(d.isFlagship ? { educationalLevel: 'beginner', learningResourceType: 'Guide' } : {}),
@@ -78,7 +85,7 @@ const faqSchema = d.faq && d.faq.length > 0
 
       <header class="hero">
         <div class="meta">
-          {d.isFlagship && <span class="flagship-pill">flagship</span>}
+          {d.isFlagship && <span class="flagship-pill">대표 가이드</span>}
           <span class="cat-pill">{d.category}</span>
           <span class="date">{(d.updatedAt ?? d.publishedAt).slice(0, 10)}</span>
         </div>

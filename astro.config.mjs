@@ -71,6 +71,23 @@ try {
   // graceful fallback
 }
 
+// 심층 대표 가이드(/guides/{slug}/) updatedAt/publishedAt → lastmod
+const guideLastmod = new Map();
+try {
+  const guidesDir = join(__dirname, 'src/content/guides');
+  for (const f of readdirSync(guidesDir)) {
+    if (!f.endsWith('.md') || f.startsWith('_')) continue;
+    const raw = readFileSync(join(guidesDir, f), 'utf8');
+    const slug = f.replace(/\.md$/, '');
+    const upd = raw.match(/^updatedAt:\s*["']?(\d{4}-\d{2}-\d{2})["']?/m)?.[1];
+    const pub = raw.match(/^publishedAt:\s*["']?(\d{4}-\d{2}-\d{2})["']?/m)?.[1];
+    const d = upd ?? pub;
+    if (d) guideLastmod.set(`/guides/${slug}/`, `${d}T00:00:00.000Z`);
+  }
+} catch {
+  // graceful fallback
+}
+
 // Cross-ref 허브(카테고리×페르소나) 중 noindex(thin, 매칭 <5건) 페이지 — sitemap 제외 세트.
 // 라우트는 MIN_RESULTS=2로 생성돼 내부 네비게이션은 유지하되, noindex 페이지가 sitemap에
 // 실리는 GSC 충돌만 차단한다. 임계값은 persona/[persona].astro의 NOINDEX_THRESHOLD=5와 동기.
@@ -159,6 +176,11 @@ export default defineConfig({
           }
         }
 
+        // 심층 대표 가이드(/guides/{slug}/) lastmod
+        if (guideLastmod.has(postPath)) {
+          item.lastmod = guideLastmod.get(postPath);
+        }
+
         // 2) 페이지 타입별 priority/changefreq 차등화
         //    홈·issues·subsidies·trending hub = 신선도·중요도 모두 높음 → daily/0.9
         //    개별 issues 포스트 / subsidy 상세 / persona·situation·category·topic hub = weekly/0.8
@@ -166,10 +188,14 @@ export default defineConfig({
         const url = item.url;
         const path = url.replace(/^https?:\/\/[^/]+/, '');
 
-        // daily / 0.9 — 자주 갱신되는 hub 인덱스
+        // daily / 0.9 — 자주 갱신되는 hub 인덱스 + 대표 가이드 + 계산기
         if (
           path === '/' ||
           path === '/issues/' ||
+          path === '/guides/' ||
+          /^\/guides\/[^/]+\/$/.test(path) ||
+          path === '/calculators/' ||
+          /^\/calculators\/[^/]+\/$/.test(path) ||
           path === '/subsidies/' ||
           path === '/subsidies/new/' ||
           /^\/issues\/topics\/[^/]+\/$/.test(path) ||

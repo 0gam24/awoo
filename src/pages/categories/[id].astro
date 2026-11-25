@@ -87,8 +87,8 @@ const collectionSchema = buildCollectionPage({
 ---
 
 <BaseLayout
-  title={`${category.name} 분야 정부 지원금 안내 — 지원금가이드`}
-  description={category.description ?? `${category.name} 분야의 정부 지원금 ${inCategory.length}건을 한눈에 확인.`}
+  title={`${category.name} 분야 정부 지원금 ${inCategory.length}건 자격·금액 정리 | 지원금가이드`}
+  description={`${category.description ?? `${category.name} 분야 정부 지원금 안내.`} 현재 확인 가능한 ${category.name} 분야 지원금 ${inCategory.length}건의 자격 조건·금액·신청 방법을 한눈에 비교해 보세요.`.slice(0, 158)}
   activeNav="/subsidies/"
   breadcrumbs={[
     { name: '홈', href: '/' },

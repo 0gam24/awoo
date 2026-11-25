@@ -39,6 +39,17 @@ export default {
     // run_worker_first로 들어온 첫 화면 요청은 정적 파일을 그대로 돌려준다
     if (url.pathname === '/') return env.ASSETS.fetch(request);
 
-    return handle(request, env, ctx);
+    const res = await handle(request, env, ctx);
+    // Astro가 반환한 모든 404 응답에도 x-robots-tag: noindex를 강제해 소프트 404 색인 유입 차단
+    if (res.status === 404 && !res.headers.has('x-robots-tag')) {
+      const headers = new Headers(res.headers);
+      headers.set('x-robots-tag', 'noindex');
+      return new Response(res.body, {
+        status: res.status,
+        statusText: res.statusText,
+        headers,
+      });
+    }
+    return res;
   },
 };

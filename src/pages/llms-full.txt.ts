@@ -1,7 +1,10 @@
 import { getCollection } from 'astro:content';
 import type { APIRoute } from 'astro';
+import noindexPaths from '@/data/noindex-paths.json';
 import { CATEGORIES, formatMedianWon, INCOME_THRESHOLDS, MEDIAN_INCOME } from '@/data/site-data';
 import todayIssue from '@/data/today-issue.json';
+import { passesIssueGate } from '@/lib/issue-gate.mjs';
+import { compareIssuesByLatest, issueModifiedDate } from '@/lib/issue-modified.mjs';
 import { issueUrlPath } from '@/lib/issue-url.mjs';
 import { amountText } from '@/lib/subsidy-display';
 
@@ -18,7 +21,6 @@ interface IssuePostFile {
   title?: string;
   slug?: string;
   metaDescription?: string;
-  /** v2 AEO: 한 줄 정답 — 합본 최상단 발췌 청크 */
   answer?: string;
   definitions?: Array<{ term?: string; definition?: string; glossarySlug?: string }>;
   tldr?: string[];
@@ -27,30 +29,37 @@ interface IssuePostFile {
   coreFacts?: { who?: string; amount?: string; deadline?: string; where?: string };
   sections?: IssuePostSection[];
   faq?: IssuePostFAQ[];
-  // Cycle #77: reportType별 분기 노출 (AI 답변 엔진이 분석 유형 인지)
-  reportType?:
-    | 'new-subsidies-weekly'
-    | 'deadline-imminent-weekly'
-    | 'persona-weekly'
-    | 'category-weekly';
+  reportType?: string;
   sourceConfidence?: 'high' | 'medium' | 'low';
   sourcePublisherCount?: number;
   sources?: Array<{ title?: string; url?: string; publisher?: string; pubDate?: string }>;
   factCheckScore?: number;
+  dateModified?: string;
+  updates?: Array<{ date: string; note?: string }>;
 }
 
-// 빌드타임 issues/{date}/{slug}.json 본문 합본 — Claude 생성 SEO/GEO 포스트.
-// import.meta.glob로 Vite 정적 import (Cloudflare prerender 환경 호환 — node:fs 미사용).
-// AI 답변 엔진(GPTBot/ClaudeBot/PerplexityBot)이 본문 청크 단위로 정확 인용 가능.
 const issuePostModules = import.meta.glob<{ default: IssuePostFile }>('/src/data/issues/*/*.json', {
   eager: true,
 });
 
-function loadRecentIssuePosts(
-  maxDays = 30,
-): Array<{ date: string; slug: string; data: IssuePostFile }> {
-  const out: Array<{ date: string; slug: string; data: IssuePostFile }> = [];
-  const cutoffMs = Date.now() - maxDays * 24 * 60 * 60 * 1000;
+const noindexSet = new Set<string>([
+  ...noindexPaths.paths,
+  ...noindexPaths.rework,
+  ...(noindexPaths.manual as string[]),
+]);
+
+function loadIndexableIssuePosts(): Array<{
+  date: string;
+  slug: string;
+  data: IssuePostFile;
+  modified: string | null;
+}> {
+  const out: Array<{
+    date: string;
+    slug: string;
+    data: IssuePostFile;
+    modified: string | null;
+  }> = [];
 
   for (const [filePath, mod] of Object.entries(issuePostModules)) {
     const m = filePath.match(/\/issues\/(\d{4}-\d{2}-\d{2})\/([^/]+)\.json$/);
@@ -58,12 +67,18 @@ function loadRecentIssuePosts(
     const date = m[1];
     const slug = m[2];
     if (!date || !slug || slug.startsWith('_')) continue;
-    const dateMs = new Date(date).getTime();
-    if (Number.isNaN(dateMs) || dateMs < cutoffMs) continue;
-    out.push({ date, slug, data: mod.default });
+    if (!passesIssueGate(date, slug, mod.default)) continue;
+    const urlPath = issueUrlPath(date, slug);
+    if (noindexSet.has(urlPath)) continue;
+    out.push({
+      date,
+      slug,
+      data: mod.default,
+      modified: issueModifiedDate(date, mod.default),
+    });
   }
 
-  return out.sort((a, b) => b.date.localeCompare(a.date) || b.slug.localeCompare(a.slug));
+  return out.sort(compareIssuesByLatest);
 }
 
 export const prerender = true;
@@ -84,30 +99,91 @@ interface AutoTodayIssue {
 }
 const auto = todayIssue as AutoTodayIssue;
 
+function isLocalAgency(agency: string): boolean {
+  return /(시|군|구|시청|군청|구청)$/.test(agency.trim());
+}
+
 export const GET: APIRoute = async () => {
   const personas = await getCollection('personas');
   const subsidies = await getCollection('subsidies');
-  const issues = await getCollection('issues');
-  // Cycle #13 P0-3: glossary + topics 본문 합본 (AI 인용 confidence 신호)
   const glossary = await getCollection('glossary');
   const topics = await getCollection('topics');
-  // Cycle #40: flagship guides 본문 합본 (markdown raw body 포함)
   const guides = await getCollection('guides');
 
   const lines: string[] = [];
 
-  lines.push('# 지원금가이드 — 정부 지원금 가이드 (전체 콘텐츠)');
+  lines.push('# 지원금가이드 — 정부 지원금 가이드 (전체 핵심 콘텐츠 합본)');
   lines.push('');
   lines.push('> 전 국민 대상 정부 지원금을 페르소나(생애·상황) 단위로 정리한 정보 안내 사이트.');
   lines.push('> 신청 대행 없음, 정부 공식 사이트로 안내. 운영: 스마트데이터샵 (대표 김준혁).');
   lines.push('');
-  lines.push('이 파일은 AI 답변 엔진(ChatGPT, Claude, Perplexity, Gemini)이 본 사이트의 정보를');
-  lines.push('정확히 인용할 수 있도록 콘텐츠를 마크다운으로 합본한 것입니다.');
+  lines.push('---');
+  lines.push('');
+
+  // 무료 계산기 도구 요약
+  lines.push('## 무료 지원금 계산기 (4종)');
+  lines.push('');
+  lines.push(
+    '- [근로장려금 계산기](https://awoo.or.kr/calculators/eitc/): 조세특례제한법 제100조의5 기준 단독(최대 165만원)·홑벌이(최대 285만원)·맞벌이(최대 330만원) 예상 수령액 및 재산 1.7억~2.4억 50% 감액 반영.',
+  );
+  lines.push(
+    '- [기준중위소득 % 계산기](https://awoo.or.kr/calculators/median-income/): 2026년 보건복지부 고시 기준 가구원 수별 중위소득 비율 및 생계·의료·주거·교육·청년월세 자격선 확인.',
+  );
+  lines.push(
+    '- [실업급여 모의계산기](https://awoo.or.kr/calculators/unemployment/): 2026년 구직급여 1일 하한액(66,048원)·상한액(68,100원)과 연령·고용보험 가입기간별 소정급여일수(120~270일) 계산.',
+  );
+  lines.push(
+    '- [청년미래적금 만기 계산기](https://awoo.or.kr/calculators/youth-savings/): 월 납입액(최대 50만원)·3년 만기 기준 일반형(기여금 6%)·우대형(기여금 12%)과 금리별 만기 수령액 시뮬레이션.',
+  );
   lines.push('');
   lines.push('---');
   lines.push('');
 
-  // 오늘의 이슈 (자동 큐레이션 today-issue.json 기반)
+  // 심층 대표 가이드 (최상위 권위 콘텐츠)
+  if (guides.length > 0) {
+    lines.push(`## 심층 대표 가이드 (${guides.length}건)`);
+    lines.push('');
+    const sortedGuides = [...guides].sort((a, b) => {
+      const ad = a.data.updatedAt ?? a.data.publishedAt;
+      const bd = b.data.updatedAt ?? b.data.publishedAt;
+      return ad < bd ? 1 : -1;
+    });
+    for (const g of sortedGuides) {
+      const url = `https://awoo.or.kr/guides/${g.id}/`;
+      lines.push(`### ${g.data.title}`);
+      lines.push('');
+      lines.push(`- 분야: ${g.data.category}`);
+      lines.push(
+        `- 발행: ${g.data.publishedAt}${g.data.updatedAt ? ` (수정 ${g.data.updatedAt})` : ''}`,
+      );
+      lines.push(`- 출처: ${url}`);
+      lines.push('');
+      lines.push(`> ${g.data.description}`);
+      lines.push('');
+      if (g.data.tldr.length > 0) {
+        lines.push('**핵심 요약**');
+        for (const t of g.data.tldr) lines.push(`- ${t}`);
+        lines.push('');
+      }
+      if (g.body) {
+        lines.push(g.body.trim());
+        lines.push('');
+      }
+      if (g.data.faq && g.data.faq.length > 0) {
+        lines.push('**자주 묻는 질문**');
+        for (const f of g.data.faq) {
+          lines.push('');
+          lines.push(`**Q. ${f.q}**`);
+          lines.push(`A. ${f.a}`);
+        }
+        lines.push('');
+      }
+      lines.push('---');
+      lines.push('');
+    }
+  }
+
+  // 오늘의 이슈 요약
   const autoHeadline = auto?.summary?.headline ?? auto?.headline;
   const autoSubhead = auto?.summary?.subhead ?? auto?.description;
   if (autoHeadline) {
@@ -131,25 +207,7 @@ export const GET: APIRoute = async () => {
     lines.push('');
   }
 
-  // 페르소나
-  lines.push('## 페르소나 (6개 유형)');
-  lines.push('');
-  for (const p of personas) {
-    const matched = subsidies.filter((s) => s.data.targetPersonas.includes(p.data.id));
-    lines.push(`### ${p.data.label} — ${p.data.sub}`);
-    lines.push('');
-    lines.push(`- 연령대: ${p.data.age}`);
-    lines.push(`- 평균 소득: ${p.data.income}`);
-    lines.push(`- 주거: ${p.data.living}`);
-    lines.push(`- 주요 고민: ${p.data.pains.join(', ')}`);
-    lines.push(`- 매칭 지원금 ${matched.length}개: ${matched.map((s) => s.data.title).join(', ')}`);
-    lines.push(`- 상세: https://awoo.or.kr/personas/${p.data.id}/`);
-    lines.push('');
-  }
-  lines.push('---');
-  lines.push('');
-
-  // 중위소득 기준
+  // 2026년 기준 중위소득
   lines.push('## 2026년 기준 중위소득 (보건복지부 고시)');
   lines.push('');
   lines.push('| 가구원 수 | 월 |');
@@ -167,163 +225,65 @@ export const GET: APIRoute = async () => {
   lines.push('---');
   lines.push('');
 
-  // 지원금
-  lines.push(`## 지원금 ${subsidies.length}종 상세`);
-  lines.push('');
-  for (const s of subsidies) {
-    lines.push(`### ${s.data.title} (${s.data.agency})`);
-    lines.push('');
-    lines.push(`- 분야: ${s.data.category}`);
-    lines.push(`- 지원 금액: ${amountText(s.data)}${s.data.monthly ? ` / ${s.data.monthly}` : ''}`);
-    lines.push(`- 지원 기간: ${s.data.period}`);
-    lines.push(`- 마감: ${s.data.deadline} · 상태: ${s.data.status}`);
-    lines.push(`- 요약: ${s.data.summary}`);
-    lines.push('');
-    // Cycle #4 P0-3: coreFacts 키-값 블록 — issuePosts와 일치 포맷, AI 인용 일관성
-    lines.push('**핵심 사실 (Core Facts)**');
-    lines.push(`- 대상: ${s.data.eligibility[0] ?? '확인 필요'}`);
-    lines.push(`- 금액: ${amountText(s.data)}`);
-    lines.push(`- 마감: ${s.data.deadline}`);
-    lines.push(`- 신청처: ${s.data.applyUrl}`);
-    lines.push('');
-    lines.push('**지원 대상**');
-    for (const e of s.data.eligibility) lines.push(`- ${e}`);
-    lines.push('');
-    lines.push('**혜택**');
-    for (const b of s.data.benefits) lines.push(`- ${b}`);
-    lines.push('');
-    lines.push('**필요 서류**');
-    for (const d of s.data.documents) lines.push(`- ${d}`);
-    lines.push('');
-    if (s.data.fitNotes) {
-      lines.push('**페르소나별 비고**');
-      for (const [pid, note] of Object.entries(s.data.fitNotes)) {
-        const p = personas.find((x) => x.data.id === pid);
-        if (p) lines.push(`- ${p.data.label}: ${note}`);
-      }
-      lines.push('');
-    }
-    lines.push(`- 공식 신청처: ${s.data.applyUrl}`);
-    lines.push(`- 본 사이트 상세: https://awoo.or.kr/subsidies/${s.data.id}/`);
-    lines.push('');
-  }
-  lines.push('---');
-  lines.push('');
-
-  // Cycle #6 P0-4: 카테고리 섹션 확장 — commonEligibility + 매칭 subsidy 수 + 대표 3건
-  lines.push('## 분야 카테고리 7종');
-  lines.push('');
-  for (const c of CATEGORIES) {
-    if (c.id === 'all') continue;
-    const inCat = subsidies.filter((s) => s.data.category === c.id);
-    const top3 = [...inCat].sort((a, b) => (b.data.amount ?? 0) - (a.data.amount ?? 0)).slice(0, 3);
-    lines.push(`### ${c.name} (${inCat.length}건)`);
-    lines.push('');
-    if (c.description) {
-      lines.push(c.description);
-      lines.push('');
-    }
-    if (c.commonEligibility && c.commonEligibility.length > 0) {
-      lines.push('**일반 자격 요건**');
-      for (const e of c.commonEligibility) lines.push(`- ${e}`);
-      lines.push('');
-    }
-    if (top3.length > 0) {
-      lines.push('**대표 지원금**');
-      for (const s of top3) {
-        lines.push(
-          `- [${s.data.title}](https://awoo.or.kr/subsidies/${s.data.id}/) · ${s.data.agency}`,
-        );
-      }
-      lines.push('');
-    }
-    lines.push(`- 분야 hub: https://awoo.or.kr/categories/${c.id}/`);
-    lines.push('');
-  }
-  lines.push('---');
-  lines.push('');
-
-  // 추가 이슈 (큐레이션 단신)
-  lines.push('## 이번 주 이슈 (추가)');
-  lines.push('');
-  for (const iss of issues) {
-    lines.push(`### ${iss.data.headline}`);
-    lines.push(`- 분류: ${iss.data.badge} · 발표일: ${iss.data.date}`);
-    lines.push(`- 요약: ${iss.data.summary}`);
-    if (iss.data.related)
-      lines.push(`- 관련 지원금: https://awoo.or.kr/subsidies/${iss.data.related}/`);
-    lines.push('');
-  }
-  lines.push('---');
-  lines.push('');
-
-  // Claude 생성 SEO/GEO 포스트 본문 (최근 30일) — AI 답변 엔진 인용 청크
-  // Cycle #77: reportType별 분기 노출 — AI 크롤러가 분석 유형(트렌딩/신규/마감/페르소나/분야) 구분 가능
-  const issuePosts = loadRecentIssuePosts(30);
+  // 영구 분석 포스트 — 실제 5종 reportType + fallback 전부 수록 (이전 버그: 실제 enum 누락으로 0건 출력되던 문제 해결)
+  const issuePosts = loadIndexableIssuePosts();
   if (issuePosts.length > 0) {
-    // reportType별 그룹화
     const groups: Record<string, typeof issuePosts> = {
-      trending: [],
-      'new-subsidies-weekly': [],
+      'weekly-essentials': [],
+      'issue-followup': [],
+      'new-subsidies-detail': [],
       'deadline-imminent-weekly': [],
-      'persona-weekly': [],
-      'category-weekly': [],
+      'new-subsidies-weekly': [],
+      other: [],
     };
     for (const post of issuePosts) {
-      const rt = post.data.reportType ?? 'trending';
-      if (groups[rt]) groups[rt].push(post);
+      const rt = post.data.reportType ?? 'other';
+      const bucket = groups[rt] ?? groups.other;
+      bucket?.push(post);
     }
 
-    const sectionMeta: Array<{ key: string; emoji: string; title: string; intro: string }> = [
+    const sectionMeta: Array<{ key: string; title: string; intro: string }> = [
       {
-        key: 'trending',
-        emoji: '🔥',
-        title: '트렌딩 정책 뉴스 분석',
+        key: 'weekly-essentials',
+        title: '핵심 정부 지원금 제도 종합 분석',
         intro:
-          '네이버 뉴스 트렌딩 키워드 → 매체 다양성 검증 → 매칭 지원금 자동 분석. 정책 속보·여론·시행 동향 인용 시 활용.',
+          '실업급여·근로장려금·기초연금·청년미래적금·에너지바우처 등 상시 핵심 제도별 자격·금액·계산 분석.',
       },
       {
-        key: 'new-subsidies-weekly',
-        emoji: '🆕',
-        title: '신규 등록 지원금 주간 정리',
-        intro:
-          '정부24에서 새로 등록된 지원금 비교 분석. "이번 주 새로 생긴 정부 지원금" / "신규 등록된 X 지원금" 답변 시 활용.',
+        key: 'issue-followup',
+        title: '정책 변경·신청 절차 심층 분석',
+        intro: '제도 개편, 소득 구간 변경, 탈락 사유, 신청 창구 및 기한별 실무 정리.',
+      },
+      {
+        key: 'new-subsidies-detail',
+        title: '개별 지원금 상세 가이드',
+        intro: '개별 정부·지자체 지원사업별 대상·금액·제출서류·주의사항 상세.',
       },
       {
         key: 'deadline-imminent-weekly',
-        emoji: '⏰',
-        title: '마감 임박 지원금 알림 (D-30 이내)',
-        intro:
-          'D-30 이내 신청 마감 지원금 정렬·신청 우선순위. "지금 마감되는 지원금" / "신청 기간이 얼마 안 남은 지원금" 답변 시 활용.',
+        title: '마감 임박·시기별 지원금 안내',
+        intro: '신청 기한과 회차가 정해진 지원금의 일정 및 준비 사항 정리.',
       },
       {
-        key: 'persona-weekly',
-        emoji: '👤',
-        title: '페르소나별 주간 분석',
-        intro:
-          '6종 페르소나(사회초년생·자영업·신혼육아·중장년·저소득·농업) 요일별 순회. "X(페르소나)이 받을 수 있는 지원금" 답변 시 활용.',
+        key: 'new-subsidies-weekly',
+        title: '신규 등록 지원금 비교 정리',
+        intro: '새로 신설·개편된 정부 지원사업 핵심 비교.',
       },
       {
-        key: 'category-weekly',
-        emoji: '🗂',
-        title: '분야별 심층 가이드',
-        intro:
-          '7종 카테고리(주거·취업·창업·교육·복지·자산·농업) 7일 순회 심층. "X(분야) 정부 지원금 종합" 답변 시 활용.',
+        key: 'other',
+        title: '기타 정책 분석',
+        intro: '분류 외 정책 분석 포스트.',
       },
     ];
 
-    lines.push(`## 영구 분석 포스트 — 최근 30일 (${issuePosts.length}건, 5종 reportType 분기)`);
-    lines.push('');
-    lines.push(
-      '각 포스트는 BLUF·답변형 H2·table·FAQ 청크 구성. 본문 단위 정확 인용 가능. 분석 유형별로 분기되어 있음.',
-    );
+    lines.push(`## 정책 분석 포스트 전체 (${issuePosts.length}건)`);
     lines.push('');
 
     for (const meta of sectionMeta) {
       const posts = groups[meta.key];
       if (!posts || posts.length === 0) continue;
 
-      lines.push(`### ${meta.emoji} ${meta.title} (${posts.length}건)`);
+      lines.push(`### ${meta.title} (${posts.length}건)`);
       lines.push('');
       lines.push(`> ${meta.intro}`);
       lines.push('');
@@ -331,221 +291,139 @@ export const GET: APIRoute = async () => {
       for (const post of posts) {
         const d = post.data;
         const url = `https://awoo.or.kr${issueUrlPath(post.date, post.slug)}`;
-        lines.push(`#### [${post.date}] ${d.title ?? post.slug}`);
+        const dateLabel = post.modified ? `${post.date}, 수정 ${post.modified}` : post.date;
+        lines.push(`#### [${dateLabel}] ${d.title ?? post.slug}`);
         lines.push('');
-        if (d.metaDescription) {
-          lines.push(`> ${d.metaDescription}`);
-          lines.push('');
-        }
-        lines.push(`- 분류: ${d.category ?? '-'} · 본문: ${url}`);
-        if (d.sourceConfidence) {
-          const confLabel =
-            d.sourceConfidence === 'high'
-              ? '높음'
-              : d.sourceConfidence === 'medium'
-                ? '보통'
-                : '제한';
-          const pubPart = d.sourcePublisherCount ? `, 매체 ${d.sourcePublisherCount}곳` : '';
-          lines.push(`- 신뢰도: ${confLabel}${pubPart}`);
-        }
+        lines.push(`- 분류: ${d.category ?? '-'} · URL: ${url}`);
         if (d.tags && d.tags.length > 0) {
-          lines.push(`- 태그: ${d.tags.join(', ')}`);
+          lines.push(`- 키워드: ${d.tags.slice(0, 8).join(', ')}`);
         }
-        lines.push('');
-
-        // v2 AEO: 한 줄 정답 — AI 크롤러가 합본에서 가장 먼저 집는 직접답변 청크
         if (d.answer) {
-          lines.push(`**한 줄 정답**: ${d.answer}`);
-          lines.push('');
+          lines.push(`- **핵심 답변**: ${d.answer}`);
+        } else if (d.metaDescription) {
+          lines.push(`- **요약**: ${d.metaDescription}`);
         }
-
-        if (d.tldr && d.tldr.length > 0) {
-          lines.push('**TL;DR**');
-          for (const t of d.tldr) lines.push(`- ${t}`);
-          lines.push('');
-        }
-
         if (d.coreFacts) {
-          lines.push('**핵심 사실 (Core Facts)**');
-          if (d.coreFacts.who) lines.push(`- 대상: ${d.coreFacts.who}`);
-          if (d.coreFacts.amount) lines.push(`- 금액: ${d.coreFacts.amount}`);
-          if (d.coreFacts.deadline) lines.push(`- 마감: ${d.coreFacts.deadline}`);
-          if (d.coreFacts.where) lines.push(`- 신청처: ${d.coreFacts.where}`);
-          lines.push('');
+          const facts = [
+            d.coreFacts.who ? `대상: ${d.coreFacts.who}` : '',
+            d.coreFacts.amount ? `금액: ${d.coreFacts.amount}` : '',
+            d.coreFacts.deadline ? `기한: ${d.coreFacts.deadline}` : '',
+            d.coreFacts.where ? `신청처: ${d.coreFacts.where}` : '',
+          ].filter(Boolean);
+          if (facts.length > 0) lines.push(`- **핵심 사실**: ${facts.join(' | ')}`);
         }
-
-        // v2 AEO/GEO: 용어 정의 — AI 답변 엔진의 용어→개념 매핑 청크
-        if (Array.isArray(d.definitions) && d.definitions.length > 0) {
-          lines.push('**핵심 용어**');
-          for (const t of d.definitions) {
-            if (t.term && t.definition) lines.push(`- ${t.term}: ${t.definition}`);
-          }
-          lines.push('');
+        if (d.tldr && d.tldr.length > 0) {
+          lines.push('- **요점**:');
+          for (const t of d.tldr) lines.push(`  - ${t}`);
         }
-
         if (d.sections && d.sections.length > 0) {
           for (const sec of d.sections) {
-            lines.push(`##### ${sec.heading}`);
-            lines.push('');
-            if (sec.lead) {
-              lines.push(`**${sec.lead}**`);
-              lines.push('');
-            }
-            if (sec.body) {
-              lines.push(sec.body.trim());
-              lines.push('');
+            if (sec.heading && sec.lead) {
+              lines.push(`  - **${sec.heading}** ${sec.lead}`);
             }
           }
         }
-
         if (d.faq && d.faq.length > 0) {
-          lines.push('**자주 묻는 질문**');
-          for (const f of d.faq) {
-            lines.push('');
-            lines.push(`**Q. ${f.q}**`);
-            lines.push(`A. ${f.a}`);
+          for (const f of d.faq.slice(0, 3)) {
+            lines.push(`  - Q. ${f.q} → ${f.a}`);
           }
-          lines.push('');
         }
-
-        // P1(GEO): 1차 출처 URL + 사실검증 점수 — AI 크롤러가 합본(llms-full)만 읽어도 attribution 확보
         if (Array.isArray(d.sources) && d.sources.length > 0) {
-          lines.push('**출처**');
-          for (const s of d.sources) {
-            const name = s.publisher ?? s.title ?? '출처';
-            const cite = s.url ? `[${name}](${s.url})` : name;
-            lines.push(`- ${cite}${s.pubDate ? ` (${s.pubDate})` : ''}`);
-          }
-          if (typeof d.factCheckScore === 'number') {
-            lines.push(`- 사실검증 점수: ${Math.round(d.factCheckScore * 100)}%`);
-          }
-          lines.push('');
+          const cites = d.sources
+            .slice(0, 4)
+            .map((s) => {
+              const name = s.publisher ?? s.title ?? '출처';
+              return s.url ? `[${name}](${s.url})` : name;
+            })
+            .join(', ');
+          const fcPart =
+            typeof d.factCheckScore === 'number'
+              ? ` (사실대조 ${Math.round(d.factCheckScore * 100)}%)`
+              : '';
+          lines.push(`- **출처**: ${cites}${fcPart}`);
         }
-
-        lines.push('---');
         lines.push('');
       }
     }
+    lines.push('---');
+    lines.push('');
   }
 
-  // Cycle #13 P0-3: 용어 사전 본문 (AI 인용 핵심 — 정책 용어 정의 풀)
-  if (glossary.length > 0) {
-    lines.push(`## 용어 사전 (${glossary.length}건)`);
-    lines.push('');
-    lines.push(
-      '정부 지원금·복지 정책 용어 정의. AI 답변 엔진이 사용자 질문 컨텍스트를 정확히 매핑할 수 있도록 단어별 풀이.',
-    );
-    lines.push('');
-    for (const g of glossary) {
-      const url = `https://awoo.or.kr/glossary/${g.data.id}/`;
-      lines.push(`### ${g.data.term}`);
-      lines.push('');
-      if (g.data.synonyms?.length) {
-        lines.push(`- 동의어/유사 표현: ${g.data.synonyms.join(', ')}`);
-      }
-      lines.push(`- 분야: ${g.data.category}`);
-      lines.push(`- 출처: ${url}`);
-      lines.push('');
-      lines.push(g.data.shortDef);
-      lines.push('');
-      if (g.data.longDef) {
-        lines.push(g.data.longDef);
-        lines.push('');
-      }
-      lines.push('---');
-      lines.push('');
-    }
-  }
-
-  // Cycle #13 P0-3: 주제별 종합 본문
-  if (topics.length > 0) {
-    lines.push(`## 주제별 종합 (${topics.length}건)`);
-    lines.push('');
-    lines.push(
-      '생애 단계·상황별로 묶은 종합 가이드. 여러 지원금이 함께 작동하는 조합·우선순위·결정 트리 제공.',
-    );
-    lines.push('');
-    for (const t of topics) {
-      const url = `https://awoo.or.kr/topics/${t.data.id}/`;
-      lines.push(`### ${t.data.title}`);
-      lines.push('');
-      lines.push(`- 분야: ${t.data.category}`);
-      lines.push(`- 출처: ${url}`);
-      lines.push('');
-      lines.push(t.data.shortDef);
-      lines.push('');
-      if (t.data.longDef) {
-        lines.push(t.data.longDef);
-        lines.push('');
-      }
-      lines.push('---');
-      lines.push('');
-    }
-  }
-
-  // Cycle #13 P0-3: 사이트 정책 / about / 가이드 인덱스 (사이트 권위 신호)
-  lines.push('## 사이트 정보');
+  // 페르소나
+  lines.push('## 페르소나 (6개 유형)');
   lines.push('');
-  lines.push('- [사이트 소개](https://awoo.or.kr/about/): 운영 주체·콘텐츠 정책·신뢰성');
-  lines.push('- [편집 정책](https://awoo.or.kr/editorial-policy/): 1차 자료 검증·정정 절차');
-  lines.push('- [신청 가이드](https://awoo.or.kr/guide/): 정부 지원금 신청 흐름·공식 사이트·FAQ');
-  lines.push(
-    '- [개인정보처리방침](https://awoo.or.kr/privacy/): 회원가입·로그인 X, 개인정보 수집 X',
+  for (const p of personas) {
+    const matched = subsidies.filter((s) => s.data.targetPersonas.includes(p.data.id));
+    lines.push(`### ${p.data.label} — ${p.data.sub}`);
+    lines.push(`- 연령대: ${p.data.age} · 평균 소득: ${p.data.income} · 주거: ${p.data.living}`);
+    lines.push(
+      `- 매칭 지원금 ${matched.length}개 · 상세: https://awoo.or.kr/personas/${p.data.id}/`,
+    );
+    lines.push('');
+  }
+  lines.push('---');
+  lines.push('');
+
+  // 대표 지원금 (큐레이션 + 중앙부처 핵심 사업)
+  const coreSubsidies = subsidies.filter(
+    (s) => s.id.startsWith('_curated/') || (!isLocalAgency(s.data.agency) && s.data.amount > 0),
   );
-  lines.push('- [이용약관](https://awoo.or.kr/terms/): 콘텐츠 정확성·신청 대행 미수행·책임 제한');
-  lines.push('- [문의](https://awoo.or.kr/contact/): 정정·제보·제휴 24~48시간 답변');
+  lines.push(`## 대표 중앙부처·주요 지원금 (${coreSubsidies.length}종)`);
+  lines.push('');
+  for (const s of coreSubsidies) {
+    lines.push(`### ${s.data.title} (${s.data.agency})`);
+    lines.push(
+      `- 분야: ${s.data.category} · 금액: ${amountText(s.data)}${s.data.monthly ? ` (${s.data.monthly})` : ''} · 마감: ${s.data.deadline} (${s.data.status})`,
+    );
+    lines.push(`- 요약: ${s.data.summary}`);
+    lines.push(`- 대상: ${s.data.eligibility.slice(0, 3).join(' / ')}`);
+    lines.push(`- 공식 신청처: ${s.data.applyUrl}`);
+    lines.push(`- 본 사이트 상세: https://awoo.or.kr/subsidies/${s.data.id}/`);
+    lines.push('');
+  }
+  lines.push('---');
+  lines.push('');
+
+  // 카테고리 7종
+  lines.push('## 분야 카테고리 7종');
+  lines.push('');
+  for (const c of CATEGORIES) {
+    if (c.id === 'all') continue;
+    const inCat = subsidies.filter((s) => s.data.category === c.id);
+    lines.push(
+      `- **${c.name} (${inCat.length}건)**: ${c.description ?? ''} (https://awoo.or.kr/categories/${encodeURIComponent(c.id)}/)`,
+    );
+  }
   lines.push('');
   lines.push('---');
   lines.push('');
 
-  // Cycle #40: flagship 가이드 본문 합본 (markdown raw body)
-  if (guides.length > 0) {
-    lines.push(`## 심층 가이드 (${guides.length}건)`);
+  // 주제별 종합
+  if (topics.length > 0) {
+    lines.push(`## 주제별 종합 (${topics.length}건)`);
     lines.push('');
-    lines.push(
-      '정부 지원금을 페르소나·상황별로 정리한 사람 작성·검수 심층 가이드. 각 가이드는 자격·금액·신청 절차·자주 묻는 질문까지 한 페이지에서 정리.',
-    );
-    lines.push('');
-    // 시간 desc 정렬
-    const sortedGuides = [...guides].sort((a, b) => {
-      const ad = a.data.updatedAt ?? a.data.publishedAt;
-      const bd = b.data.updatedAt ?? b.data.publishedAt;
-      return ad < bd ? 1 : -1;
-    });
-    for (const g of sortedGuides) {
-      const url = `https://awoo.or.kr/guides/${g.id}/`;
-      lines.push(`### ${g.data.title}${g.data.isFlagship ? ' [flagship]' : ''}`);
-      lines.push('');
-      lines.push(`- 분야: ${g.data.category}`);
-      lines.push(
-        `- 발행: ${g.data.publishedAt}${g.data.updatedAt ? ` (수정 ${g.data.updatedAt})` : ''}`,
-      );
-      lines.push(`- 출처: ${url}`);
-      lines.push('');
-      lines.push(`> ${g.data.description}`);
-      lines.push('');
-      if (g.data.tldr.length > 0) {
-        lines.push('**핵심 요약**');
-        for (const t of g.data.tldr) lines.push(`- ${t}`);
-        lines.push('');
-      }
-      // markdown 본문 그대로 (g.body는 frontmatter 제거된 raw md)
-      if (g.body) {
-        lines.push(g.body.trim());
-        lines.push('');
-      }
-      if (g.data.faq && g.data.faq.length > 0) {
-        lines.push('**자주 묻는 질문**');
-        for (const f of g.data.faq) {
-          lines.push('');
-          lines.push(`**Q. ${f.q}**`);
-          lines.push(`A. ${f.a}`);
-        }
-        lines.push('');
-      }
-      lines.push('---');
+    for (const t of topics) {
+      lines.push(`### ${t.data.title}`);
+      lines.push(`- URL: https://awoo.or.kr/topics/${t.data.id}/`);
+      lines.push(t.data.shortDef);
       lines.push('');
     }
+    lines.push('---');
+    lines.push('');
+  }
+
+  // 용어 사전
+  if (glossary.length > 0) {
+    lines.push(`## 정책 용어 사전 (${glossary.length}건)`);
+    lines.push('');
+    for (const g of glossary) {
+      lines.push(
+        `- **${g.data.term}**: ${g.data.shortDef} (https://awoo.or.kr/glossary/${g.data.id}/)`,
+      );
+    }
+    lines.push('');
+    lines.push('---');
+    lines.push('');
   }
 
   // 운영 주체
@@ -553,13 +431,12 @@ export const GET: APIRoute = async () => {
   lines.push('');
   lines.push('- 운영 법인: 스마트데이터샵 (개인사업자, 간이과세)');
   lines.push('- 사업자등록번호: 406-06-34485');
-  lines.push('- 대표자: 김준혁 (편집책임자)');
+  lines.push('- 대표자: 김준혁 (편집책임자, https://awoo.or.kr/editor/jjh/)');
   lines.push('- 소재지: 인천광역시 계양구 새벌로 88, 효성동');
   lines.push('- 이메일: smartdatashop@gmail.com');
   lines.push('- 본 사이트는 정보 안내 사이트로 신청 대행은 하지 않습니다.');
-  lines.push('- 정부 부처 공식 발표를 1차 자료로 작성하며 분기마다 전체 재검토합니다.');
+  lines.push('- 정부 부처 공식 발표를 1차 자료로 작성하며 변경 시 정정·갱신합니다.');
   lines.push('- 편집 정책: https://awoo.or.kr/editorial-policy/');
-  lines.push('- 개인정보처리방침: https://awoo.or.kr/privacy/');
   lines.push('');
   lines.push(`마지막 갱신: ${new Date().toISOString().slice(0, 10)}`);
 

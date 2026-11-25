@@ -12,8 +12,19 @@ const histModules = import.meta.glob<{ default: { byTerm?: Record<string, Histor
   { eager: true },
 );
 const historyByTerm = Object.values(histModules)[0]?.default?.byTerm ?? {};
-// Cycle #9: 모든 트렌딩 키워드(totalCount ≥ 1) 토픽 hub 보장 — 1:1 매핑
+const hubCfgModules = import.meta.glob<{ default: { hubs?: { term: string }[] } }>(
+  '/docs/ops/topic-hubs.json',
+  { eager: true },
+);
+const curatedHubTerms = (Object.values(hubCfgModules)[0]?.default?.hubs ?? [])
+  .map((h) => h.term)
+  .filter((t) => t && /[가-힣]/.test(t));
+
+// Cycle #9: 모든 트렌딩 키워드(totalCount ≥ 1) + 운영자 관리 허브(curatedHubs) 1:1 매핑
 function topicHref(term: string): string | null {
+  if (curatedHubTerms.includes(term)) {
+    return `/issues/topics/${encodeURIComponent(term)}/`;
+  }
   const entry = historyByTerm[term];
   if (!entry || entry.totalCount < 1) return null;
   return `/issues/topics/${encodeURIComponent(term)}/`;
@@ -148,6 +159,25 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
           <a class="head-all-link" href="/issues/all/">전체 분석 포스트 {posts.length}건 보기 →</a>
         )}
       </div>
+
+      {curatedHubTerms.length > 0 && (
+        <nav class="curated-hubs" aria-label="주요 제도별 모아보기">
+          <span class="curated-hubs-label">주요 제도별 모아보기</span>
+          <div class="curated-hubs-list">
+            {curatedHubTerms.map((term) => (
+              <a class="curated-hub-chip" href={`/issues/topics/${encodeURIComponent(term)}/`}>
+                {term}
+              </a>
+            ))}
+            <a class="curated-hub-chip curated-hub-chip--accent" href="/guides/">
+              심층 대표 가이드 →
+            </a>
+            <a class="curated-hub-chip curated-hub-chip--accent" href="/calculators/">
+              무료 계산기 →
+            </a>
+          </div>
+        </nav>
+      )}
 
       {heroCards.length > 0 && (
         <section class="hero-section" aria-label="이번 주 화제 Top 3">
@@ -1121,4 +1151,48 @@ const filterCategories = Object.entries(categoryPostCounts).sort((a, b) => b[1] 
     font-size: 11px;
   }
   .trend-empty { font-size: 13px; color: var(--text-3); }
+
+  .curated-hubs {
+    margin: 0 0 28px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+  }
+  .curated-hubs-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-2);
+    margin-bottom: 10px;
+  }
+  .curated-hubs-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .curated-hub-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .curated-hub-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent-link);
+    text-decoration: none;
+  }
+  .curated-hub-chip--accent {
+    background: color-mix(in oklch, var(--accent), transparent 90%);
+    border-color: color-mix(in oklch, var(--accent), transparent 72%);
+    color: var(--accent-link);
+  }
 </style>
