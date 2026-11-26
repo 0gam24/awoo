@@ -1,11 +1,11 @@
 ---
-// 실업급여(구직급여) 예상 수령액 모의계산기 — 고용보험법 제45·46·50조 (2026년 기준)
+// 실업급여(구직급여) 예상 수령액 모의계산기 — 고용보험법 제45·46·50조 (2026·2027년 기준)
 import Container from '@/components/Container.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { UnemploymentCalculator } from '@/components/calculators/UnemploymentCalculator';
 
 const description =
-  '2026년 퇴사자 기준 실업급여(구직급여) 1일 지급액(66,048원~68,100원)과 나이·고용보험 가입기간별 수급일수(120~270일), 예상 총 수령액을 바로 계산합니다.';
+  '2027년 확정 하한액(1일 68,480원)과 2026년 기준(66,048원~68,100원)을 비교해 나이·고용보험 가입기간별 실업급여 수급일수(120~270일)와 예상 총 수령액을 30초 만에 계산합니다.';
 
 const breadcrumbs = [
   { name: '홈', href: '/' },
@@ -15,8 +15,12 @@ const breadcrumbs = [
 
 const faq = [
   {
-    q: '2026년 실업급여 1일 상한액과 하한액은 얼마인가요?',
-    a: '하루 8시간 근무 기준 2026년 퇴사자의 1일 상한액은 68,100원, 하한액은 66,048원(최저임금 10,320원의 80% × 8시간)입니다. 세전 월급이 약 334만원 이하라면 대부분 하한액이 적용됩니다.',
+    q: '2027년 실업급여 1일 하한액과 상한액은 얼마인가요?',
+    a: '2027년 최저임금이 시간당 10,700원(고용노동부고시 제2026-60호)으로 확정되면서 1일 8시간 기준 하한액은 68,480원(10,700원 × 8시간 × 80%)으로 인상됩니다. 기존 상한액(68,100원)보다 하한액이 높아지는 역전 현상이 생겨 상한액은 하한액의 103% 연동(약 70,534원) 개편이 추진 중이며, 최종 금액은 시행령 고시로 확정됩니다.',
+  },
+  {
+    q: '2026년 12월 퇴사와 2027년 1월 퇴사는 어떻게 다른가요?',
+    a: '실업급여 기준액은 퇴사일(이직일) 기준으로 적용됩니다. 2026년 12월 31일 이전 퇴사는 2026년 기준(하한 66,048원·상한 68,100원), 2027년 1월 1일 이후 퇴사는 2027년 기준(하한 68,480원 확정)이 적용됩니다.',
   },
   {
     q: '고용보험 가입기간 180일은 달력 6개월을 뜻하나요?',
@@ -47,7 +51,7 @@ const appSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   '@id': 'https://awoo.or.kr/calculators/unemployment/#app',
-  name: '2026 실업급여 모의계산기',
+  name: '2027 실업급여 모의계산기 (2026·2027 비교)',
   url: 'https://awoo.or.kr/calculators/unemployment/',
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
@@ -59,7 +63,7 @@ const appSchema = {
 ---
 
 <BaseLayout
-  title="실업급여 계산기 2026, 1일 66,048원~68,100원 예상 총 수령액 | 지원금가이드"
+  title="2027 실업급여 계산기, 1일 68,480원 예상 총 수령액 | 지원금가이드"
   description={description}
   activeNav="/calculators/"
   breadcrumbs={breadcrumbs}
@@ -69,10 +73,10 @@ const appSchema = {
 
   <section class="calc-hero">
     <Container size="wide">
-      <h1 class="title">실업급여 모의계산기 (2026년 기준)</h1>
+      <h1 class="title">2027 실업급여 모의계산기 (2026·2027 비교)</h1>
       <p class="lead">
-        나이, 고용보험 가입기간, 퇴사 직전 3개월 평균 월급을 입력하면 2026년 구직급여 1일 지급액과
-        예상 총 수령액을 바로 확인할 수 있습니다.
+        퇴사 예정 연도(2026년·2027년), 나이, 고용보험 가입기간, 퇴사 직전 3개월 평균 월급을 입력하면
+        구직급여 1일 지급액과 예상 총 수령액을 30초 만에 비교·계산할 수 있습니다.
       </p>
       <UnemploymentCalculator client:visible />
     </Container>
@@ -80,7 +84,7 @@ const appSchema = {
 
   <Container size="wide">
     <section class="calc-section">
-      <h2>2026년 소정급여일수 표 (고용보험법 별표 1)</h2>
+      <h2>소정급여일수 표 (고용보험법 별표 1)</h2>
       <div class="table-wrap">
         <table>
           <caption class="sr-only">연령 및 고용보험 가입기간별 실업급여 지급일수</caption>
