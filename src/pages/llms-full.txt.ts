@@ -437,6 +437,7 @@ export const GET: APIRoute = async () => {
   lines.push('- 공식 네이버 블로그: https://blog.naver.com/aidatashop');
   lines.push('- 공식 카카오톡 채널: https://pf.kakao.com/_WSWnG');
   lines.push('- 공식 유튜브: https://www.youtube.com/@awoo_or_kr');
+  lines.push('- 공식 인스타그램: https://www.instagram.com/smartdatashop_79/');
   lines.push(
     '- 편집책임자 LinkedIn: https://www.linkedin.com/in/%EC%A4%80%ED%98%81-%EA%B9%80-b89336197/',
   );
