@@ -25,6 +25,7 @@ export const ORG = {
     'https://pf.kakao.com/_WSWnG',
     'https://www.youtube.com/@awoo_or_kr',
     'https://www.instagram.com/smartdatashop_79/',
+    'https://www.threads.com/@smartdatashop_79',
   ],
   founderLinkedIn: 'https://www.linkedin.com/in/%EC%A4%80%ED%98%81-%EA%B9%80-b89336197/',
 } as const;
