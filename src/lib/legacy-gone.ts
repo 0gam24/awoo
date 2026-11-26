@@ -26,6 +26,12 @@ const LEGACY_PATTERNS: RegExp[] = [
   // 옛 유니세프 아우인형 시절 ASP·레거시 경로(/active/innovation.asp 등)
   /\.aspx?$/i,
   /^\/(active|board|doll|campaign|donate|event|news|notice|community|member|intro|awoo)(\/|$)/i,
+  // 구 Next.js·초기 버전(2026-04~05) 잔재 경로 — 현재 Astro 라우트와 겹치지 않음
+  /^\/(youtube|subsidy|insight|_next)(\/|$)/i,
+  /^\/issues\/topics\/new-subsidies-detail-/i,
+  // 구 워드프레스 영문 포스트·깨진 크롤러 경로(/"> 등)
+  /^\/(shinhan-cooperative-capital-withdrawal|pi-coin-lockup-guide-tips-benefits|goingbus-discount-code)(\/|$)/i,
+  /^\/(%22|")/,
 ];
 
 export function isLegacyPath(pathname: string): boolean {
@@ -44,6 +50,7 @@ const LEGACY_HOME_PARAMS = [
   'attachment_id',
   's',
   'preview',
+  'idx',
 ];
 
 export function isLegacyHomeQuery(url: URL): boolean {
