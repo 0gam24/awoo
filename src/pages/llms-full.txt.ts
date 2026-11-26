@@ -435,6 +435,7 @@ export const GET: APIRoute = async () => {
   lines.push('- 소재지: 인천광역시 계양구 새벌로 88, 효성동');
   lines.push('- 이메일: smartdatashop@gmail.com');
   lines.push('- 공식 네이버 블로그: https://blog.naver.com/aidatashop');
+  lines.push('- 공식 카카오톡 채널: https://pf.kakao.com/_WSWnG');
   lines.push(
     '- 편집책임자 LinkedIn: https://www.linkedin.com/in/%EC%A4%80%ED%98%81-%EA%B9%80-b89336197/',
   );
