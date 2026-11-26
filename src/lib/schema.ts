@@ -20,7 +20,11 @@ export const ORG = {
   address: '인천광역시 계양구 새벌로 88, 효성동',
   email: 'smartdatashop@gmail.com',
   url: SITE_URL,
-  sameAs: ['https://blog.naver.com/aidatashop', 'https://pf.kakao.com/_WSWnG'],
+  sameAs: [
+    'https://blog.naver.com/aidatashop',
+    'https://pf.kakao.com/_WSWnG',
+    'https://www.youtube.com/@awoo_or_kr',
+  ],
   founderLinkedIn: 'https://www.linkedin.com/in/%EC%A4%80%ED%98%81-%EA%B9%80-b89336197/',
 } as const;
 
