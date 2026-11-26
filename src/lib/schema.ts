@@ -21,6 +21,7 @@ export const ORG = {
   email: 'smartdatashop@gmail.com',
   url: SITE_URL,
   sameAs: ['https://blog.naver.com/aidatashop'],
+  founderLinkedIn: 'https://www.linkedin.com/in/%EC%A4%80%ED%98%81-%EA%B9%80-b89336197/',
 } as const;
 
 /**
@@ -42,7 +43,13 @@ export function buildOrganization(opts: { withAddress?: boolean } = {}) {
     sameAs: [...ORG.sameAs],
     email: ORG.email,
     taxID: ORG.taxID,
-    founder: { '@type': 'Person', name: ORG.founder },
+    founder: {
+      '@type': 'Person',
+      '@id': `${SITE_URL}/editor/jjh/#person`,
+      name: ORG.founder,
+      url: `${SITE_URL}/editor/jjh/`,
+      sameAs: [ORG.founderLinkedIn],
+    },
     // 네이버 주소(Address) 가이드: 사이트 공통 주소를 모든 페이지에 똑같이 넣지 않는다 —
     // 첫 화면·소개·문의 페이지에만. addressRegion은 가장 큰 지역명.
     ...(opts.withAddress
