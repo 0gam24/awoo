@@ -439,6 +439,7 @@ export const GET: APIRoute = async () => {
   lines.push('- 공식 유튜브: https://www.youtube.com/@awoo_or_kr');
   lines.push('- 공식 인스타그램: https://www.instagram.com/smartdatashop_79/');
   lines.push('- 공식 스레드: https://www.threads.com/@smartdatashop_79');
+  lines.push('- 공식 X (트위터): https://x.com/awoo_or_kr');
   lines.push(
     '- 편집책임자 LinkedIn: https://www.linkedin.com/in/%EC%A4%80%ED%98%81-%EA%B9%80-b89336197/',
   );
