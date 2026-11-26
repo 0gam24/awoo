@@ -294,7 +294,7 @@ export const GET: APIRoute = async () => {
   lines.push('## 운영 주체');
   lines.push('');
   lines.push(
-    '스마트데이터샵 (대표 김준혁) · 사업자등록 406-06-34485 · 인천광역시 계양구 새벌로 88, 효성동 · smartdatashop@gmail.com',
+    '스마트데이터샵 (대표 김준혁) · 사업자등록 406-06-34485 · 인천광역시 계양구 새벌로 88, 효성동 · smartdatashop@gmail.com · 공식 블로그: https://blog.naver.com/aidatashop',
   );
 
   return new Response(lines.join('\n'), {

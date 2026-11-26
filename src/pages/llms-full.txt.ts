@@ -434,6 +434,7 @@ export const GET: APIRoute = async () => {
   lines.push('- 대표자: 김준혁 (편집책임자, https://awoo.or.kr/editor/jjh/)');
   lines.push('- 소재지: 인천광역시 계양구 새벌로 88, 효성동');
   lines.push('- 이메일: smartdatashop@gmail.com');
+  lines.push('- 공식 네이버 블로그: https://blog.naver.com/aidatashop');
   lines.push('- 본 사이트는 정보 안내 사이트로 신청 대행은 하지 않습니다.');
   lines.push('- 정부 부처 공식 발표를 1차 자료로 작성하며 변경 시 정정·갱신합니다.');
   lines.push('- 편집 정책: https://awoo.or.kr/editorial-policy/');

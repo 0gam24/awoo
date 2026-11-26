@@ -20,6 +20,7 @@ export const ORG = {
   address: '인천광역시 계양구 새벌로 88, 효성동',
   email: 'smartdatashop@gmail.com',
   url: SITE_URL,
+  sameAs: ['https://blog.naver.com/aidatashop'],
 } as const;
 
 /**
@@ -38,6 +39,7 @@ export function buildOrganization(opts: { withAddress?: boolean } = {}) {
     legalName: ORG.legalName,
     url: SITE_URL,
     logo: `${SITE_URL}/icon-512.png`,
+    sameAs: [...ORG.sameAs],
     email: ORG.email,
     taxID: ORG.taxID,
     founder: { '@type': 'Person', name: ORG.founder },
