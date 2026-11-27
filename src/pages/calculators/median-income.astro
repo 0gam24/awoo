@@ -1,12 +1,12 @@
 ---
-// 중위소득 % 계산기 전용 페이지 — 홈 IncomeChecker 아일랜드 재사용 (분기 전략 4)
-// "중위소득 계산기" 검색 수요를 받는 색인 가능한 랜딩 (홈 섹션은 앵커 불가)
+// 중위소득 % 계산기 전용 페이지 — 홈 IncomeChecker 아일랜드 재사용 (2027년 확정 고시 반영)
 import Container from '@/components/Container.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { IncomeChecker } from '@/components/home/IncomeChecker';
+import { formatMedianWon, MEDIAN_INCOME_2027 } from '@/data/site-data';
 
 const description =
-  '가구원 수와 월소득을 입력하면 2026년 보건복지부 기준 중위소득 몇 %인지 바로 계산합니다. 기초생활보장·차상위·청년월세 등 소득 자격선과 비교해 어떤 지원 범위에 드는지 확인하세요.';
+  '2027년 확정 기준중위소득(+6.70% 인상, 1인 273만·4인 692만원)과 2026년 기준을 비교해 우리 집이 중위소득 몇 %인지, 생계·의료·주거·교육급여 대상인지 10초 만에 계산합니다.';
 
 const breadcrumbs = [
   { name: '홈', href: '/' },
@@ -14,18 +14,34 @@ const breadcrumbs = [
   { name: '중위소득 계산기', href: '/calculators/median-income/' },
 ];
 
+const HOUSEHOLD_ROWS = [1, 2, 3, 4, 5, 6].map((n) => {
+  const m = MEDIAN_INCOME_2027[n] ?? 273.6042;
+  return {
+    size: `${n}인 가구`,
+    p100: formatMedianWon(m, 100),
+    p32: formatMedianWon(m, 32),
+    p40: formatMedianWon(m, 40),
+    p48: formatMedianWon(m, 48),
+    p50: formatMedianWon(m, 50),
+  };
+});
+
 const faq = [
   {
-    q: '기준 중위소득이 무엇인가요?',
-    a: '전체 가구를 소득순으로 줄 세웠을 때 정확히 가운데 가구의 소득으로, 보건복지부가 매년 8월 고시합니다. 기초생활보장 급여와 다수 복지 사업의 소득 자격이 이 금액의 몇 %인지로 정해집니다.',
+    q: '2027년 기준 중위소득은 얼마나 올랐나요?',
+    a: '보건복지부 고시(제2026-157호)에 따라 2027년 기준 중위소득은 전년 대비 6.70% 인상되어 역대 최대 폭을 기록했습니다. 1인 가구는 월 2,736,042원(+171,804원), 4인 가구는 월 6,929,885원(+435,147원)이며 2027년 1월 1일부터 적용됩니다.',
+  },
+  {
+    q: '2027년 생계·의료·주거·교육급여 기준선은 얼마인가요?',
+    a: '1인 가구 기준 생계급여(32%) 월 87만 5,533원, 의료급여(40%) 월 109만 4,417원, 주거급여(48%) 월 131만 3,300원, 교육급여(50%) 월 136만 8,021원 이하입니다. 4인 가구는 생계급여 월 221만 7,563원, 주거급여 월 332만 6,345원 이하입니다.',
   },
   {
     q: '세전 소득과 세후 소득 중 무엇을 입력하나요?',
-    a: '복지 자격 판정에 쓰이는 소득인정액은 세전 소득에 재산의 소득환산액을 더해 계산합니다. 이 계산기는 세전 월소득 기준의 간이 확인용이므로, 정확한 자격은 복지로 모의계산이나 주민센터 상담으로 확정하세요.',
+    a: '복지 자격 판정에 쓰이는 소득인정액은 세전 소득에 재산의 소득환산액을 더해 계산합니다. 이 계산기는 세전 월소득 기준의 간이 확인용이므로, 정확한 자격은 복지로(bokjiro.go.kr) 모의계산이나 주민센터 상담으로 확정하세요.',
   },
   {
-    q: '2027년에는 기준이 바뀌나요?',
-    a: '기준 중위소득은 매년 8월에 다음 해 금액이 고시됩니다. 2027년 적용 금액이 확정되면 이 계산기와 관련 글에 반영됩니다.',
+    q: '기준 중위소득이 오르면 나에게 어떤 혜택이 생기나요?',
+    a: '기준선이 6.70% 올라가면서 같은 월급을 받아도 중위소득 비율(%)이 낮아집니다. 지난해에 소득이 살짝 넘어 탈락했던 기초생활보장·청년월세·에너지바우처·국가장학금 등에 새로 포함될 가능성이 커집니다.',
   },
 ];
 
@@ -44,37 +60,69 @@ const appSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   '@id': 'https://awoo.or.kr/calculators/median-income/#app',
-  name: '중위소득 % 계산기',
+  name: '2027 기준중위소득 % 계산기 (2026·2027 비교)',
   url: 'https://awoo.or.kr/calculators/median-income/',
   applicationCategory: 'FinanceApplication',
   operatingSystem: 'Web',
   description,
+  isAccessibleForFree: true,
   offers: { '@type': 'Offer', price: 0, priceCurrency: 'KRW' },
   publisher: { '@id': 'https://awoo.or.kr/#organization' },
 };
 ---
 
 <BaseLayout
-  title="중위소득 계산기 2026, 우리 집은 중위소득 몇 %일까 | 지원금가이드"
+  title="2027 기준중위소득 계산기, 우리 집은 중위소득 몇 %일까 | 지원금가이드"
   description={description}
-  activeNav="/subsidies/"
+  activeNav="/calculators/"
   breadcrumbs={breadcrumbs}
 >
-  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
-  <script type="application/ld+json" set:html={JSON.stringify(appSchema)} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(appSchema)} />
 
   <section class="calc-hero income-checker">
     <Container size="wide">
-      <h1 class="title">중위소득 % 계산기</h1>
+      <h1 class="title">2027 기준중위소득 % 계산기 (2026·2027 비교)</h1>
       <p class="lead">
-        가구원 수와 세전 월소득만 입력하면 2026년 보건복지부 기준 중위소득 대비 몇 %인지,
-        어떤 지원 자격선 안에 드는지 바로 보여드립니다.
+        가구원 수와 세전 월소득을 입력하면 2027년 확정 기준중위소득(+6.70% 인상)과 2026년 기준 대비
+        몇 %인지, 생계·주거·청년·교육 지원 자격선 안에 드는지 바로 보여드립니다.
       </p>
       <IncomeChecker client:visible />
     </Container>
   </section>
 
   <Container size="wide">
+    <section class="calc-section">
+      <h2>2027년 가구별 기준중위소득 및 4대 급여 선정기준 (보건복지부 고시 제2026-157호)</h2>
+      <div class="table-wrap">
+        <table>
+          <caption class="sr-only">2027년 1~6인 가구 기준중위소득 및 생계·의료·주거·교육급여 선정기준</caption>
+          <thead>
+            <tr>
+              <th scope="col">구분</th>
+              <th scope="col">중위소득 100%</th>
+              <th scope="col">생계급여 (32%)</th>
+              <th scope="col">의료급여 (40%)</th>
+              <th scope="col">주거급여 (48%)</th>
+              <th scope="col">교육급여 (50%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {HOUSEHOLD_ROWS.map((r) => (
+              <tr>
+                <td><strong>{r.size}</strong></td>
+                <td>{r.p100}</td>
+                <td>{r.p32}</td>
+                <td>{r.p40}</td>
+                <td>{r.p48}</td>
+                <td>{r.p50}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
     <section class="calc-section">
       <h2>자주 묻는 질문</h2>
       {faq.map((f) => (
@@ -85,7 +133,7 @@ const appSchema = {
       ))}
       <p class="calc-note">
         용어가 낯설다면 <a href="/glossary/median-income/">기준 중위소득 용어 정리</a>를,
-        내년 기준선 변화는
+        생계급여 상세 변화는
         <a href="/issues/median-income-2027-livelihood-benefit-threshold/">2027년 중위소득과 생계급여 기준</a>에서
         확인하세요. 받을 수 있는 지원금 매칭은 <a href="/quick/">5분 진단</a>이 빠릅니다.
       </p>
@@ -96,9 +144,13 @@ const appSchema = {
 <style is:global>
   .calc-hero { padding: 40px 0 8px; }
   .calc-hero .title { font-size: 28px; margin: 0 0 8px; }
-  .calc-hero .lead { color: var(--text-2); line-height: 1.6; max-width: 640px; margin-bottom: 20px; }
+  .calc-hero .lead { color: var(--text-2); line-height: 1.6; max-width: 680px; margin-bottom: 20px; }
   .calc-section { margin: 32px 0; }
   .calc-section h2 { font-size: 19px; margin-bottom: 12px; }
+  .table-wrap { overflow-x: auto; }
+  .calc-section table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--surface); border-radius: var(--radius-md); overflow: hidden; }
+  .calc-section th, .calc-section td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+  .calc-section th { background: var(--surface-2); font-weight: 700; }
   .calc-note { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-top: 12px; }
   .calc-faq { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; }
   .calc-faq summary { font-weight: 600; cursor: pointer; }

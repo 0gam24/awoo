@@ -16,6 +16,16 @@ export const MEDIAN_INCOME: Record<number, number> = {
   6: 855.5952,
 };
 
+// 2027년 기준 중위소득 (만원/월, 원 단위까지 소수로) — 보건복지부고시 제2026-157호 (전년 대비 +6.70% 인상)
+export const MEDIAN_INCOME_2027: Record<number, number> = {
+  1: 273.6042,
+  2: 448.0645,
+  3: 571.8091,
+  4: 692.9885,
+  5: 806.3019,
+  6: 912.9201,
+};
+
 /** 기준 중위소득(만원 소수)을 '256만 4,238원'처럼 원 단위까지 보여 준다 */
 export const formatMedianWon = (man: number, pct = 100): string => {
   const won = Math.round(man * 10_000 * (pct / 100));

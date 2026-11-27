@@ -1,13 +1,21 @@
 import { useState } from 'react';
-import { formatMedianWon, INCOME_THRESHOLDS, MEDIAN_INCOME } from '@/data/site-data';
+import {
+  formatMedianWon,
+  INCOME_THRESHOLDS,
+  MEDIAN_INCOME,
+  MEDIAN_INCOME_2027,
+} from '@/data/site-data';
 
 const SIZES = [1, 2, 3, 4, 5, 6] as const;
+type BaseYear = '2027' | '2026';
 
 export const IncomeChecker = () => {
+  const [year, setYear] = useState<BaseYear>('2027');
   const [size, setSize] = useState<number>(1);
   const [income, setIncome] = useState<number>(250); // 만원/월
 
-  const median = MEDIAN_INCOME[size] ?? Number(MEDIAN_INCOME[1]);
+  const table = year === '2027' ? MEDIAN_INCOME_2027 : MEDIAN_INCOME;
+  const median = table[size] ?? Number(table[1]);
   const pct = Math.round((income / median) * 100);
 
   const eligible = INCOME_THRESHOLDS.filter((t) => pct <= t.pct);
@@ -24,6 +32,33 @@ export const IncomeChecker = () => {
   return (
     <div className="ic-board">
       <div className="ic-inputs">
+        <fieldset className="ic-field ic-fieldset">
+          <legend className="ic-label">적용 연도</legend>
+          <div className="ic-size-row">
+            <label className={`ic-size-btn ${year === '2027' ? 'active' : ''}`}>
+              <input
+                type="radio"
+                name="median-year"
+                value="2027"
+                checked={year === '2027'}
+                onChange={() => setYear('2027')}
+                className="sr-only"
+              />
+              2027년 (+6.7%)
+            </label>
+            <label className={`ic-size-btn ${year === '2026' ? 'active' : ''}`}>
+              <input
+                type="radio"
+                name="median-year"
+                value="2026"
+                checked={year === '2026'}
+                onChange={() => setYear('2026')}
+                className="sr-only"
+              />
+              2026년
+            </label>
+          </div>
+        </fieldset>
         <fieldset className="ic-field ic-fieldset">
           <legend className="ic-label">가구원 수</legend>
           <div className="ic-size-row">
@@ -72,7 +107,7 @@ export const IncomeChecker = () => {
             </div>
           </div>
           <div className="ic-hint">
-            {size}인 가구 중위소득 = 월 {formatMedianWon(median)} (2026년)
+            {size}인 가구 기준 중위소득 = 월 {formatMedianWon(median)} ({year}년 고시)
           </div>
         </div>
       </div>
@@ -144,7 +179,7 @@ export const IncomeChecker = () => {
 
         <div className="ic-disclaimer">
           ※ 실제 자격은 재산·부양가족·근로능력 등 추가 기준이 적용됩니다. 정확한 판정은
-          복지로(welfare.go.kr) 모의계산을 이용하세요.
+          복지로(bokjiro.go.kr) 모의계산을 이용하세요.
         </div>
       </div>
     </div>
