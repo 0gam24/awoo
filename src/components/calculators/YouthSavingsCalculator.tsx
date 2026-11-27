@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import '@/styles/calculators.css';
 
 // 청년미래적금 3년 만기 수령액 모의계산기
 // 근거: 금융위원회·서민금융진흥원 2026년 상품 안내 기준

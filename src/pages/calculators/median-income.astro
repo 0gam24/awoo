@@ -2,6 +2,7 @@
 // 중위소득 % 계산기 전용 페이지 — 홈 IncomeChecker 아일랜드 재사용 (2027년 확정 고시 반영)
 import Container from '@/components/Container.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import '@/styles/calculators.css';
 import { IncomeChecker } from '@/components/home/IncomeChecker';
 import { formatMedianWon, MEDIAN_INCOME_2027 } from '@/data/site-data';
 
@@ -140,19 +141,3 @@ const appSchema = {
     </section>
   </Container>
 </BaseLayout>
-
-<style is:global>
-  .calc-hero { padding: 40px 0 8px; }
-  .calc-hero .title { font-size: 28px; margin: 0 0 8px; }
-  .calc-hero .lead { color: var(--text-2); line-height: 1.6; max-width: 680px; margin-bottom: 20px; }
-  .calc-section { margin: 32px 0; }
-  .calc-section h2 { font-size: 19px; margin-bottom: 12px; }
-  .table-wrap { overflow-x: auto; }
-  .calc-section table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--surface); border-radius: var(--radius-md); overflow: hidden; }
-  .calc-section th, .calc-section td { padding: 11px 12px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
-  .calc-section th { background: var(--surface-2); font-weight: 700; }
-  .calc-note { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-top: 12px; }
-  .calc-faq { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; }
-  .calc-faq summary { font-weight: 600; cursor: pointer; }
-  .calc-faq p { margin: 10px 0 2px; line-height: 1.7; color: var(--text); }
-</style>

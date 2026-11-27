@@ -2,6 +2,7 @@
 // 청년미래적금 3년 만기 수령액 모의계산기 — 금융위원회·서민금융진흥원 2026년 상품 기준
 import Container from '@/components/Container.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import '@/styles/calculators.css';
 import { YouthSavingsCalculator } from '@/components/calculators/YouthSavingsCalculator';
 
 const description =
@@ -120,42 +121,3 @@ const appSchema = {
     </section>
   </Container>
 </BaseLayout>
-
-<style is:global>
-  .calc-hero { padding: 40px 0 8px; }
-  .calc-hero .title { font-size: 28px; margin: 0 0 8px; }
-  .calc-hero .lead { color: var(--text-2); line-height: 1.6; max-width: 680px; margin-bottom: 24px; }
-  .ec-board { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
-  @media (max-width: 780px) { .ec-board { grid-template-columns: 1fr; } }
-  .ec-inputs { display: flex; flex-direction: column; gap: 18px; }
-  .ec-fieldset { border: 0; padding: 0; margin: 0; }
-  .ec-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 8px; }
-  .ec-subhint { font-size: 12px; color: var(--text-2); margin: 8px 0 0; }
-  .ec-type-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .ec-type-btn { display: inline-flex; align-items: center; padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-pill); font-size: 13px; font-weight: 600; cursor: pointer; background: var(--surface-2); color: var(--text); }
-  .ec-type-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .ec-income-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .ec-income-row input[type='number'] { width: 120px; padding: 8px 12px; font-size: 16px; font-weight: 700; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); }
-  .ec-unit { font-size: 14px; color: var(--text-2); }
-  .ec-inputs input[type='range'] { width: 100%; accent-color: var(--accent); }
-  .ec-result { background: var(--surface-2); border-radius: var(--radius-md); padding: 22px; display: flex; flex-direction: column; justify-content: center; gap: 12px; }
-  .ec-zone { font-size: 13px; font-weight: 700; color: var(--accent); }
-  .ec-amount { font-size: 26px; color: var(--text); }
-  .ec-amount strong { font-size: 36px; font-weight: 800; color: var(--accent); }
-  .ec-breakdown { display: grid; gap: 8px; margin: 4px 0; padding: 12px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); font-size: 14px; }
-  .ec-breakdown > div { display: flex; justify-content: space-between; gap: 12px; }
-  .ec-breakdown dt { color: var(--text-2); }
-  .ec-breakdown dd { margin: 0; font-weight: 700; }
-  .ec-note { font-size: 12px; color: var(--text-2); line-height: 1.55; margin: 0; }
-  .calc-section { margin: 36px 0; }
-  .calc-section h2 { font-size: 20px; margin: 0 0 14px; }
-  .table-wrap { overflow-x: auto; }
-  .calc-section table { width: 100%; border-collapse: collapse; font-size: 14px; background: var(--surface); border-radius: var(--radius-md); overflow: hidden; }
-  .calc-section th, .calc-section td { padding: 12px 14px; border-bottom: 1px solid var(--border); text-align: left; }
-  .calc-section th { background: var(--surface-2); font-weight: 700; }
-  .calc-note { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-top: 12px; }
-  .calc-note a { color: var(--accent-link); font-weight: 600; }
-  .calc-faq { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 10px; }
-  .calc-faq summary { font-weight: 700; cursor: pointer; }
-  .calc-faq p { margin: 10px 0 0; font-size: 14px; color: var(--text-2); line-height: 1.65; }
-</style>

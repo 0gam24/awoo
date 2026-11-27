@@ -3,6 +3,7 @@
 // 산식: 조세특례제한법 제100조의5 (law.go.kr 원문 확인 2026-08-09)
 import Container from '@/components/Container.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import '@/styles/calculators.css';
 import { EitcCalculator } from '@/components/calculators/EitcCalculator';
 
 const description =
@@ -114,38 +115,3 @@ const appSchema = {
     </section>
   </Container>
 </BaseLayout>
-
-<style is:global>
-  .calc-hero { padding: 40px 0 8px; }
-  .calc-hero .title { font-size: 28px; margin: 0 0 8px; }
-  .calc-hero .lead { color: var(--text-2); line-height: 1.6; max-width: 640px; margin-bottom: 20px; }
-  .calc-section { margin: 32px 0; }
-  .calc-section h2 { font-size: 19px; margin-bottom: 12px; }
-  .calc-note { font-size: 14px; color: var(--text-2); line-height: 1.7; margin-top: 12px; }
-  .table-wrap { overflow-x: auto; }
-  .calc-section table { border-collapse: collapse; width: 100%; font-size: 14px; }
-  .calc-section th, .calc-section td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
-  .calc-section th { background: var(--surface-2); }
-  .calc-faq { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 8px; }
-  .calc-faq summary { font-weight: 600; cursor: pointer; }
-  .calc-faq p { margin: 10px 0 2px; line-height: 1.7; color: var(--text); }
-
-  /* EitcCalculator island (is:global 필요) */
-  .ec-board { display: grid; gap: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 22px; max-width: 720px; }
-  .ec-inputs { display: grid; gap: 16px; }
-  .ec-label { font-size: 13px; font-weight: 700; color: var(--text-2); display: block; margin-bottom: 6px; }
-  .ec-fieldset { border: 0; padding: 0; margin: 0; }
-  .ec-type-row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .ec-type-btn { padding: 8px 16px; border: 1px solid var(--border); border-radius: 999px; font-size: 14px; cursor: pointer; }
-  .ec-type-btn.active { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
-  .ec-income-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .ec-income-row input[type='number'] { width: 120px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 15px; background: var(--bg); color: var(--text); }
-  .ec-unit { font-size: 14px; color: var(--text-2); }
-  .ec-board input[type='range'] { width: 100%; accent-color: var(--accent); }
-  .ec-asset { display: flex; gap: 8px; align-items: center; font-size: 14px; color: var(--text); }
-  .ec-result { border-top: 1px solid var(--border); padding-top: 16px; }
-  .ec-zone { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
-  .ec-amount { font-size: 24px; }
-  .ec-amount strong { color: var(--text); }
-  .ec-note { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-top: 8px; }
-</style>
